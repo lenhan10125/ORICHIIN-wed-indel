@@ -35,7 +35,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* THANH CÔNG CỤ TẢI XỊN */
         .tools-bar {
             background: rgba(0, 0, 0, 0.75); padding: 12px 20px;
             display: flex; align-items: center; gap: 15px;
@@ -74,7 +73,7 @@
             </a>
             <span style="margin-left: 20px; font-size: 0.8rem; color: #aaa; letter-spacing: 1px;">YOUTUBE PLAYER & DOWNLOADER</span>
         </div>
-        <div id="live-notice" style="color: #00FF00; font-size: 0.9rem; font-weight: bold; text-shadow: 0 0 10px rgba(0,255,0,0.5);">Đang kết nối...</div>
+        <div id="live-notice" style="color: #FFD700; font-size: 0.9rem; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5);">Đang kiểm tra hệ thống...</div>
     </nav>
 
     <aside class="yt-sidebar">
@@ -85,7 +84,7 @@
 
     <div class="container">
         <div class="tools-bar">
-            <input type="text" id="target-url" class="url-input" placeholder="Dán link video YouTube vào đây để tải ngay Orichiin-san ơi...">
+            <input type="text" id="target-url" class="url-input" placeholder="Dán link từ nút Chia sẻ của YouTube vào đây...">
             <div class="btn-group">
                 <button class="btn-download" onclick="goDownload('video')">🎬 TẢI VIDEO</button>
                 <button class="btn-download btn-mp3" onclick="goDownload('audio')">🎵 TẢI MP3</button>
@@ -97,38 +96,44 @@
 
     <script>
         function goDownload(type) {
-            const videoUrl = document.getElementById('target-url').value;
+            const videoUrl = document.getElementById('target-url').value.trim();
             
-            if (!videoUrl || !videoUrl.includes('youtu')) {
-                alert("Orichiin-san hãy dán link video YouTube vào ô nhập liệu trước nhé!");
+            // Hàm kiểm tra link
+            if (!videoUrl || (!videoUrl.includes('youtube.com') && !videoUrl.includes('youtu.be'))) {
+                alert("Orichiin-san ơi, mình cần dán link YouTube thật vào ô nhập liệu nhé!");
+                return;
+            }
+
+            const videoId = extractID(videoUrl);
+            if (!videoId) {
+                alert("Link không hợp lệ, Orichiin-san hãy thử lấy link khác nhé!");
                 return;
             }
 
             let downloadService = "";
             if (type === 'video') {
-                // Chuyển hướng sang dịch vụ tải video chất lượng cao
-                downloadService = videoUrl.replace("youtube.com", "youtubepp.com");
+                // Sử dụng server X2Download cực mạnh
+                downloadService = `https://x2download.app/vi/download?q=${encodeURIComponent(videoUrl)}`;
             } else {
-                // Chuyển hướng sang dịch vụ tách nhạc mp3
-                downloadService = `https://www.y2mate.com/youtube-mp3/${extractID(videoUrl)}`;
+                // Sử dụng server chuyên MP3 ổn định
+                downloadService = `https://www.y2mate.com/youtube-mp3/${videoId}`;
             }
             
+            // Mở tab mới để tải
             window.open(downloadService, '_blank');
         }
 
-        // Hàm lấy ID video từ link
         function extractID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?)\??v?=?)([^#\&\?]*).*/;
             const match = url.match(regExp);
-            return (match && match[2].length == 11) ? match[2] : "";
+            return (match && match[7].length == 11) ? match[7] : false;
         }
 
-        // Firebase Notice Mockup
         setTimeout(() => {
             const notice = document.getElementById('live-notice');
-            notice.innerText = "Sẵn sàng phục vụ Orichiin-san!";
+            notice.innerText = "Hệ thống tải đã sẵn sàng!";
             notice.style.color = "#99CCFF";
-        }, 3000);
+        }, 2000);
     </script>
 </body>
 </html>
