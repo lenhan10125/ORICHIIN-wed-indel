@@ -7,77 +7,81 @@
     <title>ORICHIIN</title>
 
     <style>
+        /* FONTS */
         @font-face {
             font-family: 'Lato';
             src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
         }
 
         body, html {
-            margin: 0; padding: 0; height: 100%; overflow: hidden;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            background-color: #000; /* Nền đen cơ bản */
-        }
-
-        /* NỀN ẢNH TĨNH (GURA) - Chỉ hiện khi tắt video */
-        .bg-fallback {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            /* THIẾT LẬP NỀN ẢNH GURA */
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
             background-size: cover;
-            z-index: -101; /* Nằm dưới cùng */
+            overflow: hidden; /* Tránh thanh cuộn */
         }
 
-        /* VIDEO NỀN */
-        #video-bg {
-            position: fixed; right: 0; bottom: 0;
-            min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
-            z-index: -100; /* Nằm trên ảnh tĩnh */
-            object-fit: cover;
-            transition: opacity 1s;
+        /* LỚP PHỦ MỜ ĐỂ CHỮ NỔI BẬT HƠN */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2); /* Làm tối nền một chút */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .video-off #video-bg { opacity: 0; visibility: hidden; }
-
-        /* NÚT MẶT TRỜI / MẶT TRĂNG */
-        .toggle-container { position: fixed; top: 25px; right: 25px; z-index: 1000; }
-        #theme-toggle {
-            width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px; transition: 0.5s;
-            background: #ffce54; box-shadow: 0 0 15px #ffce54;
-        }
-        .video-off #theme-toggle {
-            background: #5d9cec; box-shadow: 0 0 15px #5d9cec; transform: rotate(360deg);
-        }
-
-        /* NỘI DUNG */
-        .container { height: 100vh; display: flex; align-items: center; justify-content: center; }
+        /* KHUNG NỘI DUNG */
         .content-box {
-            max-width: 600px; padding: 40px; border-radius: 25px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(15px);
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.75); /* Nền hộp đen mờ */
+            backdrop-filter: blur(15px); /* Hiệu ứng kính mờ xịn xò */
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin: 20px;
         }
-        h1 { color: #d9b8ab; margin-top: 0; }
-        a { color: #99CCFF; text-decoration: none; font-weight: bold; }
+
+        h1 {
+            color: #d9b8ab;
+            margin-top: 0;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* ĐƯỜNG LINK */
+        a {
+            color: #99CCFF;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
     </style>
 </head>
-<<body onclick="document.getElementById('video-bg').play()"> <div class="bg-fallback"></div>
+<body>
 
-    <video autoplay muted loop playsinline id="video-bg">
-        <source src="https://hentaiorc.xyz/bg.mp4" type="video/mp4">
-    </video>
-
-    <div class="toggle-container">
-        <button id="theme-toggle" onclick="event.stopPropagation(); toggleTheme()">
-            <span id="icon">☀️</span>
-        </button>
-    </div>
-
-    <div class="container">
+    <div class="overlay">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
             <p>Trang web đang trong quá trình phát triển - hiện chưa truy cập được vui lòng quay lại sau nhé!!!</p>
@@ -86,29 +90,5 @@
         </div>
     </div>
 
-    <script>
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('icon');
-            const video = document.getElementById('video-bg');
-
-            if (body.classList.contains('video-off')) {
-                body.classList.remove('video-off');
-                video.play();
-                icon.innerHTML = "☀️";
-            } else {
-                body.classList.add('video-off');
-                video.pause();
-                icon.innerHTML = "🌙";
-            }
-        }
-
-        window.onload = function() {
-            var video = document.getElementById('video-bg');
-            video.load();
-            video.play().catch(function(error) {
-                console.log("Chờ người dùng click để phát video...");
-            });
-        };
-    </script>
 </body>
+</html>
