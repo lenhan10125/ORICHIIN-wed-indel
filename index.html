@@ -26,14 +26,74 @@
             overflow: hidden;
         }
 
-        /* --- PHẦN CSS CHO LOADING SCREEN --- */
+        /* --- PHẦN CSS YT COMPONENTS MỚI THÊM --- */
+        :root {
+            --yt-bg: rgba(15, 15, 15, 0.85);
+            --yt-border: rgba(255, 255, 255, 0.1);
+        }
+
+        .yt-header {
+            position: fixed;
+            top: 0; width: 100%; height: 56px;
+            background: var(--yt-bg);
+            backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+
+        .icon-btn {
+            background: transparent; border: none; cursor: pointer;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); }
+        .icon-btn svg { width: 24px; height: 24px; }
+
+        .header-center { flex: 0 1 720px; margin: 0 15px; }
+        .search-container {
+            display: flex; background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--yt-border); border-radius: 40px;
+            overflow: hidden; padding-left: 20px;
+        }
+        .search-input {
+            flex: 1; background: transparent; border: none;
+            color: white; outline: none; font-size: 14px; height: 40px;
+        }
+        .search-btn {
+            background: rgba(255,255,255,0.1); border: none;
+            width: 64px; height: 40px; border-left: 1px solid var(--yt-border);
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 32px; height: 32px; background: #99CCFF;
+            border-radius: 50%; color: #000; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        .yt-sidebar {
+            position: fixed; left: 0; top: 56px; width: 240px; height: calc(100% - 56px);
+            background: var(--yt-bg); backdrop-filter: blur(10px);
+            padding: 12px; z-index: 999; box-sizing: border-box;
+            border-right: 1px solid var(--yt-border);
+        }
+        .sidebar-item {
+            padding: 10px 24px; border-radius: 10px; cursor: pointer;
+            font-size: 14px; transition: 0.2s; margin-bottom: 2px;
+        }
+        .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
+
+        /* --- PHẦN CSS CHO LOADING SCREEN (GIỮ NGUYÊN) --- */
         #loader-wrapper {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #78c7d7; /* Nền đen tuyền để che ảnh nền Gura lúc đang load */
+            background: #78c7d7; 
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -42,18 +102,16 @@
             transition: opacity 0.8s ease, visibility 0.8s;
         }
 
-        /* PHẦN ẢNH MỚI THÊM VÀO */
         .loader-top-img {
-            width: 360px; /* Orichiin tự thay đổi kích thước nếu cần */
+            width: 360px; 
             height: auto;
             margin-bottom: 20px;
         }
 
-        /* Icon loading (Bạn có thể thay link ảnh icon khác ở dưới) */
         .loader-icon {
             width: 80px; 
             height: auto;
-            animation: spin 2s linear infinite; /* Cho nó xoay tròn */
+            animation: spin 2s linear infinite;
         }
 
         @keyframes spin {
@@ -65,8 +123,8 @@
             opacity: 0;
             visibility: hidden;
         }
-        /* ---------------------------------- */
 
+        /* --- CONTAINER CHÍNH --- */
         .container {
             height: 100vh;
             display: flex;
@@ -75,6 +133,7 @@
             background: rgba(0, 0, 0, 0.2);
             opacity: 0; 
             transition: opacity 1s ease-in;
+            padding-left: 240px; /* Bù trừ khoảng trống cho sidebar */
         }
 
         .container.show {
@@ -93,40 +152,55 @@
             margin: 20px;
         }
 
-        h1 {
-            color: #d9b8ab;
-            margin-top: 0;
-            font-size: 2.5em;
-            text-shadow: 0 0.05em rgba(0,0,0,.8) !important;
-        }
-
-        p {
-            line-height: 1.6;
-            font-size: 1.1em;
-            text-shadow: 0 0.05em rgba(0,0,0,.8) !important;
-        }
-
-        a {
-            color: #99CCFF;
-            text-decoration: none;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        a:hover {
-            color: #ffffff;
-            text-decoration: underline;
-        }
+        h1 { color: #d9b8ab; margin-top: 0; font-size: 2.5em; text-shadow: 0 0.05em rgba(0,0,0,.8) !important; }
+        p { line-height: 1.6; font-size: 1.1em; text-shadow: 0 0.05em rgba(0,0,0,.8) !important; }
+        a { color: #99CCFF; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        a:hover { color: #ffffff; text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <div id="loader-wrapper">
         <img src="ORC.png" alt="Logo" class="loader-top-img">
-        
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." class="loader-icon">
         <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
     </div>
+
+    <nav class="yt-header">
+        <div class="header-left">
+            <button class="icon-btn" id="menu-toggle">
+                <svg viewBox="0 0 24 24"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z" fill="white"></path></svg>
+            </button>
+            <div class="logo">
+                <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">ORICHIIN</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" placeholder="Tìm kiếm..." class="search-input">
+                <button class="search-btn">
+                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" fill="white"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="icon-btn" title="Cài đặt">
+                <svg viewBox="0 0 24 24"><path d="M12 9.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-1c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zM13.22 3l.55 2.06.13.51.5.15c.53.15 1.03.38 1.5.67l.47.3.52-.11 2.06-.45 1.46 2.47-1.53 1.54-.4.4.08.54c.05.35.07.71.07 1.07s-.02.72-.07 1.07l-.08.54.4.4 1.53 1.54-1.46 2.47-2.06-.45-.52-.11-.47.3c-.47.29-.97.52-1.5.67l-.5.15-.13.51-.55 2.06h-2.44l-.55-2.06-.13-.51-.5-.15c-.53-.15-1.03-.38-1.5-.67l-.47-.3-.52.11-2.06.45-1.46-2.47 1.53-1.54.4-.4-.08-.54c-.05-.35-.07-.72-.07-1.07s.02-.72.07-1.07l.08-.54-.4-.4-1.53-1.54 1.46-2.47 2.06.45.52.11.47-.3c.47-.29.97-.52 1.5-.67l.5-.15.13-.51.55-2.06h2.44m.6-1h-3.64l-.74 2.78c-.64.19-1.23.49-1.77.88l-2.77-.61-1.82 3.15 2.06 2.08c-.05.33-.1.68-.1 1.03s.05.7.1 1.03l-2.06 2.08 1.82 3.15 2.77-.61c.54.39 1.13.69 1.77.88l.74 2.78h3.64l.74-2.78c.64-.19 1.23-.49 1.77-.88l2.77.61 1.82-3.15-2.06-2.08c.05-.33.1-.68.1-1.03s-.05-.7-.1-1.03l2.06-2.08-1.82-3.15-2.77.61c-.54-.39-1.13-.69-1.77-.88L13.82 2z" fill="white"></path></svg>
+            </button>
+            <div class="user-avatar">O</div>
+        </div>
+    </nav>
+
+    <aside class="yt-sidebar" id="sidebar">
+        <div class="sidebar-item active">Trang chủ</div>
+        <div class="sidebar-item">Shorts</div>
+        <div class="sidebar-item">Kênh đăng ký</div>
+        <hr style="border: 0.5px solid rgba(255,255,255,0.1); width: 100%;">
+        <div class="sidebar-item">Thư viện</div>
+        <div class="sidebar-item">Lịch sử</div>
+    </aside>
 
     <div class="container" id="main-content">
         <div class="content-box">
@@ -145,7 +219,7 @@
             setTimeout(() => {
                 loader.classList.add("loader-hidden");
                 content.classList.add("show");
-            }, 5000); // Đợi 5s cho mượt
+            }, 5000); // GIỮ NGUYÊN 5s theo code Orichiin
         });
     </script>
 
