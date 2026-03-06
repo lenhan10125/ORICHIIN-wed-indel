@@ -17,6 +17,7 @@
     <meta name="theme-color" content="#382922">
 
     <style>
+        /* FONTS */
         @font-face {
             font-family: 'Lato';
             src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
@@ -25,27 +26,45 @@
             font-family: 'Lusitana';
             src: url(https://img1.wsimg.com/gfonts/s/lusitana/v14/CSR84z9ShvucWzsMKyhdTOI.woff2) format('woff2');
         }
-        
-        body {
+
+        /* CUSTOM CSS INTEGRATION */
+        html, body {
+            background: url(https://images.alphacoders.com/110/1103226.png) fixed #000 !important;
+            background-size: cover !important;
             font-family: 'Lato', sans-serif;
-            background-color: #382922; /* Màu nền nâu tối theo theme của bạn */
-            color: #f7f7f7;
+            color: #FFFFFF !important;
             margin: 0;
             padding: 20px;
             line-height: 1.6;
+        }
+
+        /* Hiệu ứng đổ bóng chữ đặc trưng từ code bạn gửi */
+        :not(textarea):not(input):not([contenteditable]) {
+            text-shadow: 0 0.05em rgba(0,0,0,.5), 0 -0.05em rgba(0,0,0,.5), 0.05em 0 rgba(0,0,0,.5), -0.05em 0 rgba(0,0,0,.5) !important;
         }
 
         h1 {
             font-family: 'Lusitana', serif;
             color: #d9b8ab;
             text-align: center;
+            margin-top: 50px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             text-align: center;
+            background-color: rgba(0, 0, 0, 0.6) !important; /* Làm nền mờ để dễ đọc chữ trên ảnh nền */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: inset 0px 0px 0px 1px rgba(255,255,255,.5) !important;
         }
+
+        /* Màu liên kết */
+        a:link { color: #99CCFF !important; text-decoration: none; }
+        a:visited { color: #CC99FF !important; }
+        a:hover { text-decoration: underline; }
+
     </style>
 </head>
 <body>
@@ -53,8 +72,8 @@
     <div class="container">
         <h1>Welcome to ORICHIIN STUDIO</h1>
         <p>Trang web đang trong quá trình phát triển thuần code.</p>
-        <p>Link Phụ "tạm thời": <a href="https://hentaiorc.xyz" style="color: #d9b8ab;">ORC-STUDIO</a></p>
-        <p>Liên hệ tại: <a href="mailto:orichiincompany@gmail.com" style="color: #d9b8ab;">orichiincompany@gmail.com</a></p>
+        <p>Link Phụ "tạm thời": <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
+        <p>Liên hệ tại: <a href="mailto:orichiincompany@gmail.com">orichiincompany@gmail.com</a></p>
     </div>
 
 </body>
