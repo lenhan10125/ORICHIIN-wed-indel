@@ -3,130 +3,90 @@
 <head>
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORICHIIN - KHTN KHỐI 9</title>
 
     <style>
-        /* FONTS */
         @font-face {
             font-family: 'Lato';
             src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
         }
-        @font-face {
-            font-family: 'Lusitana';
-            src: url(https://img1.wsimg.com/gfonts/s/lusitana/v14/CSR84z9ShvucWzsMKyhdTOI.woff2) format('woff2');
-        }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
+            margin: 0; padding: 0; height: 100%; overflow: hidden;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            /* NỀN GURA DỰ PHÒNG */
+            /* NỀN GURA MẶC ĐỊNH */
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed !important;
             background-size: cover !important;
-            transition: 0.5s;
         }
 
+        /* VIDEO NỀN */
         #video-bg {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
+            position: fixed; right: 0; bottom: 0;
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
             z-index: -100;
             object-fit: cover;
-            background: #000;
-            transition: opacity 0.8s ease;
+            transition: opacity 1s;
         }
 
-        /* Khi tắt video */
-        .video-off #video-bg {
-            opacity: 0;
-            visibility: hidden;
-        }
+        .video-off #video-bg { opacity: 0; visibility: hidden; }
 
-        /* NÚT BẬT TẮT XỊN XÒ */
-        .toggle-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
+        /* NÚT MẶT TRỜI / MẶT TRĂNG XỊN */
+        .toggle-container { position: fixed; top: 25px; right: 25px; z-index: 1000; }
 
         #theme-toggle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            background: orange; /* Mặc định là Mặt trời */
+            width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; transition: 0.5s;
+            background: #ffce54; /* Màu nắng */
+            box-shadow: 0 0 15px #ffce54;
         }
 
-        /* Trạng thái Mặt Trăng */
         .video-off #theme-toggle {
-            background: #2c3e50;
+            background: #5d9cec; /* Màu đêm */
+            box-shadow: 0 0 15px #5d9cec;
             transform: rotate(360deg);
-            box-shadow: 0 0 20px rgba(0, 162, 255, 0.5);
         }
 
         /* NỘI DUNG */
         .container {
-            position: relative;
-            z-index: 1;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 100vh; display: flex; align-items: center; justify-content: center;
         }
 
         .content-box {
-            max-width: 800px;
-            background-color: rgba(0, 0, 0, 0.8) !important; 
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: inset 0px 0px 0px 1px rgba(255,255,255,.3) !important;
+            max-width: 600px; padding: 40px; border-radius: 25px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        h1 { font-family: 'Lusitana', serif; color: #d9b8ab; font-size: 2.5em; }
-        a:link { color: #99CCFF !important; text-decoration: none; }
-        :not(textarea):not(input):not([contenteditable]) {
-            text-shadow: 0 0.05em rgba(0,0,0,.8) !important;
-        }
+        h1 { color: #d9b8ab; margin-top: 0; }
+        a { color: #99CCFF; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
-<body class="">
+<body>
 
     <video autoplay muted loop playsinline id="video-bg">
         <source src="VDBACKGROUND.mp4" type="video/mp4">
     </video>
 
     <div class="toggle-container">
-        <button id="theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ">
+        <button id="theme-toggle" onclick="toggleTheme()">
             <span id="icon">☀️</span>
         </button>
     </div>
 
     <div class="container">
         <div class="content-box">
-            <h1>Welcome to ORICHIIN STUDIO</h1>
+            <h1>ORICHIIN STUDIO</h1>
             <p>Trang web đang trong quá trình phát triển - hiện chưa truy cập được vui lòng quay lại sau nhé!!!</p>
-            <p>Link Phụ "tạm thời": <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
-            <p>Liên hệ tại: <a href="mailto:orichiincompany@gmail.com">orichiincompany@gmail.com</a></p>
-            <p>Link Youtube: <a href="https://www.youtube.com/@ORIICHIN">@ORIICHIN</a></p>
+            <p>Dự án chính: <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
+            <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank">@ORIICHIN</a></p>
         </div>
     </div>
 
@@ -138,7 +98,7 @@
 
             if (body.classList.contains('video-off')) {
                 body.classList.remove('video-off');
-                video.play();
+                video.play().catch(e => console.log("Video chờ load..."));
                 icon.innerHTML = "☀️";
             } else {
                 body.classList.add('video-off');
@@ -146,7 +106,13 @@
                 icon.innerHTML = "🌙";
             }
         }
-    </script>
 
+        // Tự động chạy lại video nếu bị trình duyệt chặn lúc đầu
+        window.addEventListener('load', () => {
+            document.getElementById('video-bg').play().catch(() => {
+                console.log("Trình duyệt chặn tự động phát, hãy nhấn nút Mặt Trời.");
+            });
+        });
+    </script>
 </body>
 </html>
