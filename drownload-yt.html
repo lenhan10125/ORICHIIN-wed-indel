@@ -4,123 +4,174 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORICHIIN - LIVE YOUTUBE</title>
+    <title>ORICHIIN PURE - GAWR GURA EDITION</title>
     <style>
-        /* PHONG CÁCH GAWR GURA CỦA ORICHIIN-SAN */
+        :root {
+            --gura-blue: #99CCFF;
+            --gura-dark: #0a0e14;
+            --gura-accent: #3399FF;
+        }
+
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: 'Lato', sans-serif;
+            background: var(--gura-dark);
+            color: white; font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND MỜ ẢO */
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
-            background-size: cover; overflow: hidden;
+            background-size: cover; filter: blur(5px) brightness(0.4);
+            z-index: -1;
         }
 
-        .yt-header {
-            position: fixed; top: 0; width: 100%; height: 56px;
-            background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; z-index: 1000; box-sizing: border-box;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* HEADER KIỂU PURE */
+        .pure-nav {
+            height: 60px; background: rgba(0, 0, 0, 0.7);
+            display: flex; align-items: center; padding: 0 20px;
+            border-bottom: 2px solid var(--gura-blue);
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .yt-sidebar {
-            position: fixed; left: 0; top: 56px; width: 72px; height: calc(100% - 56px);
-            background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(10px);
-            z-index: 999; border-right: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex; flex-direction: column; align-items: center; padding-top: 20px;
+        .search-container {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            gap: 10px;
         }
 
-        .container {
-            position: absolute; top: 56px; left: 72px;
-            right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3);
-            display: flex; flex-direction: column;
+        .pure-input {
+            width: 60%; background: rgba(255,255,255,0.1);
+            border: 1px solid var(--gura-blue); border-radius: 20px;
+            padding: 10px 20px; color: white; outline: none;
         }
 
-        .tools-bar {
-            background: rgba(0, 0, 0, 0.75); padding: 12px 20px;
-            display: flex; align-items: center; gap: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
+        /* KHUNG PHÁT VIDEO TRUNG TÂM */
+        .main-stage {
+            max-width: 1100px; margin: 20px auto;
+            background: rgba(0,0,0,0.8); border-radius: 15px;
+            overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
-        
-        .url-input {
-            flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(153, 204, 255, 0.3);
-            padding: 10px 15px; border-radius: 20px; color: #99CCFF; font-size: 13px;
-            outline: none; transition: 0.3s;
-        }
-        .url-input:focus { border-color: #99CCFF; background: rgba(255,255,255,0.15); }
 
-        .btn-group { display: flex; gap: 10px; }
+        .video-box {
+            position: relative; width: 100%; padding-top: 56.25%; /* Ratio 16:9 */
+            background: #000;
+        }
+
+        .video-box iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+        }
+
+        /* THANH CÔNG CỤ TẢI VỀ PURE */
+        .action-bar {
+            padding: 15px 20px; display: flex; align-items: center;
+            justify-content: space-between; background: rgba(255,255,255,0.05);
+        }
+
+        .video-title { font-weight: bold; color: var(--gura-blue); font-size: 1.1rem; }
 
         .btn-download {
-            background: #CC0000; color: white; border: none;
-            padding: 10px 20px; border-radius: 20px; cursor: pointer;
-            font-weight: bold; transition: 0.3s; font-size: 13px;
-            display: flex; align-items: center; gap: 5px;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white; border: none; padding: 10px 25px;
+            border-radius: 25px; cursor: pointer; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
         }
-        .btn-download:hover { background: #FF0000; transform: scale(1.05); }
-        .btn-mp3 { background: #333; }
-        .btn-mp3:hover { background: #444; }
 
-        #youtube-frame { width: 100%; height: 100%; border: none; background: black; }
+        .btn-download:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,114,255,0.4); }
+
+        .btn-download i { font-size: 1.2rem; }
+
+        /* DANH SÁCH GỢI Ý */
+        .suggestions {
+            max-width: 1100px; margin: 20px auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px; padding: 0 10px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05); border-radius: 10px;
+            padding: 10px; cursor: pointer; transition: 0.3s;
+        }
+        .card:hover { background: rgba(153, 204, 255, 0.2); }
+        .card img { width: 100%; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <nav class="yt-header">
-        <div style="display: flex; align-items: center;">
-            <a href="https://hentaiorc.xyz" style="text-decoration: none;">
-                <span style="color: #99CCFF; font-weight: bold; font-size: 1.2rem;">ORICHIIN STUDIO</span>
-            </a>
-            <span style="margin-left: 20px; font-size: 0.8rem; color: #aaa; letter-spacing: 1px;">YOUTUBE PLAYER & DOWNLOADER</span>
+    <div class="bg-overlay"></div>
+
+    <nav class="pure-nav">
+        <div style="font-weight: bold; color: var(--gura-blue);">ORICHIIN PURE 🦈</div>
+        <div class="search-container">
+            <input type="text" id="search-input" class="pure-input" placeholder="Dán link YouTube hoặc tìm kiếm...">
+            <button onclick="updatePlayer()" style="background: none; border: none; color: var(--gura-blue); cursor: pointer; font-size: 1.5rem;">🔍</button>
         </div>
-        <div id="live-notice" style="color: #FFD700; font-size: 0.9rem; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5);">Đang kiểm tra hệ thống...</div>
     </nav>
 
-    <aside class="yt-sidebar">
-        <div title="Trang chủ" style="margin-bottom: 30px; cursor: pointer; font-size: 20px;">🏠</div>
-        <div title="Xu hướng" style="margin-bottom: 30px; cursor: pointer; font-size: 20px;">🔥</div>
-        <div title="Nhạc" style="margin-bottom: 30px; cursor: pointer; font-size: 20px;">🎵</div>
-    </aside>
-
-    <div class="container">
-        <div class="tools-bar">
-            <input type="text" id="target-url" class="url-input" placeholder="Dán link từ nút Chia sẻ của YouTube vào đây...">
-            <div class="btn-group">
-                <button class="btn-download" onclick="goDownload('video')">🎬 TẢI VIDEO</button>
-                <button class="btn-download btn-mp3" onclick="goDownload('audio')">🎵 TẢI MP3</button>
-            </div>
+    <div class="main-stage">
+        <div class="video-box">
+            <iframe id="main-player" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLw-VjHDlEOgs658kAHR_LAHi0wF-6YfRL" allowfullscreen></iframe>
         </div>
         
-        <iframe id="youtube-frame" src="https://www.youtube.com/embed?listType=search&list=trending+music+vietnam" allowfullscreen></iframe>
+        <div class="action-bar">
+            <div>
+                <div class="video-title" id="display-title">Đang phát: Danh sách thịnh hành</div>
+                <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Hệ thống Orichiin Pure đã sẵn sàng.</div>
+            </div>
+            <button class="btn-download" onclick="startDownload()">
+                <span>📥 TẢI VỀ (PURE)</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="suggestions">
+        <div class="card" onclick="loadByVideoId('dQw4w9WgXcQ')">
+            <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg">
+            <p style="font-size: 0.8rem;">Never Gonna Give You Up</p>
+        </div>
+        <div class="card" onclick="loadByVideoId('5X77P-uY-eA')">
+            <img src="https://img.youtube.com/vi/5X77P-uY-eA/mqdefault.jpg">
+            <p style="font-size: 0.8rem;">Gawr Gura Lo-fi</p>
+        </div>
     </div>
 
     <script>
-        function goDownload(type) {
-            const videoUrl = document.getElementById('target-url').value.trim();
-            
-            // Hàm kiểm tra link
-            if (!videoUrl || (!videoUrl.includes('youtube.com') && !videoUrl.includes('youtu.be'))) {
-                alert("Orichiin-san ơi, mình cần dán link YouTube thật vào ô nhập liệu nhé!");
-                return;
-            }
+        let currentVideoUrl = "";
 
-            const videoId = extractID(videoUrl);
-            if (!videoId) {
-                alert("Link không hợp lệ, Orichiin-san hãy thử lấy link khác nhé!");
-                return;
-            }
+        function updatePlayer() {
+            const input = document.getElementById('search-input').value.trim();
+            const player = document.getElementById('main-player');
+            const title = document.getElementById('display-title');
 
-            let downloadService = "";
-            if (type === 'video') {
-                // Sử dụng server X2Download cực mạnh
-                downloadService = `https://x2download.app/vi/download?q=${encodeURIComponent(videoUrl)}`;
+            if (input.includes('youtu')) {
+                const id = extractID(input);
+                if (id) {
+                    currentVideoUrl = input;
+                    player.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&showinfo=0`;
+                    title.innerText = "Đang phát video: " + id;
+                }
             } else {
-                // Sử dụng server chuyên MP3 ổn định
-                downloadService = `https://www.y2mate.com/youtube-mp3/${videoId}`;
+                alert("Orichiin-san dán link YouTube vào để Gem xử lý nhé!");
             }
-            
-            // Mở tab mới để tải
-            window.open(downloadService, '_blank');
+        }
+
+        function loadByVideoId(id) {
+            const player = document.getElementById('main-player');
+            currentVideoUrl = `https://www.youtube.com/watch?v=${id}`;
+            player.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+            document.getElementById('display-title').innerText = "Đang phát video: " + id;
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function startDownload() {
+            if (!currentVideoUrl) {
+                alert("Orichiin-san hãy chọn một video để tải nhé!");
+                return;
+            }
+            // Engine Pure Download
+            const dlUrl = currentVideoUrl.replace("youtube.com", "ssyoutube.com").replace("youtu.be/", "ssyoutube.com/watch?v=");
+            window.open(dlUrl, '_blank');
         }
 
         function extractID(url) {
@@ -128,12 +179,6 @@
             const match = url.match(regExp);
             return (match && match[7].length == 11) ? match[7] : false;
         }
-
-        setTimeout(() => {
-            const notice = document.getElementById('live-notice');
-            notice.innerText = "Hệ thống tải đã sẵn sàng!";
-            notice.style.color = "#99CCFF";
-        }, 2000);
     </script>
 </body>
 </html>
