@@ -169,9 +169,19 @@
                 alert("Orichiin-san hãy chọn một video để tải nhé!");
                 return;
             }
-            // Engine Pure Download
-            const dlUrl = currentVideoUrl.replace("youtube.com", "ssyoutube.com").replace("youtu.be/", "ssyoutube.com/watch?v=");
-            window.open(dlUrl, '_blank');
+            
+            // Lựa chọn bộ máy tải về để tránh bị chặn và hỗ trợ 1080p/4K
+            const choice = confirm("Orichiin-san muốn chọn chất lượng nào?\n\n- Nhấn OK: Tải chất lượng cao 1080p/4K (Cobalt engine)\n- Nhấn Cancel: Tải nhanh (SaveFrom engine)");
+
+            if (choice) {
+                // Cobalt engine: Sạch, hỗ trợ cao, không bị chặn bởi file local
+                window.open(`https://cobalt.tools/`, '_blank');
+            } else {
+                // SaveFrom engine: Đã mã hóa URL để tránh bị lỗi "Blocked" khi chạy file từ ổ đĩa
+                const cleanUrl = currentVideoUrl.split('&')[0];
+                const dlUrl = `https://en1.savefrom.net/11Ox/sf?url=${encodeURIComponent(cleanUrl)}`;
+                window.open(dlUrl, '_blank');
+            }
         }
 
         function extractID(url) {
