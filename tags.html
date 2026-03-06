@@ -19,9 +19,22 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // BIẾN KIỂM TRA TỰ ĐỘNG TẢI LẠI TRANG
+        let lastReloadKey = null;
+
         onSnapshot(doc(db, "settings", "notice"), (doc) => {
             if (doc.exists()) {
-                document.getElementById('live-notice').innerText = doc.data().content;
+                const data = doc.data();
+                
+                // Cập nhật thông báo trực tiếp
+                document.getElementById('live-notice').innerText = data.content;
+
+                // TÍNH NĂNG MỚI: Kiểm tra reloadTrigger để tải lại trang
+                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
+                    location.reload(); 
+                }
+                lastReloadKey = data.reloadTrigger;
             }
         });
     </script>

@@ -19,9 +19,25 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Biến lưu trạng thái reload
+        let lastReloadKey = null;
+
         onSnapshot(doc(db, "settings", "notice"), (doc) => {
             if (doc.exists()) {
-                document.getElementById('live-notice').innerText = doc.data().content;
+                const data = doc.data();
+                
+                // Cập nhật nội dung thông báo
+                document.getElementById('live-notice').innerText = data.content;
+
+                // TỰ ĐỘNG TẢI LẠI TRANG
+                // Nếu đây không phải lần đầu tải trang và mã reload đã thay đổi
+                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
+                    location.reload(); 
+                }
+                
+                // Lưu lại mã hiện tại
+                lastReloadKey = data.reloadTrigger;
             }
         });
     </script>
@@ -111,7 +127,7 @@
             font-size: 14px; transition: 0.2s; margin-bottom: 2px;
             display: flex; align-items: center;
             white-space: nowrap;
-            color: white; /* Đảm bảo màu chữ luôn trắng */
+            color: white; 
         }
         .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
         
@@ -153,7 +169,6 @@
         a { color: #99CCFF; text-decoration: none; font-weight: bold; transition: 0.3s; }
         a:hover { color: #ffffff; text-decoration: underline; }
 
-        /* Style để link trong sidebar không bị đổi màu hay gạch chân */
         .sidebar-link {
             text-decoration: none !important;
             color: inherit !important;

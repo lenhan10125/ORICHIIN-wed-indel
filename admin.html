@@ -8,7 +8,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Cấu hình từ hình ảnh Orichiin cung cấp
         const firebaseConfig = {
             apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
             authDomain: "admin-bd0ff.firebaseapp.com",
@@ -26,19 +25,23 @@
             const content = document.getElementById('noticeInput').value;
             const btn = document.getElementById('saveBtn');
 
-            // Mật khẩu mặc định là: orichiin2026 (Bạn có thể đổi ở đây)
+            // Mật khẩu của Orichiin-san
             if (pass !== "orichiin2026") return alert("Sai mật khẩu rồi Orichiin-san ơi!");
             if (!content) return alert("Chưa nhập nội dung thông báo nè!");
 
             btn.disabled = true;
-            btn.innerText = "ĐANG ĐẨY DỮ LIỆU...";
+            btn.innerText = "ĐANG ĐẨY DỮ LIỆU & REFRESH WEB...";
 
             try {
+                // Tạo một mã ngẫu nhiên để kích hoạt reload ở các máy khác
+                const reloadKey = Math.random().toString(36).substring(7);
+
                 await setDoc(doc(db, "settings", "notice"), { 
                     content: content,
-                    timestamp: new Date().getTime() 
+                    timestamp: new Date().getTime(),
+                    reloadTrigger: reloadKey // Dòng này cực kỳ quan trọng để các web khác tự F5
                 });
-                alert("Cập nhật thông báo thành công!");
+                alert("Cập nhật thành công! Tất cả các trang đang mở sẽ tự tải lại.");
             } catch (e) {
                 alert("Lỗi kết nối Firebase: " + e.message);
             } finally {
@@ -51,9 +54,11 @@
         body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: #151515; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h2 { color: #99CCFF; text-align: center; margin-bottom: 25px; }
-        input, textarea { width: 100%; background: #202020; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        input, textarea { width: 100%; background: #202020; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus, textarea:focus { border-color: #99CCFF; }
         button { width: 100%; background: #99CCFF; color: black; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: white; transform: translateY(-2px); }
+        button:disabled { background: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -62,7 +67,7 @@
         <input type="password" id="adminPass" placeholder="Nhập mật khẩu Admin...">
         <textarea id="noticeInput" rows="4" placeholder="Nhập nội dung thông báo mới..."></textarea>
         <button id="saveBtn" onclick="saveNotice()">CẬP NHẬT NGAY</button>
-        <p style="text-align: center;"><a href="/chat-server" style="color: #555; text-decoration: none; font-size: 0.8rem;">Quay lại trang Chat</a></p>
+        <p style="text-align: center;"><a href="index.html" style="color: #555; text-decoration: none; font-size: 0.8rem;">Quay lại Trang chủ</a></p>
     </div>
 </body>
 </html>
