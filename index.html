@@ -20,32 +20,28 @@
             width: 100%;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            /* THIẾT LẬP NỀN ẢNH GURA */
+            /* THIẾT LẬP NỀN ẢNH GURA CỐ ĐỊNH */
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
             background-size: cover;
-            overflow: hidden; /* Tránh thanh cuộn */
+            overflow: hidden;
         }
 
-        /* LỚP PHỦ MỜ ĐỂ CHỮ NỔI BẬT HƠN */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.2); /* Làm tối nền một chút */
+        /* KHUNG CHỨA TOÀN BỘ ĐỂ CĂN GIỮA */
+        .container {
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: rgba(0, 0, 0, 0.2); /* Lớp phủ rất nhẹ cho toàn bộ nền */
         }
 
-        /* KHUNG NỘI DUNG */
+        /* KHUNG NỘI DUNG (CONTENT BOX) THEO Ý BẠN */
         .content-box {
             max-width: 600px;
             padding: 40px;
             border-radius: 25px;
-            background: rgba(0, 0, 0, 0.75); /* Nền hộp đen mờ */
-            backdrop-filter: blur(15px); /* Hiệu ứng kính mờ xịn xò */
+            background: rgba(0, 0, 0, 0.75); /* Nền tối mờ */
+            backdrop-filter: blur(15px); /* Hiệu ứng làm mờ nền phía sau */
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
@@ -56,16 +52,16 @@
             color: #d9b8ab;
             margin-top: 0;
             font-size: 2.5em;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 0.05em rgba(0,0,0,.8) !important;
         }
 
         p {
-            font-size: 1.1em;
             line-height: 1.6;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-size: 1.1em;
+            text-shadow: 0 0.05em rgba(0,0,0,.8) !important;
         }
 
-        /* ĐƯỜNG LINK */
+        /* MÀU LIÊN KẾT */
         a {
             color: #99CCFF;
             text-decoration: none;
@@ -81,7 +77,7 @@
 </head>
 <body>
 
-    <div class="overlay">
+    <div class="container">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
             <p>Trang web đang trong quá trình phát triển - hiện chưa truy cập được vui lòng quay lại sau nhé!!!</p>
