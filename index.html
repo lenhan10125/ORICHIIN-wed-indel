@@ -74,12 +74,20 @@
             align-items: center; justify-content: center; font-weight: bold;
         }
 
+        /* --- ĐÃ THÊM TRANSITION CHO SIDEBAR --- */
         .yt-sidebar {
             position: fixed; left: 0; top: 56px; width: 240px; height: calc(100% - 56px);
             background: var(--yt-bg); backdrop-filter: blur(10px);
             padding: 12px; z-index: 999; box-sizing: border-box;
             border-right: 1px solid var(--yt-border);
+            transition: transform 0.3s ease; /* Hiệu ứng trượt */
         }
+
+        /* Class để đóng menu */
+        .yt-sidebar.closed {
+            transform: translateX(-240px);
+        }
+
         .sidebar-item {
             padding: 10px 24px; border-radius: 10px; cursor: pointer;
             font-size: 14px; transition: 0.2s; margin-bottom: 2px;
@@ -93,7 +101,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #2c8b8f; /* Đổi sang đen để nổi bật thanh neon xanh lục */
+            background: #2c8b8f; 
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -108,7 +116,6 @@
             margin-bottom: 20px;
         }
 
-        /* --- CSS THANH LOADING NEON GIỐNG ẢNH --- */
         .neon-loading-container { width: 320px; margin: 10px 0; font-family: sans-serif; }
         .neon-text-row { 
             display: flex; justify-content: space-between; 
@@ -141,7 +148,7 @@
             visibility: hidden;
         }
 
-        /* --- CONTAINER CHÍNH --- */
+        /* --- CONTAINER CHÍNH (ĐÃ THÊM TRANSITION) --- */
         .container {
             height: 100vh;
             display: flex;
@@ -149,8 +156,13 @@
             justify-content: center;
             background: rgba(0, 0, 0, 0.2);
             opacity: 0; 
-            transition: opacity 1s ease-in;
-            padding-left: 240px; /* Bù trừ khoảng trống cho sidebar */
+            transition: opacity 1s ease-in, padding-left 0.3s ease; /* Hiệu ứng mượt khi menu đóng */
+            padding-left: 240px; 
+        }
+
+        /* Class để tràn màn hình khi menu đóng */
+        .container.full-width {
+            padding-left: 0 !important;
         }
 
         .container.show {
@@ -228,12 +240,12 @@
         <div class="sidebar-item">không khả dụng</div>
         <hr style="border: 0.5px solid rgba(255,255,255,0.1); width: 100%;">
         <div class="sidebar-item">Thư viện</div>
-        <div class="sidebar-item">không khả dụng</div> // lịch sử tìm kiếm
+        <div class="sidebar-item">không khả dụng</div> /* lịch sử tìm kiếm */
     </aside>
 
     <div class="container" id="main-content">
         <div class="content-box">
-            <h1>[Notice] by ORICHIIN STUDIO</h1>
+            <h1>ORICHIIN STUDIO</h1>
             <p>Trang web đang trong quá trình phát triển - hiện chưa truy cập được vui lòng quay lại sau nhé!!!</p>
             <p>Dự án chính: <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
             <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank">@ORIICHIN</a></p>
@@ -241,13 +253,21 @@
     </div>
 
     <script>
+        // LOGIC CHO THANH MENU
+        document.getElementById("menu-toggle").addEventListener("click", function() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+            sidebar.classList.toggle("closed");
+            mainContent.classList.toggle("full-width");
+        });
+
+        // LOGIC CHO LOADING (GIỮ NGUYÊN)
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
             const fill = document.getElementById("load-fill");
             const val = document.getElementById("load-val");
 
-            // --- QUẢN LÝ THỜI GIAN TẠI ĐÂY (ms) ---
             const totalTime = 5000; 
 
             let start = null;
@@ -262,7 +282,6 @@
                 if (progress < totalTime) {
                     window.requestAnimationFrame(step);
                 } else {
-                    // Khi hoàn thành 100%
                     setTimeout(() => {
                         loader.classList.add("loader-hidden");
                         content.classList.add("show");
@@ -274,5 +293,4 @@
     </script>
 
 </body>
-
 </html>
