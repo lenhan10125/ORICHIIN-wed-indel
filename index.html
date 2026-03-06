@@ -7,15 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORICHIIN - KHTN KHỐI 9</title>
 
-    <meta name="author" content="ORICHIIN STUDIO">
-    <meta property="og:url" content="https://hentaiorc.xyz/">
-    <meta property="og:site_name" content="ORICHIIN">
-    <meta property="og:title" content="ORICHIIN">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://img1.wsimg.com/isteam/ip/4f6fd2c8-4a50-49dc-a756-69ade27c80fe/thumbnails/thumbnail-9d28ba3e-d6b1-4791-841d-f6a9fdf6ed79.png">
-    <meta name="twitter:card" content="summary">
-    <meta name="theme-color" content="#382922">
-
     <style>
         /* FONTS */
         @font-face {
@@ -31,12 +22,15 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden; /* Để không bị hiện thanh cuộn khi có video full màn hình */
+            overflow: hidden;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
+            /* NỀN GURA DỰ PHÒNG */
+            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed !important;
+            background-size: cover !important;
+            transition: 0.5s;
         }
 
-        /* CẤU HÌNH VIDEO NỀN */
         #video-bg {
             position: fixed;
             right: 0;
@@ -45,23 +39,49 @@
             min-height: 100%;
             width: auto;
             height: auto;
-            z-index: -100; /* Đẩy video ra sau cùng */
-            object-fit: cover; /* Phủ kín màn hình */
-            background: #000; /* Dự phòng nếu video chưa load xong */
+            z-index: -100;
+            object-fit: cover;
+            background: #000;
+            transition: opacity 0.8s ease;
         }
 
-        /* Hiệu ứng đổ bóng chữ */
-        :not(textarea):not(input):not([contenteditable]) {
-            text-shadow: 0 0.05em rgba(0,0,0,.8), 0 -0.05em rgba(0,0,0,.8), 0.05em 0 rgba(0,0,0,.8), -0.05em 0 rgba(0,0,0,.8) !important;
+        /* Khi tắt video */
+        .video-off #video-bg {
+            opacity: 0;
+            visibility: hidden;
         }
 
-        h1 {
-            font-family: 'Lusitana', serif;
-            color: #d9b8ab;
-            text-align: center;
-            font-size: 2.5em;
+        /* NÚT BẬT TẮT XỊN XÒ */
+        .toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
 
+        #theme-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            background: orange; /* Mặc định là Mặt trời */
+        }
+
+        /* Trạng thái Mặt Trăng */
+        .video-off #theme-toggle {
+            background: #2c3e50;
+            transform: rotate(360deg);
+            box-shadow: 0 0 20px rgba(0, 162, 255, 0.5);
+        }
+
+        /* NỘI DUNG */
         .container {
             position: relative;
             z-index: 1;
@@ -78,21 +98,27 @@
             border-radius: 20px;
             box-shadow: inset 0px 0px 0px 1px rgba(255,255,255,.3) !important;
             text-align: center;
-            backdrop-filter: blur(10px); /* Làm mờ video phía sau khung chữ */
+            backdrop-filter: blur(10px);
         }
 
-        /* Màu liên kết */
+        h1 { font-family: 'Lusitana', serif; color: #d9b8ab; font-size: 2.5em; }
         a:link { color: #99CCFF !important; text-decoration: none; }
-        a:visited { color: #CC99FF !important; }
-        a:hover { text-decoration: underline; }
-
+        :not(textarea):not(input):not([contenteditable]) {
+            text-shadow: 0 0.05em rgba(0,0,0,.8) !important;
+        }
     </style>
 </head>
-<body>
+<body class="">
 
     <video autoplay muted loop playsinline id="video-bg">
         <source src="VDBACKGROUND.mp4" type="video/mp4">
     </video>
+
+    <div class="toggle-container">
+        <button id="theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ">
+            <span id="icon">☀️</span>
+        </button>
+    </div>
 
     <div class="container">
         <div class="content-box">
@@ -103,6 +129,24 @@
             <p>Link Youtube: <a href="https://www.youtube.com/@ORIICHIN">@ORIICHIN</a></p>
         </div>
     </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('icon');
+            const video = document.getElementById('video-bg');
+
+            if (body.classList.contains('video-off')) {
+                body.classList.remove('video-off');
+                video.play();
+                icon.innerHTML = "☀️";
+            } else {
+                body.classList.add('video-off');
+                video.pause();
+                icon.innerHTML = "🌙";
+            }
+        }
+    </script>
 
 </body>
 </html>
