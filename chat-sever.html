@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ORICHIIN - CHAT SERVER</title>
+
+    <style>
+        /* FONTS */
+        @font-face {
+            font-family: 'Lato';
+            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Lato', sans-serif;
+            background: #0f0f0f; /* Nền tối đồng bộ */
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND NHƯ TRANG CHỦ --- */
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.3; /* Làm mờ để dễ đọc chat */
+            z-index: -1;
+        }
+
+        /* --- CONTAINER CHÍNH --- */
+        .main-wrapper {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 40px 20px; min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* --- PHẦN NOTICE (THÔNG BÁO) --- */
+        .notice-container {
+            width: 100%; max-width: 800px;
+            background: rgba(0, 0, 0, 0.8);
+            border-left: 5px solid #99CCFF;
+            padding: 20px; border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        .notice-container h2 { color: #99CCFF; margin: 0 0 10px 0; font-size: 1.5rem; }
+        .notice-container p { margin: 0; line-height: 1.6; color: #ddd; }
+
+        /* --- KHUNG CHATBOX --- */
+        .chat-frame {
+            width: 100%; max-width: 800px;
+            height: 600px; /* Độ cao khung chat */
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        /* Nút quay lại */
+        .back-btn {
+            align-self: flex-start; margin-bottom: 20px;
+            color: #99CCFF; text-decoration: none; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .back-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <div class="main-wrapper">
+        <a href="/" class="back-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
+            QUAY LẠI TRANG CHỦ
+        </a>
+
+        <div class="notice-container">
+            <h2>NOTICE / THÔNG BÁO</h2>
+            <p>Chào mừng đã đến với Server Chat! <br> 
+               Vui lòng giữ lịch sự, không spam hoặc gửi liên kết độc hại. Chúc bạn có trải nghiệm tuyệt vời tại ORICHIIN STUDIO!</p>
+        </div>
+
+        <div class="chat-frame">
+            <p style="text-align: center; color: #666; padding-top: 280px;">Đang kết nối đến Chat Server...</p>
+
+
+            </div>
+    </div>
+
+</body>
+</html>
