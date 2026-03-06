@@ -93,7 +93,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #78c7d7; 
+            background: #000000; /* Đổi sang đen để nổi bật thanh neon xanh lục */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -106,6 +106,23 @@
             width: 360px; 
             height: auto;
             margin-bottom: 20px;
+        }
+
+        /* --- CSS THANH LOADING NEON GIỐNG ẢNH --- */
+        .neon-loading-container { width: 320px; margin: 10px 0; font-family: sans-serif; }
+        .neon-text-row { 
+            display: flex; justify-content: space-between; 
+            color: #00FF00; font-weight: bold; font-size: 18px;
+            text-shadow: 0 0 10px #00FF00; margin-bottom: 8px;
+        }
+        .neon-bar-border { 
+            width: 100%; height: 22px; border: 2px solid #00FF00; 
+            border-radius: 15px; padding: 2px; box-sizing: border-box;
+            box-shadow: 0 0 5px #00FF00;
+        }
+        .neon-bar-fill { 
+            height: 100%; width: 0%; background: #00FF00; 
+            border-radius: 10px; box-shadow: 0 0 15px #00FF00;
         }
 
         .loader-icon {
@@ -162,6 +179,17 @@
 
     <div id="loader-wrapper">
         <img src="ORC.png" alt="Logo" class="loader-top-img">
+        
+        <div class="neon-loading-container">
+            <div class="neon-text-row">
+                <span>Loading..</span>
+                <span id="load-val">0%</span>
+            </div>
+            <div class="neon-bar-border">
+                <div class="neon-bar-fill" id="load-fill"></div>
+            </div>
+        </div>
+
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." class="loader-icon">
         <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
     </div>
@@ -172,7 +200,9 @@
                 <svg viewBox="0 0 24 24"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z" fill="white"></path></svg>
             </button>
             <div class="logo">
-                <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">ORICHIIN</span>
+                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
+                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Hentaiorc.xyz</span>
+                </a>
             </div>
         </div>
 
@@ -195,11 +225,11 @@
 
     <aside class="yt-sidebar" id="sidebar">
         <div class="sidebar-item active">Trang chủ</div>
-        <div class="sidebar-item">Shorts</div>
-        <div class="sidebar-item">Kênh đăng ký</div>
+        <div class="sidebar-item">không khả dụng</div>
+        <div class="sidebar-item">không khả dụng</div>
         <hr style="border: 0.5px solid rgba(255,255,255,0.1); width: 100%;">
         <div class="sidebar-item">Thư viện</div>
-        <div class="sidebar-item">Lịch sử</div>
+        <div class="sidebar-item">không khả dụng</div> // lịch sử tìm kiếm
     </aside>
 
     <div class="container" id="main-content">
@@ -215,11 +245,32 @@
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
+            const fill = document.getElementById("load-fill");
+            const val = document.getElementById("load-val");
 
-            setTimeout(() => {
-                loader.classList.add("loader-hidden");
-                content.classList.add("show");
-            }, 5000); // GIỮ NGUYÊN 5s theo code Orichiin
+            // --- QUẢN LÝ THỜI GIAN TẠI ĐÂY (ms) ---
+            const totalTime = 5000; 
+
+            let start = null;
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const percent = Math.min((progress / totalTime) * 100, 100);
+                
+                fill.style.width = percent + "%";
+                val.innerText = Math.floor(percent) + "%";
+
+                if (progress < totalTime) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    // Khi hoàn thành 100%
+                    setTimeout(() => {
+                        loader.classList.add("loader-hidden");
+                        content.classList.add("show");
+                    }, 200);
+                }
+            }
+            window.requestAnimationFrame(step);
         });
     </script>
 
