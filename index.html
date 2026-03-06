@@ -20,7 +20,7 @@
             width: 100%;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            /* THIẾT LẬP NỀN ẢNH GURA CỐ ĐỊNH */
+            /* GIỮ NGUYÊN NỀN GURA CỦA ORICHIIN */
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
             background-size: cover;
             overflow: hidden;
@@ -33,43 +33,47 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #111; /* Nền tối khi đang load */
+            background: #000; /* Nền đen tuyền để che ảnh nền Gura lúc đang load */
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             transition: opacity 0.8s ease, visibility 0.8s;
         }
 
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid rgba(255, 255, 255, 0.1);
-            border-top: 6px solid #99CCFF; /* Màu xanh ton-sur-ton với link */
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* PHẦN ẢNH MỚI THÊM VÀO */
+        .loader-top-img {
+            width: 120px; /* Orichiin tự thay đổi kích thước nếu cần */
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        /* Icon loading (Bạn có thể thay link ảnh icon khác ở dưới) */
+        .loader-icon {
+            width: 80px; 
+            height: auto;
+            animation: spin 2s linear infinite; /* Cho nó xoay tròn */
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        /* Lớp để ẩn loader */
         .loader-hidden {
             opacity: 0;
             visibility: hidden;
         }
         /* ---------------------------------- */
 
-        /* KHUNG CHỨA TOÀN BỘ ĐỂ CĂN GIỮA */
         .container {
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(0, 0, 0, 0.2);
-            opacity: 0; /* Mặc định ẩn nội dung để làm hiệu ứng hiện dần */
+            opacity: 0; 
             transition: opacity 1s ease-in;
         }
 
@@ -77,7 +81,6 @@
             opacity: 1;
         }
 
-        /* KHUNG NỘI DUNG (CONTENT BOX) */
         .content-box {
             max-width: 600px;
             padding: 40px;
@@ -119,7 +122,10 @@
 <body>
 
     <div id="loader-wrapper">
-        <div class="spinner"></div>
+        <img src="ORC.png" alt="Logo" class="loader-top-img">
+        
+        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." class="loader-icon">
+        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
     </div>
 
     <div class="container" id="main-content">
@@ -136,9 +142,10 @@
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
 
-            // Thêm class để kích hoạt hiệu ứng mờ dần trong CSS
-            loader.classList.add("loader-hidden");
-            content.classList.add("show");
+            setTimeout(() => {
+                loader.classList.add("loader-hidden");
+                content.classList.add("show");
+            }, 800); // Đợi 0.8s cho mượt
         });
     </script>
 
