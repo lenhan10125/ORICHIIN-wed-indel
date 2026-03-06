@@ -4,7 +4,7 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORICHIIN - KHTN KHỐI 9</title>
+    <title>ORICHIIN</title>
 
     <style>
         @font-face {
@@ -16,9 +16,15 @@
             margin: 0; padding: 0; height: 100%; overflow: hidden;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            /* NỀN GURA MẶC ĐỊNH */
-            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed !important;
-            background-size: cover !important;
+            background-color: #000; /* Nền đen cơ bản */
+        }
+
+        /* NỀN ẢNH TĨNH (GURA) - Chỉ hiện khi tắt video */
+        .bg-fallback {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            background-size: cover;
+            z-index: -101; /* Nằm dưới cùng */
         }
 
         /* VIDEO NỀN */
@@ -26,35 +32,27 @@
             position: fixed; right: 0; bottom: 0;
             min-width: 100%; min-height: 100%;
             width: auto; height: auto;
-            z-index: -100;
+            z-index: -100; /* Nằm trên ảnh tĩnh */
             object-fit: cover;
             transition: opacity 1s;
         }
 
         .video-off #video-bg { opacity: 0; visibility: hidden; }
 
-        /* NÚT MẶT TRỜI / MẶT TRĂNG XỊN */
+        /* NÚT MẶT TRỜI / MẶT TRĂNG */
         .toggle-container { position: fixed; top: 25px; right: 25px; z-index: 1000; }
-
         #theme-toggle {
             width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             font-size: 26px; transition: 0.5s;
-            background: #ffce54; /* Màu nắng */
-            box-shadow: 0 0 15px #ffce54;
+            background: #ffce54; box-shadow: 0 0 15px #ffce54;
         }
-
         .video-off #theme-toggle {
-            background: #5d9cec; /* Màu đêm */
-            box-shadow: 0 0 15px #5d9cec;
-            transform: rotate(360deg);
+            background: #5d9cec; box-shadow: 0 0 15px #5d9cec; transform: rotate(360deg);
         }
 
         /* NỘI DUNG */
-        .container {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-        }
-
+        .container { height: 100vh; display: flex; align-items: center; justify-content: center; }
         .content-box {
             max-width: 600px; padding: 40px; border-radius: 25px;
             background: rgba(0, 0, 0, 0.75);
@@ -63,13 +61,13 @@
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-
         h1 { color: #d9b8ab; margin-top: 0; }
         a { color: #99CCFF; text-decoration: none; font-weight: bold; }
-        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+
+    <div class="bg-fallback"></div>
 
     <video autoplay muted loop playsinline id="video-bg">
         <source src="bg.mp4" type="video/mp4">
@@ -98,7 +96,7 @@
 
             if (body.classList.contains('video-off')) {
                 body.classList.remove('video-off');
-                video.play().catch(e => console.log("Video chờ load..."));
+                video.play();
                 icon.innerHTML = "☀️";
             } else {
                 body.classList.add('video-off');
@@ -107,13 +105,14 @@
             }
         }
 
-        // Tự động chạy lại video nếu bị trình duyệt chặn lúc đầu
-        window.addEventListener('load', () => {
-            document.getElementById('video-bg').play().catch(() => {
-                console.log("Trình duyệt chặn tự động phát, hãy nhấn nút Mặt Trời.");
+        // Lệnh "ép" video phải load và play lại
+        window.onload = function() {
+            var video = document.getElementById('video-bg');
+            video.load(); // Buộc tải lại nguồn
+            video.play().catch(function(error) {
+                console.log("Trình duyệt yêu cầu tương tác người dùng để phát video.");
             });
-        });
+        };
     </script>
 </body>
-
 </html>
