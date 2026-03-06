@@ -4,7 +4,7 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORICHIIN</title>
+    <title>ORICHIIN - KHTN KHỐI 9</title>
 
     <style>
         @font-face {
@@ -15,16 +15,15 @@
         body, html {
             margin: 0; padding: 0; height: 100%; overflow: hidden;
             font-family: 'Lato', sans-serif;
-            color: #FFFFFF !important;
-            background-color: #000; /* Nền đen cơ bản */
+            background-color: #000;
         }
 
-        /* NỀN ẢNH TĨNH (GURA) - Chỉ hiện khi tắt video */
+        /* NỀN GURA */
         .bg-fallback {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
             background-size: cover;
-            z-index: -101; /* Nằm dưới cùng */
+            z-index: -101;
         }
 
         /* VIDEO NỀN */
@@ -32,7 +31,7 @@
             position: fixed; right: 0; bottom: 0;
             min-width: 100%; min-height: 100%;
             width: auto; height: auto;
-            z-index: -100; /* Nằm trên ảnh tĩnh */
+            z-index: -100;
             object-fit: cover;
             transition: opacity 1s;
         }
@@ -59,22 +58,19 @@
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        h1 { color: #d9b8ab; margin-top: 0; }
+        h1 { color: #d9b8ab; }
         a { color: #99CCFF; text-decoration: none; font-weight: bold; }
     </style>
 </head>
-<body>
-
-    <div class="bg-fallback"></div>
+<body onclick="forcePlay()"> <div class="bg-fallback"></div>
 
     <video autoplay muted loop playsinline id="video-bg">
         <source src="bg.mp4" type="video/mp4">
     </video>
 
     <div class="toggle-container">
-        <button id="theme-toggle" onclick="toggleTheme()">
+        <button id="theme-toggle" onclick="event.stopPropagation(); toggleTheme()">
             <span id="icon">☀️</span>
         </button>
     </div>
@@ -89,11 +85,11 @@
     </div>
 
     <script>
+        const video = document.getElementById('video-bg');
+
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('icon');
-            const video = document.getElementById('video-bg');
-
             if (body.classList.contains('video-off')) {
                 body.classList.remove('video-off');
                 video.play();
@@ -105,14 +101,18 @@
             }
         }
 
-        // Lệnh "ép" video phải load và play lại
-        window.onload = function() {
-            var video = document.getElementById('video-bg');
-            video.load(); // Buộc tải lại nguồn
-            video.play().catch(function(error) {
-                console.log("Trình duyệt yêu cầu tương tác người dùng để phát video.");
+        function forcePlay() {
+            if (!document.body.classList.contains('video-off')) {
+                video.play();
+            }
+        }
+
+        // Tự động thử lại khi trang load xong
+        window.addEventListener('load', () => {
+            video.play().catch(() => {
+                console.log("Cần click để phát video");
             });
-        };
+        });
     </script>
 </body>
 </html>
