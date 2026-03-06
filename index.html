@@ -27,37 +27,58 @@
             src: url(https://img1.wsimg.com/gfonts/s/lusitana/v14/CSR84z9ShvucWzsMKyhdTOI.woff2) format('woff2');
         }
 
-        /* CUSTOM CSS INTEGRATION */
-        html, body {
-            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) fixed #000 !important;
-            background-size: cover !important;
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Để không bị hiện thanh cuộn khi có video full màn hình */
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
         }
 
-        /* Hiệu ứng đổ bóng chữ đặc trưng từ code bạn gửi */
+        /* CẤU HÌNH VIDEO NỀN */
+        #video-bg {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100; /* Đẩy video ra sau cùng */
+            object-fit: cover; /* Phủ kín màn hình */
+            background: #000; /* Dự phòng nếu video chưa load xong */
+        }
+
+        /* Hiệu ứng đổ bóng chữ */
         :not(textarea):not(input):not([contenteditable]) {
-            text-shadow: 0 0.05em rgba(0,0,0,.5), 0 -0.05em rgba(0,0,0,.5), 0.05em 0 rgba(0,0,0,.5), -0.05em 0 rgba(0,0,0,.5) !important;
+            text-shadow: 0 0.05em rgba(0,0,0,.8), 0 -0.05em rgba(0,0,0,.8), 0.05em 0 rgba(0,0,0,.8), -0.05em 0 rgba(0,0,0,.8) !important;
         }
 
         h1 {
             font-family: 'Lusitana', serif;
             color: #d9b8ab;
             text-align: center;
-            margin-top: 50px;
+            font-size: 2.5em;
         }
 
         .container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-box {
             max-width: 800px;
-            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.8) !important; 
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: inset 0px 0px 0px 1px rgba(255,255,255,.3) !important;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.9) !important; /* Làm nền mờ để dễ đọc chữ trên ảnh nền */
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: inset 0px 0px 0px 1px rgba(255,255,255,.5) !important;
+            backdrop-filter: blur(10px); /* Làm mờ video phía sau khung chữ */
         }
 
         /* Màu liên kết */
@@ -69,12 +90,18 @@
 </head>
 <body>
 
+    <video autoplay muted loop playsinline id="video-bg">
+        <source src="VDBACKGROUND.mp4" type="video/mp4">
+    </video>
+
     <div class="container">
-        <h1>Welcome to ORICHIIN STUDIO</h1>
-        <p>Trang web đang trong quá trình phát triển-hiện chưa truy cập được vui lòng quay lại sau nhé!!! </p>
-        <p>Link Phụ "tạm thời": <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
-        <p>Liên hệ tại: <a href="mailto:orichiincompany@gmail.com">orichiincompany@gmail.com</a></p>
-        <p> link Youtube:<a href="https://www.youtube.com/@ORIICHIN">@ORIICHIN</a></p>
+        <div class="content-box">
+            <h1>Welcome to ORICHIIN STUDIO</h1>
+            <p>Trang web đang trong quá trình phát triển - hiện chưa truy cập được vui lòng quay lại sau nhé!!!</p>
+            <p>Link Phụ "tạm thời": <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
+            <p>Liên hệ tại: <a href="mailto:orichiincompany@gmail.com">orichiincompany@gmail.com</a></p>
+            <p>Link Youtube: <a href="https://www.youtube.com/@ORIICHIN">@ORIICHIN</a></p>
+        </div>
     </div>
 
 </body>
