@@ -33,7 +33,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000; /* Nền đen tuyền để che ảnh nền Gura lúc đang load */
+            background: #78c7d7; /* Nền đen tuyền để che ảnh nền Gura lúc đang load */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -44,7 +44,7 @@
 
         /* PHẦN ẢNH MỚI THÊM VÀO */
         .loader-top-img {
-            width: 120px; /* Orichiin tự thay đổi kích thước nếu cần */
+            width: 360px; /* Orichiin tự thay đổi kích thước nếu cần */
             height: auto;
             margin-bottom: 20px;
         }
@@ -145,7 +145,7 @@
             setTimeout(() => {
                 loader.classList.add("loader-hidden");
                 content.classList.add("show");
-            }, 800); // Đợi 0.8s cho mượt
+            }, 5000); // Đợi 5s cho mượt
         });
     </script>
 
