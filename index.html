@@ -20,13 +20,11 @@
             width: 100%;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            /* GIỮ NGUYÊN NỀN GURA CỦA ORICHIIN */
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
             background-size: cover;
             overflow: hidden;
         }
 
-        /* --- PHẦN CSS YT COMPONENTS MỚI THÊM --- */
         :root {
             --yt-bg: rgba(15, 15, 15, 0.85);
             --yt-border: rgba(255, 255, 255, 0.1);
@@ -50,7 +48,7 @@
             display: flex; align-items: center; justify-content: center;
         }
         .icon-btn:hover { background: rgba(255,255,255,0.1); }
-        .icon-btn svg { width: 24px; height: 24px; }
+        .icon-btn svg { width: 24px; height: 24px; fill: white; }
 
         .header-center { flex: 0 1 720px; margin: 0 15px; }
         .search-container {
@@ -74,141 +72,90 @@
             align-items: center; justify-content: center; font-weight: bold;
         }
 
-        /* --- ĐÃ THÊM TRANSITION CHO SIDEBAR --- */
+        /* --- SIDEBAR CẢI TIẾN --- */
         .yt-sidebar {
             position: fixed; left: 0; top: 56px; width: 240px; height: calc(100% - 56px);
             background: var(--yt-bg); backdrop-filter: blur(10px);
             padding: 12px; z-index: 999; box-sizing: border-box;
             border-right: 1px solid var(--yt-border);
-            transition: transform 0.3s ease; /* Hiệu ứng trượt */
+            transition: width 0.3s ease;
+            overflow-x: hidden;
         }
 
-        /* Class để đóng menu */
         .yt-sidebar.closed {
-            transform: translateX(-240px);
+            width: 72px;
         }
 
         .sidebar-item {
-            padding: 10px 24px; border-radius: 10px; cursor: pointer;
+            padding: 10px; border-radius: 10px; cursor: pointer;
             font-size: 14px; transition: 0.2s; margin-bottom: 2px;
+            display: flex; align-items: center;
+            white-space: nowrap;
+            color: white; /* Đảm bảo màu chữ luôn trắng */
         }
         .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
+        
+        .sidebar-item svg {
+            min-width: 24px; width: 24px; height: 24px; 
+            margin-right: 24px; fill: white;
+        }
 
-        /* --- PHẦN CSS CHO LOADING SCREEN (GIỮ NGUYÊN) --- */
+        .yt-sidebar.closed .item-text {
+            display: none;
+        }
+
+        /* --- LOADING SCREEN --- */
         #loader-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #2c8b8f; 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c8b8f; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
             transition: opacity 0.8s ease, visibility 0.8s;
         }
-
-        .loader-top-img {
-            width: 360px; 
-            height: auto;
-            margin-bottom: 20px;
-        }
-
+        .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
         .neon-loading-container { width: 320px; margin: 10px 0; font-family: sans-serif; }
-        .neon-text-row { 
-            display: flex; justify-content: space-between; 
-            color: #00FF00; font-weight: bold; font-size: 18px;
-            text-shadow: 0 0 10px #00FF00; margin-bottom: 8px;
-        }
-        .neon-bar-border { 
-            width: 100%; height: 22px; border: 2px solid #00FF00; 
-            border-radius: 15px; padding: 2px; box-sizing: border-box;
-            box-shadow: 0 0 5px #00FF00;
-        }
-        .neon-bar-fill { 
-            height: 100%; width: 0%; background: #00FF00; 
-            border-radius: 10px; box-shadow: 0 0 15px #00FF00;
-        }
+        .neon-text-row { display: flex; justify-content: space-between; color: #00FF00; font-weight: bold; font-size: 18px; text-shadow: 0 0 10px #00FF00; margin-bottom: 8px; }
+        .neon-bar-border { width: 100%; height: 22px; border: 2px solid #00FF00; border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 5px #00FF00; }
+        .neon-bar-fill { height: 100%; width: 0%; background: #00FF00; border-radius: 10px; box-shadow: 0 0 15px #00FF00; }
+        .loader-hidden { opacity: 0; visibility: hidden; }
 
-        .loader-icon {
-            width: 80px; 
-            height: auto;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .loader-hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        /* --- CONTAINER CHÍNH (ĐÃ THÊM TRANSITION) --- */
+        /* --- CONTAINER --- */
         .container {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.2);
-            opacity: 0; 
-            transition: opacity 1s ease-in, padding-left 0.3s ease; /* Hiệu ứng mượt khi menu đóng */
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.2); opacity: 0; 
+            transition: opacity 1s ease-in, padding-left 0.3s ease;
             padding-left: 240px; 
         }
-
-        /* Class để tràn màn hình khi menu đóng */
-        .container.full-width {
-            padding-left: 0 !important;
-        }
-
-        .container.show {
-            opacity: 1;
-        }
-
-        .content-box {
-            max-width: 600px;
-            padding: 40px;
-            border-radius: 25px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            margin: 20px;
-        }
-
+        .container.full-width { padding-left: 72px !important; }
+        .container.show { opacity: 1; }
+        .content-box { max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: 20px; }
         h1 { color: #d9b8ab; margin-top: 0; font-size: 2.5em; text-shadow: 0 0.05em rgba(0,0,0,.8) !important; }
         p { line-height: 1.6; font-size: 1.1em; text-shadow: 0 0.05em rgba(0,0,0,.8) !important; }
         a { color: #99CCFF; text-decoration: none; font-weight: bold; transition: 0.3s; }
         a:hover { color: #ffffff; text-decoration: underline; }
+
+        /* Style để link trong sidebar không bị đổi màu hay gạch chân */
+        .sidebar-link {
+            text-decoration: none !important;
+            color: inherit !important;
+            display: block;
+        }
     </style>
 </head>
 <body>
 
     <div id="loader-wrapper">
         <img src="ORC.png" alt="Logo" class="loader-top-img">
-        
         <div class="neon-loading-container">
-            <div class="neon-text-row">
-                <span>Loading..</span>
-                <span id="load-val">0%</span>
-            </div>
-            <div class="neon-bar-border">
-                <div class="neon-bar-fill" id="load-fill"></div>
-            </div>
+            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
+            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
         </div>
-
         <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
     </div>
 
     <nav class="yt-header">
         <div class="header-left">
             <button class="icon-btn" id="menu-toggle">
-                <svg viewBox="0 0 24 24"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z" fill="white"></path></svg>
+                <svg viewBox="0 0 24 24"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path></svg>
             </button>
             <div class="logo">
                 <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
@@ -221,39 +168,69 @@
             <div class="search-container">
                 <input type="text" placeholder="Tìm kiếm..." class="search-input">
                 <button class="search-btn">
-                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" fill="white"></path></svg>
+                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
                 </button>
             </div>
         </div>
 
         <div class="header-right">
             <button class="icon-btn" title="Cài đặt">
-                <svg viewBox="0 0 24 24"><path d="M12 9.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-1c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zM13.22 3l.55 2.06.13.51.5.15c.53.15 1.03.38 1.5.67l.47.3.52-.11 2.06-.45 1.46 2.47-1.53 1.54-.4.4.08.54c.05.35.07.71.07 1.07s-.02.72-.07 1.07l-.08.54.4.4 1.53 1.54-1.46 2.47-2.06-.45-.52-.11-.47.3c-.47.29-.97.52-1.5.67l-.5.15-.13.51-.55 2.06h-2.44l-.55-2.06-.13-.51-.5-.15c-.53-.15-1.03-.38-1.5-.67l-.47-.3-.52.11-2.06.45-1.46-2.47 1.53-1.54.4-.4-.08-.54c-.05-.35-.07-.72-.07-1.07s.02-.72.07-1.07l.08-.54-.4-.4-1.53-1.54 1.46-2.47 2.06.45.52.11.47-.3c.47-.29.97-.52 1.5-.67l.5-.15.13-.51.55-2.06h2.44m.6-1h-3.64l-.74 2.78c-.64.19-1.23.49-1.77.88l-2.77-.61-1.82 3.15 2.06 2.08c-.05.33-.1.68-.1 1.03s.05.7.1 1.03l-2.06 2.08 1.82 3.15 2.77-.61c.54.39 1.13.69 1.77.88l.74 2.78h3.64l.74-2.78c.64-.19 1.23-.49 1.77-.88l2.77.61 1.82-3.15-2.06-2.08c.05-.33.1-.68.1-1.03s-.05-.7-.1-1.03l2.06-2.08-1.82-3.15-2.77.61c-.54-.39-1.13-.69-1.77-.88L13.82 2z" fill="white"></path></svg>
+                <svg viewBox="0 0 24 24"><path d="M12 9.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-1c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zM13.22 3l.55 2.06.13.51.5.15c.53.15 1.03.38 1.5.67l.47.3.52-.11 2.06-.45 1.46 2.47-1.53 1.54-.4.4.08.54c.05.35.07.71.07 1.07s-.02.72-.07 1.07l-.08.54.4.4 1.53 1.54-1.46 2.47-2.06-.45-.52-.11-.47.3c-.47.29-.97.52-1.5.67l-.5.15-.13.51-.55 2.06h-2.44l-.55-2.06-.13-.51-.5-.15c-.53-.15-1.03-.38-1.5-.67l-.47-.3-.52.11-2.06.45-1.46-2.47 1.53-1.54.4-.4-.08-.54c-.05-.35-.07-.72-.07-1.07s.02-.72.07-1.07l.08-.54-.4-.4-1.53-1.54 1.46-2.47 2.06.45.52.11.47-.3c.47-.29.97-.52 1.5-.67l.5-.15.13-.51.55-2.06h2.44m.6-1h-3.64l-.74 2.78c-.64.19-1.23.49-1.77.88l-2.77-.61-1.82 3.15 2.06 2.08c-.05.33-.1.68-.1 1.03s.05.7.1 1.03l-2.06 2.08 1.82 3.15 2.77-.61c.54.39 1.13.69 1.77.88l.74 2.78h3.64l.74-2.78c.64-.19 1.23-.49 1.77-.88l2.77.61 1.82-3.15-2.06-2.08c.05-.33.1-.68.1-1.03s-.05-.7-.1-1.03l2.06-2.08-1.82-3.15-2.77.61c-.54-.39-1.13-.69-1.77-.88L13.82 2z"></path></svg>
             </button>
             <div class="user-avatar">O</div>
         </div>
     </nav>
 
     <aside class="yt-sidebar" id="sidebar">
-        <div class="sidebar-item active">Trang chủ</div>
-        <div class="sidebar-item">không khả dụng</div>
-        <div class="sidebar-item">không khả dụng</div>
+        <a href="#" class="sidebar-link">
+            <div class="sidebar-item active">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+                <span class="item-text">Trang chủ</span>
+            </div>
+        </a>
+        
+        <a href="#" class="sidebar-link">
+            <div class="sidebar-item">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"></path></svg>
+                <span class="item-text">không khả dụng</span>
+            </div>
+        </a>
+
+        <a href="#" class="sidebar-link">
+            <div class="sidebar-item">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81L5.12 9.91l4.91-.42L12 5l1.97 4.49 4.91.42-3.77 3.28 1.12 4.81z"></path></svg>
+                <span class="item-text">không khả dụng</span>
+            </div>
+        </a>
+
         <hr style="border: 0.5px solid rgba(255,255,255,0.1); width: 100%;">
-        <div class="sidebar-item">Thư viện</div>
-        <div class="sidebar-item">không khả dụng</div> /* lịch sử tìm kiếm */
+
+        <a href="#" class="sidebar-link">
+            <div class="sidebar-item">
+                <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"></path></svg>
+                <span class="item-text">Thư viện</span>
+            </div>
+        </a>
+
+        <a href="https://hentaiorc.xyz/tags" target="_blank" class="sidebar-link">
+            <div class="sidebar-item">
+                <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"></path></svg>
+                <span class="item-text">#Các thẻ</span>
+            </div>
+        </a>
     </aside>
 
     <div class="container" id="main-content">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
-            <p>Trang web đang trong quá trình phát triển - hiện chưa truy cập được vui lòng quay lại sau nhé!!!</p>
+            <p>Trang web đang trong quá trình phát triển - hiện tạm thời đã truy cập được tuy nhiên còn nhiều lỗi nên
+            các bạn thông cảm nhé!!!</p>
             <p>Dự án chính: <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
             <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank">@ORIICHIN</a></p>
         </div>
     </div>
 
     <script>
-        // LOGIC CHO THANH MENU
         document.getElementById("menu-toggle").addEventListener("click", function() {
             const sidebar = document.getElementById("sidebar");
             const mainContent = document.getElementById("main-content");
@@ -261,13 +238,11 @@
             mainContent.classList.toggle("full-width");
         });
 
-        // LOGIC CHO LOADING (GIỮ NGUYÊN)
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
             const fill = document.getElementById("load-fill");
             const val = document.getElementById("load-val");
-
             const totalTime = 5000; 
 
             let start = null;
@@ -275,10 +250,8 @@
                 if (!start) start = timestamp;
                 const progress = timestamp - start;
                 const percent = Math.min((progress / totalTime) * 100, 100);
-                
                 fill.style.width = percent + "%";
                 val.innerText = Math.floor(percent) + "%";
-
                 if (progress < totalTime) {
                     window.requestAnimationFrame(step);
                 } else {
@@ -291,6 +264,5 @@
             window.requestAnimationFrame(step);
         });
     </script>
-
 </body>
 </html>
