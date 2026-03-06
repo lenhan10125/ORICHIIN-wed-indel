@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ORICHIIN - LIVE YOUTUBE</title>
+    <style>
+        /* PHONG CÁCH GAWR GURA CỦA ORICHIIN-SAN */
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Lato', sans-serif;
+            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            background-size: cover; overflow: hidden;
+        }
+
+        .yt-header {
+            position: fixed; top: 0; width: 100%; height: 56px;
+            background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 1000; box-sizing: border-box;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .yt-sidebar {
+            position: fixed; left: 0; top: 56px; width: 72px; height: calc(100% - 56px);
+            background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(10px);
+            z-index: 999; border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; flex-direction: column; align-items: center; padding-top: 20px;
+        }
+
+        .container {
+            position: absolute; top: 56px; left: 72px;
+            right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3);
+            display: flex; flex-direction: column;
+        }
+
+        /* THANH CÔNG CỤ TẢI XỊN */
+        .tools-bar {
+            background: rgba(0, 0, 0, 0.75); padding: 12px 20px;
+            display: flex; align-items: center; gap: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .url-input {
+            flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(153, 204, 255, 0.3);
+            padding: 10px 15px; border-radius: 20px; color: #99CCFF; font-size: 13px;
+            outline: none; transition: 0.3s;
+        }
+        .url-input:focus { border-color: #99CCFF; background: rgba(255,255,255,0.15); }
+
+        .btn-group { display: flex; gap: 10px; }
+
+        .btn-download {
+            background: #CC0000; color: white; border: none;
+            padding: 10px 20px; border-radius: 20px; cursor: pointer;
+            font-weight: bold; transition: 0.3s; font-size: 13px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .btn-download:hover { background: #FF0000; transform: scale(1.05); }
+        .btn-mp3 { background: #333; }
+        .btn-mp3:hover { background: #444; }
+
+        #youtube-frame { width: 100%; height: 100%; border: none; background: black; }
+    </style>
+</head>
+<body>
+
+    <nav class="yt-header">
+        <div style="display: flex; align-items: center;">
+            <a href="https://hentaiorc.xyz" style="text-decoration: none;">
+                <span style="color: #99CCFF; font-weight: bold; font-size: 1.2rem;">ORICHIIN STUDIO</span>
+            </a>
+            <span style="margin-left: 20px; font-size: 0.8rem; color: #aaa; letter-spacing: 1px;">YOUTUBE PLAYER & DOWNLOADER</span>
+        </div>
+        <div id="live-notice" style="color: #00FF00; font-size: 0.9rem; font-weight: bold; text-shadow: 0 0 10px rgba(0,255,0,0.5);">Đang kết nối...</div>
+    </nav>
+
+    <aside class="yt-sidebar">
+        <div title="Trang chủ" style="margin-bottom: 30px; cursor: pointer; font-size: 20px;">🏠</div>
+        <div title="Xu hướng" style="margin-bottom: 30px; cursor: pointer; font-size: 20px;">🔥</div>
+        <div title="Nhạc" style="margin-bottom: 30px; cursor: pointer; font-size: 20px;">🎵</div>
+    </aside>
+
+    <div class="container">
+        <div class="tools-bar">
+            <input type="text" id="target-url" class="url-input" placeholder="Dán link video YouTube vào đây để tải ngay Orichiin-san ơi...">
+            <div class="btn-group">
+                <button class="btn-download" onclick="goDownload('video')">🎬 TẢI VIDEO</button>
+                <button class="btn-download btn-mp3" onclick="goDownload('audio')">🎵 TẢI MP3</button>
+            </div>
+        </div>
+        
+        <iframe id="youtube-frame" src="https://www.youtube.com/embed?listType=search&list=trending+music+vietnam" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        function goDownload(type) {
+            const videoUrl = document.getElementById('target-url').value;
+            
+            if (!videoUrl || !videoUrl.includes('youtu')) {
+                alert("Orichiin-san hãy dán link video YouTube vào ô nhập liệu trước nhé!");
+                return;
+            }
+
+            let downloadService = "";
+            if (type === 'video') {
+                // Chuyển hướng sang dịch vụ tải video chất lượng cao
+                downloadService = videoUrl.replace("youtube.com", "youtubepp.com");
+            } else {
+                // Chuyển hướng sang dịch vụ tách nhạc mp3
+                downloadService = `https://www.y2mate.com/youtube-mp3/${extractID(videoUrl)}`;
+            }
+            
+            window.open(downloadService, '_blank');
+        }
+
+        // Hàm lấy ID video từ link
+        function extractID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length == 11) ? match[2] : "";
+        }
+
+        // Firebase Notice Mockup
+        setTimeout(() => {
+            const notice = document.getElementById('live-notice');
+            notice.innerText = "Sẵn sàng phục vụ Orichiin-san!";
+            notice.style.color = "#99CCFF";
+        }, 3000);
+    </script>
+</body>
+</html>
