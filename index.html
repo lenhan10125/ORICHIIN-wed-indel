@@ -31,13 +31,40 @@
                 document.getElementById('live-notice').innerText = data.content;
 
                 // TỰ ĐỘNG TẢI LẠI TRANG
-                // Nếu đây không phải lần đầu tải trang và mã reload đã thay đổi
                 if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
                     location.reload(); 
                 }
-                
-                // Lưu lại mã hiện tại
                 lastReloadKey = data.reloadTrigger;
+            }
+        });
+
+        // LOGIC LẮNG NGHE POPUP (PHẦN THÊM MỚI)
+        onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const overlay = document.getElementById('popup-overlay');
+                const mainPopup = document.getElementById('main-popup');
+                const textElement = document.getElementById('popup-text');
+
+                if (data.active === true) {
+                    // Áp dụng nền (Ảnh hoặc màu)
+                    if (data.bgColor && data.bgColor.startsWith('http')) {
+                        mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
+                        mainPopup.style.backgroundSize = "cover";
+                    } else {
+                        mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
+                    }
+
+                    // Áp dụng định dạng chữ
+                    textElement.style.color = data.textColor || "#ffffff";
+                    textElement.style.fontSize = data.fontSize || "18px";
+                    textElement.style.fontFamily = data.fontFamily || "sans-serif";
+                    textElement.innerText = data.content || "";
+
+                    overlay.style.display = 'flex';
+                } else {
+                    overlay.style.display = 'none';
+                }
             }
         });
     </script>
@@ -185,6 +212,13 @@
             <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
         </div>
         <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
+    </div>
+
+    <div id="popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div id="main-popup" style="width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,1); border: 1px solid rgba(255,255,255,0.1);">
+            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap;"></div>
+        </div>
     </div>
 
     <nav class="yt-header">

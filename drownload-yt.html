@@ -5,6 +5,64 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORICHIIN PURE - GAWR GURA EDITION</title>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
+            authDomain: "admin-bd0ff.firebaseapp.com",
+            projectId: "admin-bd0ff",
+            storageBucket: "admin-bd0ff.appspot.com",
+            messagingSenderId: "721293740677",
+            appId: "1:721293740677:web:8c6ae2228e9af16aa437ec"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let lastReloadKey = null;
+
+        // Tự động tải lại trang khi có lệnh từ Admin
+        onSnapshot(doc(db, "settings", "notice"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
+                    location.reload(); 
+                }
+                lastReloadKey = data.reloadTrigger;
+            }
+        });
+
+        // Hệ thống Popup động
+        onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const overlay = document.getElementById('popup-overlay');
+                const mainPopup = document.getElementById('main-popup');
+                const textElement = document.getElementById('popup-text');
+
+                if (data.active === true) {
+                    // Cấu hình nền (Ảnh hoặc màu)
+                    if (data.bgColor && (data.bgColor.startsWith('http'))) {
+                        mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
+                        mainPopup.style.backgroundSize = "cover";
+                    } else {
+                        mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
+                    }
+
+                    textElement.style.color = data.textColor || "#ffffff";
+                    textElement.style.fontSize = data.fontSize || "18px";
+                    textElement.style.fontFamily = data.fontFamily || "sans-serif";
+                    textElement.innerText = data.content || "";
+                    overlay.style.display = 'flex';
+                } else {
+                    overlay.style.display = 'none';
+                }
+            }
+        });
+    </script>
+
     <style>
         :root {
             --gura-blue: #99CCFF;
@@ -19,7 +77,6 @@
             overflow-x: hidden;
         }
 
-        /* BACKGROUND MỜ ẢO */
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
@@ -27,7 +84,6 @@
             z-index: -1;
         }
 
-        /* HEADER KIỂU PURE */
         .pure-nav {
             height: 60px; background: rgba(0, 0, 0, 0.7);
             display: flex; align-items: center; padding: 0 20px;
@@ -46,7 +102,6 @@
             padding: 10px 20px; color: white; outline: none;
         }
 
-        /* KHUNG PHÁT VIDEO TRUNG TÂM */
         .main-stage {
             max-width: 1100px; margin: 20px auto;
             background: rgba(0,0,0,0.8); border-radius: 15px;
@@ -54,7 +109,7 @@
         }
 
         .video-box {
-            position: relative; width: 100%; padding-top: 56.25%; /* Ratio 16:9 */
+            position: relative; width: 100%; padding-top: 56.25%;
             background: #000;
         }
 
@@ -62,27 +117,28 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
         }
 
-        /* THANH CÔNG CỤ TẢI VỀ PURE */
         .action-bar {
             padding: 15px 20px; display: flex; align-items: center;
             justify-content: space-between; background: rgba(255,255,255,0.05);
+            gap: 10px;
         }
 
         .video-title { font-weight: bold; color: var(--gura-blue); font-size: 1.1rem; }
 
-        .btn-download {
-            background: linear-gradient(45deg, #00c6ff, #0072ff);
-            color: white; border: none; padding: 10px 25px;
+        .button-group { display: flex; gap: 10px; }
+
+        .btn-download, .btn-copy {
+            color: white; border: none; padding: 10px 20px;
             border-radius: 25px; cursor: pointer; font-weight: bold;
             display: flex; align-items: center; gap: 8px;
-            transition: 0.3s;
+            transition: 0.3s; font-size: 0.9rem;
         }
 
-        .btn-download:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,114,255,0.4); }
+        .btn-download { background: linear-gradient(45deg, #00c6ff, #0072ff); }
+        .btn-copy { background: rgba(255, 255, 255, 0.2); border: 1px solid var(--gura-blue); }
 
-        .btn-download i { font-size: 1.2rem; }
+        .btn-download:hover, .btn-copy:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(153, 204, 255, 0.3); }
 
-        /* DANH SÁCH GỢI Ý */
         .suggestions {
             max-width: 1100px; margin: 20px auto;
             display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -95,11 +151,32 @@
         }
         .card:hover { background: rgba(153, 204, 255, 0.2); }
         .card img { width: 100%; border-radius: 5px; }
+
+        /* CSS CHO POPUP OVERLAY */
+        #popup-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; 
+            align-items: center; backdrop-filter: blur(5px);
+        }
+        #main-popup {
+            width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; 
+            position: relative; padding: 40px; box-sizing: border-box; 
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,1); 
+            border: 1px solid var(--gura-blue);
+        }
     </style>
 </head>
 <body>
 
     <div class="bg-overlay"></div>
+
+    <div id="popup-overlay">
+        <div id="main-popup">
+            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap; line-height: 1.5;"></div>
+        </div>
+    </div>
 
     <nav class="pure-nav">
         <div style="font-weight: bold; color: var(--gura-blue);">ORICHIIN PURE 🦈</div>
@@ -119,9 +196,14 @@
                 <div class="video-title" id="display-title">Đang phát: Danh sách thịnh hành</div>
                 <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Hệ thống Orichiin Pure đã sẵn sàng.</div>
             </div>
-            <button class="btn-download" onclick="startDownload()">
-                <span>📥 TẢI VỀ (PURE)</span>
-            </button>
+            <div class="button-group">
+                <button class="btn-copy" onclick="copyToClipboard()">
+                    <span>📋 COPY LINK</span>
+                </button>
+                <button class="btn-download" onclick="startDownload()">
+                    <span>📥 TẢI VỀ (PURE)</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -147,12 +229,12 @@
             if (input.includes('youtu')) {
                 const id = extractID(input);
                 if (id) {
-                    currentVideoUrl = input;
+                    currentVideoUrl = `https://www.youtube.com/watch?v=${id}`;
                     player.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&showinfo=0`;
                     title.innerText = "Đang phát video: " + id;
                 }
             } else {
-                alert("Orichiin-san dán link YouTube vào để Gem xử lý nhé!");
+                alert("Bạn dán link YouTube vào để mình xử lý nhé!");
             }
         }
 
@@ -164,21 +246,30 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        function startDownload() {
+        function copyToClipboard() {
             if (!currentVideoUrl) {
-                alert("Orichiin-san hãy chọn một video để tải nhé!");
+                alert("Chưa có link để copy đâu nè!");
                 return;
             }
-            
-            // Lựa chọn bộ máy tải về để tránh bị chặn và hỗ trợ 1080p/4K
-            const choice = confirm("Orichiin-san muốn chọn chất lượng nào?\n\n- Nhấn OK: Tải chất lượng cao 1080p/4K (Cobalt engine)\n- Nhấn Cancel: Tải nhanh (SaveFrom engine)");
+            const cleanUrl = currentVideoUrl.split('&')[0];
+            navigator.clipboard.writeText(cleanUrl).then(() => {
+                alert("Đã copy link video! Dán vào trang tải là xong.");
+            });
+        }
+
+        function startDownload() {
+            if (!currentVideoUrl) {
+                alert("Hãy chọn một video để tải nhé!");
+                return;
+            }
+            const cleanUrl = currentVideoUrl.split('&')[0];
+            navigator.clipboard.writeText(cleanUrl);
+
+            const choice = confirm("Mình đã tự động COPY link cho bạn rồi nhé!\n\nNhấn OK: Sang trang Cobalt (Chất lượng cao)\nNhấn Cancel: Sang trang SaveFrom (Tải nhanh)");
 
             if (choice) {
-                // Cobalt engine: Sạch, hỗ trợ cao, không bị chặn bởi file local
                 window.open(`https://cobalt.tools/`, '_blank');
             } else {
-                // SaveFrom engine: Đã mã hóa URL để tránh bị lỗi "Blocked" khi chạy file từ ổ đĩa
-                const cleanUrl = currentVideoUrl.split('&')[0];
                 const dlUrl = `https://en1.savefrom.net/11Ox/sf?url=${encodeURIComponent(cleanUrl)}`;
                 window.open(dlUrl, '_blank');
             }
