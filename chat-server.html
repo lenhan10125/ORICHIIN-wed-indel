@@ -25,22 +25,25 @@
         let isSiteReady = false;
         let pendingPopupData = null;
 
-        // --- CẬP NHẬT THÔNG BÁO VÀ RELOAD TỪ ADMIN ---
+        // --- CẬP NHẬT THÔNG BÁO VÀ RELOAD TỪ ADMIN (TRANG CHỦ) ---
         onSnapshot(doc(db, "settings", "notice"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                
-                // Cập nhật nội dung thông báo động
-                const noticeElement = document.getElementById('live-chat-notice');
-                if (noticeElement && data.content) {
-                    // Chuyển đổi dấu xuống dòng từ Firebase thành thẻ <br> để hiển thị đúng
-                    noticeElement.innerHTML = data.content.replace(/\n/g, '<br>');
-                }
-
                 if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
                     location.reload(); 
                 }
                 lastReloadKey = data.reloadTrigger;
+            }
+        });
+
+        // --- PHẦN LIÊN KẾT MỚI: LẮNG NGHE THÔNG BÁO RIÊNG CHO CHAT SERVER ---
+        onSnapshot(doc(db, "settings", "chat_notice"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const noticeElement = document.getElementById('live-chat-notice');
+                if (noticeElement && data.content) {
+                    noticeElement.innerHTML = data.content.replace(/\n/g, '<br>');
+                }
             }
         });
 
