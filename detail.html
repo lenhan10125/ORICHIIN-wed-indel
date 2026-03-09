@@ -4,12 +4,11 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chi tiết tác phẩm - ORICHIIN</title>
-    
+    <title>ORICHIIN</title>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+        import { getFirestore, doc, onSnapshot, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
             authDomain: "admin-bd0ff.firebaseapp.com",
@@ -21,89 +20,328 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        
+        let isSiteReady = false;
+        let pendingPopupData = null;
+        let lastReloadKey = null;
 
-        // Hàm ghi nhận đơn hàng khi khách click mua
-        window.trackOrder = async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const name = urlParams.get('name') || "Không rõ tên";
-            const price = urlParams.get('price') || "0";
-            
-            try {
-                await addDoc(collection(db, "orders"), {
-                    productName: name,
-                    totalPrice: price + " VNĐ",
-                    customerName: "Khách vãng lai",
-                    timestamp: new Date().getTime(),
-                    status: "Chờ tư vấn"
-                });
-            } catch (e) {
-                console.error("Lỗi ghi đơn hàng:", e);
+        onSnapshot(doc(db, "settings", "notice"), (doc) => {
+            if (doc.exists()) {
+                const data = doc.data();
+                document.getElementById('live-notice').innerText = data.content;
+                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
+                    location.reload(); 
+                }
+                lastReloadKey = data.reloadTrigger;
             }
+        });
+
+        // --- PHẦN CẬP NHẬT: THÊM LINK THANH TOÁN VÀO KHUNG ---
+        const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const p = doc.data();
+                const purchaseCount = p.purchases || 0; 
+                
+                // Tạo URL thanh toán kèm thông tin sản phẩm
+                const paymentUrl = `https://www.hentaiorc.xyz/detail.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.img)}`;
+
+                productGrid.innerHTML += `
+                    <div class="product-card" onclick="window.location.href='${paymentUrl}'" style="cursor: pointer;">
+                        <div class="product-img-box">
+                            <img src="${p.img}" alt="${p.name}">
+                        </div>
+                        <div class="product-info">
+                            <h3>${p.name}</h3>
+                            <p class="price">${p.price} VNĐ</p>
+                            <p style="font-size: 0.85rem; color: #aaa; margin-top: 5px;">
+                                🛒 Đã bán: <span style="color: var(--neon-blue); font-weight: bold;">${purchaseCount}</span>
+                            </p>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (isSiteReady) {
+                    showPopup(data);
+                } else {
+                    pendingPopupData = data;
+                }
+            }
+        });
+
+        window.addEventListener("loadingComplete", () => {
+            isSiteReady = true;
+            if (pendingPopupData) showPopup(pendingPopupData);
+        });
+
+        function showPopup(data) {
+            const overlay = document.getElementById('popup-overlay');
+            const mainPopup = document.getElementById('main-popup');
+            const textElement = document.getElementById('popup-text');
+            
+            if (data.active === true) {
+                if (data.bgColor && data.bgColor.startsWith('http')) {
+                    mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
+                    mainPopup.style.backgroundSize = "cover";
+                } else {
+                    mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
+                }
+                textElement.style.color = data.textColor || "#ffffff";
+                textElement.style.fontSize = data.fontSize || "18px";
+                textElement.style.fontFamily = data.fontFamily || "sans-serif";
+                textElement.innerText = data.content || "";
+                overlay.style.display = 'flex';
+                overlay.classList.remove('closing');
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+        
+        // Xuất hàm đóng popup ra global để button có thể gọi
+        window.closePopup = function() {
+            const overlay = document.getElementById('popup-overlay');
+            overlay.classList.add('closing');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.classList.remove('closing');
+            }, 400);
         };
     </script>
-
     <style>
-        /* Giữ nguyên CSS gốc của bạn */
-        @font-face { font-family: 'Lato'; src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2'); }
-        body, html {
-            margin: 0; padding: 0; min-height: 100vh; font-family: 'Lato', sans-serif;
-            color: #FFFFFF; background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
-            background-size: cover; overflow-x: hidden;
+        @font-face {
+            font-family: 'Lato';
+            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
         }
-        :root { --yt-bg: rgba(15, 15, 15, 0.85); --yt-border: rgba(255, 255, 255, 0.1); --neon-blue: #00f3ff; --neon-flame: #00FF00; }
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Lato', sans-serif;
+            color: #FFFFFF !important;
+            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            background-size: cover;
+            overflow-y: auto; 
+            overflow-x: hidden;
+        }
+        :root {
+            --yt-bg: rgba(15, 15, 15, 0.85);
+            --yt-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f3ff;
+            --neon-flame: #00FF00;
+        }
 
-        .yt-header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--yt-bg); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; box-sizing: border-box; }
+        .product-section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+        }
+        .section-title {
+            text-align: center;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--yt-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: 0.4s;
+            backdrop-filter: blur(10px);
+        }
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+        }
+        .product-img-box {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        .product-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+        .product-card:hover img { transform: scale(1.1); }
+        .product-info { padding: 20px; text-align: left; }
+        .product-info h3 { margin: 0; font-size: 1.2rem; color: #fff; }
+        .product-info .price { color: var(--neon-flame); font-weight: bold; margin-top: 10px; }
+
+        @keyframes neon-burn {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
+                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
+            }
+        }
+
+        @keyframes flame-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
+            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
+        }
+        .yt-header {
+            position: fixed; top: 0; width: 100%; height: 56px;
+            background: var(--yt-bg); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 1000; box-sizing: border-box;
+        }
         .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle-btn {
+            background: rgba(0,0,0,0.5); border: 2px solid #ffcc00; cursor: pointer;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
+            position: relative; z-index: 2100;
+        }
+        .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
+        .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
+        .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+        .open .hamburger span:nth-child(2) { opacity: 0; }
+        .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
         .header-center { flex: 0 1 720px; margin: 0 15px; }
-        .search-container { display: flex; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--yt-border); border-radius: 40px; overflow: hidden; padding-left: 20px; }
+        .search-container {
+            display: flex; background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--yt-border); border-radius: 40px;
+            overflow: hidden; padding-left: 20px;
+        }
         .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
         .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
         .search-btn svg { width: 20px; height: 20px; fill: white; }
-
-        .container { padding-top: 100px; display: flex; justify-content: center; align-items: center; min-height: 80vh; }
-        .detail-box {
-            width: 90%; max-width: 1000px; display: flex; flex-wrap: wrap;
-            background: rgba(0, 0, 0, 0.8); border: 1px solid var(--neon-blue);
-            border-radius: 30px; overflow: hidden; backdrop-filter: blur(15px);
+        
+        .menu-overlay {
+            position: fixed; top: 65px; left: 16px;
+            width: fit-content; height: auto;
+            min-width: 260px; padding: 25px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
             box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            z-index: 1500;
+            display: flex; flex-direction: column;
+            transform-origin: top left;
+            transform: scale(0); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
         }
-        .image-side { flex: 1; min-width: 300px; padding: 20px; text-align: center; background: rgba(255,255,255,0.05); }
-        .image-side img { max-width: 100%; border-radius: 15px; border: 1px solid var(--yt-border); }
-        .info-side { flex: 1; min-width: 300px; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
-        
-        h1#display-name { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 0; font-size: 2.2rem; }
-        .price-tag { color: var(--neon-flame); font-size: 1.8rem; font-weight: bold; margin: 20px 0; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 15px; }
-        .buy-btn {
-            background: var(--neon-blue); color: black; border: none; padding: 15px;
-            font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer;
-            text-decoration: none; text-align: center; transition: 0.3s;
+        .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .nav-content { display: flex; flex-direction: column; text-align: left; }
+        .nav-item {
+            font-size: 1.3rem; color: #99CCFF; text-decoration: none;
+            font-weight: bold; margin: 10px 0; transition: 0.3s;
+            padding: 5px 10px; border-radius: 10px;
         }
-        .buy-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-blue); }
-        
-        .back-btn {
-            color: #99CCFF; text-decoration: none; font-size: 1rem;
-            display: flex; align-items: center; gap: 5px; margin-bottom: 20px;
+        .nav-item:hover { 
+            animation: neon-burn 0.8s infinite alternate ease-in-out;
+            color: var(--neon-blue); 
+            transform: translateX(8px); 
         }
-        .back-btn:hover { color: white; }
+
+        #popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 10001;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+        }
+        #main-popup {
+            width: 90%; max-width: 500px; min-height: 300px;
+            border-radius: 30px; position: relative; padding: 40px;
+            box-sizing: border-box; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+        }
+        #popup-overlay.closing { opacity: 0; pointer-events: none; }
+        #popup-overlay.closing #main-popup {
+            transform: translate(-45vw, -45vh) scale(0);
+            opacity: 0;
+        }
+
+        .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
+        @keyframes floatDust {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+        .particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 10px var(--neon-blue); z-index: 2200; animation: particleFly 1s forwards; }
+        @keyframes particleFly {
+            0% { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
+        }
+        #loader-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c8b8f; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
+        .neon-loading-container { width: 320px; margin: 10px 0; }
+        .neon-text-row { display: flex; justify-content: space-between; color: var(--neon-flame); font-weight: bold; font-size: 18px; text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px; }
+        .neon-bar-border { width: 100%; height: 22px; border: 2px solid var(--neon-flame); border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 10px var(--neon-flame); }
+        .neon-bar-fill { height: 100%; width: 0%; background: var(--neon-flame); border-radius: 10px; box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame); animation: flame-glow 0.5s infinite alternate; }
+        .loader-hidden { opacity: 0; visibility: hidden; }
+        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
+        .container.show { opacity: 1; }
+        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
+        h1 { color: #d9b8ab; font-size: 2.5em; }
     </style>
 </head>
 <body>
+    <div class="ambient-dust" id="dustContainer"></div>
+    <div id="loader-wrapper">
+        <img src="ORC.png" alt="Logo" class="loader-top-img">
+        <div class="neon-loading-container">
+            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
+            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
+        </div>
+        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
+    </div>
+
+    <div id="popup-overlay">
+        <div id="main-popup">
+            <button onclick="closePopup()" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap;"></div>
+        </div>
+    </div>
 
     <nav class="yt-header">
         <div class="header-left">
-            <a href="index.html" class="back-btn" style="margin-bottom:0; margin-right: 10px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-            </a>
+            <button class="menu-toggle-btn" id="menuBtn">
+                <div class="hamburger"><span></span><span></span><span></span></div>
+            </button>
             <div class="logo">
-                <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Giang-artist</span>
+                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
+                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Giang-artist</span>
+                </a>
             </div>
         </div>
         <div class="header-center">
             <div class="search-container">
                 <input type="text" placeholder="Tìm kiếm tranh..." class="search-input">
-                <button class="search-btn"><svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg></button>
+                <button class="search-btn">
+                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
+                </button>
             </div>
         </div>
         <div class="header-right">
@@ -111,33 +349,91 @@
         </div>
     </nav>
 
-    <div class="container">
-        <div class="detail-box">
-            <div class="image-side">
-                <img id="display-img" src="" alt="Tranh">
-            </div>
-            <div class="info-side">
-                <a href="index.html" class="back-btn">← Quay lại cửa hàng</a>
-                <h1 id="display-name">Tên tác phẩm</h1>
-                <p class="price-tag" id="display-price">0 VNĐ</p>
-                
-                <div class="btn-group">
-                    <a href="https://m.me/langducabpt" onclick="trackOrder()" target="_blank" class="buy-btn">NHẮN TIN MUA QUA FACEBOOK</a>
-                    <p style="font-size: 0.8rem; color: #888; text-align: center;">Vui lòng chụp màn hình sản phẩm trước khi nhắn tin</p>
-                </div>
-            </div>
+    <div class="menu-overlay" id="menuOverlay">
+        <nav class="nav-content">
+            <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
+            <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
+            <a href="https://hentaiorc.xyz/drownload-yt.html" class="nav-item">Download YT</a>
+            <a href="https://hentaiorc.xyz/tags.html" class="nav-item">Thư viện #Tags</a>
+        </nav>
+    </div>
+
+    <div class="container" id="main-content">
+        <div class="content-box">
+            <h1>ORICHIIN STUDIO</h1>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Đang tải thông báo...</p>
+            <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
+            <p>Facebook: <a href="https://www.facebook.com/langducabpt" target="_blank" style="color:var(--neon-blue)">Giang-artist</a></p>
+        </div>
+
+        <div class="product-section">
+            <h2 class="section-title">🖼️ TÁC PHẨM MỚI NHẤT</h2>
+            <div class="product-grid" id="product-grid"></div>
         </div>
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const img = urlParams.get('img');
-        const name = urlParams.get('name');
-        const price = urlParams.get('price');
+        const dustContainer = document.getElementById('dustContainer');
+        function createDust() {
+            const dust = document.createElement('div');
+            dust.className = 'dust-particle';
+            const size = Math.random() * 3 + 1;
+            dust.style.width = size + 'px';
+            dust.style.height = size + 'px';
+            dust.style.left = Math.random() * 100 + 'vw';
+            dust.style.top = '110vh';
+            dustContainer.appendChild(dust);
+            setTimeout(() => dust.remove(), 10000);
+        }
+        setInterval(createDust, 300);
 
-        if(img) document.getElementById('display-img').src = img;
-        if(name) document.getElementById('display-name').innerText = name;
-        if(price) document.getElementById('display-price').innerText = price + " VNĐ";
+        const menuBtn = document.getElementById('menuBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        function toggleMenu() {
+            menuBtn.classList.toggle('open');
+            menuOverlay.classList.toggle('active');
+        }
+        menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
+        window.addEventListener('click', (e) => {
+            if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('mousemove', (e) => {
+                for(let i=0; i<4; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = e.clientX + 'px';
+                    p.style.top = e.clientY + 'px';
+                    p.style.setProperty('--mx', (Math.random() * 200 - 100) + 'px');
+                    p.style.setProperty('--my', (Math.random() * -150 - 50) + 'px');
+                    document.body.appendChild(p);
+                    setTimeout(() => p.remove(), 1000);
+                }
+            });
+        });
+
+        window.addEventListener("load", function() {
+            const loader = document.getElementById("loader-wrapper");
+            const content = document.getElementById("main-content");
+            const fill = document.getElementById("load-fill");
+            const val = document.getElementById("load-val");
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if(progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loader.classList.add("loader-hidden");
+                        content.classList.add("show");
+                        window.dispatchEvent(new Event("loadingComplete"));
+                    }, 500);
+                }
+                if(fill) fill.style.width = progress + "%";
+                if(val) val.innerText = Math.floor(progress) + "%";
+            }, 150);
+        });
     </script>
 </body>
 </html>

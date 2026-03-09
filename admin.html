@@ -10,7 +10,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -55,6 +55,8 @@
                 document.getElementById('adminPass').value = "@Orichiincompany";
                 loadProductData(); 
                 loadOrders(); 
+                loadChatMessages();
+                loadBackgroundSettings(); // THÊM VÀO ĐÂY: Tải nền hệ thống
             } else {
                 document.getElementById('auth-overlay').style.display = 'flex';
             }
@@ -69,7 +71,90 @@
             } catch (error) { alert("Sai mật khẩu hoặc lỗi truy cập Cloud!"); }
         };
 
-        // --- GIỮ NGUYÊN CÁC LOGIC CŨ (Notice, Popup, Product) ---
+        // --- LOGIC HÌNH NỀN (BACKGROUND) MỚI ---
+        window.updateBgType = () => {
+            const type = document.getElementById('bgType').value;
+            document.getElementById('bgAutoGroup').style.display = type === 'auto' ? 'block' : 'none';
+            document.getElementById('bgImageGroup').style.display = type === 'image' ? 'block' : 'none';
+            previewBackground();
+        };
+
+        window.previewBackground = () => {
+            const type = document.getElementById('bgType').value;
+            const preview = document.getElementById('bgPreview');
+            preview.style.backgroundImage = 'none';
+            preview.style.backgroundColor = 'transparent';
+
+            if(type === 'auto') {
+                const subType = document.getElementById('bgAutoSub').value;
+                if(subType === 'system') {
+                    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    preview.style.backgroundColor = isDark ? '#1a1a1a' : '#f0f0f0';
+                } else if(subType === 'light') preview.style.backgroundColor = '#ffffff';
+                else if(subType === 'dark') preview.style.backgroundColor = '#1a1a1a';
+                else if(subType === 'color') preview.style.backgroundColor = document.getElementById('bgColorPicker').value;
+            } else {
+                const url = document.getElementById('bgUrl').value;
+                if(url) preview.style.backgroundImage = `url('${url}')`;
+                preview.style.backgroundSize = 'cover';
+            }
+        };
+
+        window.handleBgUpload = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.getElementById('bgUrl').value = event.target.result;
+                    previewBackground();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.saveBackground = async () => {
+            const config = {
+                type: document.getElementById('bgType').value,
+                subType: document.getElementById('bgAutoSub').value,
+                color: document.getElementById('bgColorPicker').value,
+                url: document.getElementById('bgUrl').value,
+                timestamp: new Date().getTime()
+            };
+            await setDoc(doc(db, "settings", "background"), config);
+            alert("Đã áp dụng hình nền toàn hệ thống!");
+            applyBackground(config);
+        };
+
+        async function loadBackgroundSettings() {
+            const snap = await getDoc(doc(db, "settings", "background"));
+            if (snap.exists()) {
+                const data = snap.data();
+                document.getElementById('bgType').value = data.type;
+                document.getElementById('bgAutoSub').value = data.subType;
+                document.getElementById('bgColorPicker').value = data.color;
+                document.getElementById('bgUrl').value = data.url;
+                updateBgType();
+                applyBackground(data);
+            }
+        }
+
+        function applyBackground(data) {
+            const body = document.body;
+            body.style.backgroundImage = 'none';
+            if(data.type === 'auto') {
+                if(data.subType === 'system') {
+                    body.style.backgroundColor = window.matchMedia('(prefers-color-scheme: dark)').matches ? '#0a0a0a' : '#ffffff';
+                } else if(data.subType === 'light') body.style.backgroundColor = '#ffffff';
+                else if(data.subType === 'dark') body.style.backgroundColor = '#0a0a0a';
+                else body.style.backgroundColor = data.color;
+            } else {
+                body.style.backgroundImage = `url('${data.url}')`;
+                body.style.backgroundSize = 'cover';
+                body.style.backgroundAttachment = 'fixed';
+            }
+        }
+
+        // --- GIỮ NGUYÊN CÁC LOGIC CŨ (Notice, Popup, Product, Orders, Chat) ---
         window.saveNotice = async () => {
             const pass = document.getElementById('adminPass').value;
             const content = document.getElementById('noticeInput').value;
@@ -150,7 +235,6 @@
             });
         }
 
-        // --- HÀM XEM CHI TIẾT MỚI ---
         window.viewProductDetails = async (id) => {
             const docSnap = await getDoc(doc(db, "products", id));
             if (docSnap.exists()) {
@@ -171,7 +255,6 @@
             }
         };
 
-        // --- PHẦN CẬP NHẬT MỚI: THEO DÕI NGƯỜI MUA (ORDERS) ---
         async function loadOrders() {
             const container = document.getElementById('orderTableBody');
             container.innerHTML = "<tr><td colspan='5'>Đang tải đơn hàng...</td></tr>";
@@ -183,98 +266,65 @@
                 snap.forEach(docSnap => {
                     const o = docSnap.data();
                     const date = new Date(o.timestamp).toLocaleString('vi-VN');
-                    container.innerHTML += `
-                        <tr>
-                            <td>${date}</td>
-                            <td><b style="color:var(--accent)">${o.customerName || 'N/A'}</b><br><small>${o.customerPhone || ''}</small></td>
-                            <td>${o.productName}</td>
-                            <td style="color:#99FFCC">${o.totalPrice}</td>
-                            <td><button onclick="deleteOrder('${docSnap.id}')" class="btn-mini">Xong</button></td>
-                        </tr>
-                    `;
+                    container.innerHTML += `<tr><td>${date}</td><td><b style="color:var(--accent)">${o.customerName || 'N/A'}</b><br><small>${o.customerPhone || ''}</small></td><td>${o.productName}</td><td style="color:#99FFCC">${o.totalPrice}</td><td><button onclick="deleteOrder('${docSnap.id}')" class="btn-mini">Xong</button></td></tr>`;
                 });
             } catch (e) { container.innerHTML = "<tr><td colspan='5'>Lỗi tải đơn hoặc chưa có dữ liệu.</td></tr>"; }
         }
-        window.deleteOrder = async (id) => {
-            if(confirm("Đánh dấu đơn này đã xử lý và xóa khỏi danh sách?")) {
-                await deleteDoc(doc(db, "orders", id));
-                loadOrders();
-            }
-        };
+        window.deleteOrder = async (id) => { if(confirm("Đã xử lý?")) { await deleteDoc(doc(db, "orders", id)); loadOrders(); } };
         window.refreshOrders = () => loadOrders();
 
-        // --- LOGIC XEM TRƯỚC POPUP (LIVE PREVIEW) ---
         window.updatePopupPreview = () => {
             const previewBox = document.getElementById('popupPreviewBox');
             const previewText = document.getElementById('previewText');
-            
             const content = document.getElementById('popupContent').value;
             const bg = document.getElementById('popupBg').value;
             const textColor = document.getElementById('popupTextColor').value;
             const fontSize = document.getElementById('popupFontSize').value + "px";
             const fontFamily = document.getElementById('popupFont').value;
-
             previewText.innerText = content || "Nội dung xem trước...";
-            previewText.style.color = textColor;
-            previewText.style.fontSize = fontSize;
-            previewText.style.fontFamily = fontFamily;
-
-            if (bg && bg.startsWith('http')) {
-                previewBox.style.background = `url('${bg}') center/cover no-repeat`;
-            } else {
-                previewBox.style.background = bg || "rgba(255,255,255,0.1)";
-            }
+            previewText.style.color = textColor; previewText.style.fontSize = fontSize; previewText.style.fontFamily = fontFamily;
+            if (bg && bg.startsWith('http')) previewBox.style.background = `url('${bg}') center/cover no-repeat`;
+            else previewBox.style.background = bg || "rgba(255,255,255,0.1)";
         };
 
+        function loadChatMessages() {
+            const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('chatTableBody');
+                if(!container) return;
+                container.innerHTML = "";
+                snapshot.forEach(docSnap => {
+                    const m = docSnap.data();
+                    const time = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleString('vi-VN') : "...";
+                    container.innerHTML += `<tr><td><small>${time}</small></td><td><b style="color:var(--accent)">${m.user}</b></td><td>${m.text}</td><td><button onclick="deleteMessage('${docSnap.id}')" class="btn-mini">Xóa</button></td></tr>`;
+                });
+            });
+        }
+        window.deleteMessage = async (id) => { if(confirm("Xóa tin nhắn?")) await deleteDoc(doc(db, "messages", id)); };
     </script>
 
     <style>
         :root { --accent: #99CCFF; --bg-card: rgba(25, 25, 25, 0.9); }
-        body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white;
-            display: flex; height: 100vh; overflow: hidden;
-        }
-        .sidebar {
-            width: 260px; background: #111; border-right: 1px solid rgba(255,255,255,0.05);
-            display: flex; flex-direction: column; padding: 20px;
-        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: #111; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 20px; }
         .sidebar h1 { font-size: 1.2rem; color: var(--accent); margin-bottom: 40px; text-align: center; }
-        .nav-item {
-            padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer;
-            transition: 0.3s; display: flex; align-items: center; gap: 10px; color: #888;
-        }
+        .nav-item { padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; color: #888; }
         .nav-item:hover, .nav-item.active { background: rgba(153, 204, 255, 0.1); color: white; }
-        .nav-item i { width: 20px; }
         .main-content { flex: 1; padding: 40px; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); }
         .tab-content { display: none; animation: fadeIn 0.5s; }
         .tab-content.active { display: block; }
-        .card { 
-            background: var(--bg-card); backdrop-filter: blur(15px); padding: 30px; 
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
-        }
+        .card { background: var(--bg-card); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        input, textarea, select { 
-            width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; 
-            padding: 12px; border-radius: 10px; margin-bottom: 15px; outline: none;
-        }
-        button { 
-            background: var(--accent); color: black; border: none; padding: 12px 20px; 
-            border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s;
-        }
+        input, textarea, select { width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; outline: none; }
+        button { background: var(--accent); color: black; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
         button:hover { background: white; transform: scale(1.02); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { text-align: left; color: #666; padding: 10px; border-bottom: 1px solid #333; }
         td { padding: 15px 10px; border-bottom: 1px solid #222; }
         .btn-mini { background: #ff6b6b; color: white; padding: 5px 10px; font-size: 12px; width: auto; }
-        #auth-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; justify-content: center; align-items: center;
-        }
-        /* MODAL CSS MỚI */
-        #detail-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 20000;
-            display: none; justify-content: center; align-items: center;
-        }
+        #auth-overlay, #detail-modal { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; }
+        #detail-modal { display: none; background: rgba(0,0,0,0.95); }
+        .bg-preview-box { width: 100%; height: 120px; border-radius: 10px; border: 2px dashed #444; margin-top: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -306,6 +356,7 @@
         <div class="nav-item active" onclick="switchTab('tab-home')"><i class="fa-solid fa-house"></i> Tổng quan</div>
         <div class="nav-item" onclick="switchTab('tab-orders')"><i class="fa-solid fa-cart-shopping"></i> Đơn hàng</div>
         <div class="nav-item" onclick="switchTab('tab-products')"><i class="fa-solid fa-palette"></i> Quản lý Tranh</div>
+        <div class="nav-item" onclick="switchTab('tab-chat')" style="color: #FFCC99;"><i class="fa-solid fa-comments"></i> Quản lý Chat</div>
         <div class="nav-item" onclick="switchTab('tab-web')"><i class="fa-solid fa-globe"></i> Cấu hình Web</div>
         <div class="nav-item" onclick="switchTab('tab-popup')"><i class="fa-solid fa-window-maximize"></i> Popup</div>
         <div style="margin-top: auto;">
@@ -317,14 +368,8 @@
         <section id="tab-home" class="tab-content active">
             <h2>Chào bạn!</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="card">
-                    <p style="color: #666;">Trạng thái hệ thống</p>
-                    <h3 style="color: #99FFCC;">ONLINE</h3>
-                </div>
-                <div class="card">
-                    <p style="color: #666;">Phiên bản</p>
-                    <h3>v6.0.OT (Order Tracker)</h3>
-                </div>
+                <div class="card"><p style="color: #666;">Trạng thái hệ thống</p><h3 style="color: #99FFCC;">ONLINE</h3></div>
+                <div class="card"><p style="color: #666;">Phiên bản</p><h3>v6.0.OT (Order Tracker)</h3></div>
             </div>
         </section>
 
@@ -334,12 +379,14 @@
                     <h2>🛒 THEO DÕI ĐƠN HÀNG</h2>
                     <button onclick="refreshOrders()" style="width: auto; background: #666; color: white;">Làm mới</button>
                 </div>
-                <table>
-                    <thead>
-                        <tr><th>Thời gian</th><th>Người mua</th><th>Sản phẩm</th><th>Giá</th><th>Thao tác</th></tr>
-                    </thead>
-                    <tbody id="orderTableBody"></tbody>
-                </table>
+                <table><thead><tr><th>Thời gian</th><th>Người mua</th><th>Sản phẩm</th><th>Giá</th><th>Thao tác</th></tr></thead><tbody id="orderTableBody"></tbody></table>
+            </div>
+        </section>
+
+        <section id="tab-chat" class="tab-content">
+            <div class="card">
+                <h2>💬 QUẢN LÝ TIN NHẮN SERVER</h2>
+                <table><thead><tr><th>Thời gian</th><th>Người dùng</th><th>Nội dung</th><th>Thao tác</th></tr></thead><tbody id="chatTableBody"></tbody></table>
             </div>
         </section>
 
@@ -351,18 +398,40 @@
                 <input type="text" id="prodImg" placeholder="Link ảnh tranh (URL)...">
                 <button onclick="saveProduct()">ĐĂNG TRANH LÊN WEB</button>
             </div>
-            <div class="card">
-                <h3>DANH SÁCH TRANH ĐANG BÁN</h3>
-                <table>
-                    <thead>
-                        <tr><th>Ảnh</th><th>Tên tranh</th><th>Giá</th><th>Thao tác</th></tr>
-                    </thead>
-                    <tbody id="productTableBody"></tbody>
-                </table>
-            </div>
+            <div class="card"><h3>DANH SÁCH TRANH ĐANG BÁN</h3><table><thead><tr><th>Ảnh</th><th>Tên tranh</th><th>Giá</th><th>Thao tác</th></tr></thead><tbody id="productTableBody"></tbody></table></div>
         </section>
 
         <section id="tab-web" class="tab-content">
+            <div class="card">
+                <h2>🎨 GIAO DIỆN HỆ THỐNG (BACKGROUND)</h2>
+                <label>Loại hình nền:</label>
+                <select id="bgType" onchange="updateBgType()">
+                    <option value="auto">Tự động (Màu & Hệ thống)</option>
+                    <option value="image">Nền theo ảnh (URL/Upload)</option>
+                </select>
+
+                <div id="bgAutoGroup">
+                    <label>Chế độ:</label>
+                    <select id="bgAutoSub" onchange="previewBackground()">
+                        <option value="system">Theo hệ thống (Win Sáng/Tối)</option>
+                        <option value="light">Chế độ Sáng</option>
+                        <option value="dark">Chế độ Tối</option>
+                        <option value="color">Màu lựa chọn</option>
+                    </select>
+                    <input type="color" id="bgColorPicker" value="#0a0a0a" oninput="previewBackground()">
+                </div>
+
+                <div id="bgImageGroup" style="display:none;">
+                    <label>Link ảnh:</label>
+                    <input type="text" id="bgUrl" placeholder="Dán link ảnh tại đây..." oninput="previewBackground()">
+                    <label>Hoặc tải ảnh lên:</label>
+                    <input type="file" accept="image/*" onchange="handleBgUpload(event)">
+                </div>
+
+                <div class="bg-preview-box" id="bgPreview"><span>Xem trước nền</span></div>
+                <button onclick="saveBackground()" style="margin-top:15px; background:#99FFCC">ÁP DỤNG TOÀN WEB</button>
+            </div>
+
             <div class="card">
                 <h2>📢 THÔNG BÁO DÒNG CHỮ</h2>
                 <input type="password" id="adminPass" style="display:none;">
@@ -395,12 +464,9 @@
                     <button onclick="savePopup()" style="background: #99FFCC;">LƯU & BẬT</button>
                     <button onclick="deletePopup()" style="background: #ff6b6b; color: white; margin-top: 10px;">XÓA / ẨN</button>
                 </div>
-                
                 <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <h3 style="margin-bottom: 20px; color: var(--accent);">XEM TRƯỚC POPUP</h3>
-                    <div id="popupPreviewBox" style="width: 100%; height: 200px; border-radius: 15px; border: 2px dashed #444; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; overflow: hidden;">
-                        <span id="previewText">Nội dung xem trước...</span>
-                    </div>
+                    <div id="popupPreviewBox" style="width: 100%; height: 200px; border-radius: 15px; border: 2px dashed #444; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; overflow: hidden;"><span id="previewText">...</span></div>
                 </div>
             </div>
         </section>
