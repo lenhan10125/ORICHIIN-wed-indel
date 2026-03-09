@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORC STUDIO - PROFESSIONAL ADMIN</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
@@ -25,13 +26,35 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // --- CẬP NHẬT: TỰ THOÁT KHI TẮT TAB ---
+        window.addEventListener('beforeunload', () => {
+            signOut(auth);
+        });
+
+        // --- CẬP NHẬT: LOGIC TỰ ĐỘNG KHÓA KHI RỜI TAB > 3 PHÚT ---
+        let backgroundTime;
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                backgroundTime = new Date().getTime();
+            } else {
+                if (backgroundTime) {
+                    const timeAway = (new Date().getTime() - backgroundTime) / 1000;
+                    if (timeAway > 180) { // 180 giây = 3 phút
+                        signOut(auth).then(() => {
+                            location.reload(); 
+                        });
+                    }
+                }
+            }
+        });
+
         // --- GIỮ NGUYÊN LOGIC AUTH ---
         onAuthStateChanged(auth, (user) => {
             if (user && user.uid === "Lpth1LUWV6MCPDfVh1sq2iaMOKy1") {
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('adminPass').value = "@Orichiincompany";
                 loadProductData(); 
-                loadOrders(); // Tải thêm danh sách đơn hàng
+                loadOrders(); 
             } else {
                 document.getElementById('auth-overlay').style.display = 'flex';
             }
@@ -135,7 +158,6 @@
             const container = document.getElementById('orderTableBody');
             container.innerHTML = "<tr><td colspan='5'>Đang tải đơn hàng...</td></tr>";
             try {
-                // Giả định bạn lưu đơn hàng vào collection "orders"
                 const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
                 const snap = await getDocs(q);
                 container.innerHTML = "";
@@ -162,6 +184,29 @@
             }
         };
         window.refreshOrders = () => loadOrders();
+
+        // --- LOGIC XEM TRƯỚC POPUP (LIVE PREVIEW) ---
+        window.updatePopupPreview = () => {
+            const previewBox = document.getElementById('popupPreviewBox');
+            const previewText = document.getElementById('previewText');
+            
+            const content = document.getElementById('popupContent').value;
+            const bg = document.getElementById('popupBg').value;
+            const textColor = document.getElementById('popupTextColor').value;
+            const fontSize = document.getElementById('popupFontSize').value + "px";
+            const fontFamily = document.getElementById('popupFont').value;
+
+            previewText.innerText = content || "Nội dung xem trước...";
+            previewText.style.color = textColor;
+            previewText.style.fontSize = fontSize;
+            previewText.style.fontFamily = fontFamily;
+
+            if (bg && bg.startsWith('http')) {
+                previewBox.style.background = `url('${bg}') center/cover no-repeat`;
+            } else {
+                previewBox.style.background = bg || "rgba(255,255,255,0.1)";
+            }
+        };
 
     </script>
 
@@ -296,22 +341,31 @@
         </section>
 
         <section id="tab-popup" class="tab-content">
-            <div class="card">
-                <h2>🖼️ CẤU HÌNH POPUP TỰ BẬT</h2>
-                <label>Link Hình Nền:</label>
-                <input type="text" id="popupBg" placeholder="URL ảnh...">
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex:1"><label>Màu chữ:</label><input type="color" id="popupTextColor" value="#ffffff"></div>
-                    <div style="flex:1"><label>Cỡ (px):</label><input type="number" id="popupFontSize" value="18"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card">
+                    <h2>🖼️ CẤU HÌNH POPUP TỰ BẬT</h2>
+                    <label>Link Hình Nền:</label>
+                    <input type="text" id="popupBg" placeholder="URL ảnh..." oninput="updatePopupPreview()">
+                    <div style="display: flex; gap: 15px;">
+                        <div style="flex:1"><label>Màu chữ:</label><input type="color" id="popupTextColor" value="#ffffff" oninput="updatePopupPreview()"></div>
+                        <div style="flex:1"><label>Cỡ (px):</label><input type="number" id="popupFontSize" value="18" oninput="updatePopupPreview()"></div>
+                    </div>
+                    <label>Font chữ:</label>
+                    <select id="popupFont" onchange="updatePopupPreview()">
+                        <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                        <option value="'Pacifico', cursive">Pacifico (Nghệ thuật)</option>
+                    </select>
+                    <textarea id="popupContent" rows="4" placeholder="Nội dung Popup..." oninput="updatePopupPreview()"></textarea>
+                    <button onclick="savePopup()" style="background: #99FFCC;">LƯU & BẬT</button>
+                    <button onclick="deletePopup()" style="background: #ff6b6b; color: white; margin-top: 10px;">XÓA / ẨN</button>
                 </div>
-                <label>Font chữ:</label>
-                <select id="popupFont">
-                    <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                    <option value="'Pacifico', cursive">Pacifico (Nghệ thuật)</option>
-                </select>
-                <textarea id="popupContent" rows="4" placeholder="Nội dung Popup..."></textarea>
-                <button onclick="savePopup()" style="background: #99FFCC;">LƯU & BẬT</button>
-                <button onclick="deletePopup()" style="background: #ff6b6b; color: white; margin-top: 10px;">XÓA / ẨN</button>
+                
+                <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h3 style="margin-bottom: 20px; color: var(--accent);">XEM TRƯỚC POPUP</h3>
+                    <div id="popupPreviewBox" style="width: 100%; height: 200px; border-radius: 15px; border: 2px dashed #444; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; overflow: hidden;">
+                        <span id="previewText">Nội dung xem trước...</span>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -321,7 +375,7 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            if (event) event.currentTarget.classList.add('active');
         }
     </script>
 </body>
