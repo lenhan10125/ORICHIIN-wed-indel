@@ -10,7 +10,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -141,11 +141,29 @@
                         <td><img src="${p.img}" width="50" style="border-radius:5px"></td>
                         <td>${p.name}</td>
                         <td style="color:#99FFCC">${p.price} VNĐ</td>
-                        <td><button onclick="deleteProduct('${docSnap.id}')" class="btn-mini">Xóa</button></td>
+                        <td>
+                            <button onclick="viewProductDetails('${docSnap.id}')" class="btn-mini" style="background:var(--accent); color:black; margin-right:5px">Xem</button>
+                            <button onclick="deleteProduct('${docSnap.id}')" class="btn-mini">Xóa</button>
+                        </td>
                     </tr>
                 `;
             });
         }
+
+        // --- HÀM XEM CHI TIẾT MỚI ---
+        window.viewProductDetails = async (id) => {
+            const docSnap = await getDoc(doc(db, "products", id));
+            if (docSnap.exists()) {
+                const p = docSnap.data();
+                document.getElementById('detailImg').src = p.img;
+                document.getElementById('detailName').innerText = p.name;
+                document.getElementById('detailPrice').innerText = p.price + " VNĐ";
+                document.getElementById('detailTime').innerText = new Date(p.timestamp).toLocaleString('vi-VN');
+                document.getElementById('detail-modal').style.display = 'flex';
+            }
+        };
+        window.closeModal = () => { document.getElementById('detail-modal').style.display = 'none'; };
+
         window.deleteProduct = async (id) => {
             if(confirm("Xóa bức tranh này?")) {
                 await deleteDoc(doc(db, "products", id));
@@ -252,6 +270,11 @@
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; justify-content: center; align-items: center;
         }
+        /* MODAL CSS MỚI */
+        #detail-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 20000;
+            display: none; justify-content: center; align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -262,6 +285,19 @@
             <h2>ORC SECURITY</h2>
             <input type="password" id="entryPass" placeholder="Mật khẩu hệ thống...">
             <button onclick="accessPanel()">XÁC MINH TRUY CẬP</button>
+        </div>
+    </div>
+
+    <div id="detail-modal">
+        <div class="card" style="width: 500px; text-align: center; border: 1px solid var(--accent);">
+            <h2 style="color: var(--accent); margin-top: 0;">CHI TIẾT TÁC PHẨM</h2>
+            <img id="detailImg" src="" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; margin-bottom: 20px; background: #000;">
+            <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                <p><b>Tên tranh:</b> <span id="detailName"></span></p>
+                <p><b>Giá niêm yết:</b> <span id="detailPrice" style="color:#99FFCC"></span></p>
+                <p><b>Ngày đăng:</b> <span id="detailTime" style="color:#888"></span></p>
+            </div>
+            <button onclick="closeModal()" style="margin-top: 20px; background: #444; color: white;">ĐÓNG CỬA SỔ</button>
         </div>
     </div>
 
