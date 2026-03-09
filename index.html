@@ -7,7 +7,7 @@
     <title>ORICHIIN</title>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
             authDomain: "admin-bd0ff.firebaseapp.com",
@@ -34,6 +34,27 @@
             }
         });
 
+        // --- PHẦN MỚI: LẤY DANH SÁCH TRANH CỦA BỐ ---
+        const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const p = doc.data();
+                productGrid.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-img-box">
+                            <img src="${p.img}" alt="${p.name}">
+                        </div>
+                        <div class="product-info">
+                            <h3>${p.name}</h3>
+                            <p class="price">${p.price} VNĐ</p>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
         onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -45,7 +66,6 @@
             }
         });
 
-        // Lắng nghe tín hiệu loading hoàn tất để hiện Popup
         window.addEventListener("loadingComplete", () => {
             isSiteReady = true;
             if (pendingPopupData) showPopup(pendingPopupData);
@@ -85,7 +105,9 @@
             color: #FFFFFF !important;
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
             background-size: cover;
-            overflow: hidden;
+            /* Thay đổi overflow để có thể cuộn xem tranh */
+            overflow-y: auto; 
+            overflow-x: hidden;
         }
         :root {
             --yt-bg: rgba(15, 15, 15, 0.85);
@@ -93,7 +115,56 @@
             --neon-blue: #00f3ff;
             --neon-flame: #00FF00;
         }
-        /* Hiệu ứng cháy Neon khi hover */
+
+        /* --- CSS MỚI CHO PHẦN HIỂN THỊ TRANH --- */
+        .product-section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+        }
+        .section-title {
+            text-align: center;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--yt-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: 0.4s;
+            backdrop-filter: blur(10px);
+        }
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+        }
+        .product-img-box {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        .product-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+        .product-card:hover img { transform: scale(1.1); }
+        .product-info { padding: 20px; text-align: left; }
+        .product-info h3 { margin: 0; font-size: 1.2rem; color: #fff; }
+        .product-info .price { color: var(--neon-flame); font-weight: bold; margin-top: 10px; }
+
+        /* GIỮ NGUYÊN CÁC ANIMATION CŨ CỦA BẠN */
         @keyframes neon-burn {
             0%, 100% {
                 text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
@@ -139,7 +210,6 @@
         .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
         .search-btn svg { width: 20px; height: 20px; fill: white; }
         
-        /* Menu Overlay */
         .menu-overlay {
             position: fixed; top: 65px; left: 16px;
             width: fit-content; height: auto;
@@ -169,7 +239,6 @@
             transform: translateX(8px); 
         }
 
-        /* Popup Animation */
         #popup-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 10001;
@@ -214,9 +283,9 @@
         .neon-bar-border { width: 100%; height: 22px; border: 2px solid var(--neon-flame); border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 10px var(--neon-flame); }
         .neon-bar-fill { height: 100%; width: 0%; background: var(--neon-flame); border-radius: 10px; box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame); animation: flame-glow 0.5s infinite alternate; }
         .loader-hidden { opacity: 0; visibility: hidden; }
-        .container { height: 100vh; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
+        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
         .container.show { opacity: 1; }
-        .content-box { position: relative; z-index: 10; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; }
+        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
         .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
         h1 { color: #d9b8ab; font-size: 2.5em; }
     </style>
@@ -246,25 +315,23 @@
             </button>
             <div class="logo">
                 <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
-                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Hentaiorc.xyz</span>
+                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Giang-artist</span>
                 </a>
             </div>
         </div>
         <div class="header-center">
             <div class="search-container">
-                <input type="text" placeholder="Tìm kiếm..." class="search-input">
+                <input type="text" placeholder="Tìm kiếm tranh..." class="search-input">
                 <button class="search-btn">
                     <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
                 </button>
             </div>
         </div>
         <div class="header-right">
-            <button class="icon-btn" style="background:none; border:none; fill:white; cursor:pointer;" title="Cài đặt">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 9.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-1c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zM13.22 3l.55 2.06.13.51.5.15c.53.15 1.03.38 1.5.67l.47.3.52-.11 2.06-.45 1.46 2.47-1.53 1.54-.4.4.08.54c.05.35.07.71.07 1.07s-.02.72-.07 1.07l-.08.54.4.4 1.53 1.54-1.46 2.47-2.06-.45-.52-.11-.47.3c-.47.29-.97.52-1.5.67l-.5.15-.13.51-.55 2.06h-2.44l-.55-2.06-.13-.51-.5-.15c-.53-.15-1.03-.38-1.5-.67l-.47-.3-.52.11-2.06.45-1.46-2.47 1.53-1.54.4-.4-.08-.54c-.05-.35-.07-.72-.07-1.07s.02-.72.07-1.07l.08-.54-.4-.4-1.53-1.54 1.46-2.47 2.06.45.52.11.47-.3c.47-.29.97-.52 1.5-.67l.5-.15.13-.51.55-2.06h2.44m.6-1h-3.64l-.74 2.78c-.64.19-1.23.49-1.77.88l-2.77-.61-1.82 3.15 2.06 2.08c-.05.33-.1.68-.1 1.03s.05.7.1 1.03l-2.06 2.08 1.82 3.15 2.77-.61c.54.39 1.13.69 1.77.88l.74 2.78h3.64l.74-2.78c.64-.19 1.23-.49 1.77-.88l2.77.61 1.82-3.15-2.06-2.08c.05-.33.1-.68.1-1.03s-.05-.7-.1-1.03l2.06-2.08-1.82-3.15-2.77.61c-.54-.39-1.13-.69-1.77-.88L13.82 2z"></path></svg>
-            </button>
             <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
         </div>
     </nav>
+
     <div class="menu-overlay" id="menuOverlay">
         <nav class="nav-content">
             <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
@@ -273,14 +340,22 @@
             <a href="https://hentaiorc.xyz/tags.html" class="nav-item">Thư viện #Tags</a>
         </nav>
     </div>
+
     <div class="container" id="main-content">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
             <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Đang tải thông báo...</p>
             <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
-            <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank" style="color:var(--neon-blue)">@ORIICHIN</a></p>
+            <p>Facebook: <a href="https://www.facebook.com/langducabpt" target="_blank" style="color:var(--neon-blue)">Giang-artist</a></p>
+        </div>
+
+        <div class="product-section">
+            <h2 class="section-title">🖼️ TÁC PHẨM MỚI NHẤT</h2>
+            <div class="product-grid" id="product-grid">
+                </div>
         </div>
     </div>
+
     <script>
         const dustContainer = document.getElementById('dustContainer');
         function createDust() {
@@ -307,7 +382,6 @@
             if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
         });
 
-        // Hàm đóng popup có hiệu ứng
         function closePopup() {
             const overlay = document.getElementById('popup-overlay');
             overlay.classList.add('closing');
@@ -331,6 +405,7 @@
                 }
             });
         });
+
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
@@ -345,7 +420,6 @@
                     setTimeout(() => {
                         loader.classList.add("loader-hidden");
                         content.classList.add("show");
-                        // Gửi tín hiệu hoàn tất để Firebase biết lúc nào hiện Popup
                         window.dispatchEvent(new Event("loadingComplete"));
                     }, 500);
                 }
