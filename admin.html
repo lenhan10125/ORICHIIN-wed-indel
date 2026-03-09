@@ -9,7 +9,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -25,12 +25,13 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // --- GIỮ NGUYÊN LOGIC AUTH CỦA BẠN ---
+        // --- GIỮ NGUYÊN LOGIC AUTH ---
         onAuthStateChanged(auth, (user) => {
             if (user && user.uid === "Lpth1LUWV6MCPDfVh1sq2iaMOKy1") {
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('adminPass').value = "@Orichiincompany";
-                loadProductData(); // Tải tranh khi đăng nhập xong
+                loadProductData(); 
+                loadOrders(); // Tải thêm danh sách đơn hàng
             } else {
                 document.getElementById('auth-overlay').style.display = 'flex';
             }
@@ -45,7 +46,7 @@
             } catch (error) { alert("Sai mật khẩu hoặc lỗi truy cập Cloud!"); }
         };
 
-        // --- GIỮ NGUYÊN LOGIC LƯU THÔNG BÁO ---
+        // --- GIỮ NGUYÊN CÁC LOGIC CŨ (Notice, Popup, Product) ---
         window.saveNotice = async () => {
             const pass = document.getElementById('adminPass').value;
             const content = document.getElementById('noticeInput').value;
@@ -91,13 +92,11 @@
             alert("Đã ẩn!");
         };
 
-        // --- PHẦN MỚI: QUẢN LÝ TRANH CHO BỐ ---
         window.saveProduct = async () => {
             const name = document.getElementById('prodName').value;
             const price = document.getElementById('prodPrice').value;
             const img = document.getElementById('prodImg').value;
             if(!name || !price) return alert("Vui lòng nhập tên và giá tranh!");
-
             try {
                 await addDoc(collection(db, "products"), {
                     name, price, img, timestamp: new Date().getTime()
@@ -130,6 +129,40 @@
                 loadProductData();
             }
         };
+
+        // --- PHẦN CẬP NHẬT MỚI: THEO DÕI NGƯỜI MUA (ORDERS) ---
+        async function loadOrders() {
+            const container = document.getElementById('orderTableBody');
+            container.innerHTML = "<tr><td colspan='5'>Đang tải đơn hàng...</td></tr>";
+            try {
+                // Giả định bạn lưu đơn hàng vào collection "orders"
+                const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+                const snap = await getDocs(q);
+                container.innerHTML = "";
+                if(snap.empty) container.innerHTML = "<tr><td colspan='5'>Chưa có đơn hàng nào.</td></tr>";
+                snap.forEach(docSnap => {
+                    const o = docSnap.data();
+                    const date = new Date(o.timestamp).toLocaleString('vi-VN');
+                    container.innerHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td><b style="color:var(--accent)">${o.customerName || 'N/A'}</b><br><small>${o.customerPhone || ''}</small></td>
+                            <td>${o.productName}</td>
+                            <td style="color:#99FFCC">${o.totalPrice}</td>
+                            <td><button onclick="deleteOrder('${docSnap.id}')" class="btn-mini">Xong</button></td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { container.innerHTML = "<tr><td colspan='5'>Lỗi tải đơn hoặc chưa có dữ liệu.</td></tr>"; }
+        }
+        window.deleteOrder = async (id) => {
+            if(confirm("Đánh dấu đơn này đã xử lý và xóa khỏi danh sách?")) {
+                await deleteDoc(doc(db, "orders", id));
+                loadOrders();
+            }
+        };
+        window.refreshOrders = () => loadOrders();
+
     </script>
 
     <style>
@@ -138,8 +171,6 @@
             margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white;
             display: flex; height: 100vh; overflow: hidden;
         }
-        
-        /* Sidebar */
         .sidebar {
             width: 260px; background: #111; border-right: 1px solid rgba(255,255,255,0.05);
             display: flex; flex-direction: column; padding: 20px;
@@ -151,19 +182,14 @@
         }
         .nav-item:hover, .nav-item.active { background: rgba(153, 204, 255, 0.1); color: white; }
         .nav-item i { width: 20px; }
-
-        /* Main Content */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); }
         .tab-content { display: none; animation: fadeIn 0.5s; }
         .tab-content.active { display: block; }
-
         .card { 
             background: var(--bg-card); backdrop-filter: blur(15px); padding: 30px; 
             border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
         }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         input, textarea, select { 
             width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; 
             padding: 12px; border-radius: 10px; margin-bottom: 15px; outline: none;
@@ -173,13 +199,10 @@
             border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s;
         }
         button:hover { background: white; transform: scale(1.02); }
-        
-        /* Table Styles */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { text-align: left; color: #666; padding: 10px; border-bottom: 1px solid #333; }
         td { padding: 15px 10px; border-bottom: 1px solid #222; }
         .btn-mini { background: #ff6b6b; color: white; padding: 5px 10px; font-size: 12px; width: auto; }
-
         #auth-overlay {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; justify-content: center; align-items: center;
@@ -200,6 +223,7 @@
     <aside class="sidebar">
         <h1>ORICHIIN STUDIO</h1>
         <div class="nav-item active" onclick="switchTab('tab-home')"><i class="fa-solid fa-house"></i> Tổng quan</div>
+        <div class="nav-item" onclick="switchTab('tab-orders')"><i class="fa-solid fa-cart-shopping"></i> Đơn hàng</div>
         <div class="nav-item" onclick="switchTab('tab-products')"><i class="fa-solid fa-palette"></i> Quản lý Tranh</div>
         <div class="nav-item" onclick="switchTab('tab-web')"><i class="fa-solid fa-globe"></i> Cấu hình Web</div>
         <div class="nav-item" onclick="switchTab('tab-popup')"><i class="fa-solid fa-window-maximize"></i> Popup</div>
@@ -210,7 +234,7 @@
 
     <main class="main-content">
         <section id="tab-home" class="tab-content active">
-            <h2>Chào Orichiin-san!</h2>
+            <h2>Chào bạn!</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="card">
                     <p style="color: #666;">Trạng thái hệ thống</p>
@@ -218,8 +242,23 @@
                 </div>
                 <div class="card">
                     <p style="color: #666;">Phiên bản</p>
-                    <h3>v3.0.1 (Pro)</h3>
+                    <h3>v3.1.0 (Order Tracker)</h3>
                 </div>
+            </div>
+        </section>
+
+        <section id="tab-orders" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>🛒 THEO DÕI ĐƠN HÀNG</h2>
+                    <button onclick="refreshOrders()" style="width: auto; background: #666; color: white;">Làm mới</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>Thời gian</th><th>Người mua</th><th>Sản phẩm</th><th>Giá</th><th>Thao tác</th></tr>
+                    </thead>
+                    <tbody id="orderTableBody"></tbody>
+                </table>
             </div>
         </section>
 

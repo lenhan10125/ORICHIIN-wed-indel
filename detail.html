@@ -5,8 +5,45 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chi tiết tác phẩm - ORICHIIN</title>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
+            authDomain: "admin-bd0ff.firebaseapp.com",
+            projectId: "admin-bd0ff",
+            storageBucket: "admin-bd0ff.appspot.com",
+            messagingSenderId: "721293740677",
+            appId: "1:721293740677:web:8c6ae2228e9af16aa437ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Hàm ghi nhận đơn hàng khi khách click mua
+        window.trackOrder = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const name = urlParams.get('name') || "Không rõ tên";
+            const price = urlParams.get('price') || "0";
+            
+            try {
+                await addDoc(collection(db, "orders"), {
+                    productName: name,
+                    totalPrice: price + " VNĐ",
+                    customerName: "Khách vãng lai",
+                    timestamp: new Date().getTime(),
+                    status: "Chờ tư vấn"
+                });
+            } catch (e) {
+                console.error("Lỗi ghi đơn hàng:", e);
+            }
+        };
+    </script>
+
     <style>
-        /* Giữ nguyên CSS gốc của bạn để đồng bộ giao diện */
+        /* Giữ nguyên CSS gốc của bạn */
         @font-face { font-family: 'Lato'; src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2'); }
         body, html {
             margin: 0; padding: 0; min-height: 100vh; font-family: 'Lato', sans-serif;
@@ -15,7 +52,6 @@
         }
         :root { --yt-bg: rgba(15, 15, 15, 0.85); --yt-border: rgba(255, 255, 255, 0.1); --neon-blue: #00f3ff; --neon-flame: #00FF00; }
 
-        /* Header (Giữ nguyên từ trang chính) */
         .yt-header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--yt-bg); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; box-sizing: border-box; }
         .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
         .header-center { flex: 0 1 720px; margin: 0 15px; }
@@ -24,7 +60,6 @@
         .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
         .search-btn svg { width: 20px; height: 20px; fill: white; }
 
-        /* Layout Chi tiết sản phẩm */
         .container { padding-top: 100px; display: flex; justify-content: center; align-items: center; min-height: 80vh; }
         .detail-box {
             width: 90%; max-width: 1000px; display: flex; flex-wrap: wrap;
@@ -47,7 +82,6 @@
         }
         .buy-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-blue); }
         
-        /* Nút quay lại */
         .back-btn {
             color: #99CCFF; text-decoration: none; font-size: 1rem;
             display: flex; align-items: center; gap: 5px; margin-bottom: 20px;
@@ -88,7 +122,7 @@
                 <p class="price-tag" id="display-price">0 VNĐ</p>
                 
                 <div class="btn-group">
-                    <a href="https://m.me/langducabpt" target="_blank" class="buy-btn">NHẮN TIN MUA QUA FACEBOOK</a>
+                    <a href="https://m.me/langducabpt" onclick="trackOrder()" target="_blank" class="buy-btn">NHẮN TIN MUA QUA FACEBOOK</a>
                     <p style="font-size: 0.8rem; color: #888; text-align: center;">Vui lòng chụp màn hình sản phẩm trước khi nhắn tin</p>
                 </div>
             </div>
@@ -96,7 +130,6 @@
     </div>
 
     <script>
-        // Giải mã dữ liệu từ URL để hiển thị
         const urlParams = new URLSearchParams(window.location.search);
         const img = urlParams.get('img');
         const name = urlParams.get('name');
