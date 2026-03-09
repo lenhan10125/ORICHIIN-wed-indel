@@ -34,18 +34,20 @@
             }
         });
 
-        // --- PHẦN CẬP NHẬT: LẤY DANH SÁCH TRANH VÀ SỐ LƯỢT MUA ---
+        // --- PHẦN CẬP NHẬT: THÊM LINK THANH TOÁN VÀO KHUNG ---
         const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
         onSnapshot(q, (snapshot) => {
             const productGrid = document.getElementById('product-grid');
             productGrid.innerHTML = "";
             snapshot.forEach((doc) => {
                 const p = doc.data();
-                // Hiển thị số lượt mua, mặc định là 0 nếu chưa có dữ liệu
                 const purchaseCount = p.purchases || 0; 
                 
+                // Tạo URL thanh toán kèm thông tin sản phẩm
+                const paymentUrl = `https://www.hentaiorc.xyz/detail.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.img)}`;
+
                 productGrid.innerHTML += `
-                    <div class="product-card">
+                    <div class="product-card" onclick="window.location.href='${paymentUrl}'" style="cursor: pointer;">
                         <div class="product-img-box">
                             <img src="${p.img}" alt="${p.name}">
                         </div>
