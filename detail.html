@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chi tiết tác phẩm - ORICHIIN</title>
+    <style>
+        /* Giữ nguyên CSS gốc của bạn để đồng bộ giao diện */
+        @font-face { font-family: 'Lato'; src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2'); }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh; font-family: 'Lato', sans-serif;
+            color: #FFFFFF; background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            background-size: cover; overflow-x: hidden;
+        }
+        :root { --yt-bg: rgba(15, 15, 15, 0.85); --yt-border: rgba(255, 255, 255, 0.1); --neon-blue: #00f3ff; --neon-flame: #00FF00; }
+
+        /* Header (Giữ nguyên từ trang chính) */
+        .yt-header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--yt-bg); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; box-sizing: border-box; }
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        .header-center { flex: 0 1 720px; margin: 0 15px; }
+        .search-container { display: flex; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--yt-border); border-radius: 40px; overflow: hidden; padding-left: 20px; }
+        .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
+        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
+        .search-btn svg { width: 20px; height: 20px; fill: white; }
+
+        /* Layout Chi tiết sản phẩm */
+        .container { padding-top: 100px; display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+        .detail-box {
+            width: 90%; max-width: 1000px; display: flex; flex-wrap: wrap;
+            background: rgba(0, 0, 0, 0.8); border: 1px solid var(--neon-blue);
+            border-radius: 30px; overflow: hidden; backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+        .image-side { flex: 1; min-width: 300px; padding: 20px; text-align: center; background: rgba(255,255,255,0.05); }
+        .image-side img { max-width: 100%; border-radius: 15px; border: 1px solid var(--yt-border); }
+        .info-side { flex: 1; min-width: 300px; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        
+        h1#display-name { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 0; font-size: 2.2rem; }
+        .price-tag { color: var(--neon-flame); font-size: 1.8rem; font-weight: bold; margin: 20px 0; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        .buy-btn {
+            background: var(--neon-blue); color: black; border: none; padding: 15px;
+            font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer;
+            text-decoration: none; text-align: center; transition: 0.3s;
+        }
+        .buy-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-blue); }
+        
+        /* Nút quay lại */
+        .back-btn {
+            color: #99CCFF; text-decoration: none; font-size: 1rem;
+            display: flex; align-items: center; gap: 5px; margin-bottom: 20px;
+        }
+        .back-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="yt-header">
+        <div class="header-left">
+            <a href="index.html" class="back-btn" style="margin-bottom:0; margin-right: 10px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </a>
+            <div class="logo">
+                <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Giang-artist</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" placeholder="Tìm kiếm tranh..." class="search-input">
+                <button class="search-btn"><svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg></button>
+            </div>
+        </div>
+        <div class="header-right">
+            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="detail-box">
+            <div class="image-side">
+                <img id="display-img" src="" alt="Tranh">
+            </div>
+            <div class="info-side">
+                <a href="index.html" class="back-btn">← Quay lại cửa hàng</a>
+                <h1 id="display-name">Tên tác phẩm</h1>
+                <p class="price-tag" id="display-price">0 VNĐ</p>
+                
+                <div class="btn-group">
+                    <a href="https://m.me/langducabpt" target="_blank" class="buy-btn">NHẮN TIN MUA QUA FACEBOOK</a>
+                    <p style="font-size: 0.8rem; color: #888; text-align: center;">Vui lòng chụp màn hình sản phẩm trước khi nhắn tin</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Giải mã dữ liệu từ URL để hiển thị
+        const urlParams = new URLSearchParams(window.location.search);
+        const img = urlParams.get('img');
+        const name = urlParams.get('name');
+        const price = urlParams.get('price');
+
+        if(img) document.getElementById('display-img').src = img;
+        if(name) document.getElementById('display-name').innerText = name;
+        if(price) document.getElementById('display-price').innerText = price + " VNĐ";
+    </script>
+</body>
+</html>
