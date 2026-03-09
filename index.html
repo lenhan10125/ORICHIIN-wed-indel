@@ -20,17 +20,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Biến lưu trạng thái reload
         let lastReloadKey = null;
-
         onSnapshot(doc(db, "settings", "notice"), (doc) => {
             if (doc.exists()) {
                 const data = doc.data();
-                
-                // Cập nhật nội dung thông báo
                 document.getElementById('live-notice').innerText = data.content;
-
-                // TỰ ĐỘNG TẢI LẠI TRANG
                 if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
                     location.reload(); 
                 }
@@ -38,29 +32,23 @@
             }
         });
 
-        // LOGIC LẮNG NGHE POPUP (PHẦN THÊM MỚI)
         onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 const overlay = document.getElementById('popup-overlay');
                 const mainPopup = document.getElementById('main-popup');
                 const textElement = document.getElementById('popup-text');
-
                 if (data.active === true) {
-                    // Áp dụng nền (Ảnh hoặc màu)
                     if (data.bgColor && data.bgColor.startsWith('http')) {
                         mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
                         mainPopup.style.backgroundSize = "cover";
                     } else {
                         mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
                     }
-
-                    // Áp dụng định dạng chữ
                     textElement.style.color = data.textColor || "#ffffff";
                     textElement.style.fontSize = data.fontSize || "18px";
                     textElement.style.fontFamily = data.fontFamily || "sans-serif";
                     textElement.innerText = data.content || "";
-
                     overlay.style.display = 'flex';
                 } else {
                     overlay.style.display = 'none';
@@ -70,17 +58,13 @@
     </script>
 
     <style>
-        /* FONTS */
         @font-face {
             font-family: 'Lato';
             src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
+            margin: 0; padding: 0; height: 100%; width: 100%;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
             background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
@@ -88,86 +72,59 @@
             overflow: hidden;
         }
 
-        :root {
-            --yt-bg: rgba(15, 15, 15, 0.85);
-            --yt-border: rgba(255, 255, 255, 0.1);
-        }
-
-        .yt-header {
-            position: fixed;
-            top: 0; width: 100%; height: 56px;
-            background: var(--yt-bg);
-            backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; z-index: 1000;
-            box-sizing: border-box;
-        }
-
-        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
-
-        .icon-btn {
-            background: transparent; border: none; cursor: pointer;
-            width: 40px; height: 40px; border-radius: 50%;
+        /* --- NEW NEON MENU STYLE --- */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px;
+            width: 50px; height: 50px;
+            border: 2px solid #ffcc00; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-        }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); }
-        .icon-btn svg { width: 24px; height: 24px; fill: white; }
-
-        .header-center { flex: 0 1 720px; margin: 0 15px; }
-        .search-container {
-            display: flex; background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--yt-border); border-radius: 40px;
-            overflow: hidden; padding-left: 20px;
-        }
-        .search-input {
-            flex: 1; background: transparent; border: none;
-            color: white; outline: none; font-size: 14px; height: 40px;
-        }
-        .search-btn {
-            background: rgba(255,255,255,0.1); border: none;
-            width: 64px; height: 40px; border-left: 1px solid var(--yt-border);
-            cursor: pointer;
+            cursor: pointer; z-index: 2000;
+            box-shadow: 0 0 15px #ffcc00;
+            transition: all 0.4s ease;
+            background: rgba(0,0,0,0.5);
         }
 
-        .user-avatar {
-            width: 32px; height: 32px; background: #99CCFF;
-            border-radius: 50%; color: #000; display: flex;
-            align-items: center; justify-content: center; font-weight: bold;
-        }
-
-        /* --- SIDEBAR CẢI TIẾN --- */
-        .yt-sidebar {
-            position: fixed; left: 0; top: 56px; width: 240px; height: calc(100% - 56px);
-            background: var(--yt-bg); backdrop-filter: blur(10px);
-            padding: 12px; z-index: 999; box-sizing: border-box;
-            border-right: 1px solid var(--yt-border);
-            transition: width 0.3s ease;
-            overflow-x: hidden;
-        }
-
-        .yt-sidebar.closed {
-            width: 72px;
-        }
-
-        .sidebar-item {
-            padding: 10px; border-radius: 10px; cursor: pointer;
-            font-size: 14px; transition: 0.2s; margin-bottom: 2px;
-            display: flex; align-items: center;
-            white-space: nowrap;
-            color: white; 
-        }
-        .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
+        .hamburger { width: 25px; height: 18px; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+        .hamburger span { display: block; width: 100%; height: 3px; background: white; transition: 0.4s; border-radius: 2px; }
         
-        .sidebar-item svg {
-            min-width: 24px; width: 24px; height: 24px; 
-            margin-right: 24px; fill: white;
+        .menu-toggle.open { transform: rotate(180deg); }
+        .menu-toggle.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+        .menu-toggle.open span:nth-child(2) { opacity: 0; }
+        .menu-toggle.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+        .menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 1500;
+            display: flex; align-items: center; justify-content: center;
+            clip-path: circle(0% at 45px 45px);
+            transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .menu-overlay.active { clip-path: circle(150% at 45px 45px); }
+
+        .nav-content { display: flex; flex-direction: column; text-align: center; }
+        .nav-item {
+            font-size: 2.5rem; color: black; text-decoration: none;
+            font-weight: bold; margin: 15px 0; position: relative;
+            transition: 0.3s; padding: 10px 20px;
+        }
+        .nav-item:hover {
+            color: #000;
+            text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
         }
 
-        .yt-sidebar.closed .item-text {
-            display: none;
+        /* Hạt bụi sao Neon */
+        .particle {
+            position: fixed; pointer-events: none;
+            width: 4px; height: 4px; background: #00f3ff;
+            border-radius: 50%; box-shadow: 0 0 10px #00f3ff;
+            z-index: 2000; animation: flyUp 1s forwards;
+        }
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) translateX(var(--x)) scale(0); opacity: 0; }
         }
 
-        /* --- LOADING SCREEN --- */
+        /* --- KEEP OLD STYLES FOR LOADER & CONTENT --- */
         #loader-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #2c8b8f; display: flex; flex-direction: column;
@@ -175,35 +132,37 @@
             transition: opacity 0.8s ease, visibility 0.8s;
         }
         .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
-        .neon-loading-container { width: 320px; margin: 10px 0; font-family: sans-serif; }
+        .neon-loading-container { width: 320px; margin: 10px 0; }
         .neon-text-row { display: flex; justify-content: space-between; color: #00FF00; font-weight: bold; font-size: 18px; text-shadow: 0 0 10px #00FF00; margin-bottom: 8px; }
-        .neon-bar-border { width: 100%; height: 22px; border: 2px solid #00FF00; border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 5px #00FF00; }
+        .neon-bar-border { width: 100%; height: 22px; border: 2px solid #00FF00; border-radius: 15px; padding: 2px; box-sizing: border-box; }
         .neon-bar-fill { height: 100%; width: 0%; background: #00FF00; border-radius: 10px; box-shadow: 0 0 15px #00FF00; }
         .loader-hidden { opacity: 0; visibility: hidden; }
 
-        /* --- CONTAINER --- */
         .container {
             height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: rgba(0, 0, 0, 0.2); opacity: 0; 
-            transition: opacity 1s ease-in, padding-left 0.3s ease;
-            padding-left: 240px; 
+            background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in;
         }
-        .container.full-width { padding-left: 72px !important; }
         .container.show { opacity: 1; }
-        .content-box { max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: 20px; }
-        h1 { color: #d9b8ab; margin-top: 0; font-size: 2.5em; text-shadow: 0 0.05em rgba(0,0,0,.8) !important; }
-        p { line-height: 1.6; font-size: 1.1em; text-shadow: 0 0.05em rgba(0,0,0,.8) !important; }
-        a { color: #99CCFF; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        a:hover { color: #ffffff; text-decoration: underline; }
-
-        .sidebar-link {
-            text-decoration: none !important;
-            color: inherit !important;
-            display: block;
-        }
+        .content-box { max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        h1 { color: #d9b8ab; font-size: 2.5em; }
     </style>
 </head>
 <body>
+
+    <div class="menu-toggle" id="menuBtn">
+        <div class="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <nav class="nav-content">
+            <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
+            <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
+            <a href="https://hentaiorc.xyz/drownload-yt.html" class="nav-item">Download YT</a>
+            <a href="https://hentaiorc.xyz/tags.html" class="nav-item">Thư viện #Tags</a>
+        </nav>
+    </div>
 
     <div id="loader-wrapper">
         <img src="ORC.png" alt="Logo" class="loader-top-img">
@@ -211,108 +170,56 @@
             <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
             <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
         </div>
-        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
     </div>
 
     <div id="popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-        <div id="main-popup" style="width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,1); border: 1px solid rgba(255,255,255,0.1);">
-            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
+        <div id="main-popup" style="width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px;">&times;</button>
             <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap;"></div>
         </div>
     </div>
 
-    <nav class="yt-header">
-        <div class="header-left">
-            <button class="icon-btn" id="menu-toggle">
-                <svg viewBox="0 0 24 24"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path></svg>
-            </button>
-            <div class="logo">
-                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
-                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Hentaiorc.xyz</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="header-center">
-            <div class="search-container">
-                <input type="text" placeholder="Tìm kiếm..." class="search-input">
-                <button class="search-btn">
-                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="header-right">
-            <button class="icon-btn" title="Cài đặt">
-                <svg viewBox="0 0 24 24"><path d="M12 9.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-1c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zM13.22 3l.55 2.06.13.51.5.15c.53.15 1.03.38 1.5.67l.47.3.52-.11 2.06-.45 1.46 2.47-1.53 1.54-.4.4.08.54c.05.35.07.71.07 1.07s-.02.72-.07 1.07l-.08.54.4.4 1.53 1.54-1.46 2.47-2.06-.45-.52-.11-.47.3c-.47.29-.97.52-1.5.67l-.5.15-.13.51-.55 2.06h-2.44l-.55-2.06-.13-.51-.5-.15c-.53-.15-1.03-.38-1.5-.67l-.47-.3-.52.11-2.06.45-1.46-2.47 1.53-1.54.4-.4-.08-.54c-.05-.35-.07-.72-.07-1.07s.02-.72.07-1.07l.08-.54-.4-.4-1.53-1.54 1.46-2.47 2.06.45.52.11.47-.3c.47-.29.97-.52 1.5-.67l.5-.15.13-.51.55-2.06h2.44m.6-1h-3.64l-.74 2.78c-.64.19-1.23.49-1.77.88l-2.77-.61-1.82 3.15 2.06 2.08c-.05.33-.1.68-.1 1.03s.05.7.1 1.03l-2.06 2.08 1.82 3.15 2.77-.61c.54.39 1.13.69 1.77.88l.74 2.78h3.64l.74-2.78c.64-.19 1.23-.49 1.77-.88l2.77.61 1.82-3.15-2.06-2.08c.05-.33.1-.68.1-1.03s-.05-.7-.1-1.03l2.06-2.08-1.82-3.15-2.77.61c-.54-.39-1.13-.69-1.77-.88L13.82 2z"></path></svg>
-            </button>
-            <div class="user-avatar">O</div>
-        </div>
-    </nav>
-
-    <aside class="yt-sidebar" id="sidebar">
-        <a href="#" class="sidebar-link">
-            <div class="sidebar-item active">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
-                <span class="item-text">Trang chủ</span>
-            </div>
-        </a>
-
-        <a href="https://hentaiorc.xyz/chat-server.html" class="sidebar-link">
-            <div class="sidebar-item">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"></path></svg>
-                <span class="item-text">chat-server</span>
-            </div>
-        </a>
-
-        <a href="https://hentaiorc.xyz/drownload-yt.html" class="sidebar-link">
-            <div class="sidebar-item">
-                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81L5.12 9.91l4.91-.42L12 5l1.97 4.49 4.91.42-3.77 3.28 1.12 4.81z"></path></svg>
-                <span class="item-text">drownload-yt</span>
-            </div>
-        </a>
-
-        <hr style="border: 0.5px solid rgba(255,255,255,0.1); width: 100%;">
-
-        <a href="#" class="sidebar-link">
-            <div class="sidebar-item">
-                <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"></path></svg>
-                <span class="item-text">Thư viện</span>
-            </div>
-        </a>
-
-        <a href="https://hentaiorc.xyz/tags.html" target="_blank" class="sidebar-link">
-            <div class="sidebar-item">
-                <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"></path></svg>
-                <span class="item-text">#Các thẻ</span>
-            </div>
-        </a>
-    </aside>
-
     <div class="container" id="main-content">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
-            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Đang tải thông báo từ Orichiin-san...</p>
-            
-            <p>Dự án chính: <a href="https://hentaiorc.xyz">ORC-STUDIO</a></p>
-            <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank">@ORIICHIN</a></p>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Đang tải thông báo...</p>
+            <p>Dự án: <a href="https://hentaiorc.xyz" style="color:#99CCFF">ORC-STUDIO</a></p>
+            <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank" style="color:#99CCFF">@ORIICHIN</a></p>
         </div>
     </div>
 
     <script>
-        document.getElementById("menu-toggle").addEventListener("click", function() {
-            const sidebar = document.getElementById("sidebar");
-            const mainContent = document.getElementById("main-content");
-            sidebar.classList.toggle("closed");
-            mainContent.classList.toggle("full-width");
+        // Điều khiển Menu & Hiệu ứng X
+        const menuBtn = document.getElementById('menuBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        menuBtn.addEventListener('click', () => {
+            menuBtn.classList.toggle('open');
+            menuOverlay.classList.toggle('active');
         });
 
+        // Hiệu ứng hạt bụi Neon xanh dương khi di chuột vào chữ
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('mousemove', (e) => {
+                for(let i=0; i<3; i++) { // Tạo 3 hạt mỗi lần di chuyển chuột
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = e.clientX + 'px';
+                    p.style.top = e.clientY + 'px';
+                    p.style.setProperty('--x', (Math.random() * 100 - 50) + 'px');
+                    document.body.appendChild(p);
+                    setTimeout(() => p.remove(), 1000);
+                }
+            });
+        });
+
+        // Giữ nguyên Logic Loader của ba
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
             const fill = document.getElementById("load-fill");
             const val = document.getElementById("load-val");
-            const totalTime = 5000; 
+            const totalTime = 3000; 
 
             let start = null;
             function step(timestamp) {
