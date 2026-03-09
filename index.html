@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORICHIIN</title>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -18,6 +19,7 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
         let lastReloadKey = null;
         onSnapshot(doc(db, "settings", "notice"), (doc) => {
             if (doc.exists()) {
@@ -29,6 +31,7 @@
                 lastReloadKey = data.reloadTrigger;
             }
         });
+
         onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -53,11 +56,13 @@
             }
         });
     </script>
+
     <style>
         @font-face {
             font-family: 'Lato';
             src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
         }
+
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
             font-family: 'Lato', sans-serif;
@@ -66,80 +71,60 @@
             background-size: cover;
             overflow: hidden;
         }
-        :root {
-            --yt-bg: rgba(15, 15, 15, 0.85);
-            --yt-border: rgba(255, 255, 255, 0.1);
-            --neon-blue: #00f3ff;
-            --neon-flame: #00FF00;
-        }
-        @keyframes flame-glow {
-            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
-            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
-        }
-        .yt-header {
-            position: fixed; top: 0; width: 100%; height: 56px;
-            background: var(--yt-bg); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; z-index: 1000; box-sizing: border-box;
-        }
-        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
-        .menu-toggle-btn {
-            background: rgba(0,0,0,0.5); border: 2px solid #ffcc00; cursor: pointer;
-            width: 40px; height: 40px; border-radius: 50%;
+
+        /* --- NEW NEON MENU STYLE --- */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px;
+            width: 50px; height: 50px;
+            border: 2px solid #ffcc00; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
-            position: relative; z-index: 2100;
+            cursor: pointer; z-index: 2000;
+            box-shadow: 0 0 15px #ffcc00;
+            transition: all 0.4s ease;
+            background: rgba(0,0,0,0.5);
         }
-        .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
-        .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
-        .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        .open .hamburger span:nth-child(2) { opacity: 0; }
-        .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-        .header-center { flex: 0 1 720px; margin: 0 15px; }
-        .search-container {
-            display: flex; background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--yt-border); border-radius: 40px;
-            overflow: hidden; padding-left: 20px;
-        }
-        .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
-        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
-        .search-btn svg { width: 20px; height: 20px; fill: white; }
+
+        .hamburger { width: 25px; height: 18px; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+        .hamburger span { display: block; width: 100%; height: 3px; background: white; transition: 0.4s; border-radius: 2px; }
+        
+        .menu-toggle.open { transform: rotate(180deg); }
+        .menu-toggle.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+        .menu-toggle.open span:nth-child(2) { opacity: 0; }
+        .menu-toggle.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
         .menu-overlay {
-            position: fixed; top: 65px; left: 16px;
-            width: fit-content; height: auto;
-            min-width: 260px; padding: 25px;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-            z-index: 1500;
-            display: flex; flex-direction: column;
-            transform-origin: top left;
-            transform: scale(0); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 1500;
+            display: flex; align-items: center; justify-content: center;
+            clip-path: circle(0% at 45px 45px);
+            transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
         }
-        .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-        .nav-content { display: flex; flex-direction: column; text-align: left; }
+        .menu-overlay.active { clip-path: circle(150% at 45px 45px); }
+
+        .nav-content { display: flex; flex-direction: column; text-align: center; }
         .nav-item {
-            font-size: 1.3rem; color: #99CCFF; text-decoration: none;
-            font-weight: bold; margin: 10px 0; transition: 0.3s;
+            font-size: 2.5rem; color: black; text-decoration: none;
+            font-weight: bold; margin: 15px 0; position: relative;
+            transition: 0.3s; padding: 10px 20px;
         }
-        .nav-item:hover { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); transform: translateX(8px); }
-        .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
-        @keyframes floatDust {
-            0% { transform: translateY(0) translateX(0); opacity: 0; }
-            50% { opacity: 0.5; }
-            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        .nav-item:hover {
+            color: #000;
+            text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
         }
-        .particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 10px var(--neon-blue); z-index: 2200; animation: particleFly 1s forwards; }
-        @keyframes particleFly {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
+
+        /* Hạt bụi sao Neon */
+        .particle {
+            position: fixed; pointer-events: none;
+            width: 4px; height: 4px; background: #00f3ff;
+            border-radius: 50%; box-shadow: 0 0 10px #00f3ff;
+            z-index: 2000; animation: flyUp 1s forwards;
         }
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) translateX(var(--x)) scale(0); opacity: 0; }
+        }
+
+        /* --- KEEP OLD STYLES FOR LOADER & CONTENT --- */
         #loader-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #2c8b8f; display: flex; flex-direction: column;
@@ -148,58 +133,28 @@
         }
         .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
         .neon-loading-container { width: 320px; margin: 10px 0; }
-        .neon-text-row { display: flex; justify-content: space-between; color: var(--neon-flame); font-weight: bold; font-size: 18px; text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px; }
-        .neon-bar-border { width: 100%; height: 22px; border: 2px solid var(--neon-flame); border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 10px var(--neon-flame); }
-        .neon-bar-fill { height: 100%; width: 0%; background: var(--neon-flame); border-radius: 10px; box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame); animation: flame-glow 0.5s infinite alternate; }
+        .neon-text-row { display: flex; justify-content: space-between; color: #00FF00; font-weight: bold; font-size: 18px; text-shadow: 0 0 10px #00FF00; margin-bottom: 8px; }
+        .neon-bar-border { width: 100%; height: 22px; border: 2px solid #00FF00; border-radius: 15px; padding: 2px; box-sizing: border-box; }
+        .neon-bar-fill { height: 100%; width: 0%; background: #00FF00; border-radius: 10px; box-shadow: 0 0 15px #00FF00; }
         .loader-hidden { opacity: 0; visibility: hidden; }
-        .container { height: 100vh; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
+
+        .container {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in;
+        }
         .container.show { opacity: 1; }
-        .content-box { position: relative; z-index: 10; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        .content-box { max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
         h1 { color: #d9b8ab; font-size: 2.5em; }
     </style>
 </head>
 <body>
-    <div class="ambient-dust" id="dustContainer"></div>
-    <div id="loader-wrapper">
-        <img src="ORC.png" alt="Logo" class="loader-top-img">
-        <div class="neon-loading-container">
-            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
-            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
-        </div>
-        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
-    </div>
-    <div id="popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-        <div id="main-popup" style="width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
-            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap;"></div>
+
+    <div class="menu-toggle" id="menuBtn">
+        <div class="hamburger">
+            <span></span><span></span><span></span>
         </div>
     </div>
-    <nav class="yt-header">
-        <div class="header-left">
-            <button class="menu-toggle-btn" id="menuBtn">
-                <div class="hamburger"><span></span><span></span><span></span></div>
-            </button>
-            <div class="logo">
-                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
-                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">Hentaiorc.xyz</span>
-                </a>
-            </div>
-        </div>
-        <div class="header-center">
-            <div class="search-container">
-                <input type="text" placeholder="Tìm kiếm..." class="search-input">
-                <button class="search-btn">
-                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
-                </button>
-            </div>
-        </div>
-        <div class="header-right">
-            <button class="icon-btn" style="background:none; border:none; fill:white; cursor:pointer;" title="Cài đặt">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 9.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-1c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zM13.22 3l.55 2.06.13.51.5.15c.53.15 1.03.38 1.5.67l.47.3.52-.11 2.06-.45 1.46 2.47-1.53 1.54-.4.4.08.54c.05.35.07.71.07 1.07s-.02.72-.07 1.07l-.08.54.4.4 1.53 1.54-1.46 2.47-2.06-.45-.52-.11-.47.3c-.47.29-.97.52-1.5.67l-.5.15-.13.51-.55 2.06h-2.44l-.55-2.06-.13-.51-.5-.15c-.53-.15-1.03-.38-1.5-.67l-.47-.3-.52.11-2.06.45-1.46-2.47 1.53-1.54.4-.4-.08-.54c-.05-.35-.07-.72-.07-1.07s.02-.72.07-1.07l.08-.54-.4-.4-1.53-1.54 1.46-2.47 2.06.45.52.11.47-.3c.47-.29.97-.52 1.5-.67l.5-.15.13-.51.55-2.06h2.44m.6-1h-3.64l-.74 2.78c-.64.19-1.23.49-1.77.88l-2.77-.61-1.82 3.15 2.06 2.08c-.05.33-.1.68-.1 1.03s.05.7.1 1.03l-2.06 2.08 1.82 3.15 2.77-.61c.54.39 1.13.69 1.77.88l.74 2.78h3.64l.74-2.78c.64-.19 1.23-.49 1.77-.88l2.77.61 1.82-3.15-2.06-2.08c.05-.33.1-.68.1-1.03s-.05-.7-.1-1.03l2.06-2.08-1.82-3.15-2.77.61c-.54-.39-1.13-.69-1.77-.88L13.82 2z"></path></svg>
-            </button>
-            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
-        </div>
-    </nav>
+
     <div class="menu-overlay" id="menuOverlay">
         <nav class="nav-content">
             <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
@@ -208,71 +163,81 @@
             <a href="https://hentaiorc.xyz/tags.html" class="nav-item">Thư viện #Tags</a>
         </nav>
     </div>
+
+    <div id="loader-wrapper">
+        <img src="ORC.png" alt="Logo" class="loader-top-img">
+        <div class="neon-loading-container">
+            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
+            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
+        </div>
+    </div>
+
+    <div id="popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div id="main-popup" style="width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px;">&times;</button>
+            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap;"></div>
+        </div>
+    </div>
+
     <div class="container" id="main-content">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
             <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Đang tải thông báo...</p>
-            <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
-            <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank" style="color:var(--neon-blue)">@ORIICHIN</a></p>
+            <p>Dự án: <a href="https://hentaiorc.xyz" style="color:#99CCFF">ORC-STUDIO</a></p>
+            <p>Youtube: <a href="https://www.youtube.com/@ORIICHIN" target="_blank" style="color:#99CCFF">@ORIICHIN</a></p>
         </div>
     </div>
+
     <script>
-        const dustContainer = document.getElementById('dustContainer');
-        function createDust() {
-            const dust = document.createElement('div');
-            dust.className = 'dust-particle';
-            const size = Math.random() * 3 + 1;
-            dust.style.width = size + 'px';
-            dust.style.height = size + 'px';
-            dust.style.left = Math.random() * 100 + 'vw';
-            dust.style.top = '110vh';
-            dustContainer.appendChild(dust);
-            setTimeout(() => dust.remove(), 10000);
-        }
-        setInterval(createDust, 300);
+        // Điều khiển Menu & Hiệu ứng X
         const menuBtn = document.getElementById('menuBtn');
         const menuOverlay = document.getElementById('menuOverlay');
-        function toggleMenu() {
+
+        menuBtn.addEventListener('click', () => {
             menuBtn.classList.toggle('open');
             menuOverlay.classList.toggle('active');
-        }
-        menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-        window.addEventListener('click', (e) => {
-            if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
         });
+
+        // Hiệu ứng hạt bụi Neon xanh dương khi di chuột vào chữ
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('mousemove', (e) => {
-                for(let i=0; i<4; i++) {
+                for(let i=0; i<3; i++) { // Tạo 3 hạt mỗi lần di chuyển chuột
                     const p = document.createElement('div');
                     p.className = 'particle';
                     p.style.left = e.clientX + 'px';
                     p.style.top = e.clientY + 'px';
-                    p.style.setProperty('--mx', (Math.random() * 200 - 100) + 'px');
-                    p.style.setProperty('--my', (Math.random() * -150 - 50) + 'px');
+                    p.style.setProperty('--x', (Math.random() * 100 - 50) + 'px');
                     document.body.appendChild(p);
                     setTimeout(() => p.remove(), 1000);
                 }
             });
         });
+
+        // Giữ nguyên Logic Loader của ba
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
             const fill = document.getElementById("load-fill");
             const val = document.getElementById("load-val");
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 10;
-                if(progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
+            const totalTime = 3000; 
+
+            let start = null;
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const percent = Math.min((progress / totalTime) * 100, 100);
+                fill.style.width = percent + "%";
+                val.innerText = Math.floor(percent) + "%";
+                if (progress < totalTime) {
+                    window.requestAnimationFrame(step);
+                } else {
                     setTimeout(() => {
                         loader.classList.add("loader-hidden");
                         content.classList.add("show");
-                    }, 500);
+                    }, 200);
                 }
-                if(fill) fill.style.width = progress + "%";
-                if(val) val.innerText = Math.floor(progress) + "%";
-            }, 150);
+            }
+            window.requestAnimationFrame(step);
         });
     </script>
 </body>
