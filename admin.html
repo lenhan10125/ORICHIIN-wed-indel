@@ -10,7 +10,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -204,13 +204,27 @@
             const name = document.getElementById('prodName').value;
             const price = document.getElementById('prodPrice').value;
             const img = document.getElementById('prodImg').value;
+            const description = document.getElementById('prodDesc').value; // MỚI
+            const purchases = parseInt(document.getElementById('prodPurchases').value) || 0; // MỚI
+
             if(!name || !price) return alert("Vui lòng nhập tên và giá tranh!");
             try {
                 await addDoc(collection(db, "products"), {
-                    name, price, img, timestamp: new Date().getTime()
+                    name, 
+                    price, 
+                    img, 
+                    description, // MỚI
+                    purchases,   // MỚI
+                    timestamp: new Date().getTime()
                 });
                 alert("Đã thêm tranh thành công!");
                 loadProductData();
+                // Xóa trống form sau khi lưu
+                document.getElementById('prodName').value = "";
+                document.getElementById('prodPrice').value = "";
+                document.getElementById('prodImg').value = "";
+                document.getElementById('prodDesc').value = "";
+                document.getElementById('prodPurchases').value = "";
             } catch (e) { alert(e.message); }
         };
 
@@ -242,6 +256,8 @@
                 document.getElementById('detailImg').src = p.img;
                 document.getElementById('detailName').innerText = p.name;
                 document.getElementById('detailPrice').innerText = p.price + " VNĐ";
+                document.getElementById('detailDesc').innerText = p.description || "Chưa có mô tả."; // MỚI
+                document.getElementById('detailPurchases').innerText = p.purchases || 0; // MỚI
                 document.getElementById('detailTime').innerText = new Date(p.timestamp).toLocaleString('vi-VN');
                 document.getElementById('detail-modal').style.display = 'flex';
             }
@@ -305,12 +321,12 @@
 
     <style>
         :root { --accent: #99CCFF; --bg-card: rgba(25, 25, 25, 0.9); }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 260px; background: #111; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 20px; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; overflow: hidden; transition: background 0.3s ease; }
+        .sidebar { width: 260px; background: #111; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 20px; z-index: 10; }
         .sidebar h1 { font-size: 1.2rem; color: var(--accent); margin-bottom: 40px; text-align: center; }
         .nav-item { padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; color: #888; }
         .nav-item:hover, .nav-item.active { background: rgba(153, 204, 255, 0.1); color: white; }
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
         .tab-content { display: none; animation: fadeIn 0.5s; }
         .tab-content.active { display: block; }
         .card { background: var(--bg-card); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
@@ -341,11 +357,11 @@
     <div id="detail-modal">
         <div class="card" style="width: 500px; text-align: center; border: 1px solid var(--accent);">
             <h2 style="color: var(--accent); margin-top: 0;">CHI TIẾT TÁC PHẨM</h2>
-            <img id="detailImg" src="" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; margin-bottom: 20px; background: #000;">
+            <img id="detailImg" src="" style="width: 100%; max-height: 250px; object-fit: contain; border-radius: 10px; margin-bottom: 20px; background: #000;">
             <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
                 <p><b>Tên tranh:</b> <span id="detailName"></span></p>
                 <p><b>Giá niêm yết:</b> <span id="detailPrice" style="color:#99FFCC"></span></p>
-                <p><b>Ngày đăng:</b> <span id="detailTime" style="color:#888"></span></p>
+                <p><b>Mô tả:</b> <span id="detailDesc" style="color:#bbb"></span></p> <p><b>Lượt bán:</b> <span id="detailPurchases" style="color:var(--accent)"></span></p> <p><b>Ngày đăng:</b> <span id="detailTime" style="color:#888"></span></p>
             </div>
             <button onclick="closeModal()" style="margin-top: 20px; background: #444; color: white;">ĐÓNG CỬA SỔ</button>
         </div>
@@ -396,7 +412,7 @@
                 <input type="text" id="prodName" placeholder="Tên bức tranh...">
                 <input type="text" id="prodPrice" placeholder="Giá tranh (ví dụ: 500.000)...">
                 <input type="text" id="prodImg" placeholder="Link ảnh tranh (URL)...">
-                <button onclick="saveProduct()">ĐĂNG TRANH LÊN WEB</button>
+                <textarea id="prodDesc" rows="3" placeholder="Mô tả chi tiết tác phẩm (Ví dụ: Tranh vẽ tay, phong cách Anime...)"></textarea> <input type="number" id="prodPurchases" placeholder="Số lượt bán sẵn có (Ví dụ: 10)..."> <button onclick="saveProduct()">ĐĂNG TRANH LÊN WEB</button>
             </div>
             <div class="card"><h3>DANH SÁCH TRANH ĐANG BÁN</h3><table><thead><tr><th>Ảnh</th><th>Tên tranh</th><th>Giá</th><th>Thao tác</th></tr></thead><tbody id="productTableBody"></tbody></table></div>
         </section>
