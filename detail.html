@@ -86,6 +86,7 @@
         .description {
             color: #aaa; line-height: 1.8; margin-bottom: 30px;
             padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;
+            white-space: pre-line;
         }
 
         /* NÚT BẤM */
@@ -136,12 +137,12 @@
 
     <div class="container">
         <div class="image-section">
-            <img id="p-img" src="loading.gif" alt="Artwork">
+            <img id="p-img" src="https://i.gifer.com/ZKZg.gif" alt="Artwork">
         </div>
 
         <div class="info-section">
             <div class="badge">Original Artwork</div>
-            <h1 id="p-name">Đang tải tên...</h1>
+            <h1 id="p-name">Đang tải...</h1>
             <p id="p-id" style="color: #444; font-size: 0.8rem; margin-bottom: 10px;"></p>
             
             <div class="price-tag">
@@ -195,46 +196,49 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Lấy ID sản phẩm từ URL (Ví dụ: detail.html?id=ABCXYZ)
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('id');
 
         async function loadProductDetail() {
             if (!productId) {
-                alert("Không tìm thấy mã tranh!");
+                document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>THIẾU MÃ SẢN PHẨM</h1>";
                 return;
             }
 
-            const docRef = doc(db, "products", productId);
-            const snap = await getDoc(docRef);
+            try {
+                const docRef = doc(db, "products", productId);
+                const snap = await getDoc(docRef);
 
-            if (snap.exists()) {
-                const data = snap.data();
-                
-                // Đổ dữ liệu vào HTML
-                document.getElementById('p-img').src = data.img;
-                document.getElementById('p-name').innerText = data.name;
-                document.getElementById('p-id').innerText = "MÃ SỐ: " + productId.toUpperCase();
-                document.getElementById('p-price').innerText = new Intl.NumberFormat('vi-VN').format(data.price);
-                document.getElementById('p-desc').innerText = data.description || "Tác phẩm độc quyền từ ORC Studio. Chất lượng cao, hỗ trợ chỉnh sửa theo yêu cầu.";
-                document.getElementById('p-sold').innerText = data.purchases || 0;
-                document.getElementById('p-views').innerText = Math.floor(Math.random() * 500) + 100; // Fake view cho đẹp
+                if (snap.exists()) {
+                    const data = snap.data();
+                    
+                    document.getElementById('p-img').src = data.img || 'https://via.placeholder.com/500';
+                    document.getElementById('p-name').innerText = data.name || "Không tên";
+                    document.getElementById('p-id').innerText = "MÃ SỐ: " + productId.toUpperCase();
+                    document.getElementById('p-price').innerText = new Intl.NumberFormat('vi-VN').format(data.price || 0);
+                    document.getElementById('p-desc').innerText = data.description || "Tác phẩm độc quyền từ ORC Studio.";
+                    document.getElementById('p-sold').innerText = data.purchases || 0;
+                    document.getElementById('p-views').innerText = Math.floor(Math.random() * 500) + 100;
 
-                // Gắn link Messenger
-                document.getElementById('buy-btn').onclick = () => {
-                    const msg = `Chào bạn, mình muốn mua tranh: ${data.name} (ID: ${productId})`;
-                    window.open(`https://m.me/langducabpt?text=${encodeURIComponent(msg)}`, '_blank');
-                };
-            } else {
-                document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>TÁC PHẨM KHÔNG TỒN TẠI</h1>";
+                    document.getElementById('buy-btn').onclick = () => {
+                        const msg = `Chào ORC Studio, mình muốn mua tranh: ${data.name} (ID: ${productId})`;
+                        window.open(`https://m.me/langducabpt?text=${encodeURIComponent(msg)}`, '_blank');
+                    };
+                } else {
+                    document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>TÁC PHẨM KHÔNG TỒN TẠI</h1>";
+                }
+            } catch (error) {
+                console.error("Lỗi tải dữ liệu:", error);
+                document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>LỖI KẾT NỐI HỆ THỐNG</h1>";
             }
         }
 
-        // Hiệu ứng chuột Glow
         document.addEventListener('mousemove', (e) => {
             const glow = document.getElementById('glow');
-            glow.style.setProperty('--x', e.clientX + 'px');
-            glow.style.setProperty('--y', e.clientY + 'px');
+            if(glow) {
+                glow.style.setProperty('--x', e.clientX + 'px');
+                glow.style.setProperty('--y', e.clientY + 'px');
+            }
         });
 
         loadProductDetail();

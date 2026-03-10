@@ -54,7 +54,8 @@
                 const p = doc.data();
                 const purchaseCount = p.purchases || 0; 
                 
-                const paymentUrl = `https://www.hentaiorc.xyz/detail.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.img)}`;
+                // ĐÃ SỬA: Thêm id=${doc.id} vào URL để trang detail.html nhận được dữ liệu
+                const paymentUrl = `https://www.hentaiorc.xyz/detail.html?id=${doc.id}&name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.img)}`;
 
                 productGrid.innerHTML += `
                     <div class="product-card" onclick="window.location.href='${paymentUrl}'">
