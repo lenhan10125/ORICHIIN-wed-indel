@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ORICHIIN</title>
+    <style>
+        @font-face {
+            font-family: 'Lato';
+            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+        }
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Lato', sans-serif;
+            color: #FFFFFF !important;
+            background-color: #000000;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-attachment: fixed;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            transition: background-color 0.5s ease-in-out;
+            /* Chèn thêm hiệu ứng chuyển động lưới vào đây mà không xóa code cũ */
+            animation: grid-move 10s linear infinite;
+        }
+
+        /* Thêm keyframe cho lưới */
+        @keyframes grid-move {
+            from { background-position: 0 0; }
+            to { background-position: 40px 40px; }
+        }
+
+        :root {
+            --yt-bg: rgba(15, 15, 15, 0.85);
+            --yt-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f3ff;
+            --neon-flame: #00FF00;
+            --neon-red: #FF0000;
+        }
+        .product-section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+        }
+        .section-title {
+            text-align: center;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+        }
+        @keyframes neon-burn {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
+                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
+            }
+        }
+        @keyframes neon-burn-red {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--neon-red), 0 0 20px var(--neon-red);
+                box-shadow: inset 0 0 15px var(--neon-red), 0 0 10px rgba(255, 0, 0, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-red), 0 0 40px var(--neon-red), 0 0 60px var(--neon-red);
+                box-shadow: inset 0 0 45px var(--neon-red), 0 0 25px rgba(255, 0, 0, 0.5);
+            }
+        }
+        @keyframes flame-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
+            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
+        }
+        .yt-header {
+            position: fixed; top: 0; width: 100%; height: 56px;
+            background: var(--yt-bg); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 1000; box-sizing: border-box;
+        }
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle-btn {
+            background: rgba(0,0,0,0.5); border: 2px solid #ffcc00; cursor: pointer;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
+            position: relative; z-index: 2100;
+        }
+        .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
+        .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
+        .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+        .open .hamburger span:nth-child(2) { opacity: 0; }
+        .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+        
+        .menu-overlay {
+            position: fixed; top: 65px; left: 16px;
+            width: fit-content; height: auto;
+            min-width: 260px; padding: 25px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            z-index: 1500;
+            display: flex; flex-direction: column;
+            transform-origin: top left;
+            transform: scale(0); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .nav-content { display: flex; flex-direction: column; text-align: left; }
+        .nav-item {
+            font-size: 1.3rem; color: #99CCFF; text-decoration: none;
+            font-weight: bold; margin: 10px 0; transition: 0.3s;
+            padding: 5px 10px; border-radius: 10px;
+        }
+        .nav-item:hover { 
+            animation: neon-burn 0.8s infinite alternate ease-in-out;
+            color: var(--neon-blue); 
+            transform: translateX(8px); 
+        }
+
+        .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
+        @keyframes floatDust {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        .particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 10px var(--neon-blue); z-index: 2200; animation: particleFly 1s forwards; }
+        @keyframes particleFly {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
+        }
+
+        .asus-wave-container {
+            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
+            z-index: 1; pointer-events: none;
+        }
+        .waves { position: relative; width: 100%; height: 100%; }
+        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+        @keyframes move-forever {
+            0% { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
+        }
+
+        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); }
+        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
+        .content-box-red { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(70, 24, 24, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; animation: neon-burn-red 1.5s infinite alternate ease-in-out; }
+        .content-box-none { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+    </style>
+</head>
+<body>
+    <div class="ambient-dust" id="dustContainer"></div>
+
+    <nav class="yt-header">
+        <div class="header-left">
+            <button class="menu-toggle-btn" id="menuBtn">
+                <div class="hamburger"><span></span><span></span><span></span></div>
+            </button>
+            <div class="logo">
+                <a href="https://hentaiorc.xyz/maintenance.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">maintenance</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <nav class="nav-content">
+            <a href="" class="nav-item">hiện không khả dụng</a>
+            <a href="" class="nav-item">hiện không khả dụng</a>
+            <a href="" class="nav-item">hiện không khả dụng</a>
+            <a href="" class="nav-item">hiện không khả dụng</a>
+        </nav>
+    </div>
+
+    <div class="container" id="main-content">
+        <div class="content-box-red">
+            <h1 style="color: #ff0000; font-weight: bold;">Thông báo bảo trì</h1>
+            <p style="color: #ffffff; font-weight: bold;">Trang web đang trong quá trình bảo trì và cập nhật nội dung mới. Vui lòng quay lại sau để trải nghiệm những tác phẩm mới nhất từ ORICHIIN STUDIO. Cảm ơn sự kiên nhẫn của bạn!</p>
+        </div>
+
+        <div class="content-box">
+            <h1 style="color: #99CCFF; font-weight: bold;">ORICHIIN STUDIO</h1>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Được phát triển bởi ORICHIIN STUDIO </p>
+            <p style="color: #99CCFF; font-weight: bold;">Dự án chính: <a href="#" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
+            <p style="color: #99CCFF; font-weight: bold;">Facebook: <a href="https://www.facebook.com/langducabpt" target="_blank" style="color:var(--neon-blue)">Giang-artist</a></p>
+        </div>
+
+        <div class="product-section">
+            <h2 class="section-title">Thông tin thêm</h2>
+            <div class="product-grid" id="product-grid"></div>
+        </div>
+
+        <div class="content-box-red">
+            <h1 style="color: #ff0000; font-weight: bold;">Lưu ý</h1>
+            <p style="color: #ffffff; font-weight: bold;">Trang web có thể sẽ không hoạt động ổn định trong thời gian bảo trì. Chúng tôi đang cố gắng hoàn thiện mọi thứ nhanh nhất có thể. Cảm ơn sự thông cảm của bạn!</p>
+            <p style="color: #ffffff; font-weight: bold;">Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ email: linkmodback@gmail.com</p>
+        </div>
+        <div class="content-box-none" style="text-align: center; margin-bottom: 50px;">
+            <h1 style="color: #ff0000; font-weight: bold;">Các quốc gia hỗ trợ trang web</h1>
+            <p style="color: #ffffff; font-weight: bold;">Trang web này được hỗ trợ tại các quốc gia sau:</p>
+    
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px;">
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇻🇳</span> Việt Nam
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇹🇭</span> Thái Lan
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇲🇾</span> Malaysia
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇵🇭</span> Philippines
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇸🇬</span> Singapore
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇨🇳</span> Trung Hoa
+                </a>
+            </div>
+        </div>
+    <div class="asus-wave-container">
+        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+            <defs>
+                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            </defs>
+            <g class="parallax">
+                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
+                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
+                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
+                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
+            </g>
+        </svg>
+    </div>
+
+    <script>
+        // Kích hoạt menu
+        const menuBtn = document.getElementById('menuBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        menuBtn.onclick = () => {
+            menuBtn.classList.toggle('open');
+            menuOverlay.classList.toggle('active');
+        };
+
+        // Tạo bụi ambient-dust
+        const dustContainer = document.getElementById('dustContainer');
+        for (let i = 0; i < 50; i++) {
+            const dust = document.createElement('div');
+            dust.className = 'dust-particle';
+            dust.style.left = Math.random() * 100 + 'vw';
+            dust.style.top = Math.random() * 100 + 'vh';
+            dust.style.width = dust.style.height = Math.random() * 3 + 'px';
+            dust.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            dust.style.animationDelay = (Math.random() * 5) + 's';
+            dustContainer.appendChild(dust);
+        }
+
+        // Hiệu ứng hạt khi click
+        window.onclick = (e) => {
+            for (let i = 0; i < 6; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = e.clientX + 'px';
+                p.style.top = e.clientY + 'px';
+                p.style.setProperty('--mx', (Math.random() - 0.5) * 150 + 'px');
+                p.style.setProperty('--my', (Math.random() - 0.5) * 150 + 'px');
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        };
+
+    </script>
+</body>
+</html>
