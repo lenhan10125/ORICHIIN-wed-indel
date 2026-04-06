@@ -9,8 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
     <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAnalytics } from "firebase/analytics";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -18,14 +17,12 @@
             apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
             authDomain: "admin-bd0ff.firebaseapp.com",
             projectId: "admin-bd0ff",
-            storageBucket: "admin-bd0ff.firebasestorage.app",
+            storageBucket: "admin-bd0ff.appspot.com",
             messagingSenderId: "721293740677",
             appId: "1:721293740677:web:8c6ae2228e9af16aa437ec"
-            measurementId: "G-G8JGMKFM3K"
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
@@ -230,7 +227,7 @@
                 document.getElementById('prodPurchases').value = "";
             } catch (e) { alert(e.message); }
         };
-
+        
         async function loadProductData() {
             const container = document.getElementById('productTableBody');
             container.innerHTML = "<tr><td colspan='4'>Đang tải...</td></tr>";
