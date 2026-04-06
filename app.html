@@ -19,8 +19,13 @@
             background: var(--gura-dark);
             color: white; font-family: 'Segoe UI', sans-serif;
             display: flex; flex-direction: column;
-        }
+            animation: grid-move 10s linear infinite;
 
+        }
+        @keyframes grid-move {
+            from { background-position: 0 0; }
+            to { background-position: 40px 40px; }
+        }
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             /* Ảnh mặc định khi chưa load xong Firebase */
@@ -60,6 +65,25 @@
         #preview-img { max-width: 85%; max-height: 80%; border-radius: 15px; border: 2px solid var(--gura-blue); box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         #popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         #main-popup { width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid var(--gura-blue); }
+        .asus-wave-container {
+            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
+            z-index: 1; pointer-events: none;
+        }
+        .waves { position: relative; width: 100%; height: 100%; }
+        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+        @keyframes move-forever {
+            0% { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
+        }
+        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); }
+        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
+        .content-box-red { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(70, 24, 24, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; animation: neon-burn-red 1.5s infinite alternate ease-in-out; }
+        .content-box-none { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
     </style>
 </head>
 <body>
@@ -107,7 +131,19 @@
             </div>
         </div>
     </div>
-
+    <div class="asus-wave-container">
+        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+            <defs>
+                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            </defs>
+            <g class="parallax">
+                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
+                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
+                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
+                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
+            </g>
+        </svg>
+    </div>
     <script>
         function previewApp(imgUrl) {
             const overlay = document.getElementById('preview-overlay');
