@@ -4,193 +4,203 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORC Studio - Apps Store</title>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
-            authDomain: "admin-bd0ff.firebaseapp.com",
-            projectId: "admin-bd0ff",
-            storageBucket: "admin-bd0ff.appspot.com",
-            messagingSenderId: "721293740677",
-            appId: "1:721293740677:web:8c6ae2228e9af16aa437ec"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let lastReloadKey = null;
-
-        // --- ĐỒNG BỘ NOTICE & RELOAD ---
-        onSnapshot(doc(db, "settings", "notice"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
-                    location.reload(); 
-                }
-                lastReloadKey = data.reloadTrigger;
-            }
-        });
-
-        // --- ĐỒNG BỘ HÌNH NỀN (MỚI) ---
-        onSnapshot(doc(db, "settings", "background"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const bgOverlay = document.querySelector('.bg-overlay');
-                
-                // Reset style cũ
-                bgOverlay.style.backgroundImage = 'none';
-                bgOverlay.style.backgroundColor = 'transparent';
-                bgOverlay.style.filter = 'blur(5px) brightness(0.4)'; // Giữ độ mờ cho đẹp
-
-                if(data.type === 'auto') {
-                    if(data.subType === 'system') {
-                        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        bgOverlay.style.backgroundColor = isDark ? '#0a0a0a' : '#ffffff';
-                    } else if(data.subType === 'light') bgOverlay.style.backgroundColor = '#ffffff';
-                    else if(data.subType === 'dark') bgOverlay.style.backgroundColor = '#0a0a0a';
-                    else bgOverlay.style.backgroundColor = data.color;
-                } else if (data.url) {
-                    bgOverlay.style.backgroundImage = `url('${data.url}')`;
-                    bgOverlay.style.backgroundSize = 'cover';
-                    bgOverlay.style.backgroundPosition = 'center';
-                } else {
-                    // Nếu không có thiết lập, quay về mặc định Gura
-                    bgOverlay.style.backgroundImage = "url('https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg')";
-                }
-            }
-        });
-
-        // --- ĐỒNG BỘ POPUP ---
-        onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const overlay = document.getElementById('popup-overlay');
-                const mainPopup = document.getElementById('main-popup');
-                const textElement = document.getElementById('popup-text');
-
-                if (data.active === true) {
-                    if (data.bgColor && (data.bgColor.startsWith('http'))) {
-                        mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
-                        mainPopup.style.backgroundSize = "cover";
-                    } else {
-                        mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
-                    }
-
-                    textElement.style.color = data.textColor || "#ffffff";
-                    textElement.style.fontSize = data.fontSize || "18px";
-                    textElement.style.fontFamily = data.fontFamily || "sans-serif";
-                    textElement.innerText = data.content || "";
-                    overlay.style.display = 'flex';
-                } else {
-                    overlay.style.display = 'none';
-                }
-            }
-        });
-    </script>
-
+    <title>NOT FOUND</title>
     <style>
-        :root {
-            --gura-blue: #99CCFF;
-            --gura-dark: #0a0e14;
-            --gura-accent: #3399FF;
+        @font-face {
+            font-family: 'Lato';
+            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
         }
-
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--gura-dark);
-            color: white; font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column;
+            font-family: 'Lato', sans-serif;
+            color: #FFFFFF !important;
+            background-color: #000000;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-attachment: fixed;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            transition: background-color 0.5s ease-in-out;
+            animation: grid-move 10s linear infinite;
+        }
+        @keyframes grid-move {
+            from { background-position: 0 0; }
+            to { background-position: 40px 40px; }
+        }
+        :root {
+            --yt-bg: rgba(15, 15, 15, 0.85);
+            --yt-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f3ff;
+            --neon-flame: #00FF00;
+            --neon-red: #FF0000;
+        }
+        .product-section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+        }
+        .section-title {
+            text-align: center;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+        }
+        @keyframes neon-burn {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
+                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
+            }
+        }
+        @keyframes neon-burn-red {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--neon-red), 0 0 20px var(--neon-red);
+                box-shadow: inset 0 0 15px var(--neon-red), 0 0 10px rgba(255, 0, 0, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-red), 0 0 40px var(--neon-red), 0 0 60px var(--neon-red);
+                box-shadow: inset 0 0 45px var(--neon-red), 0 0 25px rgba(255, 0, 0, 0.5);
+            }
+        }
+        @keyframes flame-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
+            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
+        }
+        .yt-header {
+            position: fixed; top: 0; width: 100%; height: 56px;
+            background: var(--yt-bg); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 1000; box-sizing: border-box;
+        }
+        @keyframes floatDust {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+        @keyframes particleFly {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
         }
 
-        .bg-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Ảnh mặc định khi chưa load xong Firebase */
-            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
-            background-size: cover; filter: blur(5px) brightness(0.4);
-            z-index: -1;
-            transition: background 0.5s ease, background-color 0.5s ease;
+        .asus-wave-container {
+            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
+            z-index: 1; pointer-events: none;
         }
-
-        /* Giữ nguyên các Style cũ của Orichiin-san */
-        .pure-nav {
-            height: 60px; background: rgba(0, 0, 0, 0.7);
-            display: flex; align-items: center; justify-content: center;
-            border-bottom: 2px solid var(--gura-blue); width: 100%;
+        .waves { position: relative; width: 100%; height: 100%; }
+        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+        @keyframes move-forever {
+            0% { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
         }
-        .wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .section-title { color: var(--gura-blue); font-size: 2rem; font-weight: bold; margin-bottom: 30px; text-shadow: 0 0 15px rgba(153, 204, 255, 0.5); }
-        .app-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
-        .app-card { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(153, 204, 255, 0.3); border-radius: 20px; padding: 25px; text-align: center; transition: 0.3s; backdrop-filter: blur(10px); }
-        .app-card:hover { background: rgba(153, 204, 255, 0.1); transform: translateY(-10px); border-color: var(--gura-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .app-icon { width: 90px; height: 90px; margin-bottom: 15px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .app-name { font-weight: bold; font-size: 1.3rem; margin: 10px 0; color: white; }
-        .app-desc { font-size: 0.9rem; color: #ccc; margin-bottom: 20px; line-height: 1.4; }
-        .app-buttons { display: flex; gap: 12px; }
-        .btn-app-view, .btn-app-dl { padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.2s; flex: 1; text-transform: uppercase; }
-        .btn-app-view { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-app-dl { background: linear-gradient(45deg, var(--gura-accent), #0072ff); color: white; }
-        #preview-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
-        #preview-img { max-width: 85%; max-height: 80%; border-radius: 15px; border: 2px solid var(--gura-blue); box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        #popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        #main-popup { width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid var(--gura-blue); }
+        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); }
+        .content-box-red { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(70, 24, 24, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; animation: neon-burn-red 1.5s infinite alternate ease-in-out; }
+        .content-box-none { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
     </style>
 </head>
 <body>
+    <div class="ambient-dust" id="dustContainer"></div>
 
-    <div class="bg-overlay"></div>
-
-    <div id="preview-overlay" onclick="this.style.display='none'">
-        <img id="preview-img" src="">
-        <p style="position:absolute; bottom:30px; color:#99CCFF; font-weight:bold;">BẤM ĐỂ ĐÓNG</p>
-    </div>
-
-    <div id="popup-overlay">
-        <div id="main-popup">
-            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px;">&times;</button>
-            <div id="popup-text"></div>
+    <nav class="yt-header">
+        <div class="header-left">
+            <div class="logo">
+                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
+                    <span style="color: #99CCFF; font-weight: bold; font-size: 1.8rem;">ERORR</span>
+                </a>
+            </div>
         </div>
-    </div>
-
-    <nav class="pure-nav">
-        <div style="font-weight: bold; color: var(--gura-blue); font-size: 1.2rem; letter-spacing: 2px;">ORICHIIN STUDIO 🦈</div>
     </nav>
+    <div class="container" id="main-content">
+        <div class="content-box-red">
+            <h1 style="color: #ff0000; font-weight: bold;">Thông báo chuyển hướng</h1>
+            <p style="color: #ffffff; font-weight: bold;">Trang web drownload-yt hiện không khả dụng hoặc đã bị đóng bởi một lý do nào đó vui lòng chuyển hướng đến trang sau:</p>
+        <a href="https://hentaiorc.xyz/list.html" style="color: #9dff00; text-decoration: underline; font-weight: bold;">https://hentaiorc.xyz/list.html</a>
+        </div>
 
-    <div class="wrapper">
-        <div class="section-title">🚀 APPS COLLECTION or file </div>
-        
-        <div class="app-container">
-            <div class="app-card">
-                <img src="logo_orc.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2522/2522649.png'">
-                <div class="app-name">ORC Downloader</div>
-                <div class="app-desc">Phần mềm tải video m3u8 chuyên dụng. Tốc độ cao, hỗ trợ ghép nối file tự động.</div>
-                <div class="app-buttons">
-                    <button class="btn-app-view" onclick="previewApp('https://i.imgur.com/your-screenshot-link.png')">Xem trước</button>
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/fix_hls.pyw.exe')">Tải bản .exe</button>
-                </div>
-            </div>
-
-            <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/1055/1055683.png" class="app-icon">
-                <div class="app-name">File bài tập tin vector cho người lười</div>
-                <div class="app-desc">Tin học 10 - bài tập trang 68</div>
-                <div class="app-buttons">
-                    <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/tin1068.png')">Xem trước</button>
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc10.zip')">Tải về</button>
-                </div>
+        <div class="content-box-none">
+            <h1 style="color: #99CCFF; font-weight: bold;">ORICHIIN STUDIO</h1>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Được phát triển bởi ORICHIIN STUDIO </p>
+            <p style="color: #99CCFF; font-weight: bold;">Dự án chính: <a href="#" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
+        </div>
+        <div class="product-section">
+            <h2 class="section-title">Thông tin thêm</h2>
+            <div class="product-grid" id="product-grid"></div>
+        </div>
+        <div class="content-box-red">
+            <h1 style="color: #ff0000; font-weight: bold;">[Note]</h1>
+            <p style="color: #ffffff; font-weight: bold;">Trang web drownload-yt này có thể sẽ không còn hoạt động nữa. Chúng tôi đã cố gắng cứu nó.</p>
+            <p style="color: #ff0000; font-weight: bold;">Chúng tôi rất Cảm ơn sự thông cảm của bạn!</p>
+            <p style="color: #ffffff; font-weight: bold;">Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ email: linkmodback@gmail.com</p>
+        </div>
+        <div class="content-box-none" style="text-align: center; margin-bottom: 50px;">
+            <h1 style="color: #ff0000; font-weight: bold;">Các quốc gia hỗ trợ trang web</h1>
+            <p style="color: #ffffff; font-weight: bold;">Trang web này được hỗ trợ tại các quốc gia sau:</p>
+    
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px;">
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇻🇳</span> Việt Nam
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇹🇭</span> Thái Lan
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇲🇾</span> Malaysia
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇵🇭</span> Philippines
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇸🇬</span> Singapore
+                </a>
+                <a style="color: #ffffff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+                    <span style="margin-right: 8px;">🇨🇳</span> Trung Hoa
+                </a>
             </div>
         </div>
+    <div class="asus-wave-container">
+        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+            <defs>
+                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            </defs>
+            <g class="parallax">
+                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
+                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
+                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
+                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
+            </g>
+        </svg>
     </div>
-
     <script>
-        function previewApp(imgUrl) {
-            const overlay = document.getElementById('preview-overlay');
-            const img = document.getElementById('preview-img');
-            img.src = imgUrl;
-            overlay.style.display = 'flex';
-        }
+        // Hiệu ứng bụi mờ
+        // Hiệu ứng hạt khi click
+        window.onclick = (e) => {
+            for (let i = 0; i < 6; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = e.clientX + 'px';
+                p.style.top = e.clientY + 'px';
+                p.style.setProperty('--mx', (Math.random() - 0.5) * 150 + 'px');
+                p.style.setProperty('--my', (Math.random() - 0.5) * 150 + 'px');
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        };
+
     </script>
 </body>
 </html>
