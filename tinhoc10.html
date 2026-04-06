@@ -145,6 +145,27 @@
             max-width: 90%; max-height: 85%; border-radius: 10px; 
             border: 2px solid var(--gura-blue); 
         }
+        .asus-wave-container {
+            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
+            z-index: 1; pointer-events: none;
+        }
+        .waves { position: relative; width: 100%; height: 100%; }
+        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+        @keyframes move-forever {
+            0% { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
+        }
+        .back-btn {
+            align-self: flex-start; margin-bottom: 20px;
+            color: #99CCFF; text-decoration: none; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .back-btn:hover { color: white; transform: translateX(-5px); }
     </style>
 </head>
 <body>
@@ -159,7 +180,10 @@
     <nav class="pure-nav">
         <div style="font-weight: bold; color: var(--gura-blue); font-size: 1.3rem; letter-spacing: 3px;">ORICHIIN STUDIO 🦈</div>
     </nav>
-
+    <a href="https://www.hentaiorc.xyz/list.html" class="back-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
+        QUAY LẠI TRANG CHỦ
+    </a>
     <div class="wrapper">
         <div class="section-title">🍄 Các File bài tập tin học vẽ inkscape vector</div>
         
@@ -195,9 +219,30 @@
                     <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc10.zip')">Tải ZIP</button>
                 </div>
             </div>
+            <div class="app-card">
+                <img src="https://hentaiorc.xyz/image-video/tin1074.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+                <div class="app-name">File svg Tin học 10</div>
+                <div class="app-desc">Tài liệu bài tập Tin học 10 - Trang 74. File vector dành cho các bạn lười vẽ lại hình.</div>
+                <div class="app-buttons">
+                    <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/image-video/tin1074.png')">Xem trước</button>
+                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc1074.zip')">Tải ZIP</button>
+                </div>
+            </div>
         </div>
     </div>
-
+        <div class="asus-wave-container">
+        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+            <defs>
+                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            </defs>
+            <g class="parallax">
+                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
+                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
+                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
+                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
+            </g>
+        </svg>
+    </div>
     <script>
         // Hàm xử lý chọn biến thể động (Không dùng ID cứng)
         function selectVariant(element, colorName, imgPreview, downloadUrl) {
@@ -239,6 +284,7 @@
                 document.getElementById('preview-overlay').style.display = 'none';
             }
         });
+
     </script>
 </body>
 </html>
