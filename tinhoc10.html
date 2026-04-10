@@ -147,7 +147,7 @@
         }
         .asus-wave-container {
             position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
-            z-index: 1; pointer-events: none;
+            z-index: 1000; pointer-events: none;
         }
         .waves { position: relative; width: 100%; height: 100%; }
         .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
@@ -229,6 +229,17 @@
                 </div>
             </div>
         </div>
+        <div class="app-container">
+            <div class="app-card">
+            <img src="https://hentaiorc.xyz/image-video/tincuoiki.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+            <div class="app-name">File svg tin cuối kì free</div>
+            <div class="app-desc">Tài liệu bài tập Tin học 10 - tin cuối kì</div>
+            <div class="app-buttons">
+                <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/image-video/tincuoiki.png')">Xem trước</button>
+                <button class="btn-app-dl" onclick="downloadRandomFile()">Tải ZIP</button>
+            </div>
+        </div>
+</div>
     </div>
         <div class="asus-wave-container">
         <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
@@ -244,6 +255,31 @@
         </svg>
     </div>
     <script>
+        function downloadRandomFile() {
+        // Danh sách các link file của mình
+        const randomFiles = [
+            'https://www.hentaiorc.xyz/tincuoiki.zip',
+            'https://www.hentaiorc.xyz/tincuoiki.zip',
+            'https://www.hentaiorc.xyz/tincuoiki.zip',
+            'https://www.hentaiorc.xyz/tincuoiki.zip',
+            'https://www.hentaiorc.xyz/tincuoiki.zip'
+        ];
+
+        // Chọn ngẫu nhiên 1 link từ mảng
+        const randomIndex = Math.floor(Math.random() * randomFiles.length);
+        const selectedFile = randomFiles[randomIndex];
+
+        // Thực hiện mở link để tải file
+        window.open(selectedFile, '_blank');
+        
+        // Log để kiểm tra nếu cần
+        console.log("Đang tải file ngẫu nhiên:", selectedFile);
+    }
+
+    // Hàm preview giữ nguyên nếu mình đã có sẵn
+        function previewApp(url) {
+            window.open(url, '_blank');
+        }
         // Hàm xử lý chọn biến thể động (Không dùng ID cứng)
         function selectVariant(element, colorName, imgPreview, downloadUrl) {
             // 1. Cập nhật trạng thái Active của nút
@@ -286,5 +322,10 @@
         });
 
     </script>
+    <footer style="text-align: center; padding: 20px; color: #ffffff; font-size: 0.8rem;">
+        <div style="margin-bottom: 5px; z-index: 20000;">ORICHIIN STUDIO - Nơi chia sẻ tài nguyên số miễn phí</div>
+        &copy; 2024 ORICHIIN STUDIO. All rights reserved.
+    </footer>
+
 </body>
 </html>
