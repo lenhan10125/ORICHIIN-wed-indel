@@ -172,7 +172,7 @@
         .back-btn:hover { color: white; transform: translateX(-5px); }
     </style>
 </head>
-<body>
+<body> 
 
     <div class="bg-overlay"></div>
 
@@ -192,6 +192,51 @@
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
         QUAY LẠI TRANG CHỦ
     </a>
+    <div class="wrapper">
+        <div class="section-title">Hướng dẫn</div>
+    </div>
+    <div style="background:#e7f3ff; border-left:5px solid #2196F3; padding:15px; margin:20px 0; border-radius:4px; font-family:sans-serif;">
+    <strong style="color:#0d47a1; display:block; margin: auto 150px;">Inkscape Là Gì?</strong>
+    <p style="margin:0; color:#333; line-height:1.5;">______________________________________________________</p>
+    <p style="margin:0; color:#333; line-height:1.5;">
+        Inkscape là phần mềm mã nguồn mở thiết kế vector, tạo hình ảnh hoàn toàn miễn phí. Phần mềm dành cho các nhà thiết kế đồ hoạ, sáng tạo nội dung hay nghệ sĩ bởi khả năng mạnh mẽ và tính linh hoạt cao. Inkscape cung cấp môi trường làm việc cực chất lượng, chuyên nghiệp. 
+        Thành phẩm là các hình ảnh vector sắc nét, đa dạng biểu đồ thay vì sử dụng pixel như trong đồ hoạ raster.
+    </p>
+    <p style="margin:0; color:#333; line-height:5;">
+    Inkscape là phần mềm mã nguồn mở nên người dùng có thể đóng góp để phát triển. Người dùng tự do thay đổi, phân phối, sao chép phần mềm theo nhu cầu.
+    </p>
+    <img src="https://lanit.com.vn/wp-content/uploads/2024/07/inkscape-la-gi-2.jpg" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
+    <strong style="color:#0d47a1; display:block; margin: auto 150px;">Cách Tải file và Sử dụng của chúng tôi</strong>
+    <p style="margin:0; color:#333; line-height:1.5;">
+    1. Tải file: Nhấn vào nút "Tải ZIP" để tải về máy tính. File sẽ ở định dạng .zip, bạn cần giải nén để sử dụng.</p>
+    <img src="https://hentaiorc.xyz/image-video/huongdan1.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
+    <p style="margin:0; color:#333; line-height:1.5;">
+    2. sau khi tai ban se can phai giai nen file o trong thu muc.</p>
+    <img src="https://hentaiorc.xyz/image-video/huongdan2.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
+    <p style="margin:0; color:#333; line-height:1.5;">
+    3. Để giải nén, bạn có thể sử dụng phần mềm tích hợp sẵn trên hệ điều hành hoặc các công cụ giải nén miễn phí như WinRAR, 7-Zip. Nhấp chuột phải vào file .zip và chọn "Extract Here" hoặc "Extract to [Tên thư mục]".</p>
+    <img src="https://hentaiorc.xyz/image-video/huongdan3.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
+    <p style="margin:0; color:#333; line-height:1.5;">
+    4. Sau khi giải nén, bạn sẽ thấy các file có định dạng .svg hoặc .png. Đây là các file vector mà bạn có thể mở bằng phần mềm Inkscape để chỉnh sửa hoặc sử dụng trực tiếp.</p>
+    <img src="https://hentaiorc.xyz/image-video/huongdan4.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">  
+    5. bam chuot phai vao file svg va chon open with inkscape de mo file bang phan mem inkscape. sau do ban co the chinh sua theo y muon hoac su dung truc tiep.</p>
+    <img src="https://hentaiorc.xyz/image-video/huongdan5.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
+    6. sau khi mo file bang inkscape ban co the chinh sua theo y muon hoac su dung truc tiep.</p>
+    <img src="https://hentaiorc.xyz/image-video/huongdan6.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
+</div>
+</body>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <div id="preview-overlay" onclick="this.style.display='none'">
+        <img id="preview-img" src="" alt="Preview">
+        <p style="position:absolute; bottom:30px; color: var(--gura-blue); font-weight:bold;">NHẤN ĐỂ ĐÓNG</p>
+    </div>
+
+    <nav class="pure-nav">
+        <div style="font-weight: bold; color: var(--gura-blue); font-size: 1.3rem; letter-spacing: 3px;"></div>
+    </nav>
     <div class="wrapper">
         <div class="section-title">🍄 Các File bài tập tin học vẽ inkscape vector</div>
         
@@ -333,19 +378,15 @@
                 document.getElementById('preview-overlay').style.display = 'none';
             }
         });
-        // Dán đoạn này vào bên trong thẻ <script> cuối trang
     async function fetchUpdateInfo() {
-        // Thay link này bằng link file .txt thật của mình
         const updateFileUrl = 'https://www.hentaiorc.xyz/update.txt'; 
         
         try {
-        // Thêm tham số ?v= để tránh trình duyệt lưu cache file cũ
         const response = await fetch(updateFileUrl + '?v=' + Date.now());
-        if (!response.ok) throw new Error('Không tìm thấy file');
+        if (!response.ok) throw new Error('error info updating');
         
         const text = await response.text();
         
-        // Hiển thị nội dung vào banner
         document.getElementById('update-content').innerText = text;
         } catch (error) {
         console.error('Lỗi tải cập nhật:', error);
