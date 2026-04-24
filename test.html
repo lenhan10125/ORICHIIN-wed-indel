@@ -84,7 +84,7 @@
         .tf-btn.selected-true { background-color: #2ecc71; color: white; border-color: #2ecc71; }
         .tf-btn.selected-false { background-color: #e74c3c; color: white; border-color: #e74c3c; }
         .hidden {
-            display: none;
+            display: none !important;
         }
         #warning-overlay {
             position: fixed;
@@ -132,40 +132,170 @@
     <script>
         // Dữ liệu câu hỏi (Bạn copy thêm các câu từ file Word vào đây)
         const quizData = [
-            {
-                type: "mcq",
-                question: "Câu 1. Nội dung nào sau đây là cơ sở kinh tế dẫn đến sự hình thành nền văn minh Văn Lang - Âu Lạc?",
-                options: [
-                    "A. Bắt đầu xuất hiện sự phân hóa giữa các tầng lớp xã hội.",
-                    "B. Nông nghiệp trồng lúa nước đạt trình độ phát triển cao.",
-                    "C. Hoạt động thương nghiệp đường biển đặc biệt phát triển.",
-                    "D. Nhu cầu chống giặc ngoại xâm ngày càng trở nên bức thiết."
-                ],
-                answer: 1 // Vị trí index của đáp án đúng (B = 1)
-            },
-            {
-                type: "mcq",
-                question: "Câu 2. Nội dung nào sau đây phản ánh đúng về tổ chức xã hội và Nhà nước Văn Lang – Âu Lạc?",
-                options: [
-                    "A. Nhà nước quân chủ chuyên chế tập quyền cao.",
-                    "B. Nhà nước sơ khai do vua đứng đầu, dưới có Lạc hầu, Lạc tướng.",
-                    "C. Xã hội phân chia giai cấp sâu sắc, mâu thuẫn gay gắt.",
-                    "D. Bộ máy nhà nước hoàn chỉnh, có luật pháp chặt chẽ."
-                ],
-                answer: 1
-            },
-            {
-                type: "tf",
-                question: "Câu 41. Chọn Đúng hoặc Sai cho các phát biểu sau:",
-                context: "“Trong thời Lý – Trần, Phật giáo phát triển mạnh mẽ và có ảnh hưởng sâu rộng trong đời sống xã hội Đại Việt. Nhiều nhà sư tham gia vào các hoạt động chính trị, văn hóa và giáo dục. Các vua quan nhiều người sùng đạo Phật, cho xây dựng nhiều chùa tháp và khuyến khích việc tu hành. Tuy nhiên, bên cạnh Phật giáo, Nho giáo và Đạo giáo cũng tồn tại và có ảnh hưởng nhất định trong xã hội.”",
-                statements: [
-                    { text: "a) Một số nhà sư có tham gia vào các hoạt động chính trị và văn hóa của đất nước.", answer: true },
-                    { text: "b) Thời Lý – Trần, Phật giáo có ảnh hưởng lớn đến đời sống xã hội Đại Việt.", answer: true },
-                    { text: "c) Thời Lý – Trần hoàn toàn không có sự tồn tại của Nho giáo.", answer: false },
-                    { text: "d) Phật giáo là tôn giáo duy nhất tồn tại ở Đại Việt thời Lý – Trần.", answer: false }
-                ]
-            }
-        ];
+    // --- PHẦN TRẮC NGHIỆM (Câu 1 - Câu 40) ---
+    { type: "mcq", question: "Câu 1. Nội dung nào sau đây là cơ sở kinh tế dẫn đến sự hình thành nền văn minh Văn Lang - Âu Lạc?", options: ["A. Bắt đầu xuất hiện sự phân hóa giữa các tầng lớp xã hội.", "B. Nông nghiệp trồng lúa nước đạt trình độ phát triển cao.", "C. Hoạt động thương nghiệp đường biển đặc biệt phát triển.", "D. Nhu cầu chống giặc ngoại xâm ngày càng trở nên bức thiết."], answer: 1 },
+    { type: "mcq", question: "Câu 2. Nội dung nào sau đây phản ánh đúng về tổ chức xã hội và Nhà nước Văn Lang – Âu Lạc?", options: ["A. Nhà nước quân chủ chuyên chế tập quyền cao.", "B. Nhà nước sơ khai do vua đứng đầu, dưới có Lạc hầu, Lạc tướng.", "C. Xã hội phân chia giai cấp sâu sắc, mâu thuẫn gay gắt.", "D. Bộ máy nhà nước hoàn chỉnh, có luật pháp chặt chẽ."], answer: 1 },
+    { type: "mcq", question: "Câu 3. Việc chia đất nước thành các bộ và cử Lạc tướng cai quản cho thấy Nhà nước Văn Lang – Âu Lạc", options: ["A. bước đầu tổ chức quản lí xã hội trên phạm vi lãnh thổ rộng.", "B. áp dụng mô hình nhà nước phương Tây cổ đại.", "C. hoàn toàn xóa bỏ vai trò của cộng đồng làng xã.", "D. đã có bộ máy nhà nước quan liêu phức tạp."], answer: 0 },
+    { type: "mcq", question: "Câu 4. Bộ máy nhà nước Văn Lang – Âu Lạc được xem là tiến bộ vì", options: ["A. thể hiện sự phân công quản lí giữa trung ương và địa phương.", "B. quản lí xã hội chủ yếu bằng pháp luật thành văn.", "C. được tổ chức giống với nhà nước phong kiến Trung Quốc.", "D. có đầy đủ các cơ quan lập pháp, hành pháp và tư pháp."], answer: 0 },
+    { type: "mcq", question: "Câu 5. Nền văn minh Văn Lang - Âu Lạc được hình thành ở khu vực nào sau đây của Việt Nam?", options: ["A. Vùng duyên hải và cao nguyên miền Trung Việt Nam.", "B. Lưu vực sông Hồng, sông Thu Bồn và sông Cửu Long.", "C. Khu vực Bắc Bộ và Bắc Trung Bộ Việt Nam ngày nay.", "D. Vùng ven biển Nam Trung Bộ và Nam Bộ Việt Nam."], answer: 2 },
+    { type: "mcq", question: "Câu 6. Điều kiện tự nhiên nào sau đây tạo thuận lợi cho cư dân Văn Lang – Âu Lạc phát triển ngành nông nghiệp lúa nước?", options: ["A. Khí hậu khô hạn, lượng nhiệt lớn", "B. Tài nguyên khoáng sản phong phú", "C. Tiếp giáp với các nền văn minh lớn", "D. Hệ thống đất phù sa màu mỡ"], answer: 3 },
+    { type: "mcq", question: "Câu 7. Trong bộ máy nhà nước Văn Lang – Âu Lạc, người đứng đầu là ai?", options: ["A. Lạc hầu", "B. Lạc tướng", "C. Vua (Hùng Vương/An Dương Vương)", "D. Quan lại"], answer: 2 },
+    { type: "mcq", question: "Câu 8. Một trong những công trình kiến trúc tiêu biểu được xây dựng dưới thời kì nhà nước Âu Lạc là", options: ["A. thành Cổ Loa", "B. tháp Phổ Minh", "C. chùa Một Cột", "D. kinh thành Huế"], answer: 0 },
+    { type: "mcq", question: "Câu 9. Nội dung nào sau đây phản ánh sự phát triển kinh tế của cư dân Văn Lang - Âu Lạc?", options: ["A. Thương nghiệp đường biển phát triển vượt bậc.", "B. Làm chủ nhiều vùng rộng lớn ở Đông Nam Á.", "C. Kĩ thuật luyện kim, đúc đồng đạt trình độ cao.", "D. Kĩ thuật đóng gạch xây tháp đạt mức hoàn mĩ."], answer: 2 },
+    { type: "mcq", question: "Câu 10. Ngành kinh tế nào sau đây phát triển mạnh dưới thời kì Văn Lang – Âu Lạc?", options: ["A. Chế tạo máy", "B. Làm giấy", "C. Đóng tàu biển", "D. Trồng lúa nước"], answer: 3 },
+    { type: "mcq", question: "Câu 11. Một cơ sở quan trọng hình thành văn minh Đại Việt là kế thừa từ nền văn minh nào?", options: ["A. Văn minh Văn Lang – Âu Lạc", "B. Văn minh Trung Hoa", "C. Văn minh Ấn Độ", "D. Văn minh Chăm-pa"], answer: 0 },
+    { type: "mcq", question: "Câu 12. Yếu tố nào tạo điều kiện quan trọng giúp văn minh Đại Việt phát triển?", options: ["A. Mở rộng lãnh thổ về phía Nam", "B. Đất nước độc lập, tự chủ", "C. Phát triển thương mại biển", "D. Giao lưu với các nước phương Tây"], answer: 1 },
+    { type: "mcq", question: "Câu 13. Văn minh Đại Việt chịu ảnh hưởng của những nền văn hóa nào?", options: ["A. Ấn Độ và Ba Tư", "B. Trung Quốc và Ấn Độ", "C. Trung Quốc và Nhật Bản", "D. Nhật Bản và Triều Tiên"], answer: 1 },
+    { type: "mcq", question: "Câu 14. Tôn giáo nào có ảnh hưởng lớn đến đời sống tinh thần của người Đại Việt thời trung đại?", options: ["A. Hồi giáo", "B. Do Thái giáo", "C. Thiên Chúa giáo", "D. Phật giáo"], answer: 3 },
+    { type: "mcq", question: "Câu 15. Người Đại Việt kế thừa truyền thống văn hóa nào từ cư dân Văn Lang – Âu Lạc?", options: ["A. Thương mại biển", "B. Săn bắt – hái lượm", "C. Văn hóa du mục", "D. Trồng lúa nước"], answer: 3 },
+    { type: "mcq", question: "Câu 16. Một trong những cơ sở tự nhiên góp phần hình thành văn minh Đại Việt là gì?", options: ["A. Sa mạc khô hạn", "B. Khí hậu lạnh giá", "C. Đồng bằng màu mỡ, nhiều sông ngòi", "D. Núi cao hiểm trở"], answer: 2 },
+    { type: "mcq", question: "Câu 17. Trong quá trình phát triển, văn minh Đại Việt gắn liền với hoạt động kinh tế nào là chủ yếu?", options: ["A. Đánh bắt xa bờ", "B. Khai thác dầu mỏ", "C. Chăn nuôi du mục", "D. Trồng lúa nước"], answer: 3 },
+    { type: "mcq", question: "Câu 18. Một đặc điểm của văn minh Đại Việt trong thời kì phát triển là:", options: ["A. Có sự kết hợp giữa yếu tố truyền thống và tiếp thu bên ngoài", "B. Không có sự giao lưu văn hóa", "C. Chỉ phát triển quân sự", "D. Phát triển tách biệt hoàn toàn"], answer: 0 },
+    { type: "mcq", question: "Câu 19. Trong các yếu tố sau, yếu tố nào giúp văn minh Đại Việt duy trì và phát triển lâu dài?", options: ["A. Phụ thuộc hoàn toàn nước ngoài", "B. Chiến tranh liên tục", "C. Sự ổn định của nhà nước phong kiến", "D. Không có chính quyền"], answer: 2 },
+    { type: "mcq", question: "Câu 20. Quá trình phát triển của văn minh Đại Việt diễn ra chủ yếu trong giai đoạn nào?", options: ["A. Thời kì hiện đại", "B. Thời kì Bắc thuộc", "C. Thời nguyên thủy", "D. Thời kì các triều đại phong kiến độc lập"], answer: 3 },
+    { type: "mcq", question: "Câu 21. Nền kinh tế chủ yếu của cư dân Đại Việt thời trung đại là", options: ["A. luyện kim.", "B. thương nghiệp biển.", "C. chăn nuôi.", "D. nông nghiệp trồng lúa nước."], answer: 3 },
+    { type: "mcq", question: "Câu 22. Nhà nước Đại Việt thời phong kiến được tổ chức theo mô hình", options: ["A. nhà nước liên bang.", "B. nhà nước quân chủ trung ương tập quyền.", "C. nhà nước dân chủ.", "D. nhà nước cộng hòa."], answer: 1 },
+    { type: "mcq", question: "Câu 23. Triều đại nào sau đây ban hành Quốc triều hình luật (Luật Hồng Đức)?", options: ["A. Nhà Lý", "B. Nhà Lê sơ", "C. Nhà Nguyễn", "D. Nhà Trần"], answer: 1 },
+    { type: "mcq", question: "Câu 24. Tôn giáo có ảnh hưởng lớn nhất đến đời sống tinh thần của cư dân Đại Việt thời Lý – Trần là", options: ["A. Nho giáo.", "B. Thiên Chúa giáo.", "C. Phật giáo.", "D. Ấn Độ giáo."], answer: 2 },
+    { type: "mcq", question: "Câu 25. Tư tưởng nào giữ vai trò quan trọng trong quản lí nhà nước Đại Việt thời phong kiến?", options: ["A. Đạo giáo", "B. Hồi giáo", "C. Nho giáo", "D. Phật giáo"], answer: 2 },
+    { type: "mcq", question: "Câu 26. Bài thơ “Nam quốc sơn hà” thường được xem là", options: ["A. tác phẩm văn học thời Nguyễn.", "B. bản tuyên ngôn độc lập đầu tiên của Việt Nam.", "C. bản tuyên ngôn độc lập thứ hai của Việt Nam.", "D. bài thơ chữ Nôm đầu tiên của Việt Nam."], answer: 1 },
+    { type: "mcq", question: "Câu 27. Văn Miếu – Quốc Tử Giám được xây dựng dưới triều đại nào?", options: ["A. Nhà Lý", "B. Nhà Tiền Lê", "C. Nhà Đinh", "D. Nhà Nguyễn"], answer: 0 },
+    { type: "mcq", question: "Câu 28. Ai là tác giả của tác phẩm “Bình Ngô đại cáo”?", options: ["A. Lý Thường Kiệt", "B. Lê Thánh Tông", "C. Nguyễn Trãi", "D. Trần Quốc Tuấn"], answer: 2 },
+    { type: "mcq", question: "Câu 29. Tác phẩm “Đại Việt sử kí” do ai biên soạn?", options: ["A. Ngô Sĩ Liên", "B. Lê Văn Hưu", "C. Trần Quốc Tuấn", "D. Nguyễn Trãi"], answer: 1 },
+    { type: "mcq", question: "Câu 30. Thành tựu nào sau đây thuộc lĩnh vực nghệ thuật điêu khắc của văn minh Đại Việt?", options: ["A. Tượng rồng đá thời Lý", "B. Kim tự tháp Ai Cập", "C. Đền Parthenon", "D. Tượng Phật chùa Tây Phương"], answer: 0 },
+    { type: "mcq", question: "Câu 31. Đặc điểm về thành phần dân tộc ở Việt Nam hiện nay là", options: ["A. có sự đa dạng dân tộc, trong đó dân tộc Kinh chiếm đa số", "B. các dân tộc đều có quy mô dân số tương đương nhau", "C. các dân tộc thiểu số có xu hướng chiếm tỉ lệ ngày càng lớn", "D. có nhiều dân tộc với sự phát triển khá đồng đều"], answer: 0 },
+    { type: "mcq", question: "Câu 32. Đặc điểm phân bố dân cư của các dân tộc Việt Nam là", options: ["A. có sự phân bố không đều, gắn với điều kiện tự nhiên", "B. chủ yếu tập trung ở khu vực đồng bằng", "C. phân bố khá đồng đều giữa các vùng", "D. các dân tộc có xu hướng tập trung tại đô thị"], answer: 0 },
+    { type: "mcq", question: "Câu 33. Việc phân chia các dân tộc theo ngữ hệ cho thấy", options: ["A. sự phân bố theo lãnh thổ", "B. sự khác biệt về trình độ phát triển", "C. sự đa dạng về nguồn gốc ngôn ngữ", "D. sự khác nhau về đời sống vật chất"], answer: 2 },
+    { type: "mcq", question: "Câu 34. Trang phục truyền thống của các dân tộc có vai trò", options: ["A. góp phần phân biệt các vùng địa lí", "B. thể hiện xu hướng phát triển xã hội", "C. phản ánh bản sắc văn hóa riêng của mỗi dân tộc", "D. thể hiện điều kiện kinh tế của từng vùng"], answer: 2 },
+    { type: "mcq", question: "Câu 35. Nhận xét đúng về nền văn hóa các dân tộc Việt Nam là", options: ["A. có xu hướng tách biệt rõ rệt", "B. có sự phát triển theo hướng đồng nhất", "C. chịu ảnh hưởng chủ yếu từ bên ngoài", "D. vừa đa dạng vừa thống nhất"], answer: 3 },
+    { type: "mcq", question: "Câu 36. Nhận xét đúng về chữ viết của các dân tộc Việt Nam là", options: ["A. cho thấy sự khác biệt về chính trị", "B. góp phần lưu giữ và phát triển văn hóa dân tộc", "C. phản ánh sự phân bố dân cư", "D. thể hiện sự phát triển về kinh tế"], answer: 1 },
+    { type: "mcq", question: "Câu 37. Âm nhạc dân gian của các dân tộc Việt Nam", options: ["A. chỉ phản ánh hoạt động lao động", "B. phản ánh đời sống tinh thần phong phú", "C. chỉ dùng trong lễ hội", "D. không liên quan đến văn hóa"], answer: 1 },
+    { type: "mcq", question: "Câu 38. Ý nghĩa của khối đại đoàn kết các dân tộc là", options: ["A. thúc đẩy giao lưu văn hóa", "B. góp phần xây dựng và bảo vệ đất nước", "C. tăng cường sự phát triển xã hội", "D. tạo điều kiện phát triển kinh tế"], answer: 1 },
+    { type: "mcq", question: "Câu 39. Việc bảo tồn văn hóa các dân tộc Việt Nam hiện nay nhằm", options: ["A. giữ gìn và phát huy bản sắc văn hóa dân tộc", "B. thúc đẩy hiện đại hóa xã hội", "C. phát triển du lịch và kinh tế", "D. tăng cường giao lưu quốc tế"], answer: 0 },
+    { type: "mcq", question: "Câu 40. Vai trò của lễ hội trong đời sống các dân tộc là", options: ["A. thay thế lao động sản xuất", "B. chỉ để giải trí", "C. xây dựng kinh tế", "D. gắn kết cộng đồng và bảo tồn văn hóa"], answer: 3 },
+
+    // --- PHẦN ĐÚNG/SAI (Câu 41 - Câu 60) ---
+    { type: "tf", question: "Câu 41. Đọc đoạn tư liệu về Phật giáo thời Lý - Trần:", context: "“Trong thời Lý – Trần, Phật giáo phát triển mạnh mẽ và có ảnh hưởng sâu rộng... Nhiều nhà sư tham gia vào các hoạt động chính trị... vua quan sùng đạo Phật... bên cạnh đó Nho giáo và Đạo giáo cũng tồn tại.” ", statements: [
+        { text: "a) Một số nhà sư có tham gia vào các hoạt động chính trị và văn hóa của đất nước.", answer: true },
+        { text: "b) Thời Lý – Trần, Phật giáo có ảnh hưởng lớn đến đời sống xã hội Đại Việt.", answer: true },
+        { text: "c) Thời Lý – Trần hoàn toàn không có sự tồn tại của Nho giáo.", answer: false },
+        { text: "d) Phật giáo là tôn giáo duy nhất tồn tại ở Đại Việt thời Lý – Trần.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 42. Đọc đoạn tư liệu về văn minh Đại Việt:", context: "“Văn minh Đại Việt hình thành trên nền tảng kế thừa văn minh Văn Lang – Âu Lạc... tiếp thu yếu tố bên ngoài như chữ Hán, Nho giáo, Phật giáo có chọn lọc.” ", statements: [
+        { text: "a) Văn minh Đại Việt kế thừa hoàn toàn và không có sự biến đổi từ văn minh Văn Lang – Âu Lạc.", answer: false },
+        { text: "b) Các yếu tố văn hóa bên ngoài được tiếp thu một cách chọn lọc để phù hợp với bản sắc dân tộc.", answer: true },
+        { text: "c) Trong quá trình phát triển, cư dân Đại Việt có tiếp thu các yếu tố văn hóa bên ngoài.", answer: true },
+        { text: "d) Truyền thống nông nghiệp trồng lúa nước là một trong những yếu tố được kế thừa từ thời Văn Lang – Âu Lạc.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 43. Đọc đoạn tư liệu về độc lập dân tộc sau năm 938:", context: "“Sau chiến thắng Bạch Đằng năm 938, đất nước giành lại được độc lập... Nền độc lập tự chủ tạo điều kiện thuận lợi cho sự hình thành văn minh Đại Việt.” ", statements: [
+        { text: "a) Văn minh Đại Việt hình thành trước khi nước ta giành được độc lập.", answer: false },
+        { text: "b) Nền độc lập tự chủ là cơ sở quan trọng cho sự phát triển của văn minh Đại Việt.", answer: true },
+        { text: "c) Sau năm 938, nước ta vẫn chịu sự cai trị trực tiếp của phong kiến phương Bắc.", answer: false },
+        { text: "d) Chiến thắng Bạch Đằng năm 938 đã mở ra thời kì độc lập lâu dài của dân tộc.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 44. Đọc đoạn tư liệu về tiếp thu văn hóa Trung Hoa:", context: "“Các triều đại phong kiến Đại Việt đã tiếp thu nhiều yếu tố văn hóa Trung Hoa như chữ Hán, Nho giáo... Tuy nhiên, những yếu tố đó được điều chỉnh cho phù hợp.” ", statements: [
+        { text: "a) Các yếu tố văn hóa tiếp thu từ Trung Hoa được điều chỉnh cho phù hợp với xã hội Đại Việt.", answer: true },
+        { text: "b) Người Việt tiếp thu toàn bộ mô hình văn hóa Trung Hoa mà không có sự thay đổi.", answer: false },
+        { text: "c) Chữ Hán và Nho giáo là những yếu tố văn hóa được tiếp thu từ Trung Hoa.", answer: true },
+        { text: "d) Văn minh Đại Việt hoàn toàn tách biệt với các nền văn hóa bên ngoài.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 45. Đọc đoạn tư liệu về thành tựu thời Lý – Trần:", context: "“Thời kì Lý – Trần đạt nhiều thành tựu quan trọng về kinh tế, chính trị, văn hóa... Nông nghiệp phát triển, giáo dục mở rộng, nhiều công trình kiến trúc ra đời.” ", statements: [
+        { text: "a) Nông nghiệp thời Lý – Trần không có sự phát triển đáng kể.", answer: false },
+        { text: "b) Thời Lý – Trần là giai đoạn văn minh Đại Việt có bước phát triển mạnh.", answer: true },
+        { text: "c) Thời Lý – Trần chỉ chú trọng phát triển quân sự.", answer: false },
+        { text: "d) Giáo dục và khoa cử bắt đầu phát triển trong thời kì này.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 46. Đọc đoạn tư liệu về ý nghĩa văn minh Đại Việt:", context: "“Thành tựu văn minh Đại Việt góp phần củng cố độc lập dân tộc... trở thành nền tảng để dân tộc tiếp tục phát triển trong các giai đoạn sau.” ", statements: [
+        { text: "a) Những thành tựu của văn minh Đại Việt góp phần củng cố nền độc lập dân tộc.", answer: true },
+        { text: "b) Văn minh Đại Việt trở thành nền tảng cho sự phát triển của dân tộc trong các giai đoạn lịch sử sau.", answer: true },
+        { text: "c) Văn minh Đại Việt không có ảnh hưởng đến đời sống văn hóa của người Việt.", answer: false },
+        { text: "d) Văn minh Đại Việt chỉ có ý nghĩa trong thời kì trung đại.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 47. Đọc đoạn tư liệu về bản sắc văn hóa dân tộc:", context: "“Văn minh Đại Việt đóng vai trò quan trọng hình thành bản sắc văn hóa qua ngôn ngữ, phong tục... giá trị đó được kế thừa trong xã hội hiện đại.” ", statements: [
+        { text: "a) Văn minh Đại Việt chỉ có ý nghĩa trong lĩnh vực chính trị.", answer: false },
+        { text: "b) Văn minh Đại Việt không còn ảnh hưởng đến xã hội Việt Nam hiện nay.", answer: false },
+        { text: "c) Văn minh Đại Việt có ý nghĩa lâu dài trong lịch sử dân tộc Việt Nam.", answer: true },
+        { text: "d) Những thành tựu của văn minh Đại Việt góp phần hình thành bản sắc văn hóa dân tộc.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 48. Đọc đoạn tư liệu về sự tiếp biến văn hóa:", context: "“Quá trình tiếp thu văn hóa bên ngoài không phải sao chép nguyên vẹn mà chọn lọc, cải biến hòa nhập với truyền thống bản địa.” ", statements: [
+        { text: "a) Quá trình tiếp thu văn hóa bên ngoài góp phần làm phong phú văn hóa dân tộc.", answer: true },
+        { text: "b) Khả năng tiếp biến văn hóa là một đặc điểm quan trọng của văn minh Đại Việt.", answer: true },
+        { text: "c) Văn minh Đại Việt bị hòa tan hoàn toàn trong các nền văn hóa khác.", answer: false },
+        { text: "d) Văn minh Đại Việt tiếp thu văn hóa bên ngoài một cách nguyên vẹn, không thay đổi.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 49. Đọc đoạn tư liệu về ý nghĩa nghiên cứu văn minh Đại Việt:", context: "“Nghiên cứu văn minh Đại Việt giúp hiểu rõ quá khứ, bồi dưỡng lòng tự hào dân tộc và ý thức trách nhiệm giữ gìn giá trị truyền thống.” ", statements: [
+        { text: "a) Văn minh Đại Việt không có vai trò trong bối cảnh hội nhập hiện nay.", answer: false },
+        { text: "b) Nghiên cứu văn minh Đại Việt chỉ giúp hiểu về quá khứ, không có ý nghĩa với hiện tại.", answer: false },
+        { text: "c) Việc nghiên cứu văn minh Đại Việt giúp nâng cao lòng tự hào dân tộc.", answer: true },
+        { text: "d) Văn minh Đại Việt có giá trị như một nguồn lực tinh thần cho sự phát triển đất nước.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 50. Đọc đoạn tư liệu về nhân tố độc lập, tự chủ:", context: "“Độc lập, tự chủ là nhân tố quan trọng hình thành văn minh Đại Việt... tạo điều kiện thuận lợi xây dựng văn hóa đặc sắc phát triển rực rỡ.” ", statements: [
+        { text: "a) Độc lập, tự chủ là điều kiện quan trọng giúp văn minh Đại Việt phát triển rực rỡ.", answer: true },
+        { text: "b) Nền độc lập, tự chủ của Đại Việt chỉ được xác lập vững chắc từ thời Lê sơ.", answer: false },
+        { text: "c) Ý thức độc lập về văn hóa của Đại Việt xuất phát từ vị thế độc lập về chính trị.", answer: true },
+        { text: "d) Độc lập, tự chủ chỉ có ý nghĩa trong lĩnh vực chính trị, không liên quan đến văn hóa.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 51. Đọc đoạn tư liệu về quốc gia đa dân tộc Việt Nam:", context: "“Việt Nam có 54 tộc người... đa dạng nhưng thống nhất là đặc trưng nổi bật của văn hóa Việt Nam... nền tảng xây dựng khối đại đoàn kết.” ", statements: [
+        { text: "a) Sự đa dạng văn hóa làm suy yếu tinh thần đoàn kết dân tộc.", answer: false },
+        { text: "b) Sự khác biệt về nhà ở và sản xuất của các dân tộc chủ yếu do điều kiện tự nhiên.", answer: true },
+        { text: "c) Các dân tộc Việt Nam không có điểm chung về văn hóa.", answer: false },
+        { text: "d) Đời sống tinh thần của các dân tộc Việt Nam hoàn toàn giống nhau.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 52. Đọc đoạn tư liệu về tín ngưỡng dân gian:", context: "“Tín ngưỡng dân gian giữ vai trò quan trọng gắn kết cộng đồng... thờ cúng tổ tiên là biểu hiện đạo lý truyền thống.” ", statements: [
+        { text: "a) Tín ngưỡng dân gian góp phần gắn kết cộng đồng.", answer: true },
+        { text: "b) Lễ hội chỉ mang ý nghĩa giải trí đơn thuần.", answer: false },
+        { text: "c) Các giá trị văn hóa truyền thống không còn tồn tại trong xã hội hiện đại.", answer: false },
+        { text: "d) Tín ngưỡng thờ cúng tổ tiên chỉ có ở một số ít dân tộc.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 53. Đọc đoạn tư liệu về đời sống vật chất các dân tộc:", context: "“Đời sống vật chất thể hiện qua cư trú, sản xuất... vùng núi xây nhà sàn, đồng bằng sống nhà đất.” ", statements: [
+        { text: "a) Nhà sàn là một hình thức thích nghi với điều kiện địa hình miền núi.", answer: true },
+        { text: "b) Sự khác biệt về nhà ở không liên quan đến điều kiện sống.", answer: false },
+        { text: "c) Đời sống vật chất của các dân tộc không chịu ảnh hưởng của môi trường tự nhiên.", answer: false },
+        { text: "d) Các dân tộc đều có phương thức sản xuất giống nhau.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 54. Đọc đoạn tư liệu về giao lưu và tiếp biến văn hóa:", context: "“Giao lưu giữa các dân tộc diễn ra thường xuyên... không làm mất bản sắc riêng mà làm phong phú đời sống văn hóa chung.” ", statements: [
+        { text: "a) Giao lưu văn hóa làm mất bản sắc dân tộc.", answer: false },
+        { text: "b) Các dân tộc không có sự tiếp biến văn hóa.", answer: false },
+        { text: "c) Sự đa dạng văn hóa làm suy yếu sự thống nhất.", answer: false },
+        { text: "d) Giao lưu văn hóa góp phần làm phong phú đời sống văn hóa.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 55. Đọc đoạn tư liệu về âm nhạc dân gian:", context: "“Âm nhạc dân gian phong phú, gắn liền sinh hoạt cộng đồng, lễ hội... là cách thể hiện tâm tư, tình cảm.” ", statements: [
+        { text: "a) Âm nhạc dân gian chỉ có chức năng giải trí.", answer: false },
+        { text: "b) Âm nhạc phản ánh đời sống tinh thần của cộng đồng.", answer: true },
+        { text: "c) Các dân tộc không có nhạc cụ riêng.", answer: false },
+        { text: "d) Âm nhạc không liên quan đến lao động sản xuất.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 56. Đọc đoạn tư liệu về môi trường cư trú:", context: "“Sự khác biệt về đời sống vật chất do điều kiện tự nhiên... ở vùng núi nhà sàn phổ biến, đồng bằng nhà đất phù hợp lúa nước.” ", statements: [
+        { text: "a) Nhà ở của các dân tộc chịu ảnh hưởng của môi trường tự nhiên.", answer: true },
+        { text: "b) Sự khác biệt về nhà ở phản ánh khả năng thích nghi với môi trường.", answer: true },
+        { text: "c) Các dân tộc Việt Nam có đời sống vật chất hoàn toàn giống nhau.", answer: false },
+        { text: "d) Nhà sàn chủ yếu xuất hiện ở vùng đồng bằng.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 57. Đọc đoạn tư liệu về trang phục truyền thống:", context: "“Trang phục đa dạng từ nguyên liệu tự nhiên... thể hiện bản sắc dân tộc và vị trí xã hội của người mặc.” ", statements: [
+        { text: "a) Trang phục chỉ có chức năng bảo vệ cơ thể.", answer: false },
+        { text: "b) Trang phục các dân tộc Việt Nam hoàn toàn giống nhau.", answer: false },
+        { text: "c) Trang phục thể hiện bản sắc văn hóa của từng dân tộc.", answer: true },
+        { text: "d) Trang phục có thể phản ánh vị trí xã hội của người mặc.", answer: true }
+    ]},
+    { type: "tf", question: "Câu 58. Đọc đoạn tư liệu về ẩm thực dân tộc:", context: "“Ẩm thực phản ánh môi trường sống và phương thức sản xuất... chế biến từ nguyên liệu địa phương.” ", statements: [
+        { text: "a) Ẩm thực phản ánh môi trường sống của các dân tộc.", answer: true },
+        { text: "b) Ẩm thực chỉ nhằm đáp ứng nhu cầu ăn uống.", answer: false },
+        { text: "c) Ẩm thực là một phần của đời sống văn hóa.", answer: true },
+        { text: "d) Các dân tộc không có sự khác biệt về món ăn.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 59. Đọc đoạn tư liệu về đời sống tinh thần:", context: "“Tín ngưỡng phong phú như thờ cúng tổ tiên... lễ hội truyền thống củng cố sự gắn kết cộng đồng.” ", statements: [
+        { text: "a) Tín ngưỡng không liên quan đến đời sống tinh thần.", answer: false },
+        { text: "b) Thờ cúng tổ tiên là một tín ngưỡng phổ biến.", answer: true },
+        { text: "c) Lễ hội góp phần gắn kết cộng đồng.", answer: true },
+        { text: "d) Đời sống tinh thần của các dân tộc Việt Nam đơn điệu.", answer: false }
+    ]},
+    { type: "tf", question: "Câu 60. Đọc đoạn tư liệu về truyền thống đoàn kết:", context: "“Các dân tộc có sự khác biệt văn hóa nhưng luôn đoàn kết, gắn bó dựng nước và giữ nước.” ", statements: [
+        { text: "a) Đoàn kết dân tộc không có vai trò trong lịch sử Việt Nam.", answer: false },
+        { text: "b) Sự đa dạng văn hóa góp phần làm phong phú văn hóa Việt Nam.", answer: true },
+        { text: "c) Các dân tộc Việt Nam có truyền thống đoàn kết.", answer: true },
+        { text: "d) Sự khác biệt văn hóa làm suy yếu đoàn kết dân tộc.", answer: false }
+    ]}
+];
 
         let currentQuestionIndex = 0;
         let score = 0;
