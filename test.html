@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Cuối Kì - Trắc Nghiệm Lịch Sử</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --card-bg: #fff;
+            --warning-color: #e74c3c;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #357abd;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .option-btn {
+            background-color: #eef2f5;
+            color: var(--text-color);
+            text-align: left;
+        }
+        .option-btn:hover {
+            background-color: #d6e0e9;
+        }
+        .tf-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid var(--primary-color);
+        }
+        .tf-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tf-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .tf-btn.selected-true { background-color: #2ecc71; color: white; border-color: #2ecc71; }
+        .tf-btn.selected-false { background-color: #e74c3c; color: white; border-color: #e74c3c; }
+        .hidden {
+            display: none;
+        }
+        #warning-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(231, 76, 60, 0.95);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #warning-overlay h1 { color: white; }
+        .score-text { font-size: 24px; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="container">
+        <h1>Mini Game Trắc Nghiệm</h1>
+        <p style="text-align: center;">Lưu ý: Không được chuyển tab hay rời khỏi màn hình trong quá trình làm bài!</p>
+        <button class="btn" onclick="startQuiz()">Bắt đầu ngay</button>
+    </div>
+
+    <div id="warning-overlay" class="hidden">
+        <h1>CẢNH BÁO GIAN LẬN!</h1>
+        <p>Hệ thống phát hiện bạn đã rời khỏi màn hình làm bài.</p>
+        <button class="btn" style="background: white; color: var(--warning-color); width: 200px;" onclick="resumeQuiz()">Tiếp tục làm bài</button>
+    </div>
+
+    <div id="quiz-screen" class="container hidden">
+        <h2 id="question-title">Câu hỏi</h2>
+        <p id="context-text" style="font-style: italic; margin-bottom: 20px;"></p>
+        <div id="options-container"></div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Tiếp theo</button>
+    </div>
+
+    <div id="result-screen" class="container hidden">
+        <h1>Hoàn Thành!</h1>
+        <p class="score-text">Điểm của bạn: <span id="score">0</span> / <span id="total-score">0</span></p>
+        <p id="cheat-count-text" style="text-align: center; color: var(--warning-color);"></p>
+        <button class="btn" onclick="location.reload()">Làm lại</button>
+    </div>
+
+    <script>
+        // Dữ liệu câu hỏi (Bạn copy thêm các câu từ file Word vào đây)
+        const quizData = [
+            {
+                type: "mcq",
+                question: "Câu 1. Nội dung nào sau đây là cơ sở kinh tế dẫn đến sự hình thành nền văn minh Văn Lang - Âu Lạc?",
+                options: [
+                    "A. Bắt đầu xuất hiện sự phân hóa giữa các tầng lớp xã hội.",
+                    "B. Nông nghiệp trồng lúa nước đạt trình độ phát triển cao.",
+                    "C. Hoạt động thương nghiệp đường biển đặc biệt phát triển.",
+                    "D. Nhu cầu chống giặc ngoại xâm ngày càng trở nên bức thiết."
+                ],
+                answer: 1 // Vị trí index của đáp án đúng (B = 1)
+            },
+            {
+                type: "mcq",
+                question: "Câu 2. Nội dung nào sau đây phản ánh đúng về tổ chức xã hội và Nhà nước Văn Lang – Âu Lạc?",
+                options: [
+                    "A. Nhà nước quân chủ chuyên chế tập quyền cao.",
+                    "B. Nhà nước sơ khai do vua đứng đầu, dưới có Lạc hầu, Lạc tướng.",
+                    "C. Xã hội phân chia giai cấp sâu sắc, mâu thuẫn gay gắt.",
+                    "D. Bộ máy nhà nước hoàn chỉnh, có luật pháp chặt chẽ."
+                ],
+                answer: 1
+            },
+            {
+                type: "tf",
+                question: "Câu 41. Chọn Đúng hoặc Sai cho các phát biểu sau:",
+                context: "“Trong thời Lý – Trần, Phật giáo phát triển mạnh mẽ và có ảnh hưởng sâu rộng trong đời sống xã hội Đại Việt. Nhiều nhà sư tham gia vào các hoạt động chính trị, văn hóa và giáo dục. Các vua quan nhiều người sùng đạo Phật, cho xây dựng nhiều chùa tháp và khuyến khích việc tu hành. Tuy nhiên, bên cạnh Phật giáo, Nho giáo và Đạo giáo cũng tồn tại và có ảnh hưởng nhất định trong xã hội.”",
+                statements: [
+                    { text: "a) Một số nhà sư có tham gia vào các hoạt động chính trị và văn hóa của đất nước.", answer: true },
+                    { text: "b) Thời Lý – Trần, Phật giáo có ảnh hưởng lớn đến đời sống xã hội Đại Việt.", answer: true },
+                    { text: "c) Thời Lý – Trần hoàn toàn không có sự tồn tại của Nho giáo.", answer: false },
+                    { text: "d) Phật giáo là tôn giáo duy nhất tồn tại ở Đại Việt thời Lý – Trần.", answer: false }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let cheatCount = 0;
+        let isQuizActive = false;
+        let userTfAnswers = [];
+
+        // Hệ thống phát hiện rời màn hình
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isQuizActive) {
+                triggerCheatWarning();
+            }
+        });
+
+        window.addEventListener("blur", () => {
+            if (isQuizActive) {
+                triggerCheatWarning();
+            }
+        });
+
+        function triggerCheatWarning() {
+            cheatCount++;
+            document.getElementById("warning-overlay").classList.remove("hidden");
+        }
+
+        function resumeQuiz() {
+            document.getElementById("warning-overlay").classList.add("hidden");
+        }
+
+        function startQuiz() {
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("quiz-screen").classList.remove("hidden");
+            isQuizActive = true;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const titleEl = document.getElementById("question-title");
+            const contextEl = document.getElementById("context-text");
+            const optionsContainer = document.getElementById("options-container");
+            const nextBtn = document.getElementById("next-btn");
+
+            titleEl.innerText = currentQuestion.question;
+            optionsContainer.innerHTML = "";
+            nextBtn.classList.add("hidden");
+            
+            if (currentQuestion.context) {
+                contextEl.innerText = currentQuestion.context;
+                contextEl.style.display = "block";
+            } else {
+                contextEl.style.display = "none";
+            }
+
+            if (currentQuestion.type === "mcq") {
+                currentQuestion.options.forEach((option, index) => {
+                    const button = document.createElement("button");
+                    button.innerText = option;
+                    button.classList.add("btn", "option-btn");
+                    button.onclick = () => selectMcqAnswer(index, button);
+                    optionsContainer.appendChild(button);
+                });
+            } else if (currentQuestion.type === "tf") {
+                userTfAnswers = new Array(currentQuestion.statements.length).fill(null);
+                currentQuestion.statements.forEach((stmt, index) => {
+                    const group = document.createElement("div");
+                    group.classList.add("tf-group");
+                    
+                    const stmtText = document.createElement("p");
+                    stmtText.innerText = stmt.text;
+                    
+                    const btnGroup = document.createElement("div");
+                    btnGroup.classList.add("tf-buttons");
+                    
+                    const btnTrue = document.createElement("button");
+                    btnTrue.innerText = "Đúng";
+                    btnTrue.classList.add("tf-btn");
+                    btnTrue.onclick = () => selectTfAnswer(index, true, btnTrue, btnFalse);
+                    
+                    const btnFalse = document.createElement("button");
+                    btnFalse.innerText = "Sai";
+                    btnFalse.classList.add("tf-btn");
+                    btnFalse.onclick = () => selectTfAnswer(index, false, btnFalse, btnTrue);
+
+                    btnGroup.appendChild(btnTrue);
+                    btnGroup.appendChild(btnFalse);
+                    group.appendChild(stmtText);
+                    group.appendChild(btnGroup);
+                    optionsContainer.appendChild(group);
+                });
+                
+                // Hiển thị nút "Tiếp theo" ngay đối với câu hỏi Đúng/Sai để người dùng chốt đáp án
+                nextBtn.classList.remove("hidden");
+                nextBtn.onclick = checkTfAnswers;
+            }
+        }
+
+        function selectMcqAnswer(selectedIndex, selectedButton) {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const buttons = document.querySelectorAll(".option-btn");
+            
+            // Khóa các nút sau khi chọn
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentQuestion.answer) {
+                selectedButton.style.backgroundColor = "#2ecc71";
+                selectedButton.style.color = "white";
+                score++;
+            } else {
+                selectedButton.style.backgroundColor = "#e74c3c";
+                selectedButton.style.color = "white";
+                // Hiện đáp án đúng
+                buttons[currentQuestion.answer].style.backgroundColor = "#2ecc71";
+                buttons[currentQuestion.answer].style.color = "white";
+            }
+
+            const nextBtn = document.getElementById("next-btn");
+            nextBtn.classList.remove("hidden");
+            nextBtn.onclick = nextQuestion;
+        }
+
+        function selectTfAnswer(stmtIndex, answer, selectedBtn, otherBtn) {
+            userTfAnswers[stmtIndex] = answer;
+            
+            if (answer === true) {
+                selectedBtn.classList.add("selected-true");
+                selectedBtn.classList.remove("selected-false");
+                otherBtn.classList.remove("selected-false");
+            } else {
+                selectedBtn.classList.add("selected-false");
+                selectedBtn.classList.remove("selected-true");
+                otherBtn.classList.remove("selected-true");
+            }
+        }
+
+        function checkTfAnswers() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            let isAllAnswered = userTfAnswers.every(ans => ans !== null);
+            
+            if (!isAllAnswered) {
+                alert("Vui lòng trả lời đầy đủ Đúng/Sai cho các ý!");
+                return;
+            }
+
+            // Tính điểm: Mỗi ý đúng được tính là 0.25 điểm hoặc có thể cộng dồn tùy ý bạn. Ở đây Gem tính mỗi câu hỏi lớn là 1 điểm nếu đúng hoàn toàn.
+            let correctCount = 0;
+            currentQuestion.statements.forEach((stmt, idx) => {
+                if (userTfAnswers[idx] === stmt.answer) correctCount++;
+            });
+
+            if (correctCount === currentQuestion.statements.length) {
+                score++; // Cả 4 ý đều đúng mới được 1 điểm tròn (Bạn có thể tự chỉnh sửa logic cộng điểm này)
+            }
+
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            isQuizActive = false;
+            document.getElementById("quiz-screen").classList.add("hidden");
+            document.getElementById("result-screen").classList.remove("hidden");
+            
+            document.getElementById("score").innerText = score;
+            document.getElementById("total-score").innerText = quizData.length;
+            
+            const cheatText = document.getElementById("cheat-count-text");
+            if (cheatCount > 0) {
+                cheatText.innerText = `Lưu ý: Bạn đã rời khỏi màn hình làm bài ${cheatCount} lần.`;
+            } else {
+                cheatText.innerText = "Tuyệt vời! Bạn không hề gian lận trong quá trình làm bài.";
+                cheatText.style.color = "#2ecc71";
+            }
+        }
+    </script>
+</body>
+</html>
