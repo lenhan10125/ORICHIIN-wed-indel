@@ -46,6 +46,14 @@
             text-transform: uppercase; font-size: 0.75rem;
             margin-bottom: 5px; border-radius: 4px;
         }
+
+        .btn-boxy-red {
+            padding: 10px; border: 2px solid var(--gura-red);
+            background: rgba(231, 76, 60, 0.05); color: var(--gura-red);
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            text-transform: uppercase; font-size: 0.75rem;
+            margin-bottom: 5px; border-radius: 4px;
+        }
         .btn-boxy.active { background: var(--gura-blue); color: var(--gura-dark); box-shadow: 2px 2px 0px var(--gura-accent); transform: translate(2px, 2px); }
         .btn-boxy:hover:not(.active) { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--gura-accent); }
 
@@ -78,10 +86,17 @@
 <body>
 
 <div class="bg-overlay"></div>
-
+<div class="logo">
+    <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center; padding: 10px;">
+        <img src="https://hentaiorc.xyz/logo/ORC.main.png" 
+             alt="ORICHIIN-STUDIO" 
+             style="height:15%; width: 15%; display: block; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
+    </a>
+</div>
 <div class="wrapper">
-    <h2 style="color: var(--gura-blue); text-shadow: 3px 3px 0px var(--gura-grey);">ORC GEOMETRY PRO</h2>
-    <div class="main-layout">
+<h2 style="color: var(--gura-blue); text-shadow: 3px 3px 0px var(--gura-grey); display: flex; align-items: center; gap: 10px;">
+    ORC GEOMETRY <span style="color: var(--gura-red);">プラス</span><span style="font-size: 3rem; color: var(--gura-yellow);"></span>
+</h2>    <div class="main-layout">
     
         <div class="app-card">
             <h3 style="color: var(--gura-yellow); margin-top: 0;">CÀI ĐẶT THÔNG SỐ</h3>
@@ -93,7 +108,7 @@
             <input type="number" id="ang" class="calc-input" placeholder="Nhập góc..." oninput="update()">
 
             <label style="font-size: 0.8rem; color: var(--gura-blue);">VỊ TRÍ ĐẶT MỐC</label>
-            <button id="toggleOffset" class="btn-boxy" onclick="toggleOffset()" style="width: 100%;">Mốc Đặt Trên Vật</button>
+            <button id="toggleOffset" class="btn-boxy-red" onclick="toggleOffset()" style="width: 100%;">Mốc Đặt Trên Vật</button>
             <input type="number" id="offsetValue" class="calc-input" placeholder="Nhập chiều cao vật làm mốc (m)..." style="display:none; margin-top: 5px;" oninput="update()">
 
             <label style="font-size: 0.8rem; color: var(--gura-blue);">ĐỐI TƯỢNG ĐO</label>
@@ -160,6 +175,10 @@
                 <h3 id="solTitle" style="color: var(--gura-blue); margin-top: 0; font-size: 1.2rem;">LỜI GIẢI CHI TIẾT</h3>
                 <div id="solContent" style="color: #e2e8f0;"></div>
             </div>
+            <div style="margin-top: 10px;color: var(--gura-red);">
+                *Lưu ý: Hình trên chủ yếu mang tính chất minh họa để dễ hình dung đôi lúc hình sẽ không đúng với tỷ lệ thực tế,
+                hãy dựa vào kết quả số liệu để đánh giá chính xác chiều cao của vật thể. Bạn có thể điều chỉnh thông số để thấy sự thay đổi trực quan hơn!
+            </div>
         </div>
     </div>
 </div>
@@ -208,6 +227,7 @@
         btn.classList.add('active');
         update();
     }
+    
 
     function toggle(type) {
         state[type] = !state[type];
@@ -296,7 +316,7 @@
         let h_total = h_calc + offsetH;
 
         // Cảnh báo nếu cao quá
-        if (h_total > 15) showPopup("⚠️ Cảnh báo: Chiều cao thực tế quá lớn!");
+        if (h_total > 12.5) showPopup("⚠️ Cảnh báo: Thông số quá lớn khiến hình vẽ vượt quá khung. Hãy điều chỉnh lại để có kết quả trực quan hơn!");
 
         // Tỷ lệ hiển thị (Scale pixels)
         let pHeight = pDist * Math.tan(rad);
@@ -468,6 +488,6 @@ if (state.Full) {
     <span id="update-content" style="color: #cbd5e0;">Đang kiểm tra thông tin...</span>
     </div>
     &copy; 2026 ORC Studio. All rights reserved. | Designed by ORC Team
-    <p>A product of <a href="https://hentaiorc.xyz" style="color: var(--gura-yellow); text-decoration: none;">Orichiin-studio</a></p>
+    <p>A product of <a href="https://hentaiorc.xyz" style="color: var(--gura-yellow); text-decoration: none;">ORICHIIN-スタジオ</a></p>
 </footer>
 </html>
