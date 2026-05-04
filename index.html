@@ -148,6 +148,23 @@
         .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
         .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
         h1 { color: #d9b8ab; font-size: 2.5em; }
+        .loader-top-img {
+    /* Chỉnh chiều rộng (ví dụ: 150px, 50%, hoặc auto) */
+        width: 150px; 
+    
+    /* Giữ tỉ lệ khung hình tự động hoặc đặt chiều cao cố định */
+        height: auto; 
+    
+    /* Đảm bảo ảnh không bị vỡ khi co giãn */
+        object-fit: contain; 
+    }
+
+/* Nếu Orichiin-san muốn logo nhỏ lại trên điện thoại */
+@media (max-width: 768px) {
+    .loader-top-img {
+        width: 100px;
+    }
+}
     </style>
 </head>
 <body>
