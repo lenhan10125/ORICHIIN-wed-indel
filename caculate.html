@@ -81,8 +81,8 @@
 
 <div class="wrapper">
     <h2 style="color: var(--gura-blue); text-shadow: 3px 3px 0px var(--gura-grey);">ORC GEOMETRY PRO</h2>
-
     <div class="main-layout">
+    
         <div class="app-card">
             <h3 style="color: var(--gura-yellow); margin-top: 0;">CÀI ĐẶT THÔNG SỐ</h3>
             
@@ -165,6 +165,23 @@
 </div>
 
 <script>
+    async function fetchUpdateInfo() {
+        const updateFileUrl = 'https://www.hentaiorc.xyz/update.txt';
+
+        try {
+            const response = await fetch(updateFileUrl + '?v=' + Date.now());
+            if (!response.ok) throw new Error('Không tìm thấy file');
+
+            const text = await response.text();
+            document.getElementById('update-content').innerText = text;
+        } catch (error) {
+            console.error('Lỗi tải cập nhật:', error);
+            document.getElementById('update-content').innerText = "Hiện tại chưa có thông tin mới.";
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchUpdateInfo);
+
     let currentObj = 'tree';
     let state = { Num: true, Arrow: true, Sol: true, Full: true };
     let isOffset = false;
@@ -279,15 +296,15 @@
         let h_total = h_calc + offsetH;
 
         // Cảnh báo nếu cao quá
-        if (h_total > 500) showPopup("⚠️ Cảnh báo: Chiều cao thực tế quá lớn!");
+        if (h_total > 15) showPopup("⚠️ Cảnh báo: Chiều cao thực tế quá lớn!");
 
         // Tỷ lệ hiển thị (Scale pixels)
         let pHeight = pDist * Math.tan(rad);
         let pOffset = (offsetH / d) * pDist; // Tính tỷ lệ pixel mốc dựa trên d
         
         // Giới hạn để không vượt màn hình
-        if (pHeight + pOffset > 300) {
-            const scale = 300 / (pHeight + pOffset);
+        if (pHeight + pOffset > 250) {
+            const scale = 250 / (pHeight + pOffset);
             pHeight *= scale;
             pOffset *= scale;
         }
@@ -442,9 +459,14 @@ if (state.Full) {
         popup.onclick = () => popup.remove();
         setTimeout(() => { if (popup.parentNode) popup.remove(); }, 5000);
     }
+    
 </script>
 </body>
 <footer style="text-align: center; padding: 10px; color: #555; font-size: 0.8rem;">
+    <div id="update-banner" style="background: rgba(153, 204, 255, 0.1); border-bottom: 1px solid var(--gura-accent); padding: 10px; text-align: center; font-size: 0.9rem; position: sticky; top: 60px; z-index: 999; backdrop-filter: blur(5px);">
+        <span style="color: var(--gura-yellow); font-weight: bold;">CẬP NHẬT:</span> 
+    <span id="update-content" style="color: #cbd5e0;">Đang kiểm tra thông tin...</span>
+    </div>
     &copy; 2026 ORC Studio. All rights reserved. | Designed by ORC Team
     <p>A product of <a href="https://hentaiorc.xyz" style="color: var(--gura-yellow); text-decoration: none;">Orichiin-studio</a></p>
 </footer>
