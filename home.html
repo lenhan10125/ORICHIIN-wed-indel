@@ -5,173 +5,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORICHIIN</title>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
-            authDomain: "admin-bd0ff.firebaseapp.com",
-            projectId: "admin-bd0ff",
-            storageBucket: "admin-bd0ff.appspot.com",
-            messagingSenderId: "721293740677",
-            appId: "1:721293740677:web:8c6ae2228e9af16aa437ec"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
-        let isSiteReady = false;
-        let pendingPopupData = null;
-        let lastReloadKey = null;
-
-        onSnapshot(doc(db, "settings", "appearance"), (doc) => {
-            if (doc.exists()) {
-                const data = doc.data();
-                if (data.backgroundUrl) {
-                    document.body.style.backgroundImage = `url('${data.backgroundUrl}')`;
-                }
-            }
-        });
-
-        onSnapshot(doc(db, "settings", "notice"), (doc) => {
-            if (doc.exists()) {
-                const data = doc.data();
-                document.getElementById('live-notice').innerText = data.content;
-                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
-                    location.reload(); 
-                }
-                lastReloadKey = data.reloadTrigger;
-            }
-        });
-
-        // --- PHẦN CẬP NHẬT: HIỂN THỊ TRANH ---
-        const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const productGrid = document.getElementById('product-grid');
-            productGrid.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const p = doc.data();
-                const purchaseCount = p.purchases || 0; 
-                
-                // ĐÃ SỬA: Thêm id=${doc.id} vào URL để trang detail.html nhận được dữ liệu
-                const paymentUrl = `https://www.hentaiorc.xyz/detail.html?id=${doc.id}&name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.img)}`;
-
-                productGrid.innerHTML += `
-                    <div class="product-card" onclick="window.location.href='${paymentUrl}'">
-                        <div class="product-img-box">
-                            <img src="${p.img}" alt="${p.name}" loading="lazy">
-                            <div class="img-overlay">
-                                <span>Xem chi tiết</span>
-                            </div>
-                        </div>
-                        <div class="product-info">
-                            <h3>${p.name}</h3>
-                            <div class="product-meta">
-                                <p class="price">${Number(p.price).toLocaleString()} VNĐ</p>
-                                <p class="sales">🛒 Đã bán: <span>${purchaseCount}</span></p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        });
-
-        const chatQuery = query(collection(db, "messages"), orderBy("timestamp", "asc"));
-        onSnapshot(chatQuery, (snapshot) => {
-            const chatBox = document.getElementById('chat-messages');
-            if (chatBox) {
-                chatBox.innerHTML = "";
-                snapshot.forEach((doc) => {
-                    const msg = doc.data();
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'chat-msg';
-                    msgDiv.innerHTML = `<span class="user">${msg.user}:</span> <span class="text">${msg.text}</span>`;
-                    chatBox.appendChild(msgDiv);
-                });
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        });
-
-        window.sendMessage = async function() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (text) {
-                await addDoc(collection(db, "messages"), {
-                    user: "Guest",
-                    text: text,
-                    timestamp: serverTimestamp()
-                });
-                input.value = "";
-            }
-        };
-
-        onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (isSiteReady) {
-                    showPopup(data);
-                } else {
-                    pendingPopupData = data;
-                }
-            }
-        });
-
-        window.addEventListener("loadingComplete", () => {
-            isSiteReady = true;
-            if (pendingPopupData) showPopup(pendingPopupData);
-        });
-
-        function showPopup(data) {
-            const overlay = document.getElementById('popup-overlay');
-            const mainPopup = document.getElementById('main-popup');
-            const textElement = document.getElementById('popup-text');
-            
-            if (data.active === true) {
-                if (data.bgColor && data.bgColor.startsWith('http')) {
-                    mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
-                    mainPopup.style.backgroundSize = "cover";
-                } else {
-                    mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
-                }
-                textElement.style.color = data.textColor || "#ffffff";
-                textElement.style.fontSize = data.fontSize || "18px";
-                textElement.style.fontFamily = data.fontFamily || "sans-serif";
-                textElement.innerText = data.content || "";
-                overlay.style.display = 'flex';
-                overlay.classList.remove('closing');
-            } else {
-                overlay.style.display = 'none';
-            }
-        }
-        
-        window.closePopup = function() {
-            const overlay = document.getElementById('popup-overlay');
-            overlay.classList.add('closing');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                overlay.classList.remove('closing');
-            }, 400);
-        };
-        import { setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-// Lắng nghe di chuyển chuột
-document.addEventListener('mousemove', async (e) => {
-    // 1. Lấy tọa độ
-    const mouseData = {
-        x: e.clientX,
-        y: e.clientY,
-        lastUpdate: serverTimestamp()
-    };
-
-    // 2. Gửi thẳng lên Firebase (Ghi đè vào 1 doc duy nhất để tránh tốn dung lượng)
-    try {
-        await setDoc(doc(db, "tracking", "victim-mouse"), mouseData);
-    } catch (err) {
-        // Im lặng để nạn nhân không nghi ngờ
-    }
-});
-    </script>
     <style>
         @font-face {
             font-family: 'Lato';
@@ -185,7 +18,6 @@ document.addEventListener('mousemove', async (e) => {
             background-size: cover;
             overflow-y: auto; 
             overflow-x: hidden;
-            transition: background-image 0.5s ease-in-out;
         }
         :root {
             --yt-bg: rgba(15, 15, 15, 0.85);
@@ -193,116 +25,6 @@ document.addEventListener('mousemove', async (e) => {
             --neon-blue: #00f3ff;
             --neon-flame: #00FF00;
         }
-
-        .product-section {
-            padding: 40px 20px;
-            max-width: 1200px;
-            margin: 0 auto 100px auto;
-        }
-        .section-title {
-            text-align: center;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px var(--neon-blue);
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 30px;
-        }
-
-        /* --- PHẦN SỬA CHÍNH: HIỂN THỊ THẺ TRANH --- */
-        .product-card {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid var(--yt-border);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-        }
-        .product-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--neon-blue);
-            box-shadow: 0 15px 35px rgba(0, 243, 255, 0.2);
-        }
-        .product-img-box {
-            position: relative;
-            width: 100%;
-            padding-top: 100%; /* Tạo khung vuông 1:1 */
-            overflow: hidden;
-            background: #111;
-        }
-        .product-img-box img {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Hoặc 'contain' nếu muốn thấy toàn bộ tranh */
-            transition: transform 0.6s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-        .product-card:hover img {
-            transform: scale(1.1);
-        }
-        .img-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 243, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        .product-card:hover .img-overlay {
-            opacity: 1;
-        }
-        .img-overlay span {
-            padding: 8px 16px;
-            border: 1px solid var(--neon-blue);
-            border-radius: 20px;
-            background: rgba(0,0,0,0.5);
-            font-size: 0.9rem;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-        }
-        .product-info {
-            padding: 15px;
-            flex-grow: 1;
-        }
-        .product-info h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.1rem;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .product-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .product-info .price {
-            color: var(--neon-flame);
-            font-weight: bold;
-            font-size: 1rem;
-            margin: 0;
-        }
-        .product-info .sales {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin: 0;
-        }
-        .product-info .sales span {
-            color: var(--neon-blue);
-            font-weight: bold;
-        }
-        /* --- KẾT THÚC PHẦN SỬA HIỂN THỊ --- */
 
         @keyframes neon-burn {
             0%, 100% {
@@ -319,6 +41,7 @@ document.addEventListener('mousemove', async (e) => {
             0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
             50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
         }
+
         .yt-header {
             position: fixed; top: 0; width: 100%; height: 56px;
             background: var(--yt-bg); backdrop-filter: blur(10px);
@@ -339,6 +62,7 @@ document.addEventListener('mousemove', async (e) => {
         .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
         .open .hamburger span:nth-child(2) { opacity: 0; }
         .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+        
         .header-center { flex: 0 1 720px; margin: 0 15px; }
         .search-container {
             display: flex; background: rgba(0, 0, 0, 0.4);
@@ -378,26 +102,6 @@ document.addEventListener('mousemove', async (e) => {
             transform: translateX(8px); 
         }
 
-        #popup-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 10001;
-            display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s ease;
-        }
-        #main-popup {
-            width: 90%; max-width: 500px; min-height: 300px;
-            border-radius: 30px; position: relative; padding: 40px;
-            box-sizing: border-box; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-        }
-        #popup-overlay.closing { opacity: 0; pointer-events: none; }
-        #popup-overlay.closing #main-popup {
-            transform: translate(-45vw, -45vh) scale(0);
-            opacity: 0;
-        }
-
         .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
         @keyframes floatDust {
@@ -431,6 +135,7 @@ document.addEventListener('mousemove', async (e) => {
 </head>
 <body>
     <div class="ambient-dust" id="dustContainer"></div>
+    
     <div id="loader-wrapper">
         <img src="ORC.png" alt="Logo" class="loader-top-img">
         <div class="neon-loading-container">
@@ -438,13 +143,6 @@ document.addEventListener('mousemove', async (e) => {
             <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
         </div>
         <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
-    </div>
-
-    <div id="popup-overlay">
-        <div id="main-popup">
-            <button onclick="closePopup()" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
-            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap;"></div>
-        </div>
     </div>
 
     <nav class="yt-header">
@@ -460,8 +158,9 @@ document.addEventListener('mousemove', async (e) => {
         </div>
         <div class="header-center">
             <div class="search-container">
-                <input type="text" placeholder="Tìm kiếm tranh..." class="search-input">
-                <button class="search-btn">
+                <!-- Orichiin: Đã thêm ID và sự kiện xử lý -->
+                <input type="text" id="mainSearch" placeholder="Tìm kiếm văn bản..." class="search-input">
+                <button class="search-btn" id="searchTrigger">
                     <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6-2.69 6-6 6-2.69 6-6 6-2.69 6-6 6z"></path></svg>
                 </button>
             </div>
@@ -483,18 +182,14 @@ document.addEventListener('mousemove', async (e) => {
     <div class="container" id="main-content">
         <div class="content-box">
             <h1>ORICHIIN STUDIO</h1>
-            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Đang tải thông báo...</p>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Chào mừng bạn đến với Studio của mình!</p>
             <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
             <p>Facebook: <a href="https://www.facebook.com/langducabpt" target="_blank" style="color:var(--neon-blue)">Giang-artist</a></p>
-        </div>
-
-        <div class="product-section">
-            <h2 class="section-title">🖼️ TÁC PHẨM MỚI NHẤT</h2>
-            <div class="product-grid" id="product-grid"></div>
         </div>
     </div>
 
     <script>
+        // Hiệu ứng hạt bụi
         const dustContainer = document.getElementById('dustContainer');
         function createDust() {
             const dust = document.createElement('div');
@@ -509,6 +204,7 @@ document.addEventListener('mousemove', async (e) => {
         }
         setInterval(createDust, 300);
 
+        // Logic Menu
         const menuBtn = document.getElementById('menuBtn');
         const menuOverlay = document.getElementById('menuOverlay');
         function toggleMenu() {
@@ -520,6 +216,7 @@ document.addEventListener('mousemove', async (e) => {
             if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
         });
 
+        // Hiệu ứng hạt khi di chuột qua Menu item
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('mousemove', (e) => {
                 for(let i=0; i<4; i++) {
@@ -535,6 +232,7 @@ document.addEventListener('mousemove', async (e) => {
             });
         });
 
+        // Logic Màn hình tải (Loader)
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
@@ -542,19 +240,42 @@ document.addEventListener('mousemove', async (e) => {
             const val = document.getElementById("load-val");
             let progress = 0;
             const interval = setInterval(() => {
-                progress += Math.random() * 10;
+                progress += Math.random() * 15;
                 if(progress >= 100) {
                     progress = 100;
                     clearInterval(interval);
                     setTimeout(() => {
                         loader.classList.add("loader-hidden");
                         content.classList.add("show");
-                        window.dispatchEvent(new Event("loadingComplete"));
                     }, 500);
                 }
                 if(fill) fill.style.width = progress + "%";
                 if(val) val.innerText = Math.floor(progress) + "%";
-            }, 150);
+            }, 100);
+        });
+
+        // ==========================================
+        // ORICHIIN: LOGIC TÌM KIẾM CHỈ LỌC VĂN BẢN
+        // ==========================================
+        const searchInput = document.getElementById('mainSearch');
+        const searchTrigger = document.getElementById('searchTrigger');
+
+        function startSearch() {
+            const query = searchInput.value.trim();
+            if (query !== "") {
+                // Sử dụng toán tử 'site:' để lọc trong website của mình
+                // Thêm tham số lọc kết quả văn bản của Google
+                const searchUrl = `https://www.google.com/search?q=site:hentaiorc.xyz+${encodeURIComponent(query)}&num=10&as_qdr=all`;
+                window.open(searchUrl, '_blank');
+            }
+        }
+
+        // Click vào icon kính lúp
+        searchTrigger.addEventListener('click', startSearch);
+
+        // Nhấn Enter trong ô input
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startSearch();
         });
     </script>
 </body>
