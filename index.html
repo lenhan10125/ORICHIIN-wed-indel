@@ -63,7 +63,8 @@
         .open .hamburger span:nth-child(2) { opacity: 0; }
         .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
         
-        .header-center { flex: 0 1 720px; margin: 0 15px; }
+        /* CẬP NHẬT PHẦN SEARCH WRAPPER */
+        .header-center { flex: 0 1 720px; margin: 0 15px; position: relative; }
         .search-container {
             display: flex; background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--yt-border); border-radius: 40px;
@@ -72,6 +73,22 @@
         .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
         .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
         .search-btn svg { width: 20px; height: 20px; fill: white; }
+
+        /* STYLE CHO BOX GỢI Ý WEB */
+        .suggestion-box {
+            position: absolute; top: 110%; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid var(--neon-blue); border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+            display: none; z-index: 2000; max-height: 350px; overflow-y: auto;
+        }
+        .suggestion-item {
+            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s; display: flex; flex-direction: column;
+        }
+        .suggestion-item:hover { background: rgba(0, 243, 255, 0.15); padding-left: 25px; }
+        .suggestion-item .web-name { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
+        .suggestion-item .web-url { color: rgba(153, 204, 255, 0.6); font-size: 12px; margin-top: 4px; }
         
         .menu-overlay {
             position: fixed; top: 65px; left: 16px;
@@ -158,12 +175,13 @@
         </div>
         <div class="header-center">
             <div class="search-container">
-                <!-- Orichiin: Đã thêm ID và sự kiện xử lý -->
-                <input type="text" id="mainSearch" placeholder="Tìm kiếm văn bản..." class="search-input">
+                <input type="text" id="mainSearch" placeholder="Tìm kiếm hệ sinh thái Orichiin..." class="search-input" autocomplete="off">
                 <button class="search-btn" id="searchTrigger">
                     <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6-2.69 6-6 6-2.69 6-6 6-2.69 6-6 6z"></path></svg>
                 </button>
             </div>
+            <!-- Box gợi ý nằm ngay dưới thanh search -->
+            <div id="suggestionBox" class="suggestion-box"></div>
         </div>
         <div class="header-right">
             <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
@@ -174,8 +192,8 @@
         <nav class="nav-content">
             <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
             <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
-            <a href="https://hentaiorc.xyz/drownload-yt.html" class="nav-item">Download YT</a>
-            <a href="https://hentaiorc.xyz/tags.html" class="nav-item">Thư viện #Tags</a>
+            <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
+            <a href="https://hentaiorc.xyz/calculate.html" class="nav-item">Calculate</a>
         </nav>
     </div>
 
@@ -216,22 +234,6 @@
             if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
         });
 
-        // Hiệu ứng hạt khi di chuột qua Menu item
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('mousemove', (e) => {
-                for(let i=0; i<4; i++) {
-                    const p = document.createElement('div');
-                    p.className = 'particle';
-                    p.style.left = e.clientX + 'px';
-                    p.style.top = e.clientY + 'px';
-                    p.style.setProperty('--mx', (Math.random() * 200 - 100) + 'px');
-                    p.style.setProperty('--my', (Math.random() * -150 - 50) + 'px');
-                    document.body.appendChild(p);
-                    setTimeout(() => p.remove(), 1000);
-                }
-            });
-        });
-
         // Logic Màn hình tải (Loader)
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
@@ -255,27 +257,56 @@
         });
 
         // ==========================================
-        // ORICHIIN: LOGIC TÌM KIẾM CHỈ LỌC VĂN BẢN
+        // ORICHIIN: LOGIC TÌM KIẾM WEB NỘI BỘ
         // ==========================================
         const searchInput = document.getElementById('mainSearch');
-        const searchTrigger = document.getElementById('searchTrigger');
+        const suggestionBox = document.getElementById('suggestionBox');
 
-        function startSearch() {
-            const query = searchInput.value.trim();
-            if (query !== "") {
-                // Sử dụng toán tử 'site:' để lọc trong website của mình
-                // Thêm tham số lọc kết quả văn bản của Google
-                const searchUrl = `https://www.google.com/search?q=site:hentaiorc.xyz+${encodeURIComponent(query)}&num=10&as_qdr=all`;
-                window.open(searchUrl, '_blank');
+        // Danh sách các web của Orichiin-san
+        const myWebsites = [
+            { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio" },
+            { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message" },
+            { name: "List", url: "https://hentaiorc.xyz/list.html", tags: "List" },
+            { name: "Calculate", url: "https://hentaiorc.xyz/calculate.html", tags: "calculate" },
+            { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social contact" },
+            { name: "Sắc Mưa (The Garden of Words)", url: "#", tags: "anime project rain garden" }
+        ];
+
+        searchInput.addEventListener('input', function() {
+            const val = this.value.toLowerCase().trim();
+            suggestionBox.innerHTML = "";
+            
+            if (val.length > 0) {
+                const matches = myWebsites.filter(web => 
+                    web.name.toLowerCase().includes(val) || 
+                    web.tags.toLowerCase().includes(val)
+                );
+
+                if (matches.length > 0) {
+                    matches.forEach(web => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.innerHTML = `
+                            <span class="web-name">${web.name}</span>
+                            <span class="web-url">${web.url}</span>
+                        `;
+                        item.onclick = () => window.location.href = web.url;
+                        suggestionBox.appendChild(item);
+                    });
+                    suggestionBox.style.display = "block";
+                } else {
+                    suggestionBox.style.display = "none";
+                }
+            } else {
+                suggestionBox.style.display = "none";
             }
-        }
+        });
 
-        // Click vào icon kính lúp
-        searchTrigger.addEventListener('click', startSearch);
-
-        // Nhấn Enter trong ô input
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') startSearch();
+        // Đóng box gợi ý khi bấm ra ngoài
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                suggestionBox.style.display = "none";
+            }
         });
     </script>
 </body>
