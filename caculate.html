@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ORC Studio</title>
+    <style>
+        :root {
+            --gura-blue: #99CCFF;
+            --gura-dark: #0a0e14;
+            --gura-accent: #3399FF;
+            --gura-yellow: #FFD700;
+            --gura-grey: #2c3e50;
+            --gủa-red: #e74c3c;
+        }
+
+        body, html {
+            margin: 0; padding: 0; min-height: 100%; width: 100%;
+            background: var(--gura-dark); color: white;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #003366 0%, #0a0e14 100%);
+            z-index: -1;
+        }
+
+        .wrapper { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+
+        .main-layout {
+            display: grid; grid-template-columns: 350px 1fr;
+            gap: 20px; width: 100%; max-width: 1200px;
+        }
+
+        .app-card {
+            background: rgba(15, 20, 30, 0.9); border: 2px solid var(--gura-blue);
+            border-radius: 8px; padding: 20px; box-shadow: 8px 8px 0px rgba(51, 153, 255, 0.2);
+        }
+
+        /* Boxy Buttons */
+        .btn-boxy {
+            padding: 10px; border: 2px solid var(--gura-blue);
+            background: rgba(153, 204, 255, 0.05); color: var(--gura-blue);
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            text-transform: uppercase; font-size: 0.75rem;
+            margin-bottom: 5px; border-radius: 4px;
+        }
+        .btn-boxy.active { background: var(--gura-blue); color: var(--gura-dark); box-shadow: 2px 2px 0px var(--gura-accent); transform: translate(2px, 2px); }
+        .btn-boxy:hover:not(.active) { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--gura-accent); }
+
+        .calc-input {
+            width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px;
+            background: #1a1f26; border: 1px solid var(--gura-blue);
+            color: white; border-radius: 4px; box-sizing: border-box; outline: none;
+        }
+        .calc-input:focus { border-color: var(--gura-yellow); }
+
+        .svg-container {
+            background: #000; border: 2px solid var(--gura-grey);
+            border-radius: 8px; width: 100%; height: 450px; position: relative;
+        }
+
+        .arrow-cap { fill: var(--gura-yellow); }
+        .label-text { font-size: 14px; font-weight: bold; fill: var(--gura-yellow); }
+        .angle-text { font-size: 12px; fill: white; }
+
+        .solution-box {
+            margin-top: 20px; padding: 20px; border-left: 5px solid var(--gura-yellow);
+            background: rgba(255,255,255,0.05); display: none; line-height: 1.6;
+        }
+        
+        .toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+
+        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="bg-overlay"></div>
+
+<div class="wrapper">
+    <h2 style="color: var(--gura-blue); text-shadow: 3px 3px 0px var(--gura-grey);">ORC GEOMETRY PRO</h2>
+
+    <div class="main-layout">
+        <!-- Sidebar Cài đặt -->
+        <div class="app-card">
+            <h3 style="color: var(--gura-yellow); margin-top: 0;">CÀI ĐẶT THÔNG SỐ</h3>
+            
+            <label style="font-size: 0.8rem; color: var(--gura-blue);">KHOẢNG CÁCH (m)</label>
+            <!-- Đã bỏ value mặc định -->
+            <input type="number" id="dist" class="calc-input" placeholder="Nhập khoảng cách..." oninput="update()">
+
+            <label style="font-size: 0.8rem; color: var(--gura-blue);">GÓC NÂNG (độ)</label>
+            <!-- Đã bỏ value mặc định -->
+            <input type="number" id="ang" class="calc-input" placeholder="Nhập góc..." oninput="update()">
+
+            <label style="font-size: 0.8rem; color: var(--gura-blue);">ĐỐI TƯỢNG ĐO</label>
+            <div class="toggle-grid" id="objGrid">
+                <button class="btn-boxy active" onclick="setObj('tree', this)">Cái Cây</button>
+                <button class="btn-boxy" onclick="setObj('lamp', this)">Cột Đèn</button>
+                <button class="btn-boxy" onclick="setObj('flag', this)">Cột Cờ</button>
+                <button class="btn-boxy" onclick="setObj('wall', this)">Bức Tường</button>
+            </div>
+
+            <label style="font-size: 0.8rem; color: var(--gura-blue);">HIỂN THỊ</label>
+            <div class="toggle-grid" id="toggleGrid">
+                <button id="toggleNum" class="btn-boxy active" onclick="toggle('Num')">Ẩn/Hiện Số</button>
+                <button id="toggleArrow" class="btn-boxy active" onclick="toggle('Arrow')">Mũi Tên</button>
+                <button id="toggleSol" class="btn-boxy active" onclick="toggle('Sol')">Lời Giải</button>
+                <button id="toggleFull" class="btn-boxy active" onclick="toggleStyle()">Chi Tiết</button>
+            </div>
+        </div>
+
+        <!-- Main View Hình vẽ -->
+        <div class="app-card">
+            <div class="svg-container">
+                <svg width="100%" height="100%" viewBox="0 0 600 400" id="mainSvg">
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" class="arrow-cap" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Mặt đất -->
+                    <line x1="50" y1="350" x2="550" y2="350" stroke="#333" stroke-width="2" />
+
+                    <!-- Mũi tên khoảng cách -->
+                    <g id="arrowGroup">
+                        <line id="arrowLine" x1="100" y1="370" x2="500" y2="370" stroke="var(--gura-yellow)" stroke-width="1" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+                    </g>
+
+                    <!-- Đối tượng đo sinh động -->
+                    <g id="objectGroup"></g>
+
+                    <!-- Tam giác lượng giác (Mặc định ẩn khi chưa có số) -->
+                    <line id="lineKề" x1="100" y1="350" x2="500" y2="350" stroke="white" stroke-width="1" stroke-dasharray="5" style="display:none;" />
+                    <line id="lineĐối" x1="500" y1="350" x2="500" y2="100" stroke="var(--gura-accent)" stroke-width="3" style="display:none;" />
+                    <line id="lineHuyền" x1="100" y1="350" x2="500" y2="100" stroke="var(--gura-blue)" stroke-width="2" style="display:none;" />
+
+                    <!-- Nhãn số -->
+                    <g id="labelGroup">
+                        <text id="txtD" x="300" y="340" class="label-text" text-anchor="middle"></text>
+                        <text id="txtH" x="515" y="225" class="label-text"></text>
+                        <text id="txtA" x="145" y="340" class="angle-text"></text>
+                    </g>
+
+                    <!-- Ký hiệu góc -->
+                    <g id="angleGroup" style="display:none;">
+                        <path id="arcA" d="M 140 350 A 40 40 0 0 0 132 325" fill="none" stroke="var(--gura-yellow)" stroke-width="2" />
+                    </g>
+                    <circle cx="100" cy="350" r="5" fill="white"/>
+                    <text x="65" y="345" fill="#888" style="font-size: 11px;">Bạn</text>
+                </svg>
+            </div>
+
+            <!-- Lời giải -->
+            <div id="solBox" class="solution-box">
+                <h3 id="solTitle" style="color: var(--gura-blue); margin-top: 0; font-size: 1.2rem;">LỜI GIẢI CHI TIẾT</h3>
+                <div id="solContent" style="color: #e2e8f0;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentObj = 'tree';
+    let state = { Num: true, Arrow: true, Sol: true, Full: true };
+
+    function setObj(type, btn) {
+        currentObj = type;
+        const objBtns = document.querySelectorAll('#objGrid .btn-boxy');
+        objBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        update();
+    }
+
+    function toggle(type) {
+        state[type] = !state[type];
+        const btn = document.getElementById('toggle' + type);
+        if(state[type]) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+        update();
+    }
+
+    function toggleStyle() {
+        state.Full = !state.Full;
+        const btn = document.getElementById('toggleFull');
+        if(state.Full) {
+            btn.classList.add('active');
+            btn.innerText = "Chi Tiết";
+        } else {
+            btn.classList.remove('active');
+            btn.innerText = "Ngắn Gọn";
+        }
+        update();
+    }
+
+    function drawObject(pHeight, endY) {
+        let objHtml = '';
+        if (currentObj === 'tree') {
+            objHtml = `
+                <path d="M490 350 L510 350 L505 ${endY + 40} L495 ${endY + 40} Z" fill="#5d4037"/>
+                <circle cx="500" cy="${endY + 20}" r="30" fill="#2e7d32"/>
+                <circle cx="480" cy="${endY + 40}" r="25" fill="#388e3c"/>
+                <circle cx="520" cy="${endY + 40}" r="25" fill="#388e3c"/>
+            `;
+        } else if (currentObj === 'lamp') {
+            objHtml = `
+                <rect x="495" y="${endY}" width="10" height="${pHeight}" fill="#555"/>
+                <circle cx="500" cy="${endY}" r="15" fill="var(--gura-yellow)"/>
+                <rect x="480" y="340" width="40" height="10" fill="#333"/>
+            `;
+        } else if (currentObj === 'flag') {
+            objHtml = `
+                <line x1="500" y1="350" x2="500" y2="${endY}" stroke="white" stroke-width="4"/>
+                <path d="M500 ${endY} L550 ${endY + 25} L500 ${endY + 50} Z" fill="#e74c3c"/>
+                <circle cx="500" cy="${endY}" r="6" fill="#f1c40f"/>
+            `;
+        } else if (currentObj === 'wall') {
+            objHtml = `
+                <rect x="480" y="${endY}" width="40" height="${pHeight}" fill="#7f8c8d" stroke="#333"/>
+                <line x1="480" y1="${endY + pHeight * 0.33}" x2="520" y2="${endY + pHeight * 0.33}" stroke="#333"/>
+                <line x1="480" y1="${endY + pHeight * 0.66}" x2="520" y2="${endY + pHeight * 0.66}" stroke="#333"/>
+            `;
+        }
+        document.getElementById('objectGroup').innerHTML = objHtml;
+    }
+
+    function update() {
+        const dInput = document.getElementById('dist').value;
+        const aInput = document.getElementById('ang').value;
+        const d = parseFloat(dInput);
+        const a = parseFloat(aInput);
+
+        const startX = 100, startY = 350, pDist = 400;
+
+        // 1. Luôn cập nhật hiển thị bật/tắt (bất kể có số hay không)
+        document.getElementById('labelGroup').style.display = state.Num ? 'block' : 'none';
+        document.getElementById('arrowGroup').style.display = state.Arrow ? 'block' : 'none';
+
+        // 2. Kiểm tra dữ liệu. Nếu rỗng hoặc sai thì về trạng thái "Chờ"
+        if (isNaN(d) || isNaN(a) || d <= 0 || a <= 0 || a >= 90) {
+            document.getElementById('solBox').style.display = 'none';
+            document.getElementById('lineKề').style.display = 'none';
+            document.getElementById('lineĐối').style.display = 'none';
+            document.getElementById('lineHuyền').style.display = 'none';
+            document.getElementById('angleGroup').style.display = 'none';
+            
+            document.getElementById('txtD').textContent = "";
+            document.getElementById('txtH').textContent = "";
+            document.getElementById('txtA').textContent = "";
+            
+            // Vẽ vật thể ở dạng mặc định (cao 100px)
+            drawObject(100, startY - 100);
+            return;
+        }
+
+        // 3. Có số thì bắt đầu tính toán và vẽ tam giác
+        document.getElementById('solBox').style.display = state.Sol ? 'block' : 'none';
+        document.getElementById('lineKề').style.display = 'block';
+        document.getElementById('lineĐối').style.display = 'block';
+        document.getElementById('lineHuyền').style.display = 'block';
+        document.getElementById('angleGroup').style.display = 'block';
+
+        const rad = a * (Math.PI / 180);
+        const h = d * Math.tan(rad);
+        if (h > 23) {
+            showPopup("⚠️ Cảnh báo: Chiều cao đạt " + h.toFixed(2) + "m, vượt quá giới hạn hiển thị!");
+        }
+        let pHeight = pDist * Math.tan(rad);
+        if (pHeight > 280) pHeight = 280; 
+        if (pHeight < 50) pHeight = 50;   
+        const endY = startY - pHeight;
+
+        // Cập nhật đường tam giác
+        document.getElementById('lineĐối').setAttribute('y2', endY);
+        document.getElementById('lineHuyền').setAttribute('y2', endY);
+
+        // Vẽ lại đối tượng
+        drawObject(pHeight, endY);
+
+        // Ghi số
+        document.getElementById('txtD').textContent = d + " m";
+        document.getElementById('txtH').textContent = "h = " + h.toFixed(2) + " m";
+        document.getElementById('txtH').setAttribute('y', (startY + endY)/2);
+        document.getElementById('txtA').textContent = a + "°";
+
+        // Tạo lời giải
+        const content = document.getElementById('solContent');
+        document.getElementById('solTitle').innerText = state.Full ? "LỜI GIẢI CHI TIẾT" : "LỜI GIẢI RÚT GỌN";
+        
+        if (state.Full) {
+            content.innerHTML = `
+                <p><b>Bước 1:</b> Phân tích bài toán, ta có khoảng cách từ vị trí quan sát đến vật là cạnh kề <b>d = ${d}m</b>, góc nâng tạo với tầm nhìn là <b>&alpha; = ${a}&deg;</b>.</p>
+                <p><b>Bước 2:</b> Chiều cao của vật thể tương ứng với cạnh đối <b>h</b> trong tam giác vuông. Áp dụng hệ thức lượng giác:</p>
+                <p style="text-align:center; font-family:monospace; font-size:1.1rem; color:var(--gura-yellow);">tan(&alpha;) = h / d &nbsp;&nbsp;&Rightarrow;&nbsp;&nbsp; h = d &times; tan(&alpha;)</p>
+                <p><b>Bước 3:</b> Thay số vào công thức:</p>
+                <p style="text-align:center; font-size:1.1rem;">h = ${d} &times; tan(${a}&deg;) &approx; ${d} &times; ${Math.tan(rad).toFixed(4)}</p>
+                <div style="border-top: 1px dashed #555; padding-top: 10px; margin-top: 10px;">
+                    👉 <b>Kết luận:</b> Chiều cao của đối tượng ước tính khoảng <b style="color:var(--gura-yellow); font-size:1.2rem;">${h.toFixed(2)} mét</b>.<b style="color:var(--gura-red);height:3.5rem;">(đã làm tròn)</b>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `Áp dụng công thức hệ thức lượng trong tam giác vuông: <br><br><span style="font-family:monospace; color:var(--gura-yellow); font-size:1.1rem;">h = d &times; tan(&alpha;) = ${d} &times; tan(${a}&deg;) &approx; <b>${h.toFixed(2)} (m)</b></span>.`;
+        }
+    }
+
+    // Khởi chạy giao diện trống
+    
+    update();
+    function showPopup(message) {
+    const oldPopup = document.getElementById('orc-popup');
+    if (oldPopup) oldPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'orc-popup';
+    
+    // Style này giúp popup hiện lên giữa màn hình và trông rất "Pro"
+    Object.assign(popup.style, {
+        position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+        backgroundColor: '#3399FF', color: 'white', padding: '15px 25px',
+        borderRadius: '8px', border: '2px solid #FFD700', zIndex: '9999',
+        cursor: 'pointer', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+    });
+
+    popup.innerText = message + " (Nhấp để đóng)";
+    document.body.appendChild(popup);
+
+    const closePopup = () => {
+        popup.style.opacity = '0';
+        setTimeout(() => { if (popup.parentNode) popup.remove(); }, 500);
+        window.removeEventListener('click', closePopup);
+    };
+
+    setTimeout(closePopup, 5000); // Tự đóng sau 5s
+    setTimeout(() => window.addEventListener('click', closePopup), 10); // Đóng khi nhấp bất kỳ đâu
+}
+</script>
+</body>
+</html>
