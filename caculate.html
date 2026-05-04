@@ -392,11 +392,38 @@ if (state.Full) {
                     </p>
                 </div>
             `;
-        } else {
-            content.innerHTML = `Công thức: h = (${d} &times; tan(${a}&deg;)) + ${offsetH} <br><br><span style="font-family:monospace; color:var(--gura-yellow); font-size:1.1rem;">h &approx; <b>${h_total.toFixed(2)} (m)</b></span>.`;
-        }
+    } else {
+        // Sử dụng giá trị offsetH và h_calc đã tính toán ở trên
+        content.innerHTML = `
+            <p><b>Bước 1:</b> Phân tích bài toán, ta có khoảng cách <b>d = ${d}m</b>, góc nâng <b>&alpha; = ${a}&deg;</b> ${isOffset ? `và chiều cao mốc <b>h_mốc = ${offsetH}m</b>` : ''}.</p>
+            <p><b>Bước 2:</b> Tính chiều cao phần quan sát (h_đo) dựa vào tam giác vuông:</p>
+            <p style="text-align:center; font-family:monospace; color:var(--gura-yellow);">h_đo = d &times; tan(&alpha;) = ${d} &times; ${Math.tan(rad).toFixed(4)} &approx; ${h_calc.toFixed(2)}m</p>
+            ${isOffset ? `
+                <p><b>Bước 3:</b> Cộng thêm chiều cao mốc để ra kết quả cuối cùng:</p>
+                <p style="text-align:center; font-family:monospace;">H_tổng = h_đo + h_mốc = ${h_calc.toFixed(2)} + ${offsetH}</p>
+            ` : ''}
+            <div style="border-top: 1px dashed #555; padding-top: 10px; margin-top: 10px;">
+                👉 <b>Kết luận:</b> Chiều cao thực tế của vật thể là <b style="color:var(--gura-yellow); font-size:1.2rem;">${h_total.toFixed(2)} mét</b>.
+            </div>
+        `;
     }
+}
+// 1. Tính toán tỷ lệ hiển thị (Scale pixels)
+        let pHeight = pDist * Math.tan(rad);
+        let pOffset = (offsetH / d) * pDist; 
+        
+        // 2. Kiểm tra và hiện popup nếu vượt quá khung (giới hạn 320px)
+        if (pHeight + pOffset > 320) {
+            showPopup("⚠️ Cảnh báo: Thông số quá lớn khiến hình vẽ vượt quá khung. Hệ thống đã tự động thu nhỏ tỷ lệ để hiển thị!");
+            
+            // Thực hiện thu nhỏ tỷ lệ
+            const scale = 320 / (pHeight + pOffset);
+            pHeight *= scale;
+            pOffset *= scale;
+        }
 
+        const baseY = groundY - pOffset;
+        const endY = baseY - pHeight;
     update();
 
     function showPopup(message) {
