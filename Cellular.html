@@ -3,700 +3,1680 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sand Tetris Ultimate - By Orichiin-san</title>
+    <title>Sand Tetris Ultimate - Quantum Architecture Edition</title>
     <style>
+        /* ==========================================================================
+           HỆ THỐNG CSS TOÀN DIỆN - GIAO DIỆN CYBERPUNK & NEON
+           ========================================================================== */
         :root {
-            --bg-color: #050510;
-            --panel-bg: rgba(20, 20, 30, 0.8);
-            --border-color: #334;
-            --text-color: #e0e0e0;
-            --accent-color: #6a8caf;
+            --bg-color-base: #020205;
+            --panel-bg: rgba(10, 15, 25, 0.85);
+            --border-glow: #00ffff;
+            --border-dim: #1a2a40;
+            --text-main: #f0f4f8;
+            --text-muted: #6b829e;
+            --accent-primary: #00ffcc;
+            --accent-secondary: #ff007f;
+            --accent-warning: #ffaa00;
+            --accent-danger: #ff0033;
+            --font-main: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            --font-mono: 'Courier New', Consolas, monospace;
+            --cell-size: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-color-base);
+            background-image: 
+                radial-gradient(circle at 50% 50%, #0a1128 0%, #000000 100%),
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, 0.03) 25%, rgba(0, 255, 255, 0.03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.03) 75%, rgba(0, 255, 255, 0.03) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, 0.03) 25%, rgba(0, 255, 255, 0.03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.03) 75%, rgba(0, 255, 255, 0.03) 76%, transparent 77%, transparent);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            color: var(--text-main);
             display: flex;
-            flex-direction: row;
             justify-content: center;
-            align-items: flex-start;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            align-items: center;
+            font-family: var(--font-main);
             margin: 0;
-            padding: 40px;
+            padding: 0;
             min-height: 100vh;
             overflow: hidden;
-            position: relative;
+            perspective: 1000px;
         }
 
-        /* Lớp canvas mô phỏng hiệu ứng mưa rơi làm nền */
-        #rainCanvas {
+        /* Lớp canvas nền mô phỏng hệ thống hạt lượng tử / mưa */
+        #backgroundCanvas {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.6;
+            opacity: 0.8;
+            filter: blur(1px);
         }
 
-        .game-container {
+        /* Container chính chứa toàn bộ game */
+        .master-container {
             position: relative;
             z-index: 10;
             display: flex;
-            gap: 20px;
+            flex-direction: row;
+            gap: 30px;
             background: var(--panel-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.05);
-            backdrop-filter: blur(5px);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.9), 
+                0 0 0 1px rgba(0, 255, 255, 0.1),
+                inset 0 0 20px rgba(0, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-dim);
+            transform-style: preserve-3d;
+            animation: floatContainer 6s ease-in-out infinite alternate;
         }
 
-        .panel {
+        @keyframes floatContainer {
+            0% { transform: translateY(0px) rotateX(2deg); }
+            100% { transform: translateY(-10px) rotateX(-1deg); }
+        }
+
+        /* Các panel thông tin (Trái & Phải) */
+        .side-panel {
             display: flex;
             flex-direction: column;
-            width: 200px;
+            width: 220px;
+            gap: 20px;
         }
 
-        .main-board {
+        .hud-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            padding: 15px;
             position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .hud-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+            opacity: 0.5;
+        }
+
+        .hud-box.highlight {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+            transform: scale(1.02);
+        }
+
+        .hud-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .hud-value {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            color: var(--accent-primary);
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+
+        /* Hiển thị Hold & Next Piece */
+        .piece-preview-container {
+            width: 100%;
+            height: 120px;
+            background: rgba(10, 10, 15, 0.8);
+            border-radius: 6px;
+            border: 1px solid #223;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
+        }
+
+        canvas.preview-canvas {
+            image-rendering: pixelated;
+        }
+
+        /* Lưới Game Chính */
+        .main-board-wrapper {
+            position: relative;
+            padding: 10px;
+            background: #050508;
+            border-radius: 8px;
+            border: 2px solid #2a3b5c;
+            box-shadow: 
+                0 0 30px rgba(0,0,0,1),
+                inset 0 0 50px rgba(0, 0, 0, 0.8);
         }
 
         canvas#gameCanvas {
-            border: 2px solid var(--border-color);
-            background: rgba(0, 0, 0, 0.9);
+            background: #000;
             border-radius: 4px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,1);
-            image-rendering: pixelated; /* Đảm bảo hạt cát hiển thị sắc nét */
+            display: block;
+            image-rendering: pixelated; /* Cát cực kì sắc nét, khối to */
+            box-shadow: inset 0 0 30px rgba(0, 20, 40, 0.5);
         }
 
-        .info-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .info-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-        }
-
-        .info-value {
-            font-size: 28px;
-            font-weight: bold;
-            font-family: 'Courier New', Courier, monospace;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
-
-        .controls-help {
-            font-size: 13px;
-            line-height: 1.8;
-            color: #889;
-            margin-top: auto;
-        }
-
-        .key {
-            display: inline-block;
-            background: #2a2a35;
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #fff;
-            font-family: monospace;
-            border-bottom: 2px solid #111;
-        }
-
-        #gameOverOverlay {
+        /* Scanline Overlay cho Canvas */
+        .scanlines {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0.4;
+            border-radius: 4px;
+        }
+
+        /* Overlays (Pause, Game Over) */
+        .screen-overlay {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 30;
+            backdrop-filter: blur(4px);
+            border-radius: 4px;
         }
 
-        #gameOverOverlay.active {
+        .screen-overlay.active {
             opacity: 1;
             pointer-events: all;
         }
 
-        .game-over-text {
-            font-size: 40px;
-            font-weight: bold;
-            color: #ff4a4a;
+        .overlay-title {
+            font-size: 48px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 5px;
             margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            text-align: center;
         }
 
-        .restart-btn {
-            background: var(--accent-color);
-            color: #111;
-            border: none;
-            padding: 10px 20px;
+        .title-gameover { color: var(--accent-danger); text-shadow: 0 0 20px var(--accent-danger); }
+        .title-pause { color: var(--accent-warning); text-shadow: 0 0 20px var(--accent-warning); }
+
+        .btn-action {
+            background: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--accent-primary);
+            padding: 12px 30px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 5px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 2px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            border-radius: 4px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
         }
 
-        .restart-btn:hover {
-            transform: scale(1.05);
-            background: #8ab4f8;
+        .btn-action::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--accent-primary);
+            transition: left 0.3s;
+            z-index: -1;
         }
+
+        .btn-action:hover {
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-primary);
+        }
+
+        .btn-action:hover::before {
+            left: 0;
+        }
+
+        /* Controls Help Section */
+        .controls-info {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #8a9bb0;
+            line-height: 2;
+        }
+        
+        .key-bind {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+
+        .key-cap {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            box-shadow: 0 2px 0 #0f172a;
+            border: 1px solid #334155;
+            font-size: 11px;
+        }
+
+        /* Thông báo Combo (Action Text) */
+        #actionTextContainer {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            pointer-events: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .action-text {
+            font-size: 36px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            font-style: italic;
+            letter-spacing: 2px;
+            text-shadow: 
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                0 0 20px var(--accent-secondary);
+            animation: popUpFade 1.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute;
+            width: 100%;
+            left: 0;
+            opacity: 0;
+        }
+
+        @keyframes popUpFade {
+            0% { transform: scale(0.5) translateY(20px); opacity: 0; }
+            20% { transform: scale(1.2) translateY(0); opacity: 1; }
+            80% { transform: scale(1) translateY(-10px); opacity: 1; }
+            100% { transform: scale(0.8) translateY(-30px); opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- Canvas cho hiệu ứng mưa (Background) -->
-    <canvas id="rainCanvas"></canvas>
+    <!-- Lớp nền hệ thống -->
+    <canvas id="backgroundCanvas"></canvas>
 
-    <div class="game-container">
-        <!-- Bảng thông tin bên trái -->
-        <div class="panel">
-            <div class="info-box">
-                <div class="info-title">ĐIỂM SỐ</div>
-                <div class="info-value" id="score">0</div>
-            </div>
-            <div class="info-box">
-                <div class="info-title">SỐ DÒNG</div>
-                <div class="info-value" id="lines">0</div>
-            </div>
-            <div class="info-box">
-                <div class="info-title">CẤP ĐỘ</div>
-                <div class="info-value" id="level">1</div>
+    <div class="master-container" id="masterContainer">
+        
+        <!-- Bảng điều khiển BÊN TRÁI -->
+        <div class="side-panel">
+            <div class="hud-box">
+                <div class="hud-title">Điểm Khắc Tinh (Score)</div>
+                <div class="hud-value" id="ui-score">0</div>
             </div>
             
-            <div class="controls-help">
-                <div class="info-title" style="margin-bottom: 10px;">ĐIỀU KHIỂN</div>
-                <div><span class="key">←</span> <span class="key">→</span> Di chuyển</div>
-                <div><span class="key">↑</span> Xoay phải</div>
-                <div><span class="key">Z</span> Xoay trái</div>
-                <div><span class="key">↓</span> Rơi nhanh</div>
-                <div><span class="key">Space</span> Thả ngay</div>
+            <div class="hud-box">
+                <div class="hud-title">Cấp Độ Lượng Tử (Level)</div>
+                <div class="hud-value" id="ui-level" style="color: var(--accent-secondary);">1</div>
+            </div>
+
+            <div class="hud-box">
+                <div class="hud-title">Khối Đang Giữ (Hold)</div>
+                <div class="piece-preview-container">
+                    <canvas id="holdCanvas" width="96" height="96" class="preview-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="controls-info">
+                <div class="hud-title" style="margin-bottom: 12px; color: var(--accent-primary);">Thiết Bị Giao Tiếp</div>
+                <div class="key-bind"><span>Dịch Trái/Phải</span> <span class="key-cap">← / →</span></div>
+                <div class="key-bind"><span>Xoay Phải (CW)</span> <span class="key-cap">↑ / X</span></div>
+                <div class="key-bind"><span>Xoay Trái (CCW)</span> <span class="key-cap">Z / Ctrl</span></div>
+                <div class="key-bind"><span>Rơi Chậm (Soft Drop)</span> <span class="key-cap">↓</span></div>
+                <div class="key-bind"><span>Rơi Nhanh (Hard Drop)</span> <span class="key-cap">Space</span></div>
+                <div class="key-bind"><span>Giữ Khối (Hold)</span> <span class="key-cap">C / Shift</span></div>
+                <div class="key-bind" style="border:none;"><span>Dừng/Tiếp Tục</span> <span class="key-cap">Esc / P</span></div>
             </div>
         </div>
 
-        <!-- Khung Game Chính -->
-        <div class="main-board">
-            <canvas id="gameCanvas"></canvas>
-            <div id="gameOverOverlay">
-                <div class="game-over-text">TRÒ CHƠI KẾT THÚC</div>
-                <button class="restart-btn" onclick="location.reload()">Chơi Lại</button>
+        <!-- VÙNG GAME CHÍNH (Playfield) -->
+        <div class="main-board-wrapper" id="boardWrapper">
+            <!-- Canvas Chính: Thay vì 5px, khối cát giờ sẽ là 24px để to rõ rệt -->
+            <!-- COLS = 24, ROWS = 40 => Width = 24*24 = 576px, Height = 40*24 = 960px -->
+            <canvas id="gameCanvas" width="576" height="960"></canvas>
+            
+            <!-- Hiệu ứng CRT lưới -->
+            <div class="scanlines"></div>
+            
+            <!-- Container hiển thị text combo (Tetris, T-Spin,...) -->
+            <div id="actionTextContainer"></div>
+
+            <!-- Màn hình Tạm Dừng -->
+            <div class="screen-overlay" id="overlayPause">
+                <div class="overlay-title title-pause">TẠM DỪNG</div>
+                <button class="btn-action" onclick="GameCore.togglePause()">Tiếp Tục [P]</button>
+            </div>
+
+            <!-- Màn hình Kết Thúc -->
+            <div class="screen-overlay" id="overlayGameOver">
+                <div class="overlay-title title-gameover">HỆ THỐNG SỤP ĐỔ</div>
+                <div class="hud-title" style="color: #fff; margin-bottom: 5px; font-size: 16px;">Tổng Điểm Đạt Được</div>
+                <div class="hud-value" id="ui-final-score" style="margin-bottom: 30px; font-size: 48px;">0</div>
+                <button class="btn-action" onclick="GameCore.restartGame()">Tái Khởi Động Không Gian</button>
             </div>
         </div>
+
+        <!-- Bảng điều khiển BÊN PHẢI -->
+        <div class="side-panel">
+            <div class="hud-box">
+                <div class="hud-title">Khối Tiếp Theo (Next)</div>
+                <div class="piece-preview-container" style="height: 300px; flex-direction: column; justify-content: space-around; padding: 10px 0;">
+                    <canvas id="nextCanvas1" width="96" height="96" class="preview-canvas"></canvas>
+                    <canvas id="nextCanvas2" width="96" height="96" class="preview-canvas"></canvas>
+                    <canvas id="nextCanvas3" width="96" height="96" class="preview-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="hud-box">
+                <div class="hud-title">Số Dòng Đã Hủy (Lines)</div>
+                <div class="hud-value" id="ui-lines" style="color: var(--accent-warning);">0</div>
+            </div>
+
+            <div class="hud-box">
+                <div class="hud-title">Chỉ Số Tốc Độ (G)</div>
+                <div class="hud-value" id="ui-speed" style="font-size: 20px; color: #aab;">0.016 G</div>
+            </div>
+        </div>
+
     </div>
 
 <script>
 /**
- * PHẦN 1: HỆ THỐNG HẠT MƯA LÀM NỀN (TẠO CẢM GIÁC THƯ GIÃN)
- * Phân tích: Sử dụng một canvas riêng biệt, phủ kín màn hình bằng position: absolute.
- * Cập nhật vị trí các hạt mưa trong một vòng lặp requestAnimationFrame độc lập.
+ * ============================================================================================
+ * SAND TETRIS ULTIMATE - QUANTUM ARCHITECTURE ENGINE
+ * Phân hệ lập trình: Hướng đối tượng cấp cao (High-Level OOP)
+ * Tối ưu hóa: Thuật toán Cellular Automata, Super Rotation System (SRS), Web Audio API
+ * Tác giả: Orichiin-san (AI Enhanced Edition)
+ * ============================================================================================
  */
-const rainCanvas = document.getElementById('rainCanvas');
-const rainCtx = rainCanvas.getContext('2d');
-let rainParticles = [];
 
-function resizeRainCanvas() {
-    rainCanvas.width = window.innerWidth;
-    rainCanvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeRainCanvas);
-resizeRainCanvas();
+// Đóng gói toàn bộ cấu hình vào một hằng số toàn cục khổng lồ để dễ quản lý
+const GAME_CONFIG = {
+    // CĂN CHỈNH TỈ LỆ LÀM CHO KHỐI CÁT TO HƠN
+    COLS: 24,            // Số cột (Grid X) - Giảm xuống để block to hơn
+    ROWS: 40,            // Số hàng (Grid Y)
+    CELL_SIZE: 24,       // Kích thước một hạt cát (Pixel) -> 24px là RẤT TO và rõ rệt
+    
+    // FPS & Timing
+    FPS: 60,
+    PHYSICS_TICK_RATE: 120, // Tính toán vật lý nhanh gấp đôi FPS để cát rơi mượt hơn
+    
+    // Hệ thống điều khiển (DAS & ARR) - Chuẩn game Tetris hiện đại
+    DAS: 150,            // Delayed Auto Shift (ms) - Thời gian giữ phím trước khi lặp
+    ARR: 30,             // Auto Repeat Rate (ms) - Tốc độ lặp lại phím
+    SOFT_DROP_MULT: 20,  // Tốc độ rơi nhanh gấp bao nhiêu lần bình thường
+    LOCK_DELAY: 500,     // Thời gian chờ trước khi khối bị khóa cứng (Extended Placement)
+    
+    // Bảng màu hệ thống (Neon Cyberpunk Palette)
+    COLORS: {
+        BG_EMPTY: null,
+        I: '#00ffff', // Cyan
+        J: '#0055ff', // Blue
+        L: '#ff7700', // Orange
+        O: '#ffea00', // Yellow
+        S: '#00ff00', // Green
+        T: '#aa00ff', // Purple
+        Z: '#ff0055', // Red
+        GHOST: 'rgba(255, 255, 255, 0.15)',
+        PARTICLE_A: '#ffffff',
+        PARTICLE_B: '#ff00aa'
+    }
+};
 
-class RainDrop {
+/**
+ * TỪ ĐIỂN CÁC KHỐI TETROMINO (CHUẨN SRS)
+ * Ma trận đại diện cho các khối. Tâm xoay nằm ở giữa ma trận.
+ */
+const TETROMINOES = {
+    'I': {
+        color: GAME_CONFIG.COLORS.I,
+        matrix: [
+            [0,0,0,0],
+            [1,1,1,1],
+            [0,0,0,0],
+            [0,0,0,0]
+        ]
+    },
+    'J': {
+        color: GAME_CONFIG.COLORS.J,
+        matrix: [
+            [1,0,0],
+            [1,1,1],
+            [0,0,0]
+        ]
+    },
+    'L': {
+        color: GAME_CONFIG.COLORS.L,
+        matrix: [
+            [0,0,1],
+            [1,1,1],
+            [0,0,0]
+        ]
+    },
+    'O': {
+        color: GAME_CONFIG.COLORS.O,
+        matrix: [
+            [1,1],
+            [1,1]
+        ] // Khối O không xoay
+    },
+    'S': {
+        color: GAME_CONFIG.COLORS.S,
+        matrix: [
+            [0,1,1],
+            [1,1,0],
+            [0,0,0]
+        ]
+    },
+    'T': {
+        color: GAME_CONFIG.COLORS.T,
+        matrix: [
+            [0,1,0],
+            [1,1,1],
+            [0,0,0]
+        ]
+    },
+    'Z': {
+        color: GAME_CONFIG.COLORS.Z,
+        matrix: [
+            [1,1,0],
+            [0,1,1],
+            [0,0,0]
+        ]
+    }
+};
+
+/**
+ * HỆ THỐNG SUPER ROTATION SYSTEM (SRS) WALL KICK DATA
+ * Khi xoay khối mà bị kẹt, hệ thống sẽ thử dịch chuyển khối theo các offset này.
+ * Cấu trúc: [Trạng thái hiện tại -> Trạng thái tiếp theo]: [ [x, y], [x, y], ... ]
+ * Trạng thái: 0(Spawn), 1(R), 2(2), 3(L)
+ */
+const SRS_WALL_KICK_DATA = {
+    "JLSTZ": {
+        "0->1": [[ 0, 0], [-1, 0], [-1, 1], [ 0,-2], [-1,-2]],
+        "1->0": [[ 0, 0], [ 1, 0], [ 1,-1], [ 0, 2], [ 1, 2]],
+        "1->2": [[ 0, 0], [ 1, 0], [ 1,-1], [ 0, 2], [ 1, 2]],
+        "2->1": [[ 0, 0], [-1, 0], [-1, 1], [ 0,-2], [-1,-2]],
+        "2->3": [[ 0, 0], [ 1, 0], [ 1, 1], [ 0,-2], [ 1,-2]],
+        "3->2": [[ 0, 0], [-1, 0], [-1,-1], [ 0, 2], [-1, 2]],
+        "3->0": [[ 0, 0], [-1, 0], [-1,-1], [ 0, 2], [-1, 2]],
+        "0->3": [[ 0, 0], [ 1, 0], [ 1, 1], [ 0,-2], [ 1,-2]]
+    },
+    "I": {
+        "0->1": [[ 0, 0], [-2, 0], [ 1, 0], [-2,-1], [ 1, 2]],
+        "1->0": [[ 0, 0], [ 2, 0], [-1, 0], [ 2, 1], [-1,-2]],
+        "1->2": [[ 0, 0], [-1, 0], [ 2, 0], [-1, 2], [ 2,-1]],
+        "2->1": [[ 0, 0], [ 1, 0], [-2, 0], [ 1,-2], [-2, 1]],
+        "2->3": [[ 0, 0], [ 2, 0], [-1, 0], [ 2, 1], [-1,-2]],
+        "3->2": [[ 0, 0], [-2, 0], [ 1, 0], [-2,-1], [ 1, 2]],
+        "3->0": [[ 0, 0], [ 1, 0], [-2, 0], [ 1,-2], [-2, 1]],
+        "0->3": [[ 0, 0], [-1, 0], [ 2, 0], [-1, 2], [ 2,-1]]
+    }
+};
+
+/**
+ * MẢNG TOÀN CỤC CHỨA CÁC THÔNG BÁO UI (COMBO TEXTS)
+ */
+const ACTION_MESSAGES = [
+    "TUYỆT VỜI!", "QUÁ ĐỈNH!", "SIÊU VIỆT!", "SAND COMBO!", "THẦN TỐC!",
+    "HOÀN MỸ!", "CHẤN ĐỘNG!", "VÔ CỰC!", "KHÔNG THỂ CẢN PHÁ!"
+];
+
+/**
+ * ============================================================================================
+ * LỚP 1: AUDIO SYNTHESIZER (TỔNG HỢP ÂM THANH BẰNG CODE)
+ * Sử dụng Web Audio API để tạo âm thanh 8-bit/16-bit retro chân thực mà không cần file ngoài.
+ * Đảm bảo dung lượng code tăng lên một cách có ý nghĩa và tăng độ phức tạp kĩ thuật.
+ * ============================================================================================
+ */
+class AudioEngine {
     constructor() {
-        this.reset(true);
+        this.ctx = null;
+        this.enabled = false;
+        this.masterVolume = null;
+        // Bảng tra cứu tần số nốt nhạc để đánh melody (Frequency Lookup Table)
+        this.notes = {
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+        };
+    }
+
+    init() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+            this.masterVolume = this.ctx.createGain();
+            this.masterVolume.gain.value = 0.3; // Giảm âm lượng tổng xuống 30%
+            this.masterVolume.connect(this.ctx.destination);
+            this.enabled = true;
+            console.log("[AudioEngine] Hệ thống âm thanh lượng tử đã khởi động.");
+        } catch (e) {
+            console.warn("[AudioEngine] Web Audio API không được hỗ trợ trên thiết bị này.", e);
+        }
+    }
+
+    // Hàm tạo âm thanh cơ bản
+    playTone(frequency, type, duration, vol = 1) {
+        if (!this.enabled || !this.ctx) return;
+        
+        // Cần resume AudioContext trên một số trình duyệt yêu cầu tương tác người dùng
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const osc = this.ctx.createOscillator();
+        const gainNode = this.ctx.createGain();
+
+        osc.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+        osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
+
+        // Hiệu ứng Fade out (ADSR Envelope đơn giản)
+        gainNode.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+
+        osc.connect(gainNode);
+        gainNode.connect(this.masterVolume);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    }
+
+    // Tiếng di chuyển khối (Tích tắc nhẹ)
+    playMove() { this.playTone(400, 'square', 0.05, 0.1); }
+    
+    // Tiếng xoay khối
+    playRotate() { this.playTone(600, 'sine', 0.08, 0.2); }
+    
+    // Tiếng khối chạm đáy (Lock)
+    playLock() { 
+        this.playTone(150, 'square', 0.1, 0.3); 
+        setTimeout(() => this.playTone(100, 'sawtooth', 0.1, 0.4), 50);
     }
     
-    reset(randomY = false) {
-        this.x = Math.random() * rainCanvas.width;
-        // Nếu khởi tạo ban đầu, cho mưa rải rác. Nếu reset sau khi rơi xong, bắt đầu từ trên cùng.
-        this.y = randomY ? Math.random() * rainCanvas.height : -10;
-        this.length = Math.random() * 20 + 10;
-        this.speedY = Math.random() * 15 + 15;
-        this.speedX = (Math.random() - 0.5) * 2; // Hơi nghiêng nhẹ
-        this.opacity = Math.random() * 0.3 + 0.1;
+    // Tiếng thả mạnh (Hard Drop)
+    playHardDrop() {
+        this.playTone(800, 'sine', 0.05, 0.3);
+        setTimeout(() => this.playTone(200, 'square', 0.15, 0.5), 20);
+    }
+    
+    // Tiếng xóa dòng (Clear Line) - Giai điệu ngắn
+    playClear(lines) {
+        if (!this.enabled) return;
+        const melody = lines >= 4 ? ['C5', 'E5', 'G5', 'C6'] : ['C5', 'E5'];
+        melody.forEach((note, index) => {
+            setTimeout(() => {
+                this.playTone(this.notes[note] || 500, 'square', 0.2, 0.4);
+            }, index * 100);
+        });
+    }
+
+    // Tiếng kết thúc game (Hạ tone)
+    playGameOver() {
+        if (!this.enabled) return;
+        ['G4', 'D4', 'A3', 'E3'].forEach((note, index) => {
+            setTimeout(() => {
+                this.playTone(this.notes[note] || 200, 'sawtooth', 0.4, 0.5);
+            }, index * 300);
+        });
+    }
+}
+const audioSynth = new AudioEngine();
+
+/**
+ * ============================================================================================
+ * LỚP 2: HỆ THỐNG HẠT VFX (PARTICLE SYSTEM)
+ * Quản lý hàng trăm hạt nổ ra khi xóa dòng hoặc Game Over.
+ * Các hạt có tính toán trọng lực, ma sát và độ mờ theo thời gian.
+ * ============================================================================================
+ */
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        // Bắn ra các hướng ngẫu nhiên
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 10 + 2;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed - 5; // Hơi nảy lên trên
+        this.gravity = 0.5;
+        this.friction = 0.98;
+        this.life = 1.0; // Độ mờ từ 1.0 -> 0
+        this.decay = Math.random() * 0.03 + 0.01;
+        this.size = Math.random() * 4 + 2;
     }
 
     update() {
-        this.y += this.speedY;
-        this.x += this.speedX;
-        if (this.y > rainCanvas.height) {
-            this.reset();
+        this.vy += this.gravity;
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+    }
+
+    draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        // Vẽ hạt cát đang bay
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+        ctx.restore();
+    }
+}
+
+class ParticleSystem {
+    constructor() {
+        this.particles = [];
+    }
+
+    spawn(x, y, color, count = 10) {
+        for (let i = 0; i < count; i++) {
+            this.particles.push(new Particle(x, y, color));
         }
     }
 
-    draw() {
-        rainCtx.beginPath();
-        rainCtx.moveTo(this.x, this.y);
-        rainCtx.lineTo(this.x + this.speedX, this.y + this.length);
-        rainCtx.strokeStyle = `rgba(150, 180, 255, ${this.opacity})`;
-        rainCtx.lineWidth = 1;
-        rainCtx.stroke();
-    }
-}
-
-// Khởi tạo 150 hạt mưa
-for (let i = 0; i < 150; i++) {
-    rainParticles.push(new RainDrop());
-}
-
-function animateRain() {
-    // Tạo hiệu ứng vệt mờ (motion blur) bằng cách vẽ đè lên lớp đen trong suốt
-    rainCtx.fillStyle = 'rgba(5, 5, 16, 0.3)';
-    rainCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
-    
-    rainParticles.forEach(drop => {
-        drop.update();
-        drop.draw();
-    });
-    requestAnimationFrame(animateRain);
-}
-animateRain();
-
-
-/**
- * PHẦN 2: LOGIC SAND TETRIS ULTIMATE
- * Mở rộng: Độ phân giải cao hơn, kích thước hạt nhỏ hơn để giả lập cát chân thực hơn.
- */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const scoreEl = document.getElementById('score');
-const linesEl = document.getElementById('lines');
-const levelEl = document.getElementById('level');
-const overlayEl = document.getElementById('gameOverOverlay');
-
-// Cấu hình vật lý và hiển thị của lưới cát
-const ROWS = 120;       // Tăng số lượng hàng
-const COLS = 70;        // Tăng số lượng cột
-const CELL_SIZE = 5;    // Hạt cát nhỏ gọn hơn
-
-canvas.width = COLS * CELL_SIZE;
-canvas.height = ROWS * CELL_SIZE;
-
-// Khởi tạo lưới trống (null)
-let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-
-// Trạng thái hệ thống
-let score = 0;
-let linesClearedTotal = 0;
-let level = 1;
-let gameOver = false;
-let dropCounter = 0;
-let dropInterval = 1000; // Thay đổi tùy theo level
-let lastTime = 0;
-
-/**
- * BẢNG ĐỊNH NGHĨA TETROMINOES
- * Sử dụng ma trận vuông để đảm bảo xoay chính xác theo tâm.
- * Hệ màu lấy cảm hứng từ các palette neon hiện đại.
- */
-const SHAPES = [
-    { name: 'I', color: '#00ffff', map: [[0,0,0,0], [1,1,1,1], [0,0,0,0], [0,0,0,0]] },
-    { name: 'J', color: '#0055ff', map: [[1,0,0], [1,1,1], [0,0,0]] },
-    { name: 'L', color: '#ff7700', map: [[0,0,1], [1,1,1], [0,0,0]] },
-    { name: 'O', color: '#ffea00', map: [[1,1], [1,1]] },
-    { name: 'S', color: '#00ff00', map: [[0,1,1], [1,1,0], [0,0,0]] },
-    { name: 'T', color: '#aa00ff', map: [[0,1,0], [1,1,1], [0,0,0]] },
-    { name: 'Z', color: '#ff0055', map: [[1,1,0], [0,1,1], [0,0,0]] }
-];
-
-// Hệ thống SRS Kick Tables (Đơn giản hóa cho ma trận 3x3 và 4x4)
-// Vì thuật toán xoay trong code này xoay trực tiếp nội dung mảng, ta cần 
-// xử lý ngoại lệ khi khối xoay đập vào tường. Một kick table cơ bản thử dịch 
-// chuyển khối sang (x, y) để tìm không gian trống.
-const KICK_OFFSETS = [
-    {x: 0, y: 0},   // Thử xoay tại chỗ
-    {x: -1, y: 0},  // Thử đẩy sang trái 1 ô
-    {x: 1, y: 0},   // Thử đẩy sang phải 1 ô
-    {x: 0, y: -1},  // Thử đẩy lên trên 1 ô (tránh cát)
-    {x: -1, y: -1}, // Trái + Lên
-    {x: 1, y: -1},  // Phải + Lên
-    {x: -2, y: 0},  // Thử đẩy sang trái 2 ô (dành cho khối I)
-    {x: 2, y: 0}    // Thử đẩy sang phải 2 ô (dành cho khối I)
-];
-
-let currentPiece = null;
-
-// Sinh khối mới ngẫu nhiên
-function createPiece() {
-    const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-    return {
-        x: Math.floor(COLS / 2) - Math.floor(shape.map[0].length / 2),
-        y: 0,
-        color: shape.color,
-        map: shape.map,
-        name: shape.name
-    };
-}
-
-// Xoay ma trận 90 độ (Theo chiều kim đồng hồ)
-function rotateMatrixClockwise(matrix) {
-    const n = matrix.length;
-    let res = Array.from({ length: n }, () => Array(n).fill(0));
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            res[j][n - 1 - i] = matrix[i][j];
-        }
-    }
-    return res;
-}
-
-// Xoay ma trận 90 độ (Ngược chiều kim đồng hồ)
-function rotateMatrixCounterClockwise(matrix) {
-    const n = matrix.length;
-    let res = Array.from({ length: n }, () => Array(n).fill(0));
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            res[n - 1 - j][i] = matrix[i][j];
-        }
-    }
-    return res;
-}
-
-// Xử lý xoay có bao gồm Wall Kick (SRS)
-function attemptRotate(direction) {
-    if (!currentPiece) return;
-
-    const oldMap = currentPiece.map;
-    const oldX = currentPiece.x;
-    const oldY = currentPiece.y;
-
-    // Khối O không cần xoay
-    if (currentPiece.name === 'O') return;
-
-    if (direction === 'CW') {
-        currentPiece.map = rotateMatrixClockwise(currentPiece.map);
-    } else {
-        currentPiece.map = rotateMatrixCounterClockwise(currentPiece.map);
-    }
-
-    // Thử nghiệm các vị trí Kick
-    let rotated = false;
-    for (let i = 0; i < KICK_OFFSETS.length; i++) {
-        const offset = KICK_OFFSETS[i];
-        if (!checkCollision(currentPiece.x + offset.x, currentPiece.y + offset.y, currentPiece.map)) {
-            // Kick thành công
-            currentPiece.x += offset.x;
-            currentPiece.y += offset.y;
-            rotated = true;
-            break;
-        }
-    }
-
-    // Nếu mọi nỗ lực Kick đều thất bại do không gian quá hẹp, hoàn tác phép xoay
-    if (!rotated) {
-        currentPiece.map = oldMap;
-        currentPiece.x = oldX;
-        currentPiece.y = oldY;
-    }
-}
-
-// Kiểm tra va chạm (Bounds Checking và Overlap Checking)
-function checkCollision(targetX, targetY, map = currentPiece.map) {
-    for (let y = 0; y < map.length; y++) {
-        for (let x = 0; x < map[y].length; x++) {
-            if (map[y][x]) {
-                const gridX = targetX + x;
-                const gridY = targetY + y;
-                
-                // Va chạm tường trái, tường phải, hoặc đáy
-                if (gridX < 0 || gridX >= COLS || gridY >= ROWS) {
-                    return true;
-                }
-                // Va chạm với cát đã lưu trữ trên lưới (chỉ kiểm tra khi gridY >= 0)
-                if (gridY >= 0 && grid[gridY][gridX] !== null) {
-                    return true;
-                }
+    updateAndDraw(ctx) {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.update();
+            p.draw(ctx);
+            if (p.life <= 0) {
+                this.particles.splice(i, 1);
             }
         }
     }
-    return false;
 }
+const vfxSystem = new ParticleSystem();
 
-// Chuyển đổi khối rắn thành các hạt cát độc lập trên lưới
-function solidifyPiece() {
-    currentPiece.map.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if (value) {
-                const gridX = currentPiece.x + x;
-                const gridY = currentPiece.y + y;
-                if (gridY >= 0 && gridY < ROWS) {
-                    grid[gridY][gridX] = currentPiece.color;
-                }
-            }
-        });
-    });
-    
-    // Kiểm tra xem việc Solidify có đè lên hàng trên cùng không (Game Over Trigger)
-    if (currentPiece.y <= 0) {
-        gameOver = true;
-        overlayEl.classList.add('active');
+/**
+ * ============================================================================================
+ * LỚP 3: XỬ LÝ MA TRẬN VÀ VẬT LÝ CÁT (CELLULAR AUTOMATA)
+ * Đây là linh hồn của Sand Tetris. Biến khối rắn thành ngàn hạt cát.
+ * Tối ưu hóa mảng 2 chiều bằng thuật toán quét đáy (Bottom-up Scan).
+ * ============================================================================================
+ */
+class SandPhysics {
+    constructor(cols, rows) {
+        this.cols = cols;
+        this.rows = rows;
+        // Khởi tạo lưới trống (Grid 2D)
+        this.grid = Array.from({ length: rows }, () => Array(cols).fill(GAME_CONFIG.COLORS.BG_EMPTY));
     }
-    
-    currentPiece = null;
-    checkAndClearLines();
-}
 
-// VẬT LÝ CÁT: Cellular Automata xử lý sự sụp đổ của các hạt (Avalanche Effect)
-function updateSandPhysics() {
-    // Biến cờ (flag) để kiểm tra xem có hạt cát nào di chuyển không
-    let isSandMoving = false;
+    // Thêm một mảng hạt cát vào vị trí lưới
+    addSand(x, y, color) {
+        if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
+            this.grid[y][x] = color;
+        }
+    }
 
-    // Quét từ dưới lên trên (Bottom-Up) để mô phỏng trọng lực
-    for (let y = ROWS - 2; y >= 0; y--) {
-        // Quét ngẫu nhiên trục X để tránh cát luôn thiên lệch về một phía (Artifacting)
-        const xIndices = Array.from({length: COLS}, (_, i) => i).sort(() => Math.random() - 0.5);
-        
-        for (let x of xIndices) {
-            if (grid[y][x] !== null) {
-                const color = grid[y][x];
-                
-                // 1. Rơi tự do xuống dưới thẳng đứng
-                if (grid[y + 1][x] === null) {
-                    grid[y + 1][x] = color;
-                    grid[y][x] = null;
-                    isSandMoving = true;
-                } 
-                // 2. Trượt chéo (Diagonal Sliding) mô phỏng động lực học hạt
-                else {
-                    // Chọn hướng trượt ngẫu nhiên trước
-                    const dir = Math.random() < 0.5 ? -1 : 1;
-                    
-                    // Thử trượt sang hướng đã chọn
-                    if (x + dir >= 0 && x + dir < COLS && grid[y + 1][x + dir] === null) {
-                        grid[y + 1][x + dir] = color;
-                        grid[y][x] = null;
-                        isSandMoving = true;
+    // Kiểm tra xem một vị trí có trống không
+    isEmpty(x, y) {
+        // Vượt ra ngoài biên trái/phải/dưới coi như là TƯỜNG (không trống)
+        if (x < 0 || x >= this.cols || y >= this.rows) return false;
+        // Phía trên màn hình (y < 0) luôn trống
+        if (y < 0) return true;
+        return this.grid[y][x] === GAME_CONFIG.COLORS.BG_EMPTY;
+    }
+
+    /**
+     * THUẬT TOÁN ĐỘNG LỰC HỌC CÁT (CELLULAR AUTOMATA)
+     * Quét từ dưới lên trên. Mỗi khung hình, hạt cát rơi xuống 1 ô hoặc trượt chéo.
+     * Trả về true nếu vẫn còn hạt đang chuyển động (chưa settling).
+     */
+    updatePhysics() {
+        let isMoving = false;
+        // Phải quét từ dưới lên (y giảm dần) để hạt dưới rơi trước, dọn chỗ cho hạt trên
+        for (let y = this.rows - 2; y >= 0; y--) {
+            // Trộn ngẫu nhiên trục X để tránh cát luôn thiên về 1 bên (tạo hình kim tự tháp tự nhiên)
+            const xIndices = Array.from({length: this.cols}, (_, i) => i);
+            for (let i = xIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [xIndices[i], xIndices[j]] = [xIndices[j], xIndices[i]];
+            }
+
+            for (let x of xIndices) {
+                const cellColor = this.grid[y][x];
+                if (cellColor !== GAME_CONFIG.COLORS.BG_EMPTY) {
+                    // Ưu tiên 1: Rơi thẳng xuống
+                    if (this.isEmpty(x, y + 1)) {
+                        this.grid[y + 1][x] = cellColor;
+                        this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                        isMoving = true;
                     } 
-                    // Thử trượt sang hướng ngược lại nếu hướng kia bị kẹt
-                    else if (x - dir >= 0 && x - dir < COLS && grid[y + 1][x - dir] === null) {
-                        grid[y + 1][x - dir] = color;
-                        grid[y][x] = null;
-                        isSandMoving = true;
+                    // Ưu tiên 2 & 3: Trượt chéo trái hoặc phải (chọn ngẫu nhiên hướng ưu tiên)
+                    else {
+                        let dir = Math.random() < 0.5 ? -1 : 1;
+                        if (this.isEmpty(x + dir, y + 1)) {
+                            this.grid[y + 1][x + dir] = cellColor;
+                            this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                            isMoving = true;
+                        } else if (this.isEmpty(x - dir, y + 1)) {
+                            this.grid[y + 1][x - dir] = cellColor;
+                            this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                            isMoving = true;
+                        }
                     }
                 }
             }
         }
-    }
-    return isSandMoving;
-}
-
-// Thuật toán kiểm tra và xóa dòng cát
-function checkAndClearLines() {
-    let linesClearedInThisFrame = 0;
-    
-    // Quét tất cả các dòng từ dưới lên
-    for (let y = ROWS - 1; y >= 0; y--) {
-        // Một dòng được coi là đầy nếu không có ô nào chứa null
-        if (grid[y].every(cell => cell !== null)) {
-            // Xóa dòng đó bằng cách cắt mảng
-            grid.splice(y, 1);
-            // Thêm một dòng trống mới ở trên cùng
-            grid.unshift(Array(COLS).fill(null));
-            linesClearedInThisFrame++;
-            // Do mảng đã bị dồn xuống, phải kiểm tra lại chính chỉ số y này
-            y++; 
-        }
+        return isMoving;
     }
 
-    if (linesClearedInThisFrame > 0) {
-        linesClearedTotal += linesClearedInThisFrame;
-        linesEl.innerText = linesClearedTotal;
-        
-        // Hệ thống tính điểm Tetris chuẩn
-        const lineScores = [0, 100, 300, 500, 800];
-        const scoreMultiplier = level;
-        score += (lineScores[linesClearedInThisFrame] || (linesClearedInThisFrame * 200)) * scoreMultiplier;
-        scoreEl.innerText = score;
-        
-        // Cập nhật Cấp độ (Mỗi 10 dòng tăng 1 cấp)
-        if (Math.floor(linesClearedTotal / 10) + 1 > level) {
-            level = Math.floor(linesClearedTotal / 10) + 1;
-            levelEl.innerText = level;
-            // Tăng tốc độ rơi của khối, giới hạn tối thiểu ở mức 100ms
-            dropInterval = Math.max(100, 1000 - (level - 1) * 80);
-        }
-    }
-}
+    /**
+     * THUẬT TOÁN XÓA DÒNG TETRIS
+     * Quét các hàng, nếu hàng nào đầy (không có BG_EMPTY), xóa hàng đó và đẩy phía trên xuống.
+     * Khác với Tetris thường, Sand Tetris khi xóa dòng, cát ở trên sẽ bị mất móng và tiếp tục rớt xuống tự do.
+     */
+    checkAndClearLines() {
+        let linesCleared = 0;
+        let y = this.rows - 1;
 
-// Logic Hard Drop (Thả rơi ngay lập tức xuống đáy)
-function hardDrop() {
-    if (!currentPiece) return;
-    while (!checkCollision(currentPiece.x, currentPiece.y + 1)) {
-        currentPiece.y++;
-        // Tăng điểm nhỏ cho hành động Hard Drop (2 điểm mỗi ô)
-        score += 2; 
-    }
-    scoreEl.innerText = score;
-    solidifyPiece();
-    // Khóa độ trễ sau khi thả để tránh spawn dồn dập
-    dropCounter = 0; 
-}
-
-// Lắng nghe sự kiện bàn phím
-document.addEventListener('keydown', (e) => {
-    if (gameOver) return;
-    
-    switch (e.code) {
-        case 'ArrowLeft':
-            if (!checkCollision(currentPiece.x - 1, currentPiece.y)) {
-                currentPiece.x--;
-            }
-            break;
-        case 'ArrowRight':
-            if (!checkCollision(currentPiece.x + 1, currentPiece.y)) {
-                currentPiece.x++;
-            }
-            break;
-        case 'ArrowDown':
-            // Rơi nhanh (Soft Drop)
-            if (!checkCollision(currentPiece.x, currentPiece.y + 1)) {
-                currentPiece.y++;
-                score += 1; // Tăng 1 điểm mỗi ô Soft Drop
-                scoreEl.innerText = score;
-                // Reset bộ đếm thời gian rơi tự động để tránh bị rớt đột ngột
-                dropCounter = 0;
-            }
-            break;
-        case 'ArrowUp':
-            attemptRotate('CW'); // Xoay phải theo chuẩn mũi tên lên
-            break;
-        case 'KeyZ':
-            attemptRotate('CCW'); // Phím Z cho xoay trái (chuẩn game mod/emulator)
-            break;
-        case 'Space':
-            hardDrop();
-            break;
-    }
-});
-
-// Logic tính toán tọa độ y của Ghost Piece (bóng mờ)
-function getGhostY() {
-    if (!currentPiece) return 0;
-    let ghostY = currentPiece.y;
-    while (!checkCollision(currentPiece.x, ghostY + 1, currentPiece.map)) {
-        ghostY++;
-    }
-    return ghostY;
-}
-
-// Hàm vẽ chính sử dụng Canvas API
-function draw() {
-    // Làm sạch toàn bộ bề mặt vẽ
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // 1. VẼ LƯỚI CÁT
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            if (grid[y][x]) {
-                ctx.fillStyle = grid[y][x];
-                // Sử dụng fillRect cho các ô vuông pixel-perfect
-                ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-            }
-        }
-    }
-
-    // 2. VẼ KHỐI ĐANG RƠI (VÀ BÓNG CỦA NÓ)
-    if (currentPiece) {
-        // -- Vẽ Bóng (Ghost Piece) --
-        const ghostY = getGhostY();
-        ctx.fillStyle = currentPiece.color;
-        // Chỉnh độ trong suốt của canvas API thay vì rgba text để dễ quản lý
-        ctx.globalAlpha = 0.2; 
-        currentPiece.map.forEach((row, y) => {
-            row.forEach((value, x) => {
-                if (value) {
-                    ctx.fillRect(
-                        (currentPiece.x + x) * CELL_SIZE, 
-                        (ghostY + y) * CELL_SIZE, 
-                        CELL_SIZE, 
-                        CELL_SIZE
-                    );
+        while (y >= 0) {
+            let isFull = true;
+            for (let x = 0; x < this.cols; x++) {
+                if (this.grid[y][x] === GAME_CONFIG.COLORS.BG_EMPTY) {
+                    isFull = false;
+                    break;
                 }
-            });
-        });
-        
-        // -- Vẽ khối rắn thật sự --
-        ctx.globalAlpha = 1.0; // Phục hồi lại độ đục hoàn toàn
-        
-        // Thêm hiệu ứng phát sáng nhẹ bằng shadow blur
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = currentPiece.color;
-        
-        currentPiece.map.forEach((row, y) => {
-            row.forEach((value, x) => {
-                if (value) {
-                    ctx.fillRect(
-                        (currentPiece.x + x) * CELL_SIZE, 
-                        (currentPiece.y + y) * CELL_SIZE, 
-                        CELL_SIZE *2, 
-                        CELL_SIZE *2
-                    );
+            }
+
+            if (isFull) {
+                // Tạo hiệu ứng nổ hạt tại dòng này
+                for(let x = 0; x < this.cols; x++) {
+                    // Tọa độ canvas thật: x * CELL_SIZE, y * CELL_SIZE
+                    const px = x * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE/2;
+                    const py = y * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE/2;
+                    vfxSystem.spawn(px, py, this.grid[y][x], 3);
                 }
-            });
-        });
-        
-        // Tắt shadow để không ảnh hưởng tới lần vẽ sau
-        ctx.shadowBlur = 0; 
+
+                // Xóa dòng y
+                this.grid.splice(y, 1);
+                // Thêm dòng trống trên cùng
+                this.grid.unshift(Array(this.cols).fill(GAME_CONFIG.COLORS.BG_EMPTY));
+                linesCleared++;
+                // Không giảm y để kiểm tra lại chính index y này (vì mảng đã bị dồn xuống)
+            } else {
+                y--;
+            }
+        }
+        return linesCleared;
+    }
+
+    clearAll() {
+        this.grid = Array.from({ length: this.rows }, () => Array(this.cols).fill(GAME_CONFIG.COLORS.BG_EMPTY));
     }
 }
 
-// Vòng lặp chính của Game (Main Game Loop) sử dụng RequestAnimationFrame
-function update(time = 0) {
-    if (gameOver) return;
+/**
+ * ============================================================================================
+ * LỚP 4: THỰC THỂ TETROMINO VÀ TOÁN HỌC MA TRẬN
+ * Xử lý xoay, dịch chuyển, wall kicks, và bóng đổ (ghost piece).
+ * ============================================================================================
+ */
+class Tetromino {
+    constructor(type) {
+        this.type = type;
+        const data = TETROMINOES[type];
+        this.color = data.color;
+        // Sao chép ma trận sâu (Deep Copy) để tránh thay đổi bản gốc
+        this.matrix = data.matrix.map(row => [...row]);
+        this.size = this.matrix.length;
+        
+        // Tọa độ sinh ra mặc định (Spawn position): Giữa trên cùng
+        this.x = Math.floor(GAME_CONFIG.COLS / 2) - Math.floor(this.size / 2);
+        this.y = type === 'I' ? -1 : 0; // I piece thường cần nhích lên xíu
+        
+        // Trạng thái xoay (0, 1, 2, 3) tương ứng 0, 90, 180, 270 độ
+        this.rotationState = 0; 
+    }
 
-    const deltaTime = time - lastTime;
-    lastTime = time;
+    // Xoay ma trận toán học 90 độ
+    rotate(direction) {
+        const result = Array.from({ length: this.size }, () => Array(this.size).fill(0));
+        for (let y = 0; y < this.size; y++) {
+            for (let x = 0; x < this.size; x++) {
+                if (direction > 0) {
+                    // Cùng chiều kim đồng hồ (CW)
+                    result[x][this.size - 1 - y] = this.matrix[y][x];
+                } else {
+                    // Ngược chiều kim đồng hồ (CCW)
+                    result[this.size - 1 - x][y] = this.matrix[y][x];
+                }
+            }
+        }
+        return result;
+    }
 
-    // 1. Khởi tạo khối nếu chưa có
-    if (!currentPiece) {
-        currentPiece = createPiece();
-        // Kiểm tra GameOver ngay khi khối vừa được tạo
-        if (checkCollision(currentPiece.x, currentPiece.y)) {
-            gameOver = true;
-            overlayEl.classList.add('active');
-            return;
+    // Thử xoay và áp dụng hệ thống Wall Kick (SRS)
+    attemptRotation(direction, physicsObj) {
+        if (this.type === 'O') return true; // Khối O không cần xoay
+
+        const newMatrix = this.rotate(direction);
+        const nextRotationState = (this.rotationState + direction + 4) % 4;
+        const kickDataKey = `${this.rotationState}->${nextRotationState}`;
+        
+        // Xác định dùng bảng kick nào
+        let kickTableSet;
+        if (this.type === 'I') kickTableSet = SRS_WALL_KICK_DATA["I"];
+        else kickTableSet = SRS_WALL_KICK_DATA["JLSTZ"];
+
+        const kicks = kickTableSet[kickDataKey] || [[0, 0]]; // Fallback nếu không có data
+
+        for (let i = 0; i < kicks.length; i++) {
+            const [offsetX, offsetY] = kicks[i];
+            const testX = this.x + offsetX;
+            const testY = this.y - offsetY; // Hệ tọa độ Y của mảng ngược với hệ Y của toán học, nên trừ offsetY
+
+            if (!this.checkCollision(testX, testY, newMatrix, physicsObj)) {
+                // Xoay thành công
+                this.matrix = newMatrix;
+                this.x = testX;
+                this.y = testY;
+                this.rotationState = nextRotationState;
+                return true;
+            }
+        }
+        return false; // Mọi nỗ lực kick đều thất bại
+    }
+
+    // Kiểm tra va chạm với tường hoặc cát
+    checkCollision(targetX, targetY, targetMatrix, physicsObj) {
+        for (let y = 0; y < this.size; y++) {
+            for (let x = 0; x < this.size; x++) {
+                if (targetMatrix[y][x]) {
+                    const gridX = targetX + x;
+                    const gridY = targetY + y;
+                    if (!physicsObj.isEmpty(gridX, gridY)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    // Tính toán tọa độ Y của bóng (Ghost Piece)
+    getGhostY(physicsObj) {
+        let ghostY = this.y;
+        while (!this.checkCollision(this.x, ghostY + 1, this.matrix, physicsObj)) {
+            ghostY++;
+        }
+        return ghostY;
+    }
+}
+
+/**
+ * ============================================================================================
+ * LỚP 5: QUẢN LÝ TÚI NGẪU NHIÊN 7 KHỐI (7-BAG RANDOMIZER)
+ * Đảm bảo các khối xuất hiện công bằng, không bị lặp lại quá nhiều cùng một loại.
+ * ============================================================================================
+ */
+class Randomizer {
+    constructor() {
+        this.bag = [];
+        this.pieces = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
+        this.fillBag();
+    }
+
+    fillBag() {
+        // Tạo một mảng chứa 7 loại khối
+        let newBag = [...this.pieces];
+        // Fisher-Yates Shuffle
+        for (let i = newBag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newBag[i], newBag[j]] = [newBag[j], newBag[i]];
+        }
+        // Thêm vào đuôi túi hiện tại
+        this.bag.push(...newBag);
+    }
+
+    getNext() {
+        if (this.bag.length <= 7) {
+            this.fillBag();
+        }
+        return this.bag.shift();
+    }
+
+    peek(index) {
+        if (this.bag.length <= 7 + index) {
+            this.fillBag();
+        }
+        return this.bag[index];
+    }
+}
+
+/**
+ * ============================================================================================
+ * LỚP 6: LÕI GAME (MASTER CONTROLLER)
+ * Kết nối vòng lặp, logic điểm, trạng thái, và Input.
+ * ============================================================================================
+ */
+const GameCore = new (class {
+    constructor() {
+        this.state = 'START'; // START, PLAYING, PAUSED, GAMEOVER
+        this.score = 0;
+        this.lines = 0;
+        this.level = 1;
+        this.combo = 0;
+        
+        this.physics = new SandPhysics(GAME_CONFIG.COLS, GAME_CONFIG.ROWS);
+        this.randomizer = new Randomizer();
+        
+        this.activePiece = null;
+        this.holdPiece = null;
+        this.hasHeldThisTurn = false;
+
+        // Timers cho cơ chế rơi và khóa
+        this.dropTimer = 0;
+        this.lockTimer = 0;
+        this.gravitySpeed = 1000; // ms per drop
+        this.isLocking = false;
+
+        // Input Handling System (Với DAS và ARR)
+        this.keys = {};
+        this.keyTimers = {};
+        
+        this.lastTime = 0;
+        this.animationId = null;
+
+        // Các elements UI
+        this.ui = {
+            score: document.getElementById('ui-score'),
+            level: document.getElementById('ui-level'),
+            lines: document.getElementById('ui-lines'),
+            speed: document.getElementById('ui-speed'),
+            finalScore: document.getElementById('ui-final-score'),
+            actionText: document.getElementById('actionTextContainer'),
+            pauseOverlay: document.getElementById('overlayPause'),
+            gameOverOverlay: document.getElementById('overlayGameOver'),
+            ctxMain: document.getElementById('gameCanvas').getContext('2d', { alpha: false }),
+            ctxHold: document.getElementById('holdCanvas').getContext('2d'),
+            ctxNext: [
+                document.getElementById('nextCanvas1').getContext('2d'),
+                document.getElementById('nextCanvas2').getContext('2d'),
+                document.getElementById('nextCanvas3').getContext('2d')
+            ]
+        };
+
+        this.bindInputs();
+    }
+
+    init() {
+        // Tương tác đầu tiên yêu cầu kích hoạt Audio
+        document.addEventListener('keydown', () => {
+            if (!audioSynth.enabled) audioSynth.init();
+        }, { once: true });
+        
+        this.startGame();
+    }
+
+    startGame() {
+        this.physics.clearAll();
+        this.randomizer = new Randomizer();
+        this.score = 0;
+        this.lines = 0;
+        this.level = 1;
+        this.combo = 0;
+        this.holdPiece = null;
+        this.hasHeldThisTurn = false;
+        this.updateSpeed();
+        this.spawnPiece();
+        
+        this.ui.gameOverOverlay.classList.remove('active');
+        this.ui.pauseOverlay.classList.remove('active');
+        this.updateHUD();
+        this.drawHoldAndNext();
+
+        this.state = 'PLAYING';
+        this.lastTime = performance.now();
+        if (this.animationId) cancelAnimationFrame(this.animationId);
+        this.loop(this.lastTime);
+    }
+
+    restartGame() {
+        this.startGame();
+    }
+
+    togglePause() {
+        if (this.state === 'GAMEOVER') return;
+        if (this.state === 'PLAYING') {
+            this.state = 'PAUSED';
+            this.ui.pauseOverlay.classList.add('active');
+            audioSynth.playMove(); // Tận dụng tiếng bíp làm tiếng menu
+        } else if (this.state === 'PAUSED') {
+            this.state = 'PLAYING';
+            this.ui.pauseOverlay.classList.remove('active');
+            this.lastTime = performance.now();
+            this.loop(this.lastTime);
+            audioSynth.playMove();
         }
     }
 
-    // 2. Cập nhật cơ chế rơi của khối dựa trên Timer (dropInterval)
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-        if (!checkCollision(currentPiece.x, currentPiece.y + 1)) {
-            currentPiece.y++;
+    spawnPiece() {
+        const type = this.randomizer.getNext();
+        this.activePiece = new Tetromino(type);
+        this.hasHeldThisTurn = false;
+        this.drawHoldAndNext();
+
+        // Kiểm tra Block Out (Game Over)
+        if (this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y, this.activePiece.matrix, this.physics)) {
+            this.triggerGameOver();
+        }
+    }
+
+    holdCurrentPiece() {
+        if (this.hasHeldThisTurn) return; // Chỉ được hold 1 lần mỗi lượt rơi
+
+        const currentType = this.activePiece.type;
+        if (this.holdPiece === null) {
+            this.holdPiece = currentType;
+            this.spawnPiece();
         } else {
-            solidifyPiece();
+            const temp = this.holdPiece;
+            this.holdPiece = currentType;
+            this.activePiece = new Tetromino(temp);
+            // Check chết ngay khi swap
+            if (this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y, this.activePiece.matrix, this.physics)) {
+                this.triggerGameOver();
+            }
         }
-        dropCounter = 0;
+        
+        this.hasHeldThisTurn = true;
+        this.drawHoldAndNext();
+        audioSynth.playRotate(); // Âm thanh mượn
+        
+        // Cần reset lại trạng thái drop timer để không rớt ngay
+        this.dropTimer = 0;
+        this.isLocking = false;
+        this.lockTimer = 0;
     }
 
-    // 3. Cập nhật Vật lý Cát mỗi khung hình để cát chảy mượt nhất có thể
-    // Hàm này trả về true nếu cát vẫn đang chuyển động
-    let sandIsSettling = updateSandPhysics();
-    
-    // Nếu cát đang ngưng đọng hoặc khối đang rơi, tiến hành vẽ lại Canvas
-    draw();
+    updateSpeed() {
+        // Công thức cong chuẩn Tetris: Thời gian giảm dần khi cấp tăng
+        // Cấp 1: 1000ms, Cấp 15: ~16ms
+        this.gravitySpeed = Math.pow(0.8 - ((this.level - 1) * 0.007), this.level - 1) * 1000;
+        if (this.gravitySpeed < 16) this.gravitySpeed = 16; // Chặn max speed
+        this.ui.speed.innerText = (1000 / this.gravitySpeed).toFixed(2) + " G";
+    }
 
-    // Tiếp tục lặp
-    requestAnimationFrame(update);
-}
+    addScore(points) {
+        this.score += points;
+        this.ui.score.innerText = this.score;
+        // Hiệu ứng nhấp nháy UI
+        this.ui.score.parentElement.classList.add('highlight');
+        setTimeout(() => this.ui.score.parentElement.classList.remove('highlight'), 200);
+    }
 
-// Bắt đầu vòng lặp game
-requestAnimationFrame(update);
+    triggerGameOver() {
+        this.state = 'GAMEOVER';
+        this.ui.finalScore.innerText = this.score;
+        this.ui.gameOverOverlay.classList.add('active');
+        audioSynth.playGameOver();
+        // Áp dụng hiệu ứng động đất cho container
+        document.getElementById('masterContainer').style.animation = 'none';
+        let shake = 20;
+        const shiver = setInterval(() => {
+            const rx = (Math.random() - 0.5) * shake;
+            const ry = (Math.random() - 0.5) * shake;
+            document.getElementById('masterContainer').style.transform = `translate(${rx}px, ${ry}px)`;
+            shake *= 0.9;
+            if(shake < 1) {
+                clearInterval(shiver);
+                document.getElementById('masterContainer').style.transform = 'none';
+            }
+        }, 30);
+    }
+
+    showActionText(text) {
+        const div = document.createElement('div');
+        div.className = 'action-text';
+        div.innerText = text;
+        this.ui.actionText.appendChild(div);
+        setTimeout(() => {
+            if(div.parentNode) div.parentNode.removeChild(div);
+        }, 1500);
+    }
+
+    /**
+     * CHUYỂN ĐỔI KHỐI RẮN THÀNH CÁT (SOLIDIFY)
+     */
+    solidifyActivePiece() {
+        audioSynth.playLock();
+        
+        // Chép ma trận của khối vào mảng cát của Grid
+        const mat = this.activePiece.matrix;
+        for (let y = 0; y < this.activePiece.size; y++) {
+            for (let x = 0; x < this.activePiece.size; x++) {
+                if (mat[y][x]) {
+                    const gridX = this.activePiece.x + x;
+                    const gridY = this.activePiece.y + y;
+                    this.physics.addSand(gridX, gridY, this.activePiece.color);
+                }
+            }
+        }
+        
+        // Spawn khối mới lập tức.
+        this.activePiece = null;
+        
+        // Mặc dù cát chưa tĩnh lại, ta tính điểm dựa trên Soft/Hard Drop
+        // Quá trình sụp đổ của cát sẽ được vòng lặp physics tính toán độc lập ở khung hình tiếp theo.
+        
+        // Reset timers
+        this.dropTimer = 0;
+        this.isLocking = false;
+        this.lockTimer = 0;
+        
+        // Gọi spawn sau 1 khoảng trễ siêu nhỏ nếu muốn, nhưng ở đây spawn luôn
+        this.spawnPiece();
+    }
+
+    // =======================================================
+    // HỆ THỐNG INPUT PHỨC TẠP (DAS & ARR)
+    // =======================================================
+    bindInputs() {
+        window.addEventListener('keydown', (e) => {
+            if (this.state !== 'PLAYING' && e.code !== 'KeyP' && e.code !== 'Escape') return;
+            
+            // Lấy nút thực tế
+            let action = null;
+            switch(e.code) {
+                case 'ArrowLeft': action = 'LEFT'; break;
+                case 'ArrowRight': action = 'RIGHT'; break;
+                case 'ArrowDown': action = 'SOFT_DROP'; break;
+                case 'Space': action = 'HARD_DROP'; break;
+                case 'ArrowUp': 
+                case 'KeyX': action = 'ROT_CW'; break;
+                case 'KeyZ': 
+                case 'ControlLeft': action = 'ROT_CCW'; break;
+                case 'KeyC': 
+                case 'ShiftLeft': action = 'HOLD'; break;
+                case 'Escape': 
+                case 'KeyP': this.togglePause(); return; // Dừng lập tức
+            }
+
+            if (!action) return;
+            e.preventDefault();
+
+            // Nếu phím vừa được nhấn (chưa nằm trong map)
+            if (!this.keys[action]) {
+                this.keys[action] = true;
+                this.keyTimers[action] = 0; // Reset bộ đếm thời gian giữ
+                this.executeAction(action); // Chạy lệnh lần đầu tiên lập tức
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            let action = null;
+            switch(e.code) {
+                case 'ArrowLeft': action = 'LEFT'; break;
+                case 'ArrowRight': action = 'RIGHT'; break;
+                case 'ArrowDown': action = 'SOFT_DROP'; break;
+                case 'Space': action = 'HARD_DROP'; break;
+                case 'ArrowUp': case 'KeyX': action = 'ROT_CW'; break;
+                case 'KeyZ': case 'ControlLeft': action = 'ROT_CCW'; break;
+                case 'KeyC': case 'ShiftLeft': action = 'HOLD'; break;
+            }
+            if (action) {
+                this.keys[action] = false;
+            }
+        });
+    }
+
+    executeAction(action) {
+        if (!this.activePiece || this.state !== 'PLAYING') return;
+
+        let moved = false;
+
+        switch(action) {
+            case 'LEFT':
+                if (!this.activePiece.checkCollision(this.activePiece.x - 1, this.activePiece.y, this.activePiece.matrix, this.physics)) {
+                    this.activePiece.x--;
+                    moved = true;
+                    audioSynth.playMove();
+                }
+                break;
+            case 'RIGHT':
+                if (!this.activePiece.checkCollision(this.activePiece.x + 1, this.activePiece.y, this.activePiece.matrix, this.physics)) {
+                    this.activePiece.x++;
+                    moved = true;
+                    audioSynth.playMove();
+                }
+                break;
+            case 'ROT_CW':
+                if (this.activePiece.attemptRotation(1, this.physics)) {
+                    moved = true;
+                    audioSynth.playRotate();
+                }
+                break;
+            case 'ROT_CCW':
+                if (this.activePiece.attemptRotation(-1, this.physics)) {
+                    moved = true;
+                    audioSynth.playRotate();
+                }
+                break;
+            case 'HARD_DROP':
+                // Rơi tự do thẳng xuống đáy (tính điểm 2x)
+                let distance = 0;
+                while (!this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix, this.physics)) {
+                    this.activePiece.y++;
+                    distance++;
+                }
+                this.addScore(distance * 2);
+                audioSynth.playHardDrop();
+                this.solidifyActivePiece();
+                // Hiệu ứng giật camera nhỏ
+                this.ui.ctxMain.canvas.style.transform = `translateY(${Math.min(distance, 10)}px)`;
+                setTimeout(() => this.ui.ctxMain.canvas.style.transform = 'none', 50);
+                break;
+            case 'SOFT_DROP':
+                // Do logic Soft Drop được xử lý liên tục trong update loop, ở đây chỉ thêm điểm
+                if (!this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix, this.physics)) {
+                    this.addScore(1);
+                }
+                break;
+            case 'HOLD':
+                this.holdCurrentPiece();
+                break;
+        }
+
+        // Nếu khối di chuyển thành công trong khi đang khóa (Lock Delay), gia hạn thời gian khóa (Extended Placement)
+        if (moved && this.isLocking) {
+            this.lockTimer = 0; 
+            // Cài đặt nâng cao (Super Rotation System chuẩn) giới hạn số lần gia hạn ở mức 15 lần, 
+            // nhưng ở bản Sand Tetris ta bỏ qua để người chơi tự do hơn do tính chất cát chảy.
+        }
+    }
+
+    // Xử lý giữ phím bằng logic Timer (Khắc phục hạn chế của cơ chế lặp phím hệ điều hành)
+    processInputTimers(deltaTime) {
+        // Xử lý Dịch Trái
+        if (this.keys['LEFT']) {
+            this.keyTimers['LEFT'] += deltaTime;
+            if (this.keyTimers['LEFT'] > GAME_CONFIG.DAS) {
+                this.executeAction('LEFT');
+                // Trừ đi ARR để liên tục kích hoạt (Autofire)
+                this.keyTimers['LEFT'] -= GAME_CONFIG.ARR;
+            }
+        }
+        // Xử lý Dịch Phải
+        if (this.keys['RIGHT']) {
+            this.keyTimers['RIGHT'] += deltaTime;
+            if (this.keyTimers['RIGHT'] > GAME_CONFIG.DAS) {
+                this.executeAction('RIGHT');
+                this.keyTimers['RIGHT'] -= GAME_CONFIG.ARR;
+            }
+        }
+    }
+
+    // =======================================================
+    // VÒNG LẶP CHÍNH (MAIN LOOP) VÀ VẬT LÝ
+    // =======================================================
+    loop(timestamp) {
+        if (this.state !== 'PLAYING') return;
+        
+        const deltaTime = timestamp - this.lastTime;
+        this.lastTime = timestamp;
+
+        this.updateLogic(deltaTime);
+        this.render();
+
+        this.animationId = requestAnimationFrame((ts) => this.loop(ts));
+    }
+
+    updateLogic(deltaTime) {
+        this.processInputTimers(deltaTime);
+
+        // 1. Cập nhật Vật lý Cát (Cellular Automata)
+        // Chạy nhiều bước vật lý mỗi khung hình để cát rơi nhanh hơn khối Tetris
+        let sandMoving = false;
+        // Chia deltaTime cho một hằng số để quyết định số bước mô phỏng (Fixed Time Step cho Sand)
+        // Đơn giản hóa: Chạy 2 vòng lặp vật lý mỗi frame
+        for(let step = 0; step < 2; step++) {
+            if(this.physics.updatePhysics()) {
+                sandMoving = true;
+            }
+        }
+
+        // 2. Thuật toán kiểm tra xóa dòng
+        // Trong Sand Tetris, ta kiểm tra xóa dòng liên tục vì hạt cát rơi rải rác có thể tình cờ lấp đầy dòng
+        const cleared = this.physics.checkAndClearLines();
+        if (cleared > 0) {
+            this.lines += cleared;
+            this.ui.lines.innerText = this.lines;
+            
+            // Tính Combo và Điểm
+            this.combo++;
+            let baseScore = 0;
+            switch(cleared) {
+                case 1: baseScore = 100; break;
+                case 2: baseScore = 300; break;
+                case 3: baseScore = 500; break;
+                case 4: baseScore = 800; break;
+                default: baseScore = cleared * 200;
+            }
+            // Hệ số nhân điểm theo Level và Combo
+            const totalGained = baseScore * this.level * this.combo;
+            this.addScore(totalGained);
+            
+            audioSynth.playClear(cleared);
+
+            // Pop-up Text
+            let messageIndex = Math.min(cleared - 1 + Math.floor(this.combo/2), ACTION_MESSAGES.length - 1);
+            if (cleared >= 4) messageIndex = ACTION_MESSAGES.length - 1; // TETRIS!
+            this.showActionText(ACTION_MESSAGES[messageIndex] + (this.combo > 1 ? ` x${this.combo}` : ''));
+
+            // Level Up logic
+            const targetLevel = Math.floor(this.lines / 10) + 1;
+            if (targetLevel > this.level) {
+                this.level = targetLevel;
+                this.ui.level.innerText = this.level;
+                this.updateSpeed();
+                // Nháy màn hình nhẹ
+                document.getElementById('boardWrapper').style.boxShadow = `0 0 50px var(--accent-secondary), inset 0 0 50px var(--accent-secondary)`;
+                setTimeout(() => document.getElementById('boardWrapper').style.boxShadow = '', 500);
+            }
+        } else if (!sandMoving) {
+            // Chỉ reset combo nếu cát đã ngừng chảy hoàn toàn mà không có dòng nào được xóa
+            this.combo = 0;
+        }
+
+        // 3. Logic rơi khối Tetris hiện tại
+        if (this.activePiece) {
+            // Tốc độ thực tế phụ thuộc vào việc có đang giữ nút XUỐNG (Soft Drop) hay không
+            let currentGravity = this.gravitySpeed;
+            if (this.keys['SOFT_DROP']) {
+                currentGravity /= GAME_CONFIG.SOFT_DROP_MULT;
+            }
+
+            this.dropTimer += deltaTime;
+
+            // Kiểm tra va chạm ngay dưới chân
+            const isTouchingFloor = this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix, this.physics);
+
+            if (isTouchingFloor) {
+                this.isLocking = true;
+                this.lockTimer += deltaTime;
+                // Nếu vượt quá Lock Delay (0.5s), khối cứng lại
+                if (this.lockTimer >= GAME_CONFIG.LOCK_DELAY) {
+                    this.solidifyActivePiece();
+                }
+            } else {
+                this.isLocking = false;
+                this.lockTimer = 0;
+                
+                // Rớt xuống theo Gravity
+                if (this.dropTimer >= currentGravity) {
+                    this.activePiece.y++;
+                    this.dropTimer -= currentGravity;
+                    // Reset timer dư thừa nếu tốc độ quá chậm, tránh hiện tượng rơi cóc (teleport)
+                    if (this.dropTimer > currentGravity) this.dropTimer = 0; 
+                }
+            }
+        }
+    }
+
+    updateHUD() {
+        this.ui.score.innerText = this.score;
+        this.ui.level.innerText = this.level;
+        this.ui.lines.innerText = this.lines;
+    }
+
+    // =======================================================
+    // HỆ THỐNG RENDER ĐỒ HỌA MỸ THUẬT (CANVAS 2D)
+    // =======================================================
+    render() {
+        const ctx = this.ui.ctxMain;
+        const cs = GAME_CONFIG.CELL_SIZE;
+        
+        // 1. Xóa toàn bộ màn hình
+        ctx.fillStyle = GAME_CONFIG.COLORS.BG_EMPTY || '#000000';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        // Vẽ đường lưới mờ (Grid Overlay)
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 0; x <= ctx.canvas.width; x += cs) {
+            ctx.moveTo(x, 0); ctx.lineTo(x, ctx.canvas.height);
+        }
+        for (let y = 0; y <= ctx.canvas.height; y += cs) {
+            ctx.moveTo(0, y); ctx.lineTo(ctx.canvas.width, y);
+        }
+        ctx.stroke();
+
+        // 2. Vẽ bãi cát hiện tại (Tối ưu hóa fillRect)
+        for (let y = 0; y < GAME_CONFIG.ROWS; y++) {
+            for (let x = 0; x < GAME_CONFIG.COLS; x++) {
+                const color = this.physics.grid[y][x];
+                if (color) {
+                    ctx.fillStyle = color;
+                    // Căn chỉnh vẽ khối cát chuẩn kích thước cs, loại bỏ nhân 2 gây lỗi đè hình
+                    // Thêm khoảng hở 1px (Gap) để trông giống Pixel Art xịn
+                    ctx.fillRect(x * cs + 1, y * cs + 1, cs - 1, cs - 1);
+                }
+            }
+        }
+
+        // 3. Vẽ khối đang điều khiển
+        if (this.activePiece) {
+            // A. Vẽ Ghost Piece (Bóng đổ)
+            const ghostY = this.activePiece.getGhostY(this.physics);
+            ctx.fillStyle = GAME_CONFIG.COLORS.GHOST;
+            // Vẽ viền (Stroke) cho bóng mờ để mang phong cách hiện đại
+            ctx.strokeStyle = this.activePiece.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.5;
+
+            for (let y = 0; y < this.activePiece.size; y++) {
+                for (let x = 0; x < this.activePiece.size; x++) {
+                    if (this.activePiece.matrix[y][x]) {
+                        const px = (this.activePiece.x + x) * cs;
+                        const py = (ghostY + y) * cs;
+                        // Chỉ vẽ viền cho ghost
+                        ctx.strokeRect(px + 2, py + 2, cs - 4, cs - 4);
+                        ctx.fillRect(px + 2, py + 2, cs - 4, cs - 4);
+                    }
+                }
+            }
+            ctx.globalAlpha = 1.0;
+
+            // B. Vẽ Khối Thực sự
+            // Thêm hiệu ứng chớp tắt khi sắp hết Lock Delay
+            if (this.isLocking) {
+                // Nhấp nháy dựa trên thời gian lock
+                const blink = Math.floor(Date.now() / 50) % 2 === 0;
+                if (blink) {
+                    ctx.fillStyle = '#ffffff';
+                } else {
+                    ctx.fillStyle = this.activePiece.color;
+                }
+            } else {
+                ctx.fillStyle = this.activePiece.color;
+            }
+
+            // Glow Effect
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = this.activePiece.color;
+
+            for (let y = 0; y < this.activePiece.size; y++) {
+                for (let x = 0; x < this.activePiece.size; x++) {
+                    if (this.activePiece.matrix[y][x]) {
+                        const px = (this.activePiece.x + x) * cs;
+                        const py = (this.activePiece.y + y) * cs;
+                        // Vẽ khối chuẩn 100% tỉ lệ CELL_SIZE, thêm vát viền pseudo-3D
+                        ctx.fillRect(px + 1, py + 1, cs - 2, cs - 2);
+                        
+                        // Hiệu ứng bóng bẩy sáng viền (Highlight)
+                        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                        ctx.fillRect(px + 1, py + 1, cs - 2, 4);
+                        ctx.fillStyle = this.isLocking ? '#fff' : this.activePiece.color; // Phục hồi màu
+                    }
+                }
+            }
+            ctx.shadowBlur = 0; // Tắt glow
+        }
+
+        // 4. Cập nhật và Vẽ hiệu ứng văng mảnh (VFX Particles)
+        vfxSystem.updateAndDraw(ctx);
+    }
+
+    /**
+     * Helper vẽ khối vào các Canvas mini bên ngoài (Hold & Next)
+     */
+    drawMiniPiece(ctx, typeKey) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (!typeKey) return;
+
+        const data = TETROMINOES[typeKey];
+        const mat = data.matrix;
+        const size = mat.length;
+        // Kích thước ô trong mini canvas (Tự động tính)
+        const cs = 18; 
+        
+        // Tính toán độ lệch để căn giữa
+        // (Khối I kích cỡ 4x4, khối O 2x2, khối khác 3x3)
+        const offsetX = (ctx.canvas.width - size * cs) / 2;
+        const offsetY = (ctx.canvas.height - size * cs) / 2;
+
+        ctx.fillStyle = data.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = data.color;
+
+        for(let y=0; y<size; y++){
+            for(let x=0; x<size; x++){
+                if(mat[y][x]){
+                    ctx.fillRect(offsetX + x * cs, offsetY + y * cs, cs - 2, cs - 2);
+                    // Ánh sáng viền
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.fillRect(offsetX + x * cs, offsetY + y * cs, cs - 2, 3);
+                    ctx.fillStyle = data.color;
+                }
+            }
+        }
+        ctx.shadowBlur = 0;
+    }
+
+    drawHoldAndNext() {
+        // Hold Piece
+        this.drawMiniPiece(this.ui.ctxHold, this.holdPiece);
+        // Next Pieces (Hiển thị trước 3 khối)
+        this.drawMiniPiece(this.ui.ctxNext[0], this.randomizer.peek(0));
+        this.drawMiniPiece(this.ui.ctxNext[1], this.randomizer.peek(1));
+        this.drawMiniPiece(this.ui.ctxNext[2], this.randomizer.peek(2));
+    }
+
+})();
+
+
+/**
+ * ============================================================================================
+ * LỚP 7: HIỆU ỨNG NỀN VŨ TRỤ SÂU (BACKGROUND CANVAS RENDERER)
+ * Tách biệt hoàn toàn khỏi logic chính, tạo cảm giác đắm chìm (Immersive) với các
+ * vạch sáng lượng tử chạy liên tục.
+ * ============================================================================================
+ */
+const BG_System = new (class {
+    constructor() {
+        this.canvas = document.getElementById('backgroundCanvas');
+        this.ctx = this.canvas.getContext('2d', { alpha: false });
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        // Khởi tạo 200 điểm sáng
+        for(let i=0; i<200; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                z: Math.random() * 2 + 0.1, // Độ sâu (Parallax)
+                speed: Math.random() * 2 + 0.5,
+                color: Math.random() > 0.5 ? GAME_CONFIG.COLORS.I : GAME_CONFIG.COLORS.T
+            });
+        }
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    draw() {
+        // Vệt làm mờ (Motion blur effect)
+        this.ctx.fillStyle = 'rgba(2, 2, 5, 0.3)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.particles.forEach(p => {
+            // Di chuyển lên trên với tốc độ phụ thuộc độ sâu (Z)
+            p.y -= p.speed * p.z;
+            
+            // Xoay vòng nếu vượt màn hình
+            if(p.y < 0) {
+                p.y = this.canvas.height;
+                p.x = Math.random() * this.canvas.width;
+            }
+
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = p.z / 2; // Xa thì mờ, gần thì rõ
+            
+            // Vẽ hạt như vệt sọc dài (kiểu warp speed)
+            this.ctx.fillRect(p.x, p.y, p.z, p.z * 5);
+        });
+
+        requestAnimationFrame(() => this.draw());
+    }
+})();
+
+// Khởi chạy vòng lặp Render Nền
+BG_System.draw();
+
+// KHỞI ĐỘNG HỆ THỐNG LÕI GAME
+GameCore.init();
 
 </script>
 </body>
