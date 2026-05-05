@@ -644,32 +644,37 @@
             <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
             <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" style="color:var(--neon-blue)">Liên hệ nhà phát triển ORCcop</a></p>
         </div>
-    <!-- Neon Clock -->
-    <div class="neon-clock" id="neonClock">
-        <div class="neon-clock-display">
-            <div class="neon-digit-group">
-                <div class="neon-digit" id="ch">0</div>
-                <div class="neon-digit" id="cm">0</div>
-            </div>
-            <div class="neon-separator">
-                <div class="neon-dot"></div>
-                <div class="neon-dot"></div>
-            </div>
-            <div class="neon-digit-group">
-                <div class="neon-digit" id="mh">0</div>
-                <div class="neon-digit" id="mm">0</div>
-            </div>
-            <div class="neon-separator">
-                <div class="neon-dot"></div>
-                <div class="neon-dot"></div>
-            </div>
-            <div class="neon-digit-group">
-                <div class="neon-digit" id="sh">0</div>
-                <div class="neon-digit" id="sm">0</div>
-            </div>
+<div class="neon-clock" id="neonClock">
+    <div class="neon-clock-display">
+        <!-- Ngày -->
+        <div class="neon-digit-group">
+            <div class="neon-digit" id="d1">0</div>
+            <div class="neon-digit" id="d2">0</div>
+            <div class="neon-digit" id="d3">0</div>
+        </div>
+        <div class="neon-clock-label" style="margin: 0 5px; align-self: center;">Ngày</div>
+
+        <!-- Giờ -->
+        <div class="neon-digit-group">
+            <div class="neon-digit" id="ch">0</div>
+            <div class="neon-digit" id="cm">0</div>
+        </div>
+        <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
+
+        <!-- Phút -->
+        <div class="neon-digit-group">
+            <div class="neon-digit" id="mh">0</div>
+            <div class="neon-digit" id="mm">0</div>
+        </div>
+        <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
+
+        <!-- Giây -->
+        <div class="neon-digit-group">
+            <div class="neon-digit" id="sh">0</div>
+            <div class="neon-digit" id="sm">0</div>
         </div>
     </div>
-    <div class="neon-clock-label">⟢ Cập nhật ⟣</div>
+    <div class="neon-clock-label">⟢ Thời gian còn lại đến khi chuyển đổi tên miền ⟣</div>
 </div>
         <!-- ====== TRENDING SECTION ====== -->
         <div class="trending-section">
@@ -758,37 +763,70 @@
                 gradient: "linear-gradient(135deg, #1a000a, #7a0030)"
             },*/
         ];
-/* ── Neon Clock ── */
-    function updateClock() {
-        const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
-        const h = pad(now.getHours());
-        const m = pad(now.getMinutes());
-        const s = pad(now.getSeconds());
-        document.getElementById('ch').textContent = h[0];
-        document.getElementById('cm').textContent = h[1];
-        document.getElementById('mh').textContent = m[0];
-        document.getElementById('mm').textContent = m[1];
-        document.getElementById('sh').textContent = s[0];
-        document.getElementById('sm').textContent = s[1];
+let countdownTarget = null;
+
+function updateCountdown() {
+    if (!countdownTarget) return;
+
+    const now = new Date().getTime();
+    const distance = countdownTarget - now;
+
+    // Nếu đã hết thời gian
+    if (distance < 0) {
+        document.getElementById('neonClock').innerHTML = "<h2 style='color:var(--neon-blue)'>DỰ ÁN ĐÃ BẮT ĐẦU CHUYỂN ĐỔI!</h2>";
+        return;
     }
 
-    async function fetchUpdate() {
-        try {
-            const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
-            if (!res.ok) throw new Error();
-            const text = await res.text();
-            const content = text.trim();
-            if (content) {
-                /* Có nội dung → hiện đồng hồ và chạy */
+    // Tính toán Ngày, Giờ, Phút, Giây
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Định dạng chuỗi (thêm số 0 ở trước nếu cần)
+    const dStr = String(days).padStart(3, '0');
+    const hStr = String(hours).padStart(2, '0');
+    const mStr = String(minutes).padStart(2, '0');
+    const sStr = String(seconds).padStart(2, '0');
+
+    // Cập nhật giao diện
+    document.getElementById('d1').textContent = dStr[0];
+    document.getElementById('d2').textContent = dStr[1];
+    document.getElementById('d3').textContent = dStr[2];
+    
+    document.getElementById('ch').textContent = hStr[0];
+    document.getElementById('cm').textContent = hStr[1];
+    
+    document.getElementById('mh').textContent = mStr[0];
+    document.getElementById('mm').textContent = mStr[1];
+    
+    document.getElementById('sh').textContent = sStr[0];
+    document.getElementById('sm').textContent = sStr[1];
+}
+
+async function fetchUpdate() {
+    try {
+        const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
+        if (!res.ok) throw new Error();
+        const text = await res.text();
+        const timeValue = text.trim();
+
+        if (timeValue) {
+            // Chuyển đổi nội dung file thành mốc thời gian (Timestamp)
+            countdownTarget = new Date(timeValue).getTime();
+
+            if (!isNaN(countdownTarget)) {
                 document.getElementById('neonClock').classList.add('show');
-                updateClock();
-                setInterval(updateClock, 1000);
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
             }
-        } catch { /* không làm gì nếu lỗi */ }
+        }
+    } catch (err) {
+        console.error("Không thể tải thời gian đếm ngược:", err);
     }
+}
 
-    document.addEventListener('DOMContentLoaded', fetchUpdate);
+document.addEventListener('DOMContentLoaded', fetchUpdate);
         // Render cards
         const grid = document.getElementById('trendingGrid');
         trendingItems.forEach((item, i) => {
