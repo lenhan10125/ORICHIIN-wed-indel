@@ -346,7 +346,7 @@
             <div class="notice-dot"></div>
             <span class="notice-title">NOTICE · THÔNG BÁO</span>
         </div>
-        <div class="notice-body" id="fetchUpdatenotice">Đang tải thông báo từ máy chủ...</div>
+        <div class="notice-body" id="updateNotice">Đang tải thông báo từ máy chủ...</div>
     </div>
 
     <div class="chat-frame">
@@ -494,9 +494,9 @@ async function fetchUpdatenotice() {
         const r = await fetch('https://www.hentaiorc.xyz/notice.txt?v=' + Date.now());
         if (!r.ok) throw new Error();
         const txt = await r.text();
-        document.getElementById('updateText').textContent = txt;
+        document.getElementById('fetchUpdatenotice').textContent = txt;
     } catch {
-        document.getElementById('updateText').textContent = 'Hiện tại chưa có thông tin mới.';
+        document.getElementById('fetchUpdatenotice').textContent = 'Hiện tại chưa có thông tin mới.';
     }
 }
 fetchUpdatenotice();
