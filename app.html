@@ -5,176 +5,691 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORC Studio - Apps Store</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gura-blue: #99CCFF;
-            --gura-dark: #0a0e14;
-            --gura-accent: #3399FF;
-            --gura-gray: #2a2f3a;
+            --orc-bg: #060b12;
+            --orc-surface: rgba(12, 20, 32, 0.75);
+            --orc-blue: #4db8ff;
+            --orc-blue-dim: #99ccff;
+            --orc-accent: #0072ff;
+            --orc-accent2: #00c8ff;
+            --orc-yellow: #ffd700;
+            --orc-gold: #ffb700;
+            --orc-green: #00e5a0;
+            --orc-border: rgba(77, 184, 255, 0.18);
+            --orc-border-hover: rgba(77, 184, 255, 0.6);
+            --orc-text: #e2eeff;
+            --orc-muted: #8aa5c0;
+            --font: 'Be Vietnam Pro', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --radius: 16px;
+            --radius-sm: 10px;
         }
 
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--gura-dark);
-            color: white; font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column;
-            animation: grid-move 10s linear infinite;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--orc-bg);
+            color: var(--orc-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
-        @keyframes grid-move {
-            from { background-position: 0 0; }
-            to { background-position: 40px 40px; }
+
+        /* ── Background ── */
+        .bg-layer {
+            position: fixed;
+            inset: -10px;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 0%, rgba(0,100,255,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,200,255,0.08) 0%, transparent 55%),
+                linear-gradient(160deg, #060b12 0%, #080f1c 50%, #050a10 100%);
+            z-index: -2;
         }
-        .bg-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Ảnh mặc định khi chưa load xong Firebase */
-            background-color: var(--gura-dark);
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(77,184,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(77,184,255,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
             z-index: -1;
-            transition: background 0.5s ease, background-color 0.5s ease;
         }
 
-        /* Giữ nguyên các Style cũ của Orichiin-san */
-        .pure-nav {
-            height: 60px; background: rgba(0, 0, 0, 0.7);
-            display: flex; align-items: center; justify-content: center;
-            border-bottom: 2px solid var(--gura-blue); width: 100%;
+        /* ── Navbar ── */
+        .navbar {
+            height: 64px;
+            background: rgba(6, 11, 18, 0.85);
+            border-bottom: 1px solid var(--orc-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+        .navbar-logo {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--orc-blue);
+            text-transform: uppercase;
+        }
+        .navbar-logo span { color: var(--orc-yellow); }
+        .navbar-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+        .navbar-links a {
+            color: var(--orc-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+            text-transform: uppercase;
+        }
+        .navbar-links a:hover { color: var(--orc-blue); }
+
+        /* ── Banner ── */
+        .update-banner {
+            background: rgba(77,184,255,0.06);
+            border-bottom: 1px solid rgba(77,184,255,0.12);
+            padding: 10px 24px;
+            text-align: center;
+            font-size: 0.88rem;
+            position: sticky;
+            top: 64px;
+            z-index: 999;
+            backdrop-filter: blur(8px);
+        }
+        .update-banner .tag { color: var(--orc-yellow); font-weight: 700; margin-right: 8px; }
+        .update-banner .content { color: var(--orc-muted); }
+
+        /* ── Main layout ── */
+        .page-wrap { max-width: 1160px; margin: 0 auto; padding: 48px 24px 120px; }
+
+        /* ── Back button ── */
         .back-btn {
-            align-self: flex-start; margin-bottom: 20px;
-            color: #99CCFF; text-decoration: none; font-weight: bold;
-            display: flex; align-items: center; gap: 8px;
-            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--orc-blue-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            transition: all 0.25s;
+            padding: 8px 16px;
+            border: 1px solid rgba(153,204,255,0.15);
+            border-radius: var(--radius-sm);
         }
-        .back-btn:hover { color: white; transform: translateX(-5px); }
-        .wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .section-title { color: var(--gura-blue); font-size: 2rem; font-weight: bold; margin-bottom: 30px; text-shadow: 0 0 15px rgba(153, 204, 255, 0.5); }
-        .app-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
-        .app-card { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(153, 204, 255, 0.3); border-radius: 20px; padding: 25px; text-align: center; transition: 0.3s; backdrop-filter: blur(10px); }
-        .app-card:hover { background: rgba(153, 204, 255, 0.1); transform: translateY(-10px); border-color: var(--gura-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .app-icon { width: 90px; height: 90px; margin-bottom: 15px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .app-name { font-weight: bold; font-size: 1.3rem; margin: 10px 0; color: white; }
-        .app-desc { font-size: 0.9rem; color: #ccc; margin-bottom: 20px; line-height: 1.4; }
-        .app-buttons { display: flex; gap: 12px; }
-        .btn-app-view, .btn-app-dl { padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.2s; flex: 1; text-transform: uppercase; }
-        .btn-app-view { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-app-dl { background: linear-gradient(45deg, var(--gura-accent), #0072ff); color: white; }
-        .btn-app-dl-none { background: linear-gradient(45deg, var(--gura-gray), #63778f); color: rgb(92, 91, 91); }
-        #preview-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
-        #preview-img { max-width: 85%; max-height: 80%; border-radius: 15px; border: 2px solid var(--gura-blue); box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        #popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        #main-popup { width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; position: relative; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid var(--gura-blue); }
-        .asus-wave-container {
-            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
-            z-index: 1; pointer-events: none;
+        .back-btn:hover {
+            color: #fff;
+            border-color: var(--orc-blue);
+            transform: translateX(-4px);
+            background: rgba(77,184,255,0.05);
         }
-        .waves { position: relative; width: 100%; height: 100%; }
-        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+
+        /* ── Section titles ── */
+        .section-title {
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, var(--orc-blue-dim), var(--orc-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── App Grid ── */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* ── App Card ── */
+        .app-card {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-radius: var(--radius);
+            padding: 28px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+            backdrop-filter: blur(16px);
+            position: relative;
+        }
+        .app-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(77,184,255,0.04), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            border-radius: var(--radius);
+        }
+        .app-card:hover {
+            border-color: var(--orc-border-hover);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(77,184,255,0.1);
+        }
+        .app-card:hover::before { opacity: 1; }
+
+        .app-thumb {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 2px solid var(--orc-border);
+            margin-bottom: 18px;
+            transition: all 0.3s;
+            background: #0a1420;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+        .app-card:hover .app-thumb {
+            border-color: rgba(77,184,255,0.5);
+            transform: scale(1.05);
+        }
+
+        .app-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--orc-text);
+            text-align: center;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .app-desc {
+            font-size: 0.875rem;
+            color: var(--orc-muted);
+            text-align: center;
+            line-height: 1.65;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        /* ── Action buttons ── */
+        .app-btns { display: flex; gap: 10px; width: 100%; }
+        .btn-preview, .btn-download, .btn-download-none {
+            flex: 1;
+            padding: 11px 10px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: var(--font);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-preview {
+            background: rgba(255,255,255,0.06);
+            color: var(--orc-blue-dim);
+            border: 1px solid rgba(153,204,255,0.2);
+        }
+        .btn-preview:hover {
+            background: rgba(153,204,255,0.1);
+            border-color: var(--orc-blue-dim);
+            color: #fff;
+        }
+        .btn-download {
+            background: linear-gradient(135deg, var(--orc-accent), var(--orc-accent2));
+            color: #fff;
+        }
+        .btn-download:hover {
+            opacity: 0.88;
+            transform: scale(0.98);
+        }
+        .btn-download-none {
+            background: rgba(255,255,255,0.04);
+            color: rgba(130,160,192,0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            cursor: not-allowed;
+        }
+
+        /* ── Preview overlay ── */
+        .preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(16px);
+        }
+        .preview-overlay.show { display: flex; }
+        .preview-overlay img {
+            max-width: 88vw;
+            max-height: 80vh;
+            border-radius: 12px;
+            border: 2px solid var(--orc-blue);
+            box-shadow: 0 0 80px rgba(0,114,255,0.3);
+        }
+        .preview-close {
+            color: var(--orc-blue-dim);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 10px 20px;
+            border: 1px solid rgba(153,204,255,0.2);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .preview-close:hover {
+            color: #fff;
+            border-color: var(--orc-blue);
+            background: rgba(77,184,255,0.1);
+        }
+
+        /* ── Waves ── */
+        .wave-container {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .wave-container svg { width: 100%; height: 100%; }
+        .parallax > use { animation: wave-move 20s cubic-bezier(.55,.5,.45,.5) infinite; }
         .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
         .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
         .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
         .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
-        @keyframes move-forever {
+        @keyframes wave-move {
             0% { transform: translate3d(-90px,0,0); }
             100% { transform: translate3d(85px,0,0); }
         }
-        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); }
-        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
-        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
-        .content-box-red { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(70, 24, 24, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; animation: neon-burn-red 1.5s infinite alternate ease-in-out; }
-        .content-box-none { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+
+        /* ── Footer ── */
+        footer {
+            background: rgba(6,11,18,0.9);
+            border-top: 1px solid var(--orc-border);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .footer-logo {
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--orc-blue);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .footer-sub { font-size: 0.82rem; color: var(--orc-muted); margin-bottom: 16px; }
+        .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .footer-links a {
+            font-size: 0.8rem;
+            color: var(--orc-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--orc-blue); }
+        .footer-copy { font-size: 0.75rem; color: rgba(130,160,192,0.5); margin-top: 20px; font-family: var(--mono); }
+
+        /* ── Info/Guide block ── */
+        .guide-block {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-left: 4px solid var(--orc-blue);
+            border-radius: var(--radius);
+            padding: 32px 36px;
+            margin-bottom: 48px;
+            backdrop-filter: blur(16px);
+        }
+        .guide-block h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--orc-blue);
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .guide-block p {
+            color: var(--orc-muted);
+            font-size: 0.95rem;
+            line-height: 1.75;
+            margin-bottom: 12px;
+        }
+        .guide-block p:last-child { margin-bottom: 0; }
+        .guide-divider {
+            border: none;
+            border-top: 1px solid var(--orc-border);
+            margin: 24px 0;
+        }
+
+        /* ── FAQ ── */
+        .faq-section { margin-top: 64px; margin-bottom: 64px; }
+        .faq-item {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+        .faq-q {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--orc-text);
+            font-family: var(--font);
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .faq-q:hover { background: rgba(77,184,255,0.04); }
+        .faq-q .arrow {
+            color: var(--orc-blue);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+            min-width: 16px;
+            text-align: center;
+        }
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.3s ease;
+            padding: 0 24px;
+            font-size: 0.88rem;
+            color: var(--orc-muted);
+            line-height: 1.7;
+        }
+        .faq-item.open .faq-a { max-height: 300px; padding: 4px 24px 20px; }
+        .faq-item.open .arrow { transform: rotate(90deg); }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .navbar { padding: 0 16px; }
+            .navbar-links { display: none; }
+            .page-wrap { padding: 32px 16px 100px; }
+            .app-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Animations ── */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fade-up 0.6s ease both; }
+        .fade-up:nth-child(2) { animation-delay: 0.1s; }
+        .fade-up:nth-child(3) { animation-delay: 0.2s; }
     </style>
 </head>
 <body>
 
-    <div class="bg-overlay"></div>
-    <div id="preview-overlay" onclick="this.style.display='none'">
-        <img id="preview-img" src="">
-        <p style="position:absolute; bottom:30px; color:#99CCFF; font-weight:bold;">BẤM ĐỂ ĐÓNG</p>
-    </div>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
 
-    <div id="popup-overlay">
-        <div id="main-popup">
-            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px;">&times;</button>
-            <div id="popup-text"></div>
-        </div>
-    </div>
+<!-- Preview Overlay -->
+<div class="preview-overlay" id="previewOverlay">
+    <img id="previewImg" src="" alt="Preview">
+    <div class="preview-close" id="previewClose">✕ &nbsp;BẤM ĐỂ ĐÓNG (hoặc ESC)</div>
+</div>
 
-    <nav class="pure-nav">
-        <div style="font-weight: bold; color: var(--gura-blue); font-size: 1.2rem; letter-spacing: 2px;">ORICHIIN STUDIO 🦈</div>
-    </nav>
-    <div id="update-banner" style="background: rgba(153, 204, 255, 0.1); border-bottom: 1px solid var(--gura-accent); padding: 10px; text-align: center; font-size: 0.9rem; position: sticky; top: 60px; z-index: 999; backdrop-filter: blur(5px);">
-        <span style="color: var(--gura-yellow); font-weight: bold;">CẬP NHẬT:</span> 
-        <span id="update-content" style="color: #cbd5e0;">Đang kiểm tra thông tin...</span>
-    </div>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-logo">ORICHIIN <span>STUDIO</span> 🦈</div>
+    <ul class="navbar-links">
+        <li><a href="https://www.hentaiorc.xyz/list.html">Trang chủ</a></li>
+        <li><a href="#">Apps</a></li>
+    </ul>
+</nav>
+
+<!-- Update banner -->
+<div class="update-banner">
+    <span class="tag">CẬP NHẬT:</span>
+    <span class="content" id="updateContent">Đang kiểm tra thông tin...</span>
+</div>
+
+<!-- Main content -->
+<div class="page-wrap">
+
     <a href="https://www.hentaiorc.xyz/list.html" class="back-btn">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
-        QUAY LẠI TRANG CHỦ
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Quay lại trang chủ
     </a>
-    <div class="wrapper">
-        <div class="section-title">🚀 APPS COLLECTION</div>
-        
-        <div class="app-container">
-            <div class="app-card">
-                <img src="logo_orc.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
-                <div class="app-name">ORC Downloader</div>
-                <div class="app-desc">Phần mềm tải video m3u8 chuyên dụng. Tốc độ cao, hỗ trợ ghép nối file tự động.</div>
-                <div class="app-buttons">
-                    <button class="btn-app-view" onclick="previewApp('https://i.imgur.com/your-screenshot-link.png')">Xem trước</button>
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/fix_hls.pyw.exe')">Tải bản .exe</button>
-                </div>
+
+    <div class="section-title fade-up">🚀 Apps Collection</div>
+
+    <!-- ── GIỚI THIỆU ── -->
+    <div class="guide-block fade-up">
+        <h2>Về Apps của ORC Studio</h2>
+        <hr class="guide-divider">
+        <p>
+            ORC Studio phát triển các công cụ phần mềm nhỏ gọn, miễn phí, dành cho học sinh và người dùng cá nhân.
+            Mỗi app được xây dựng để giải quyết một vấn đề cụ thể — không cài đặt rườm rà, không quảng cáo, không thu thập dữ liệu.
+        </p>
+        <p>
+            Hiện tại bộ sưu tập đang trong giai đoạn phát triển. Các app mới sẽ được cập nhật thường xuyên theo nhu cầu của cộng đồng.
+            Nếu bạn có ý tưởng hoặc muốn đề xuất tính năng, hãy liên hệ qua trang chủ!
+        </p>
+        <hr class="guide-divider">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 8px;">
+            <div style="text-align:center; padding: 16px; background: rgba(77,184,255,0.04); border: 1px solid var(--orc-border); border-radius: var(--radius-sm);">
+                <span style="font-size:1.6rem; display:block; margin-bottom:8px;">🆓</span>
+                <div style="font-size:0.85rem; font-weight:700; color:var(--orc-text); margin-bottom:4px;">Hoàn toàn miễn phí</div>
+                <div style="font-size:0.78rem; color:var(--orc-muted);">Không cần đăng ký hay trả phí</div>
             </div>
-            <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/2522/2522649.png" class="app-icon">
-                <div class="app-name">orc-download youtube</div>
-                <div class="app-desc">Dự kiến sẽ có vào năm 2027</div>
-                <div class="app-buttons">
-                    <button class="btn-app-dl"></button>
-                </div>
+            <div style="text-align:center; padding: 16px; background: rgba(77,184,255,0.04); border: 1px solid var(--orc-border); border-radius: var(--radius-sm);">
+                <span style="font-size:1.6rem; display:block; margin-bottom:8px;">🪶</span>
+                <div style="font-size:0.85rem; font-weight:700; color:var(--orc-text); margin-bottom:4px;">Nhẹ & nhanh</div>
+                <div style="font-size:0.78rem; color:var(--orc-muted);">Không ngốn RAM, chạy mượt</div>
+            </div>
+            <div style="text-align:center; padding: 16px; background: rgba(77,184,255,0.04); border: 1px solid var(--orc-border); border-radius: var(--radius-sm);">
+                <span style="font-size:1.6rem; display:block; margin-bottom:8px;">🔒</span>
+                <div style="font-size:0.85rem; font-weight:700; color:var(--orc-text); margin-bottom:4px;">Không thu thập data</div>
+                <div style="font-size:0.78rem; color:var(--orc-muted);">Chạy hoàn toàn offline</div>
+            </div>
+            <div style="text-align:center; padding: 16px; background: rgba(77,184,255,0.04); border: 1px solid var(--orc-border); border-radius: var(--radius-sm);">
+                <span style="font-size:1.6rem; display:block; margin-bottom:8px;">🔄</span>
+                <div style="font-size:0.85rem; font-weight:700; color:var(--orc-text); margin-bottom:4px;">Cập nhật liên tục</div>
+                <div style="font-size:0.78rem; color:var(--orc-muted);">Thêm app mới theo nhu cầu</div>
             </div>
         </div>
     </div>
-    <div class="asus-wave-container">
-        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
-            <defs>
-                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
-            </defs>
-            <g class="parallax">
-                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
-                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
-                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
-                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
-            </g>
-        </svg>
-    </div>
-    <script>
-        function previewApp(imgUrl) {
-            const overlay = document.getElementById('preview-overlay');
-            const img = document.getElementById('preview-img');
-            img.src = imgUrl;
-            overlay.style.display = 'flex';
-        }
-        // Dán đoạn này vào bên trong thẻ <script> cuối trang
-        async function fetchUpdateInfo() {
-        // Thay link này bằng link file .txt thật của mình
-            const updateFileUrl = 'https://www.hentaiorc.xyz/update.txt'; 
-    
-        try {
-            // Thêm tham số ?v= để tránh trình duyệt lưu cache file cũ
-                const response = await fetch(updateFileUrl + '?v=' + Date.now());
-                if (!response.ok) throw new Error('Không tìm thấy file');
-        
-                const text = await response.text();
-        
-            // Hiển thị nội dung vào banner
-                document.getElementById('update-content').innerText = text;
-            } catch (error) {
-                console.error('Lỗi tải cập nhật:', error);
-                document.getElementById('update-content').innerText = "Hiện tại chưa có thông tin mới.";
-            }
-        }
 
-        window.addEventListener('DOMContentLoaded', fetchUpdateInfo);
-    </script>
+    <div class="app-grid">
+
+        <!-- ORC Downloader -->
+        <div class="app-card fade-up">
+            <img src="logo_orc.png" class="app-thumb"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'"
+                 alt="ORC Downloader">
+            <div class="app-name">ORC Downloader</div>
+            <div class="app-desc">Phần mềm tải video m3u8 chuyên dụng. Tốc độ cao, hỗ trợ ghép nối file tự động.</div>
+            <div class="app-btns">
+                <button class="btn-preview" data-preview="https://i.imgur.com/your-screenshot-link.png">Xem trước</button>
+                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/fix_hls.pyw.exe')">Tải bản .exe</button>
+            </div>
+        </div>
+
+        <!-- ORC Download YouTube (coming soon) -->
+        <div class="app-card fade-up">
+            <img src="https://cdn-icons-png.flaticon.com/512/2522/2522649.png" class="app-thumb" alt="ORC YouTube">
+            <div class="app-name">orc-download youtube</div>
+            <div class="app-desc">Dự kiến sẽ có vào năm 2027</div>
+            <div class="app-btns">
+                <button class="btn-download-none" disabled>Chưa có</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── FAQ ── -->
+    <div class="faq-section">
+        <div class="section-title fade-up">❓ Câu hỏi thường gặp</div>
+
+        <div class="faq-item">
+            <button class="faq-q">
+                <span>App có bị virus hay malware không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Không. Tất cả app của ORC Studio được viết bằng Python và đóng gói bằng PyInstaller. Một số phần mềm antivirus có thể cảnh báo nhầm với file <code style="color:var(--orc-accent2)">.exe</code> được tạo từ Python — đây là hiện tượng "false positive" phổ biến, không phải virus thật. Bạn có thể kiểm tra file tại <a href="https://www.virustotal.com" target="_blank" style="color:var(--orc-blue)">VirusTotal</a> để yên tâm hơn.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q">
+                <span>App chạy được trên hệ điều hành nào?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Hiện tại các app được build cho <strong style="color:var(--orc-text)">Windows 10/11 (64-bit)</strong>. Phiên bản macOS và Linux chưa có kế hoạch cụ thể nhưng có thể chạy thủ công từ source code Python nếu bạn đã cài Python.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q">
+                <span>ORC Downloader dùng để làm gì?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                ORC Downloader hỗ trợ tải video từ các luồng <code style="color:var(--orc-accent2)">m3u8</code> (HLS streaming). Bạn chỉ cần dán link m3u8 vào, app sẽ tự động tải và ghép các segment thành một file video hoàn chỉnh. Phù hợp để lưu lại các video stream hoặc bài giảng online.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q">
+                <span>Cần cài thêm gì để chạy app không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Không cần cài thêm gì. File <code style="color:var(--orc-accent2)">.exe</code> đã đóng gói đầy đủ mọi thứ cần thiết. Chỉ cần tải về và chạy trực tiếp — không cần cài Python hay bất kỳ thư viện nào.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q">
+                <span>App có được cập nhật thường xuyên không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Có. Thanh thông báo ở đầu trang sẽ hiển thị thông tin cập nhật mới nhất. Khi có phiên bản mới, bạn chỉ cần tải lại file từ trang này — không có chức năng tự cập nhật để tránh gây phiền.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q">
+                <span>Tôi muốn đề xuất tính năng hoặc báo lỗi thì làm thế nào?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Liên hệ qua trang chủ tại <a href="https://www.hentaiorc.xyz/list.html" style="color:var(--orc-blue)">hentaiorc.xyz</a>. Mọi góp ý về lỗi, tính năng mới hoặc app mới đều được chào đón. Chúng tôi đọc và phản hồi tất cả feedback.
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Wave decoration -->
+<div class="wave-container">
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+        <defs>
+            <path id="wave" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
+        </defs>
+        <g class="parallax">
+            <use href="#wave" x="48" y="0" fill="rgba(0,114,255,0.08)"/>
+            <use href="#wave" x="48" y="3" fill="rgba(0,200,255,0.1)"/>
+            <use href="#wave" x="48" y="5" fill="rgba(0,114,255,0.06)"/>
+            <use href="#wave" x="48" y="7" fill="rgba(0,200,255,0.15)"/>
+        </g>
+    </svg>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-logo">ORICHIIN STUDIO 🦈</div>
+    <div class="footer-sub">Nơi chia sẻ tài nguyên số miễn phí cho học sinh</div>
+    <div class="footer-links">
+        <a href="https://www.hentaiorc.xyz/list.html">Trang chủ</a>
+        <a href="#">Apps</a>
+    </div>
+    <div class="footer-copy">&copy; 2024 ORICHIIN STUDIO — All rights reserved</div>
+</footer>
+
+<script>
+    /* ── Update banner ── */
+    async function fetchUpdate() {
+        try {
+            const res = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
+            if (!res.ok) throw new Error();
+            const text = await res.text();
+            document.getElementById('updateContent').textContent = text.trim() || 'Chưa có thông tin mới.';
+        } catch {
+            document.getElementById('updateContent').textContent = 'Hiện tại chưa có thông tin mới.';
+        }
+    }
+
+    /* ── Preview overlay ── */
+    function openPreview(url) {
+        document.getElementById('previewImg').src = url;
+        document.getElementById('previewOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePreview() {
+        document.getElementById('previewOverlay').classList.remove('show');
+        document.getElementById('previewImg').src = '';
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('click', function(e) {
+        const previewBtn = e.target.closest('.btn-preview');
+        if (previewBtn) {
+            const url = previewBtn.getAttribute('data-preview');
+            if (url) openPreview(url);
+            return;
+        }
+        if (
+            e.target.id === 'previewOverlay' ||
+            e.target.id === 'previewClose' ||
+            e.target.closest('#previewClose')
+        ) {
+            closePreview();
+            return;
+        }
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closePreview();
+    });
+
+    document.addEventListener('DOMContentLoaded', fetchUpdate);
+</script>
+
 </body>
 </html>
