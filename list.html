@@ -5,270 +5,517 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORC Studio - List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gura-blue: #99CCFF;
-            --gura-dark: #0a0e14;
+            --neon: #00f3ff;
+            --gold: #FFD700;
+            --dark: #0a0a0a;
             --gura-accent: #3399FF;
-            --gura-yellow: #FFD700;
         }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Tối ưu hóa cuộn trang và hiển thị */
         body, html {
-            margin: 0; padding: 0; 
             min-height: 100%; width: 100%;
-            background: var(--gura-dark);
-            color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; flex-direction: column;
-            overflow-x: hidden;
-            animation: grid-move 10s linear infinite;
-
-        }
-         @keyframes grid-move {
-            from { background-position: 0 0; }
-            to { background-position: 40px 40px; }
-         }
-        /* Lớp nền đã sửa lỗi viền trắng */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 30px;
-        }
-        .bg-overlay {
-            position: fixed; 
-            top: -10px; left: -10px; 
-            width: calc(100% + 20px); height: calc(100% + 20px);
-            background-color: #000000;
+            font-family: 'Nunito', sans-serif;
+            color: #fff;
+            background: var(--dark);
+            background-size: cover;
+            background-attachment: fixed;
             background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover; 
-            filter: blur(5px) brightness(0.4);
-            z-index: -1;
-            transition: background 0.5s ease, background-color 0.5s ease;
-            transform: translateZ(0); /* Tăng tốc phần cứng */
+            overflow-x: hidden;
+            transition: background 0.6s ease;
+            display: flex; flex-direction: column;
         }
 
-        .pure-nav {
-            height: 60px; background: rgba(0, 0, 0, 0.7);
-            display: flex; align-items: center; justify-content: center;
-            border-bottom: 2px solid var(--gura-blue); width: 100%;
+        /* BG overlay */
+        .bg-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 0; pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .bg-overlay.hidden { opacity: 0; }
+
+        /* Particles */
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .p { position: absolute; border-radius: 50%; background: var(--neon); opacity: 0; animation: rise linear infinite; }
+        @keyframes rise {
+            0%   { transform: translateY(0) scale(1); opacity: 0; }
+            20%  { opacity: 0.3; }
+            80%  { opacity: 0.12; }
+            100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+        }
+
+        /* ── NAV ── */
+        nav {
             position: sticky; top: 0; z-index: 1000;
-            backdrop-filter: blur(10px);
+            height: 64px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,243,255,0.15);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px;
         }
-
-        .wrapper { 
-            flex: 1; display: flex; flex-direction: column; 
-            justify-content: flex-start; align-items: center; 
-            padding: 40px 20px; 
+        .nav-logo img { height: 38px; filter: drop-shadow(0 0 6px rgba(0,243,255,0.4)); }
+        .nav-logo { text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 14px; }
+        .nav-home-btn {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #ccc; font-family: 'Nunito', sans-serif;
+            font-size: 13px; font-weight: 700;
+            padding: 7px 18px; border-radius: 20px;
+            cursor: pointer; text-decoration: none; transition: 0.25s;
         }
+        .nav-home-btn:hover { background: rgba(0,243,255,0.12); border-color: var(--neon); color: var(--neon); }
 
-        .section-title { 
-            color: var(--gura-blue); font-size: 2.5rem; font-weight: bold; 
-            margin-bottom: 40px; text-shadow: 0 0 15px rgba(153, 204, 255, 0.5); 
+        /* Settings btn */
+        .settings-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon);
+            color: var(--neon); font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,243,255,0.3);
+            transition: 0.3s;
+        }
+        .settings-btn:hover { transform: rotate(60deg); box-shadow: 0 0 20px var(--neon); }
+
+        /* ── SETTINGS PANEL ── */
+        .settings-panel {
+            position: fixed; top: 72px; right: 16px;
+            width: 310px;
+            background: rgba(8,8,12,0.97);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon);
+            border-radius: 20px;
+            padding: 22px;
+            z-index: 2000;
+            transform-origin: top right;
+            transform: scale(0); opacity: 0;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            box-shadow: 0 0 40px rgba(0,243,255,0.15);
+        }
+        .settings-panel.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .sp-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 3px; color: var(--neon); text-shadow: 0 0 10px var(--neon); margin-bottom: 16px; }
+        .sp-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 14px 0 8px; }
+        .bg-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+        .bg-chip {
+            height: 48px; border-radius: 9px; border: 2px solid transparent;
+            cursor: pointer; transition: 0.25s; background-size: cover; background-position: center;
+            position: relative; overflow: hidden;
+        }
+        .bg-chip:hover { transform: scale(1.06); border-color: rgba(0,243,255,0.5); }
+        .bg-chip.sel { border-color: var(--neon); box-shadow: 0 0 12px var(--neon); }
+        .bg-chip span { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); font-size: 9px; text-align: center; padding: 2px; color: #fff; }
+        .bg-url-row { display: flex; gap: 7px; margin-top: 6px; }
+        .bg-url-input { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; padding: 7px 11px; color: white; font-size: 11px; outline: none; transition: 0.25s; }
+        .bg-url-input:focus { border-color: var(--neon); }
+        .bg-url-input::placeholder { color: rgba(255,255,255,0.25); }
+        .sp-apply { background: var(--neon); color: #000; border: none; border-radius: 9px; padding: 7px 13px; font-size: 11px; font-weight: 900; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .sp-apply:hover { box-shadow: 0 0 12px var(--neon); }
+        .overlay-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+        .overlay-row span { font-size: 12px; color: rgba(255,255,255,0.55); }
+        .tog { position: relative; width: 40px; height: 22px; }
+        .tog input { opacity: 0; width: 0; height: 0; }
+        .tog-sl { position: absolute; inset: 0; border-radius: 22px; background: rgba(255,255,255,0.15); cursor: pointer; transition: 0.3s; }
+        .tog-sl::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .tog input:checked + .tog-sl { background: var(--neon); }
+        .tog input:checked + .tog-sl::before { transform: translateX(18px); }
+        .sp-reset { margin-top: 14px; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); border-radius: 9px; padding: 8px; font-size: 11px; cursor: pointer; transition: 0.25s; }
+        .sp-reset:hover { border-color: var(--neon); color: var(--neon); }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative; z-index: 1;
+            padding: 50px 40px 20px;
             text-align: center;
         }
+        .hero-label {
+            display: inline-block;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 11px; letter-spacing: 4px;
+            color: var(--neon); border: 1px solid var(--neon);
+            padding: 4px 14px; border-radius: 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 12px rgba(0,243,255,0.2);
+        }
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            letter-spacing: 4px; line-height: 1;
+            background: linear-gradient(135deg, #fff 30%, var(--neon) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .hero-sub { font-size: 13px; color: rgba(255,255,255,0.4); letter-spacing: 1px; margin-bottom: 4px; }
 
-        .app-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 30px; width: 100%; max-width: 1000px; 
+        /* ── WRAPPER ── */
+        .wrapper {
+            flex: 1;
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            align-items: center;
+            padding: 30px 20px 20px;
         }
 
-        .app-card { 
-            background: rgba(10, 14, 20, 0.6); 
-            border: 1px solid rgba(153, 204, 255, 0.2); 
-            border-radius: 20px; padding: 30px; 
-            text-align: center; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+        /* ── APP GRID ── */
+        .app-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px; width: 100%; max-width: 1000px;
+        }
+
+        .app-card {
+            background: rgba(10,14,20,0.75);
+            border: 1px solid rgba(0,243,255,0.12);
+            border-radius: 20px; padding: 30px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             backdrop-filter: blur(15px);
             display: flex; flex-direction: column; align-items: center;
+            animation: cardIn 0.55s ease backwards;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.95); }
+            to   { opacity: 1; transform: none; }
+        }
+        .app-card:hover {
+            background: rgba(0,243,255,0.07);
+            transform: translateY(-8px);
+            border-color: rgba(0,243,255,0.35);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0,243,255,0.1);
         }
 
-        .app-card:hover { 
-            background: rgba(153, 204, 255, 0.1); 
-            transform: translateY(-10px); 
-            border-color: var(--gura-blue); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
-        }
-
-        .app-icon { 
-            width: 100px; height: 100px; margin-bottom: 20px; 
+        .app-icon {
+            width: 100px; height: 100px; margin-bottom: 20px;
             border-radius: 22px; object-fit: cover;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,243,255,0.15);
         }
 
-        .app-name { font-weight: bold; font-size: 1.4rem; margin: 10px 0; color: #fff; }
-        .app-desc { font-size: 0.95rem; color: #cbd5e0; margin-bottom: 25px; line-height: 1.6; flex-grow: 1; }
+        .app-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px; margin: 10px 0 6px; color: #fff; }
+        .app-desc { font-size: 0.93rem; color: rgba(255,255,255,0.55); margin-bottom: 24px; line-height: 1.6; flex-grow: 1; }
 
-        .app-buttons { display: flex; gap: 15px; width: 100%; }
-        .btn-app-view, .btn-app-dl { 
-            padding: 12px; border-radius: 12px; border: none; 
-            cursor: pointer; font-size: 0.85rem; font-weight: bold; 
-            transition: 0.2s; flex: 1; text-transform: uppercase;
-            letter-spacing: 1px;
+        .app-buttons { display: flex; gap: 12px; width: 100%; }
+        .btn-app-view, .btn-app-dl {
+            padding: 11px; border-radius: 12px; border: none;
+            cursor: pointer; font-size: 0.82rem; font-weight: 800;
+            transition: 0.2s; flex: 1; text-transform: uppercase; letter-spacing: 1px;
+            font-family: 'Nunito', sans-serif;
         }
-
-        .btn-app-view { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-app-view:hover { background: rgba(255,255,255,0.2); }
-
+        .btn-app-view { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.18); }
+        .btn-app-view:hover { background: rgba(255,255,255,0.15); }
         .btn-app-dl { background: linear-gradient(45deg, var(--gura-accent), #0072ff); color: white; }
-        .btn-app-dl:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(51, 153, 255, 0.4); }
+        .btn-app-dl:hover { filter: brightness(1.12); box-shadow: 0 0 16px rgba(51,153,255,0.4); }
 
-        /* Overlay xem trước */
-        #preview-overlay { 
-            display: none; position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.95); z-index: 20000; 
-            justify-content: center; align-items: center; backdrop-filter: blur(10px); 
+        /* ── PREVIEW OVERLAY ── */
+        #preview-overlay {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.95); z-index: 20000;
+            justify-content: center; align-items: center; backdrop-filter: blur(10px);
         }
-        #preview-img { 
-            max-width: 90%; max-height: 85%; border-radius: 10px; 
-            border: 2px solid var(--gura-blue); box-shadow: 0 0 40px rgba(0,0,0,0.8); 
+        #preview-img {
+            max-width: 90%; max-height: 85%; border-radius: 10px;
+            border: 2px solid var(--neon); box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
-        .close-hint { position:absolute; bottom:30px; color: var(--gura-blue); font-weight:bold; letter-spacing: 1px; cursor: pointer; }
+        .close-hint { position:absolute; bottom:30px; color: var(--neon); font-weight:bold; letter-spacing: 1px; cursor: pointer; }
 
-        /* Popup */
-        #popup-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 10001; 
-            justify-content: center; align-items: center; backdrop-filter: blur(5px); 
+        /* ── POPUP ── */
+        #popup-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 10001;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
         }
-        #main-popup { 
-            width: 90%; max-width: 500px; min-height: 200px; border-radius: 25px; 
-            background: var(--gura-dark); position: relative; padding: 40px; 
-            box-sizing: border-box; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; text-align: center; 
-            border: 1px solid var(--gura-blue); box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        #main-popup {
+            width: 90%; max-width: 500px; min-height: 200px; border-radius: 25px;
+            background: #0a0e14; position: relative; padding: 40px;
+            box-sizing: border-box; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            border: 1px solid var(--neon); box-shadow: 0 0 30px rgba(0,243,255,0.15);
         }
-        .asus-wave-container {
-            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
-            z-index: 1; pointer-events: none;
+
+        /* ── WAVES ── */
+        .wave-wrap {
+            position: relative; z-index: 1;
+            width: 100%; height: 80px; overflow: hidden; margin-top: 30px;
         }
-        .waves { position: relative; width: 100%; height: 100%; }
-        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
-        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
-        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
-        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
-        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
-        @keyframes move-forever {
-            0% { transform: translate3d(-90px,0,0); }
+        .wave-wrap svg { display: block; }
+        .parallax > use { animation: wave-move 20s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay:-2s; animation-duration:7s; }
+        .parallax > use:nth-child(2) { animation-delay:-3s; animation-duration:10s; }
+        .parallax > use:nth-child(3) { animation-delay:-4s; animation-duration:13s; }
+        .parallax > use:nth-child(4) { animation-delay:-5s; animation-duration:20s; }
+        @keyframes wave-move {
+            0%   { transform: translate3d(-90px,0,0); }
             100% { transform: translate3d(85px,0,0); }
         }
-        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); }
-        .content-box-red { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(70, 24, 24, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; animation: neon-burn-red 1.5s infinite alternate ease-in-out; }
-        .content-box-none { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+
+        /* ── FOOTER ── */
+        footer {
+            position: relative; z-index: 1;
+            background: rgba(0,0,0,0.85);
+            border-top: 1px solid rgba(0,243,255,0.12);
+            padding: 28px 40px; width: 100%;
+        }
+        .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+        .footer-logo { display: flex; align-items: center; gap: 10px; }
+        .footer-logo img { height: 28px; opacity: 0.7; }
+        .footer-logo span { font-family: 'Bebas Neue'; font-size: 1.1rem; letter-spacing: 3px; color: rgba(255,255,255,0.4); }
+        .update-banner {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: rgba(0,243,255,0.05);
+            border: 1px solid rgba(0,243,255,0.15);
+            border-radius: 10px; padding: 12px 18px; font-size: 13px;
+        }
+        .update-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); flex-shrink: 0; margin-top: 4px; box-shadow: 0 0 8px var(--neon); animation: pulse 1.5s ease infinite; }
+        @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.6; } }
+        .update-label { color: var(--gold); font-weight: 900; margin-right: 6px; }
+        .update-text { color: rgba(255,255,255,0.55); line-height: 1.5; }
+        .footer-copy { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <div class="bg-overlay"></div>
+<!-- BG overlay -->
+<div class="bg-overlay" id="bgOverlay"></div>
+<div id="particles"></div>
 
-    <div id="preview-overlay" onclick="this.style.display='none'">
-        <img id="preview-img" src="" alt="Preview">
-        <p class="close-hint">NHẤN VÀO ĐÂY ĐỂ ĐÓNG</p>
-    </div>
+<!-- PREVIEW OVERLAY -->
+<div id="preview-overlay" onclick="this.style.display='none'">
+    <img id="preview-img" src="" alt="Preview">
+    <p class="close-hint">NHẤN VÀO ĐÂY ĐỂ ĐÓNG</p>
+</div>
 
-    <div id="popup-overlay">
-        <div id="main-popup">
-            <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 20px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px;">&times;</button>
-            <div id="popup-text"></div>
-        </div>
+<!-- POPUP -->
+<div id="popup-overlay">
+    <div id="main-popup">
+        <button onclick="document.getElementById('popup-overlay').style.display='none'" style="position:absolute;top:15px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;font-size:20px;cursor:pointer;border-radius:50%;width:35px;height:35px;">&times;</button>
+        <div id="popup-text"></div>
     </div>
-<nav class="pure-nav">
-    <div class="logo" style="display: flex; justify-content: center; width: 100%;">
-        <a href="https://hentaiorc.xyz" 
-           style="text-decoration: none; 
-                  display: flex; 
-                  align-items: center; 
-                  justify-content: center; 
-                  padding: 10px;">
-            
-            <img src="https://hentaiorc.xyz/logo/ORC.main.png" 
-                 alt="ORICHIIN-STUDIO" 
-                 style="height: auto; 
-                        width: 30%; 
-                        display: block; 
-                        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
-        </a>
+</div>
+
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="https://hentaiorc.xyz">
+        <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORICHIIN-STUDIO" onerror="this.style.display='none'">
+    </a>
+    <div class="nav-right">
+        <a class="nav-home-btn" href="https://hentaiorc.xyz">← Trang chủ</a>
+        <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
     </div>
 </nav>
-    <div id="update-banner" style="background: rgba(153, 204, 255, 0.1); border-bottom: 1px solid var(--gura-accent); padding: 10px; text-align: center; font-size: 0.9rem; position: sticky; top: 80px; z-index: 999; backdrop-filter: blur(5px);">
-        <span style="color: var(--gura-yellow); font-weight: bold;">CẬP NHẬT:</span> 
-        <span id="update-content" style="color: #cbd5e0;">Đang kiểm tra thông tin...</span>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="sp-title">⚙ Cài đặt</div>
+
+    <div class="sp-label">🎨 Hình nền</div>
+    <div class="bg-grid" id="bgGrid">
+        <button class="bg-chip sel" data-bg="none" style="background:#0a0a0a;">
+            <span>Đen</span>
+        </button>
+        <button class="bg-chip" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
+            style="background-image:url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg);background-size:cover">
+            <span>Anime</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=300&q=50);background-size:cover">
+            <span>Vũ trụ</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&q=50);background-size:cover">
+            <span>Retro</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&q=50);background-size:cover">
+            <span>Núi</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=50);background-size:cover">
+            <span>Thành phố</span>
+        </button>
     </div>
 
-    <div class="wrapper">
-        <div class="section-title">Danh sách trang</div>
-        <div style="margin-left: 30px; color: #cbd5e0; font-size: 0.9rem;">Vision [20.4.2026]</div>
+    <div class="sp-label">🔗 URL tùy chỉnh</div>
+    <div class="bg-url-row">
+        <input type="text" id="bgUrl" class="bg-url-input" placeholder="https://example.com/bg.jpg">
+        <button class="sp-apply" id="bgApply">OK</button>
+    </div>
 
-        
-        <div class="app-container">
-            <div class="app-card">
-                <img src="logo_orc.png" class="app-icon" onerror="this.src='https://www.hentaiorc.xyz/image-video/app-image.png'">
-                <div class="app-name">APP</div>
-                <div class="app-desc">Tải APP của orichiin studio</div>
-                <div class="app-buttons">
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/app.html')">Đi đến trang</button>
-                </div>
-            </div>
+    <div class="overlay-row">
+        <span>Lớp phủ tối</span>
+        <label class="tog"><input type="checkbox" id="overlayTog" checked><span class="tog-sl"></span></label>
+    </div>
 
-            <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/1055/1055683.png" class="app-icon">
-                <div class="app-name">Tin Học Vector 10</div>
-                <div class="app-desc">Các file tin học vector cho học sinh lớp 10</div>
-                <div class="app-buttons">
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/tinhoc10.html')">Đi đến trang</button>
-                </div>
+    <button class="sp-reset" id="bgReset">↺ Đặt lại mặc định</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-label">📋 ORC STUDIO · LIST</div>
+    <h1 class="hero-title">Danh Sách Trang</h1>
+    <p class="hero-sub">Vision [20.4.2026]</p>
+</div>
+
+<!-- MAIN WRAPPER -->
+<div class="wrapper">
+    <div class="app-container">
+
+        <div class="app-card" style="animation-delay:0.05s">
+            <img src="logo_orc.png" class="app-icon" onerror="this.src='https://www.hentaiorc.xyz/image-video/app-image.png'">
+            <div class="app-name">APP</div>
+            <div class="app-desc">Tải APP của orichiin studio</div>
+            <div class="app-buttons">
+                <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/app.html')">Đi đến trang</button>
             </div>
         </div>
-    </div>
-    <div class="asus-wave-container">
-        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
-            <defs>
-                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
-            </defs>
-            <g class="parallax">
-                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
-                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
-                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
-                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
-            </g>
-        </svg>
-    </div>
-    <script>
-        function previewApp(imgUrl) {
-            const overlay = document.getElementById('preview-overlay');
-            const img = document.getElementById('preview-img');
-            img.src = imgUrl;
-            overlay.style.display = 'flex';
-        }
 
-        // Tự động đóng popup bằng phím Esc
-        window.addEventListener('keydown', function(e) {
-            if (e.key === "Escape") {
-                document.getElementById('preview-overlay').style.display = 'none';
-                document.getElementById('popup-overlay').style.display = 'none';
-            }
-        });
-        // Dán đoạn này vào bên trong thẻ <script> cuối trang
-        async function fetchUpdateInfo() {
-    // Thay link này bằng link file .txt thật của mình
-            const updateFileUrl = 'https://www.hentaiorc.xyz/update.txt'; 
-    
-            try {
-        // Thêm tham số ?v= để tránh trình duyệt lưu cache file cũ
-                const response = await fetch(updateFileUrl + '?v=' + Date.now());
-                if (!response.ok) throw new Error('Không tìm thấy file');
-        
-                const text = await response.text();
-        
-        // Hiển thị nội dung vào banner
-                document.getElementById('update-content').innerText = text;
-            } catch (error) {
-                console.error('Lỗi tải cập nhật:', error);
-                document.getElementById('update-content').innerText = "Hiện tại chưa có thông tin mới.";
-            }
-        }
+        <div class="app-card" style="animation-delay:0.12s">
+            <img src="https://cdn-icons-png.flaticon.com/512/1055/1055683.png" class="app-icon">
+            <div class="app-name">Tin Học Vector 10</div>
+            <div class="app-desc">Các file tin học vector cho học sinh lớp 10</div>
+            <div class="app-buttons">
+                <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/tinhoc10.html')">Đi đến trang</button>
+            </div>
+        </div>
 
-        window.addEventListener('DOMContentLoaded', fetchUpdateInfo);
-    </script>
+    </div>
+</div>
+
+<!-- WAVES -->
+<div class="wave-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" width="100%" height="80">
+        <defs>
+            <path id="gw" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
+        </defs>
+        <g class="parallax">
+            <use href="#gw" x="48" y="0"  fill="rgba(0,243,255,0.08)"/>
+            <use href="#gw" x="48" y="3"  fill="rgba(0,243,255,0.12)"/>
+            <use href="#gw" x="48" y="5"  fill="rgba(0,243,255,0.06)"/>
+            <use href="#gw" x="48" y="7"  fill="rgba(0,243,255,0.18)"/>
+        </g>
+    </svg>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-logo">
+            <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORC" onerror="this.style.display='none'">
+            <span>ORICHIIN STUDIO</span>
+        </div>
+
+        <div class="update-banner">
+            <div class="update-dot"></div>
+            <div>
+                <span class="update-label">CẬP NHẬT:</span>
+                <span class="update-text" id="updateText">Đang kiểm tra thông tin...</span>
+            </div>
+        </div>
+
+        <div class="footer-copy">© 2026 ORICHIIN STUDIO · All rights reserved</div>
+    </div>
+</footer>
+
+<script>
+// ── PARTICLES ─────────────────────────────────────────
+const pc = document.getElementById('particles');
+for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'p';
+    const s = Math.random() * 3 + 1;
+    p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}vw;top:${Math.random()*100}vh;animation-duration:${Math.random()*12+7}s;animation-delay:${Math.random()*8}s;`;
+    pc.appendChild(p);
+}
+
+// ── SETTINGS ──────────────────────────────────────────
+const settingsBtn   = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+const bgGrid        = document.getElementById('bgGrid');
+const bgUrlInput    = document.getElementById('bgUrl');
+const bgApplyBtn    = document.getElementById('bgApply');
+const bgResetBtn    = document.getElementById('bgReset');
+const overlayTog    = document.getElementById('overlayTog');
+const bgOverlay     = document.getElementById('bgOverlay');
+
+let spOpen = false;
+settingsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    spOpen = !spOpen;
+    settingsPanel.classList.toggle('open', spOpen);
+});
+document.addEventListener('click', e => {
+    if (spOpen && !settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+        spOpen = false; settingsPanel.classList.remove('open');
+    }
+});
+
+function applyBg(url) {
+    if (!url || url === 'none') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = '#0a0a0a';
+    } else {
+        document.body.style.backgroundImage = `url(${url})`;
+        document.body.style.backgroundColor = '';
+    }
+}
+
+bgGrid.querySelectorAll('.bg-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        applyBg(btn.dataset.bg);
+    });
+});
+
+bgApplyBtn.addEventListener('click', () => {
+    const url = bgUrlInput.value.trim();
+    if (url) {
+        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+        applyBg(url);
+    }
+});
+
+bgResetBtn.addEventListener('click', () => {
+    bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+    bgGrid.querySelector('[data-bg="none"]').classList.add('sel');
+    bgUrlInput.value = '';
+    applyBg('none');
+});
+
+overlayTog.addEventListener('change', function() {
+    bgOverlay.classList.toggle('hidden', !this.checked);
+});
+
+// ── PREVIEW ───────────────────────────────────────────
+function previewApp(imgUrl) {
+    document.getElementById('preview-img').src = imgUrl;
+    document.getElementById('preview-overlay').style.display = 'flex';
+}
+
+window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.getElementById('preview-overlay').style.display = 'none';
+        document.getElementById('popup-overlay').style.display = 'none';
+    }
+});
+
+// ── UPDATE FETCH ──────────────────────────────────────
+async function fetchUpdateInfo() {
+    try {
+        const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
+        if (!r.ok) throw new Error();
+        const text = await r.text();
+        document.getElementById('updateText').textContent = text;
+    } catch {
+        document.getElementById('updateText').textContent = 'Hiện tại chưa có thông tin mới.';
+    }
+}
+window.addEventListener('DOMContentLoaded', fetchUpdateInfo);
+</script>
 </body>
 </html>
