@@ -14,10 +14,11 @@
             margin: 0; padding: 0; height: 100%; width: 100%;
             font-family: 'Lato', sans-serif;
             color: #FFFFFF !important;
-            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            background: #0a0a0a no-repeat center center fixed;
             background-size: cover;
             overflow-y: auto; 
             overflow-x: hidden;
+            transition: background 0.6s ease;
         }
         :root {
             --yt-bg: rgba(15, 15, 15, 0.85);
@@ -63,7 +64,6 @@
         .open .hamburger span:nth-child(2) { opacity: 0; }
         .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
         
-        /* CẬP NHẬT PHẦN SEARCH WRAPPER */
         .header-center { flex: 0 1 720px; margin: 0 15px; position: relative; }
         .search-container {
             display: flex; background: rgba(0, 0, 0, 0.4);
@@ -74,7 +74,6 @@
         .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
         .search-btn svg { width: 20px; height: 20px; fill: white; }
 
-        /* STYLE CHO BOX GỢI Ý WEB */
         .suggestion-box {
             position: absolute; top: 110%; left: 0; width: 100%;
             background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
@@ -89,6 +88,132 @@
         .suggestion-item:hover { background: rgba(0, 243, 255, 0.15); padding-left: 25px; }
         .suggestion-item .web-name { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
         .suggestion-item .web-url { color: rgba(153, 204, 255, 0.6); font-size: 12px; margin-top: 4px; }
+        
+        /* ====== SETTINGS BUTTON ====== */
+        .settings-btn {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon-blue);
+            cursor: pointer;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 10px rgba(0,243,255,0.4);
+            transition: 0.4s;
+            position: relative; z-index: 2100;
+            color: var(--neon-blue);
+            font-size: 18px;
+        }
+        .settings-btn:hover {
+            box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
+            transform: rotate(45deg);
+        }
+
+        /* ====== SETTINGS PANEL ====== */
+        .settings-panel {
+            position: fixed;
+            top: 65px; right: 16px;
+            width: 320px;
+            background: rgba(10, 10, 10, 0.97);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.2);
+            z-index: 1500;
+            padding: 24px;
+            transform-origin: top right;
+            transform: scale(0); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .settings-panel.active {
+            transform: scale(1); opacity: 1;
+            pointer-events: auto;
+        }
+        .settings-title {
+            color: var(--neon-blue);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--neon-blue);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .settings-section-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            margin-top: 16px;
+        }
+        .bg-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .bg-preset-btn {
+            height: 52px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+        .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
+        .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
+        .bg-preset-btn span {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.7);
+            font-size: 9px; text-align: center;
+            padding: 3px; color: #fff;
+        }
+        .bg-url-row {
+            display: flex; gap: 8px; margin-top: 8px;
+        }
+        .bg-url-input {
+            flex: 1; background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px; padding: 8px 12px;
+            color: white; font-size: 12px; outline: none;
+            transition: 0.3s;
+        }
+        .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
+        .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
+        .bg-apply-btn {
+            background: var(--neon-blue); color: black;
+            border: none; border-radius: 10px;
+            padding: 8px 14px; font-size: 12px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            white-space: nowrap;
+        }
+        .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
+        .bg-overlay-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 14px;
+        }
+        .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .toggle-switch { position: relative; width: 40px; height: 22px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 22px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: ''; position: absolute;
+            width: 16px; height: 16px;
+            left: 3px; bottom: 3px;
+            background: white; border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
         
         .menu-overlay {
             position: fixed; top: 65px; left: 16px;
@@ -148,23 +273,183 @@
         .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
         .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
         h1 { color: #d9b8ab; font-size: 2.5em; }
-        .loader-top-img {
-    /* Chỉnh chiều rộng (ví dụ: 150px, 50%, hoặc auto) */
-        width:15%; 
-    
-    /* Giữ tỉ lệ khung hình tự động hoặc đặt chiều cao cố định */
-        height: auto; 
-    
-    /* Đảm bảo ảnh không bị vỡ khi co giãn */
-        object-fit: contain; 
-    }
 
-/* Nếu Orichiin-san muốn logo nhỏ lại trên điện thoại */
-@media (max-width: 768px) {
-    .loader-top-img {
-        width: 100px;
-    }
-}
+        /* ============================
+           TRENDING SECTION (Netflix style)
+           ============================ */
+        .trending-section {
+            width: 92%;
+            max-width: 1200px;
+            margin: 0 auto 60px auto;
+            position: relative;
+            z-index: 10;
+        }
+        .trending-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .trending-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        .trending-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent);
+        }
+        .trending-scroll-wrapper {
+            position: relative;
+        }
+        .trending-grid {
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+        .trending-grid::-webkit-scrollbar { display: none; }
+
+        /* Scroll buttons */
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(0,243,255,0.4);
+            color: white;
+            width: 36px; height: 80px;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .scroll-btn:hover {
+            background: rgba(0,243,255,0.15);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0,243,255,0.3);
+        }
+        .scroll-btn.left { left: -18px; }
+        .scroll-btn.right { right: -18px; }
+
+        /* Individual card */
+        .trending-card {
+            position: relative;
+            flex: 0 0 auto;
+            width: 140px;
+            height: 210px;
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            margin-right: -28px; /* overlap for rank number */
+        }
+        .trending-card:last-child { margin-right: 0; }
+        .trending-card:hover {
+            transform: scale(1.08) translateY(-6px);
+            z-index: 5;
+        }
+
+        /* Rank number */
+        .card-rank {
+            position: absolute;
+            bottom: -8px;
+            left: -4px;
+            font-size: 6.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 3px rgba(255,255,255,0.85);
+            z-index: 2;
+            pointer-events: none;
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+            user-select: none;
+        }
+
+        /* Poster image */
+        .card-poster {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            display: block;
+            position: relative;
+            z-index: 1;
+            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
+            transition: box-shadow 0.3s;
+        }
+        .trending-card:hover .card-poster {
+            box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
+        }
+
+        /* Hover overlay */
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 3;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .trending-card:hover .card-overlay { opacity: 1; }
+        .card-title-hover {
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            width: 100%;
+            line-height: 1.3;
+        }
+
+        /* Placeholder poster (gradient fallback) */
+        .card-poster-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
+            transition: box-shadow 0.3s;
+        }
+
+        /* Netflix-style red N badge */
+        .card-badge {
+            position: absolute;
+            top: 7px;
+            left: 7px;
+            z-index: 4;
+            background: #e50914;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            width: 18px; height: 18px;
+            border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .trending-card {
+            animation: cardEntrance 0.5s ease backwards;
+        }
     </style>
 </head>
 <body>
@@ -194,16 +479,68 @@
             <div class="search-container">
                 <input type="text" id="mainSearch" placeholder="Tìm kiếm hệ sinh thái Orichiin..." class="search-input" autocomplete="off">
                 <button class="search-btn" id="searchTrigger">
-                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6-2.69 6-6 6-2.69 6-6 6-2.69 6-6 6z"></path></svg>
+                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
                 </button>
             </div>
-            <!-- Box gợi ý nằm ngay dưới thanh search -->
             <div id="suggestionBox" class="suggestion-box"></div>
         </div>
         <div class="header-right">
+            <!-- Settings Button -->
+            <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
             <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
         </div>
     </nav>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-title">⚙ Cài đặt</div>
+
+        <div class="settings-section-label">🎨 Hình nền có sẵn</div>
+        <div class="bg-presets" id="bgPresets">
+            <button class="bg-preset-btn active-bg" data-bg="none" style="background:#0a0a0a;">
+                <span>Đen</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
+                style="background-image: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg); background-size: cover; background-position: center;">
+                <span>Anime</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
+                style="background-image: url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60); background-size: cover;">
+                <span>Vũ trụ</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+                style="background-image: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60); background-size: cover;">
+                <span>Núi</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80"
+                style="background-image: url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60); background-size: cover;">
+                <span>Thành phố</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80"
+                style="background: linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);">
+                <span>Gradient</span>
+            </button>
+        </div>
+
+        <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
+        <div class="bg-url-row">
+            <input type="text" id="bgUrlInput" class="bg-url-input" placeholder="https://example.com/image.jpg">
+            <button class="bg-apply-btn" id="bgApplyBtn">Áp dụng</button>
+        </div>
+
+        <div class="bg-overlay-toggle" style="margin-top: 14px;">
+            <span class="bg-overlay-label">Lớp phủ tối</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="overlayToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <button id="bgResetBtn" style="margin-top: 16px; width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px; cursor:pointer; font-size:12px; transition:0.3s;"
+            onmouseover="this.style.borderColor='var(--neon-blue)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+            ↺ Đặt lại về mặc định
+        </button>
+    </div>
 
     <div class="menu-overlay" id="menuOverlay">
         <nav class="nav-content">
@@ -221,25 +558,209 @@
             <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
             <p>Facebook: <a href="https://www.facebook.com/langducabpt" target="_blank" style="color:var(--neon-blue)">Giang-artist</a></p>
         </div>
+
+        <!-- ====== TRENDING SECTION ====== -->
+        <div class="trending-section">
+            <div class="trending-header">
+                <span class="trending-title">🔥 Hiện đang thịnh hành</span>
+                <div class="trending-line"></div>
+            </div>
+            <div class="trending-scroll-wrapper">
+                <button class="scroll-btn left" id="scrollLeft">‹</button>
+                <div class="trending-grid" id="trendingGrid">
+                    <!-- Cards injected by JS -->
+                </div>
+                <button class="scroll-btn right" id="scrollRight">›</button>
+            </div>
+        </div>
+        <!-- ====== END TRENDING SECTION ====== -->
     </div>
 
     <script>
-        // Hiệu ứng hạt bụi
+        // ==========================================
+        // TRENDING DATA — chỉnh sửa tại đây
+        // ==========================================
+        const trendingItems = [
+            {
+                rank: 1,
+                title: "Chó Săn Công Lý",
+                subtitle: "Bloodhounds",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #1a0a00, #8B2500)"
+            },
+            {
+                rank: 2,
+                title: "Truy Tìm Rồng Diên Hương",
+                subtitle: "",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #0a1a00, #2d6a00)"
+            },
+            {
+                rank: 3,
+                title: "One Piece",
+                subtitle: "Live Action",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a@@._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #00103a, #0038a8)"
+            },
+            {
+                rank: 4,
+                title: "Tiếng Yêu Này Dịch Được Không?",
+                subtitle: "",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BYzFhOTc0YzEtMGViNS00YjM5LWI4YTMtZjU0OWZhZWEwMGUxXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #1a001a, #6a0050)"
+            },
+            {
+                rank: 5,
+                title: "Bộ Tứ Báo Thủ",
+                subtitle: "",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #001a1a, #006060)"
+            },
+            {
+                rank: 6,
+                title: "Sắc Mưa",
+                subtitle: "The Garden of Words",
+                url: "#",
+                poster: "",
+                gradient: "linear-gradient(135deg, #0a0f1a, #1a3a6e)"
+            },
+            {
+                rank: 7,
+                title: "Attack on Titan",
+                subtitle: "Final Season",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BNzc5MTczNDQtNDFjNi00ZDU5LWFkNzItOTE1NzQzMzdhNzMxXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #1a0000, #8b0000)"
+            },
+            {
+                rank: 8,
+                title: "Demon Slayer",
+                subtitle: "Kimetsu no Yaiba",
+                url: "#",
+                poster: "https://m.media-amazon.com/images/M/MV5BZjZjNzI5MDctY2Y4YS00NmM4LTljMmItZTFkOTExNGI3ODRhXkEyXkFqcGdeQXVyNjc3MjQzNTI@._V1_FMjpg_UX400_.jpg",
+                gradient: "linear-gradient(135deg, #1a000a, #7a0030)"
+            },
+        ];
+
+        // Render cards
+        const grid = document.getElementById('trendingGrid');
+        trendingItems.forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = 'trending-card';
+            card.style.animationDelay = `${i * 0.07}s`;
+            card.onclick = () => { if(item.url !== '#') window.location.href = item.url; };
+            card.innerHTML = `
+                <span class="card-rank">${item.rank}</span>
+                ${item.poster 
+                    ? `<img class="card-poster" src="${item.poster}" alt="${item.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                       <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
+                    : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`
+                }
+                <div class="card-overlay">
+                    <div class="card-title-hover">${item.title}${item.subtitle ? '<br><span style="opacity:0.7;font-weight:normal">' + item.subtitle + '</span>' : ''}</div>
+                </div>
+                <div class="card-badge">N</div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Scroll buttons
+        const scrollLeft = document.getElementById('scrollLeft');
+        const scrollRight = document.getElementById('scrollRight');
+        scrollLeft.addEventListener('click', () => grid.scrollBy({ left: -300, behavior: 'smooth' }));
+        scrollRight.addEventListener('click', () => grid.scrollBy({ left: 300, behavior: 'smooth' }));
+
+        // ==========================================
+        // SETTINGS PANEL LOGIC
+        // ==========================================
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const bgPresets = document.getElementById('bgPresets');
+        const bgUrlInput = document.getElementById('bgUrlInput');
+        const bgApplyBtn = document.getElementById('bgApplyBtn');
+        const bgResetBtn = document.getElementById('bgResetBtn');
+        const overlayToggle = document.getElementById('overlayToggle');
+        const mainContent = document.getElementById('main-content');
+
+        let settingsOpen = false;
+
+        function toggleSettings(e) {
+            e.stopPropagation();
+            settingsOpen = !settingsOpen;
+            settingsPanel.classList.toggle('active', settingsOpen);
+        }
+        settingsBtn.addEventListener('click', toggleSettings);
+        window.addEventListener('click', (e) => {
+            if (settingsOpen && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+                settingsOpen = false;
+                settingsPanel.classList.remove('active');
+            }
+        });
+
+        function applyBackground(url) {
+            if (!url || url === 'none') {
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundColor = '#0a0a0a';
+            } else {
+                document.body.style.backgroundImage = `url(${url})`;
+                document.body.style.backgroundColor = '';
+            }
+        }
+
+        // Preset buttons
+        bgPresets.querySelectorAll('.bg-preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
+                btn.classList.add('active-bg');
+                applyBackground(btn.dataset.bg);
+            });
+        });
+
+        // Custom URL
+        bgApplyBtn.addEventListener('click', () => {
+            const url = bgUrlInput.value.trim();
+            if (url) {
+                bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
+                applyBackground(url);
+            }
+        });
+
+        // Reset
+        bgResetBtn.addEventListener('click', () => {
+            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
+            const first = bgPresets.querySelector('[data-bg="none"]');
+            if (first) first.classList.add('active-bg');
+            bgUrlInput.value = '';
+            applyBackground('none');
+        });
+
+        // Overlay toggle
+        overlayToggle.addEventListener('change', function() {
+            mainContent.style.background = this.checked ? 'rgba(0,0,0,0.2)' : 'transparent';
+        });
+
+        // ==========================================
+        // DUST PARTICLES
+        // ==========================================
         const dustContainer = document.getElementById('dustContainer');
         function createDust() {
             const dust = document.createElement('div');
             dust.className = 'dust-particle';
             const size = Math.random() * 3 + 1;
-            dust.style.width = size + 'px';
-            dust.style.height = size + 'px';
-            dust.style.left = Math.random() * 100 + 'vw';
-            dust.style.top = '110vh';
+            dust.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}vw;top:110vh;animation-duration:${Math.random()*8+5}s`;
             dustContainer.appendChild(dust);
             setTimeout(() => dust.remove(), 10000);
         }
         setInterval(createDust, 300);
 
-        // Logic Menu
+        // ==========================================
+        // MENU LOGIC
+        // ==========================================
         const menuBtn = document.getElementById('menuBtn');
         const menuOverlay = document.getElementById('menuOverlay');
         function toggleMenu() {
@@ -251,7 +772,9 @@
             if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
         });
 
-        // Logic Màn hình tải (Loader)
+        // ==========================================
+        // LOADER
+        // ==========================================
         window.addEventListener("load", function() {
             const loader = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
@@ -274,39 +797,32 @@
         });
 
         // ==========================================
-        // ORICHIIN: LOGIC TÌM KIẾM WEB NỘI BỘ
+        // SEARCH LOGIC
         // ==========================================
         const searchInput = document.getElementById('mainSearch');
         const suggestionBox = document.getElementById('suggestionBox');
 
-        // Danh sách các web của Orichiin-san
         const myWebsites = [
             { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio" },
             { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message" },
             { name: "List", url: "https://hentaiorc.xyz/list.html", tags: "List" },
             { name: "Calculate", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate" },
             { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social contact" },
-            { name: "Sắc Mưa (The Garden of Words)", url: "#", tags: "anime project rain garden" }
+            { name: "Sắc Mưa (The Garden of Words)", url: "#", tags: "anime project rain garden" },
+            { name: "Mini-game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game" }
+
         ];
 
         searchInput.addEventListener('input', function() {
             const val = this.value.toLowerCase().trim();
             suggestionBox.innerHTML = "";
-            
             if (val.length > 0) {
-                const matches = myWebsites.filter(web => 
-                    web.name.toLowerCase().includes(val) || 
-                    web.tags.toLowerCase().includes(val)
-                );
-
+                const matches = myWebsites.filter(web => web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val));
                 if (matches.length > 0) {
                     matches.forEach(web => {
                         const item = document.createElement('div');
                         item.className = 'suggestion-item';
-                        item.innerHTML = `
-                            <span class="web-name">${web.name}</span>
-                            <span class="web-url">${web.url}</span>
-                        `;
+                        item.innerHTML = `<span class="web-name">${web.name}</span><span class="web-url">${web.url}</span>`;
                         item.onclick = () => window.location.href = web.url;
                         suggestionBox.appendChild(item);
                     });
@@ -319,7 +835,6 @@
             }
         });
 
-        // Đóng box gợi ý khi bấm ra ngoài
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
                 suggestionBox.style.display = "none";

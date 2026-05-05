@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ORC Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon: #00f3ff;
+            --red: #e50914;
+            --gold: #FFD700;
+            --dark: #0a0a0a;
+            --card-bg: rgba(15,15,20,0.85);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body, html {
+            min-height: 100%; width: 100%;
+            font-family: 'Nunito', sans-serif;
+            color: #fff;
+            background: var(--dark);
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            overflow-x: hidden;
+            transition: background 0.6s ease;
+        }
+
+        /* ── BG OVERLAY ─────────────────── */
+        .bg-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .bg-overlay.hidden { opacity: 0; }
+
+        /* ── PARTICLES ───────────────────── */
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .p { position: absolute; border-radius: 50%; background: var(--neon); opacity: 0; animation: rise linear infinite; }
+        @keyframes rise {
+            0%   { transform: translateY(0) scale(1); opacity: 0; }
+            20%  { opacity: 0.35; }
+            80%  { opacity: 0.15; }
+            100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+        }
+
+        /* ── NAV ─────────────────────────── */
+        nav {
+            position: sticky; top: 0; z-index: 1000;
+            height: 64px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,243,255,0.15);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px;
+        }
+        .nav-logo img { height: 38px; filter: drop-shadow(0 0 6px rgba(0,243,255,0.4)); }
+        .nav-logo { text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 14px; }
+
+        .nav-home-btn {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #ccc;
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px; font-weight: 700;
+            padding: 7px 18px; border-radius: 20px;
+            cursor: pointer; text-decoration: none;
+            transition: 0.25s;
+        }
+        .nav-home-btn:hover {
+            background: rgba(0,243,255,0.12);
+            border-color: var(--neon); color: var(--neon);
+        }
+
+        /* Settings Button */
+        .settings-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon);
+            color: var(--neon); font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,243,255,0.3);
+            transition: 0.3s;
+        }
+        .settings-btn:hover { transform: rotate(60deg); box-shadow: 0 0 20px var(--neon); }
+
+        /* ── SETTINGS PANEL ──────────────── */
+        .settings-panel {
+            position: fixed; top: 72px; right: 16px;
+            width: 310px;
+            background: rgba(8,8,12,0.97);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon);
+            border-radius: 20px;
+            padding: 22px;
+            z-index: 2000;
+            transform-origin: top right;
+            transform: scale(0); opacity: 0;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            box-shadow: 0 0 40px rgba(0,243,255,0.15);
+        }
+        .settings-panel.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+
+        .sp-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem; letter-spacing: 3px;
+            color: var(--neon); text-shadow: 0 0 10px var(--neon);
+            margin-bottom: 16px;
+        }
+        .sp-label {
+            font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase; color: rgba(255,255,255,0.4);
+            margin: 14px 0 8px;
+        }
+        .bg-grid {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 7px;
+        }
+        .bg-chip {
+            height: 48px; border-radius: 9px;
+            border: 2px solid transparent;
+            cursor: pointer; transition: 0.25s;
+            background-size: cover; background-position: center;
+            position: relative; overflow: hidden;
+        }
+        .bg-chip:hover { transform: scale(1.06); border-color: rgba(0,243,255,0.5); }
+        .bg-chip.sel { border-color: var(--neon); box-shadow: 0 0 12px var(--neon); }
+        .bg-chip span {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.65); font-size: 9px;
+            text-align: center; padding: 2px; color: #fff;
+        }
+        .bg-url-row { display: flex; gap: 7px; margin-top: 6px; }
+        .bg-url-input {
+            flex: 1; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 9px; padding: 7px 11px;
+            color: white; font-size: 11px; outline: none; transition: 0.25s;
+        }
+        .bg-url-input:focus { border-color: var(--neon); }
+        .bg-url-input::placeholder { color: rgba(255,255,255,0.25); }
+        .sp-apply {
+            background: var(--neon); color: #000;
+            border: none; border-radius: 9px;
+            padding: 7px 13px; font-size: 11px; font-weight: 900;
+            cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .sp-apply:hover { box-shadow: 0 0 12px var(--neon); }
+        .overlay-row {
+            display: flex; align-items: center; justify-content: space-between; margin-top: 14px;
+        }
+        .overlay-row span { font-size: 12px; color: rgba(255,255,255,0.55); }
+        .tog { position: relative; width: 40px; height: 22px; }
+        .tog input { opacity: 0; width: 0; height: 0; }
+        .tog-sl {
+            position: absolute; inset: 0; border-radius: 22px;
+            background: rgba(255,255,255,0.15); cursor: pointer; transition: 0.3s;
+        }
+        .tog-sl::before {
+            content: ''; position: absolute;
+            width: 16px; height: 16px; left: 3px; bottom: 3px;
+            background: white; border-radius: 50%; transition: 0.3s;
+        }
+        .tog input:checked + .tog-sl { background: var(--neon); }
+        .tog input:checked + .tog-sl::before { transform: translateX(18px); }
+        .sp-reset {
+            margin-top: 14px; width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.5); border-radius: 9px;
+            padding: 8px; font-size: 11px; cursor: pointer; transition: 0.25s;
+        }
+        .sp-reset:hover { border-color: var(--neon); color: var(--neon); }
+
+        /* ── HERO BANNER ─────────────────── */
+        .hero {
+            position: relative; z-index: 1;
+            padding: 60px 40px 40px;
+            text-align: center;
+        }
+        .hero-label {
+            display: inline-block;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 11px; letter-spacing: 4px;
+            color: var(--neon); border: 1px solid var(--neon);
+            padding: 4px 14px; border-radius: 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 12px rgba(0,243,255,0.2);
+        }
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            letter-spacing: 4px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 30%, var(--neon) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            margin-bottom: 10px;
+        }
+        .hero-sub {
+            font-size: 14px; color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+        }
+
+        /* ── SECTION ─────────────────────── */
+        .section {
+            position: relative; z-index: 1;
+            padding: 10px 40px 50px;
+        }
+        .section-header {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
+        }
+        .section-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem; letter-spacing: 2px; color: #fff;
+        }
+        .section-divider {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent);
+        }
+        .badge-count {
+            font-size: 11px; color: var(--neon);
+            border: 1px solid var(--neon);
+            padding: 2px 10px; border-radius: 20px;
+            font-weight: 700;
+        }
+
+        /* ── GAME GRID ───────────────────── */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+        }
+
+        /* ── GAME CARD ───────────────────── */
+        .game-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.35s;
+            position: relative;
+            animation: cardIn 0.55s ease backwards;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.93); }
+            to   { opacity: 1; transform: none; }
+        }
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 25px rgba(0,243,255,0.15);
+            border-color: rgba(0,243,255,0.3);
+            z-index: 5;
+        }
+
+        /* Thumbnail */
+        .card-thumb {
+            width: 100%; height: 130px;
+            object-fit: cover; display: block;
+        }
+        .card-thumb-placeholder {
+            width: 100%; height: 130px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem;
+        }
+
+        /* Body */
+        .card-body { padding: 16px; }
+        .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .tag {
+            font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+            font-weight: 700; padding: 3px 9px; border-radius: 20px;
+        }
+        .tag-genre { background: rgba(0,243,255,0.12); color: var(--neon); border: 1px solid rgba(0,243,255,0.3); }
+        .tag-new { background: rgba(229,9,20,0.2); color: #ff6b6b; border: 1px solid rgba(229,9,20,0.4); }
+        .tag-free { background: rgba(255,215,0,0.12); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+
+        .card-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem; letter-spacing: 1.5px;
+            color: #fff; margin-bottom: 6px; line-height: 1.1;
+        }
+        .card-desc {
+            font-size: 12px; color: rgba(255,255,255,0.5);
+            line-height: 1.6; margin-bottom: 16px;
+        }
+        .card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .card-meta { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+        .play-btn {
+            background: var(--red);
+            color: white; border: none;
+            padding: 9px 20px; border-radius: 8px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px; font-weight: 900;
+            letter-spacing: 1px; cursor: pointer;
+            transition: 0.25s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .play-btn:hover {
+            background: #ff1f2d;
+            box-shadow: 0 0 18px rgba(229,9,20,0.5);
+            transform: scale(1.06);
+        }
+        .play-btn svg { width: 12px; height: 12px; fill: white; }
+
+        /* Rating stars */
+        .stars { color: var(--gold); font-size: 12px; letter-spacing: 1px; }
+
+        /* ── WAVES ───────────────────────── */
+        .wave-wrap {
+            position: relative; z-index: 1;
+            width: 100%; height: 80px; overflow: hidden;
+            margin-top: 20px;
+        }
+        .wave-wrap svg { display: block; }
+        .parallax > use { animation: wave-move 20s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay:-2s; animation-duration:7s; }
+        .parallax > use:nth-child(2) { animation-delay:-3s; animation-duration:10s; }
+        .parallax > use:nth-child(3) { animation-delay:-4s; animation-duration:13s; }
+        .parallax > use:nth-child(4) { animation-delay:-5s; animation-duration:20s; }
+        @keyframes wave-move {
+            0%   { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
+        }
+
+        /* ── FOOTER ─────────────────────── */
+        footer {
+            position: relative; z-index: 1;
+            background: rgba(0,0,0,0.85);
+            border-top: 1px solid rgba(0,243,255,0.12);
+            padding: 28px 40px;
+        }
+        .footer-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .footer-logo { display: flex; align-items: center; gap: 10px; }
+        .footer-logo img { height: 28px; opacity: 0.7; }
+        .footer-logo span { font-family: 'Bebas Neue'; font-size: 1.1rem; letter-spacing: 3px; color: rgba(255,255,255,0.4); }
+
+        /* UPDATE BANNER — at bottom */
+        .update-banner {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: rgba(0,243,255,0.05);
+            border: 1px solid rgba(0,243,255,0.15);
+            border-radius: 10px; padding: 12px 18px;
+            font-size: 13px;
+        }
+        .update-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--neon); flex-shrink: 0; margin-top: 4px;
+            box-shadow: 0 0 8px var(--neon);
+            animation: pulse 1.5s ease infinite;
+        }
+        @keyframes pulse {
+            0%,100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.6; }
+        }
+        .update-label { color: var(--gold); font-weight: 900; margin-right: 6px; }
+        .update-text { color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+        .footer-copy {
+            font-size: 11px; color: rgba(255,255,255,0.2);
+            letter-spacing: 1px;
+        }
+
+        /* ── COMING SOON CARD ────────────── */
+        .card-soon {
+            border: 1px dashed rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.02);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+        .card-soon .play-btn { background: rgba(255,255,255,0.1); }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .section { padding: 10px 16px 40px; }
+            .hero { padding: 40px 16px 30px; }
+            nav { padding: 0 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BG overlay -->
+<div class="bg-overlay" id="bgOverlay"></div>
+
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- ── NAV ── -->
+<nav>
+    <a class="nav-logo" href="https://hentaiorc.xyz">
+        <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORC Studio" onerror="this.style.display='none'">
+    </a>
+    <div class="nav-right">
+        <a class="nav-home-btn" href="https://hentaiorc.xyz">← Trang chủ</a>
+        <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
+    </div>
+</nav>
+
+<!-- ── SETTINGS PANEL ── -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="sp-title">⚙ Cài đặt</div>
+
+    <div class="sp-label">🎨 Hình nền</div>
+    <div class="bg-grid" id="bgGrid">
+        <button class="bg-chip sel" data-bg="none" style="background:#0a0a0a;">
+            <span>Đen</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=300&q=50);background-size:cover">
+            <span>Vũ trụ</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&q=50);background-size:cover">
+            <span>Retro</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=300&q=50);background-size:cover">
+            <span>Game</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&q=50);background-size:cover">
+            <span>Núi</span>
+        </button>
+        <button class="bg-chip" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
+            style="background-image:url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg);background-size:cover">
+            <span>Anime</span>
+        </button>
+    </div>
+
+    <div class="sp-label">🔗 URL tùy chỉnh</div>
+    <div class="bg-url-row">
+        <input type="text" id="bgUrl" class="bg-url-input" placeholder="https://example.com/bg.jpg">
+        <button class="sp-apply" id="bgApply">OK</button>
+    </div>
+
+    <div class="overlay-row">
+        <span>Lớp phủ tối</span>
+        <label class="tog"><input type="checkbox" id="overlayTog" checked><span class="tog-sl"></span></label>
+    </div>
+
+    <button class="sp-reset" id="bgReset">↺ Đặt lại mặc định</button>
+</div>
+
+<!-- ── HERO ── -->
+<div class="hero">
+    <div class="hero-label">🎮 ORC STUDIO · GAMES</div>
+    <h1 class="hero-title">Kho Trò Chơi</h1>
+    <p class="hero-sub">Khám phá những mini game được tạo ra bởi Orichiin</p>
+</div>
+
+<!-- ── GAME SECTION ── -->
+<section class="section">
+    <div class="section-header">
+        <span class="section-label">🕹 Tất cả trò chơi</span>
+        <div class="section-divider"></div>
+        <span class="badge-count" id="gameCount">1 TRÒ CHƠI</span>
+    </div>
+
+    <div class="game-grid" id="gameGrid">
+        <!-- injected by JS -->
+    </div>
+</section>
+
+<!-- ── WAVES ── -->
+<div class="wave-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" width="100%" height="80">
+        <defs>
+            <path id="gw" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
+        </defs>
+        <g class="parallax">
+            <use href="#gw" x="48" y="0"  fill="rgba(0,243,255,0.08)"/>
+            <use href="#gw" x="48" y="3"  fill="rgba(0,243,255,0.12)"/>
+            <use href="#gw" x="48" y="5"  fill="rgba(0,243,255,0.06)"/>
+            <use href="#gw" x="48" y="7"  fill="rgba(0,243,255,0.18)"/>
+        </g>
+    </svg>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-logo">
+            <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORC" onerror="this.style.display='none'">
+            <span>ORICHIIN STUDIO</span>
+        </div>
+
+        <!-- UPDATE BANNER -->
+        <div class="update-banner">
+            <div class="update-dot"></div>
+            <div>
+                <span class="update-label">CẬP NHẬT:</span>
+                <span class="update-text" id="updateText">Đang kiểm tra thông tin...</span>
+            </div>
+        </div>
+
+        <div class="footer-copy">© 2026 ORICHIIN STUDIO · All rights reserved</div>
+    </div>
+</footer>
+
+<script>
+// ─── GAME DATA ────────────────────────────────────────────────────
+const games = [
+    {
+        id: 1,
+        title: "Sand Box Mini Game",
+        desc: "Trò chơi sandbox tự do — xây dựng, phá hủy, khám phá thế giới pixel theo cách của bạn.",
+        url: "https://www.hentaiorc.xyz/Cellular.html",
+        thumb: "",
+        emoji: "🏗️",
+        gradient: "linear-gradient(135deg,#0d1b2a,#1a3a5c,#0d2b1a)",
+        tags: ["Sandbox","Mini Game","Miễn phí"],
+        rating: 5,
+        year: "2026",
+    },
+    // ── THÊM TRÒ CHƠI MỚI TẠI ĐÂY ──
+    // {
+    //   id: 2, title: "Tên game", desc: "Mô tả",
+    //   url: "https://...", thumb: "", emoji: "🎯",
+    //   gradient: "linear-gradient(...)",
+    //   tags: ["Action"], rating: 4, year: "2026",
+    // },
+];
+
+// Render cards
+const grid = document.getElementById('gameGrid');
+document.getElementById('gameCount').textContent = games.length + ' TRÒ CHƠI';
+
+games.forEach((g, i) => {
+    const stars = '★'.repeat(g.rating) + '☆'.repeat(5 - g.rating);
+    const tagHtml = g.tags.map((t,ti) => {
+        const cls = ti === 0 ? 'tag-genre' : ti === 1 ? 'tag-new' : 'tag-free';
+        return `<span class="tag ${cls}">${t}</span>`;
+    }).join('');
+
+    const thumbHtml = g.thumb
+        ? `<img class="card-thumb" src="${g.thumb}" alt="${g.title}" onerror="this.outerHTML='<div class=\\'card-thumb-placeholder\\' style=\\'background:${g.gradient}\\'>${g.emoji}</div>'">`
+        : `<div class="card-thumb-placeholder" style="background:${g.gradient}">${g.emoji}</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.style.animationDelay = `${i * 0.1}s`;
+    card.innerHTML = `
+        ${thumbHtml}
+        <div class="card-body">
+            <div class="card-tags">${tagHtml}</div>
+            <div class="card-title">${g.title}</div>
+            <div class="card-desc">${g.desc}</div>
+            <div class="card-footer">
+                <div>
+                    <div class="stars">${stars}</div>
+                    <div class="card-meta">${g.year}</div>
+                </div>
+                <button class="play-btn" onclick="window.open('${g.url}','_blank')">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    CHƠI NGAY
+                </button>
+            </div>
+        </div>
+    `;
+    grid.appendChild(card);
+});
+
+// Coming soon placeholder
+const soon = document.createElement('div');
+soon.className = 'game-card card-soon';
+soon.innerHTML = `
+    <div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#111,#1a1a2e)">🔒</div>
+    <div class="card-body">
+        <div class="card-tags"><span class="tag tag-genre">Sắp ra mắt</span></div>
+        <div class="card-title">Trò chơi mới</div>
+        <div class="card-desc">Đang trong quá trình phát triển...</div>
+        <div class="card-footer">
+            <div><div class="stars">★★★★★</div><div class="card-meta">2026</div></div>
+            <button class="play-btn" disabled>SẮP RA MẮT</button>
+        </div>
+    </div>
+`;
+grid.appendChild(soon);
+
+// ─── PARTICLES ───────────────────────────────────────────────────
+const pc = document.getElementById('particles');
+for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'p';
+    const s = Math.random() * 3 + 1;
+    p.style.cssText = `
+        width:${s}px;height:${s}px;
+        left:${Math.random()*100}vw;
+        top:${Math.random()*100}vh;
+        animation-duration:${Math.random()*12+7}s;
+        animation-delay:${Math.random()*8}s;
+        filter:blur(${Math.random()>0.5?'1px':'0px'})
+    `;
+    pc.appendChild(p);
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────
+const settingsBtn  = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+const bgGrid       = document.getElementById('bgGrid');
+const bgUrlInput   = document.getElementById('bgUrl');
+const bgApplyBtn   = document.getElementById('bgApply');
+const bgResetBtn   = document.getElementById('bgReset');
+const overlayTog   = document.getElementById('overlayTog');
+const bgOverlay    = document.getElementById('bgOverlay');
+
+let open = false;
+settingsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    open = !open;
+    settingsPanel.classList.toggle('open', open);
+});
+document.addEventListener('click', e => {
+    if (open && !settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+        open = false; settingsPanel.classList.remove('open');
+    }
+});
+
+function applyBg(url) {
+    if (!url || url === 'none') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = '#0a0a0a';
+    } else {
+        document.body.style.backgroundImage = `url(${url})`;
+        document.body.style.backgroundColor = '';
+    }
+}
+
+bgGrid.querySelectorAll('.bg-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        applyBg(btn.dataset.bg);
+    });
+});
+
+bgApplyBtn.addEventListener('click', () => {
+    const url = bgUrlInput.value.trim();
+    if (url) {
+        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+        applyBg(url);
+    }
+});
+
+bgResetBtn.addEventListener('click', () => {
+    bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+    bgGrid.querySelector('[data-bg="none"]').classList.add('sel');
+    bgUrlInput.value = '';
+    applyBg('none');
+});
+
+overlayTog.addEventListener('change', function() {
+    bgOverlay.classList.toggle('hidden', !this.checked);
+});
+
+// ─── UPDATE FETCH ─────────────────────────────────────────────────
+async function fetchUpdate() {
+    try {
+        const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
+        if (!r.ok) throw new Error();
+        const txt = await r.text();
+        document.getElementById('updateText').textContent = txt;
+    } catch {
+        document.getElementById('updateText').textContent = 'Hiện tại chưa có thông tin mới.';
+    }
+}
+fetchUpdate();
+</script>
+</body>
+</html>
