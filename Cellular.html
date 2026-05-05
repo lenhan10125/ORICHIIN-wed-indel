@@ -48,6 +48,14 @@
             perspective: 1000px;
         }
 
+        /* Background image support */
+        body.has-bg-image {
+            background-image: var(--custom-bg-image, none) !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+
         /* Lớp canvas nền mô phỏng hệ thống hạt lượng tử / mưa */
         #backgroundCanvas {
             position: absolute;
@@ -59,6 +67,10 @@
             pointer-events: none;
             opacity: 0.8;
             filter: blur(1px);
+        }
+
+        #backgroundCanvas.hidden {
+            display: none;
         }
 
         /* Container chính chứa toàn bộ game */
@@ -79,6 +91,10 @@
             border: 1px solid var(--border-dim);
             transform-style: preserve-3d;
             animation: floatContainer 6s ease-in-out infinite alternate;
+        }
+
+        .master-container.no-float-anim {
+            animation: none !important;
         }
 
         @keyframes floatContainer {
@@ -170,7 +186,7 @@
             background: #000;
             border-radius: 4px;
             display: block;
-            image-rendering: pixelated; /* Cát cực kì sắc nét, khối to */
+            image-rendering: pixelated;
             box-shadow: inset 0 0 30px rgba(0, 20, 40, 0.5);
         }
 
@@ -190,6 +206,10 @@
             z-index: 20;
             opacity: 0.4;
             border-radius: 4px;
+        }
+
+        .scanlines.hidden {
+            display: none;
         }
 
         /* Overlays (Pause, Game Over) */
@@ -242,6 +262,7 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            margin: 6px 0;
         }
 
         .btn-action::before {
@@ -333,9 +354,812 @@
             100% { transform: scale(0.8) translateY(-30px); opacity: 0; }
         }
 
+        /* ==========================================================================
+           MÀN HÌNH CHỜ (SPLASH SCREEN)
+           ========================================================================== */
+        #splashScreen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at center, #0a1128 0%, #000000 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease;
+        }
+
+        #splashScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            font-family: var(--font-mono);
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            text-shadow: 0 0 40px rgba(0, 255, 204, 0.8), 0 0 80px rgba(0, 255, 204, 0.4);
+            animation: splashPulse 2s ease-in-out infinite alternate;
+            margin-bottom: 10px;
+        }
+
+        .splash-subtitle {
+            font-size: 16px;
+            letter-spacing: 6px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        @keyframes splashPulse {
+            0% { text-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 0 0 40px rgba(0, 255, 204, 0.2); }
+            100% { text-shadow: 0 0 60px rgba(0, 255, 204, 1), 0 0 120px rgba(0, 255, 204, 0.6), 0 0 200px rgba(0, 255, 204, 0.3); }
+        }
+
+        .splash-tetris-preview {
+            display: grid;
+            grid-template-columns: repeat(8, 20px);
+            gap: 2px;
+            margin-bottom: 50px;
+        }
+
+        .splash-cell {
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            animation: cellBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes cellBlink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .splash-btn-start {
+            background: transparent;
+            color: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+            padding: 18px 60px;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3), inset 0 0 20px rgba(0, 255, 204, 0.05);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .splash-btn-start::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--accent-primary);
+            transition: left 0.3s;
+            z-index: -1;
+        }
+
+        .splash-btn-start:hover {
+            color: #000;
+            box-shadow: 0 0 40px rgba(0, 255, 204, 0.8);
+        }
+
+        .splash-btn-start:hover::before {
+            left: 0;
+        }
+
+        .splash-controls-hint {
+            font-size: 13px;
+            color: rgba(107, 130, 158, 0.7);
+            letter-spacing: 2px;
+        }
+
+        .splash-scan-lines {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 204, 0.01) 2px,
+                rgba(0, 255, 204, 0.01) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           CỬA SỔ CÀI ĐẶT (SETTINGS MODAL)
+           ========================================================================== */
+        #settingsOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 8888;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        #settingsOverlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .settings-modal {
+            background: rgba(5, 10, 20, 0.98);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 16px;
+            padding: 35px;
+            width: 750px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 60px rgba(0, 255, 204, 0.15), 0 0 0 1px rgba(0, 255, 204, 0.05);
+            position: relative;
+        }
+
+        .settings-modal::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .settings-modal::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .settings-modal::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 3px;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+        }
+
+        .settings-title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+        }
+
+        .settings-close-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 0, 51, 0.5);
+            color: var(--accent-danger);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .settings-close-btn:hover {
+            background: var(--accent-danger);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.5);
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent-warning);
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 170, 0, 0.2);
+            font-family: var(--font-mono);
+        }
+
+        /* Toggle Switch */
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .settings-row-label {
+            font-size: 14px;
+            color: var(--text-main);
+            flex: 1;
+        }
+
+        .settings-row-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            transition: all 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(0, 255, 204, 0.2);
+            border-color: var(--accent-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+            background: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        /* Slider Range */
+        .range-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 20px;
+        }
+
+        .range-control input[type="range"] {
+            -webkit-appearance: none;
+            width: 150px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .range-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        }
+
+        .range-value {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--accent-primary);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Background Picker Grid */
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .bg-option {
+            aspect-ratio: 16/9;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-option:hover {
+            border-color: rgba(0, 255, 204, 0.5);
+            transform: scale(1.05);
+        }
+
+        .bg-option.selected {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+
+        .bg-option .bg-preview {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .bg-option .bg-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            font-size: 9px;
+            text-align: center;
+            padding: 3px;
+            color: #ccc;
+            letter-spacing: 1px;
+        }
+
+        /* Music selector */
+        .music-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .music-item:hover {
+            background: rgba(0, 255, 204, 0.05);
+            border-color: rgba(0, 255, 204, 0.2);
+        }
+
+        .music-item.active {
+            background: rgba(0, 255, 204, 0.08);
+            border-color: var(--accent-primary);
+        }
+
+        .music-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .music-name {
+            font-size: 13px;
+            color: var(--text-main);
+            flex: 1;
+        }
+
+        .music-status {
+            font-size: 11px;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+        }
+
+        /* Render mode select */
+        .render-select {
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--text-main);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 4px;
+            padding: 8px 14px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            margin-left: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .render-select:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .render-select option {
+            background: #0a1020;
+        }
+
+        /* Settings action buttons */
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 255, 204, 0.15);
+        }
+
+        .btn-settings-action {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-settings-apply {
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .btn-settings-apply:hover {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+        }
+
+        .btn-settings-reset {
+            background: rgba(255, 170, 0, 0.05);
+            border: 1px solid var(--accent-warning);
+            color: var(--accent-warning);
+        }
+
+        .btn-settings-reset:hover {
+            background: var(--accent-warning);
+            color: #000;
+        }
+
+        /* Nút cài đặt trên game HUD */
+        .settings-btn-hud {
+            background: transparent;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            color: var(--accent-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .settings-btn-hud:hover {
+            background: rgba(0, 255, 204, 0.1);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
+        }
+
+        /* Indicator thanh màu cần xóa */
+        .color-bar-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 10px 12px;
+        }
+
+        .color-bar-title {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .color-bar-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .color-slot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-bar-track {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .color-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .color-bar-pct {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        /* Notification toast */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: var(--font-mono);
+            z-index: 99999;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes toastIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Score popup cho soft drop */
+        .score-popup {
+            position: absolute;
+            font-size: 18px;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            color: var(--accent-warning);
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+            pointer-events: none;
+            z-index: 60;
+            animation: scoreFloat 1.2s forwards;
+        }
+
+        @keyframes scoreFloat {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
+        }
+
+        /* Color elimination flash */
+        @keyframes colorElimFlash {
+            0% { opacity: 1; }
+            50% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        .color-elim-flash {
+            animation: colorElimFlash 0.3s ease 3;
+        }
+
     </style>
 </head>
 <body>
+
+    <!-- =================== MÀN HÌNH CHỜ =================== -->
+    <div id="splashScreen">
+        <div class="splash-scan-lines"></div>
+        <div class="splash-logo">SAND TETRIS</div>
+        <div class="splash-subtitle">Quantum Architecture Edition</div>
+
+        <div class="splash-tetris-preview" id="splashPreview"></div>
+
+        <button class="splash-btn-start" id="splashStartBtn" onclick="SplashSystem.startGame()">
+            ▶ BẮT ĐẦU NGAY
+        </button>
+        <div class="splash-controls-hint">Nhấn ENTER hoặc SPACE để bắt đầu</div>
+    </div>
+
+    <!-- =================== MÀN HÌNH CÀI ĐẶT =================== -->
+    <div id="settingsOverlay">
+        <div class="settings-modal">
+            <div class="settings-header">
+                <div class="settings-title">⚙ CÀI ĐẶT HỆ THỐNG</div>
+                <button class="settings-close-btn" onclick="SettingsSystem.close()">✕</button>
+            </div>
+
+            <!-- PHẦN 1: HÌNH NỀN -->
+            <div class="settings-section">
+                <div class="settings-section-title">🎨 Hình Nền</div>
+                <div class="bg-grid" id="bgGrid"></div>
+            </div>
+
+            <!-- PHẦN 2: TỐC ĐỘ RƠI -->
+            <div class="settings-section">
+                <div class="settings-section-title">⚡ Tốc Độ Rơi</div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Hệ số nhân tốc độ rơi</div>
+                        <div class="settings-row-desc">1.0x = mặc định | Không được chậm hơn mặc định</div>
+                    </div>
+                    <div class="range-control">
+                        <input type="range" id="speedMultiplier" min="1.0" max="5.0" step="0.1" value="1.0" oninput="SettingsSystem.onSpeedChange(this.value)">
+                        <span class="range-value" id="speedMultiplierVal">1.0x</span>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Cộng điểm khi Soft Drop</div>
+                        <div class="settings-row-desc">Điểm thưởng khi đưa khối đi xuống thủ công</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleSoftDropScore" checked onchange="SettingsSystem.save()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Hệ số điểm Soft Drop</div>
+                        <div class="settings-row-desc">Mỗi ô rơi xuống thêm bao nhiêu điểm (mặc định: 1)</div>
+                    </div>
+                    <div class="range-control">
+                        <input type="range" id="softDropScoreMultiplier" min="1" max="10" step="1" value="1" oninput="SettingsSystem.onSoftDropScoreChange(this.value)">
+                        <span class="range-value" id="softDropScoreMultiplierVal">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHẦN 3: ĐỒ HỌA -->
+            <div class="settings-section">
+                <div class="settings-section-title">🖥 Đồ Họa & Hiệu Ứng</div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Chế độ render tối ưu</div>
+                        <div class="settings-row-desc">Chọn thuật toán phù hợp với cấu hình máy</div>
+                    </div>
+                    <select class="render-select" id="renderMode" onchange="SettingsSystem.onRenderModeChange(this.value)">
+                        <option value="full">Full Quality (Mặc định)</option>
+                        <option value="medium">Medium (Tắt glow)</option>
+                        <option value="low">Low (Tối ưu cho máy yếu)</option>
+                        <option value="minimal">Minimal (Tối giản nhất)</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Hiệu ứng Scanlines (CRT)</div>
+                        <div class="settings-row-desc">Lớp lưới CRT retro phủ lên màn hình game</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleScanlines" checked onchange="SettingsSystem.onScanlinesToggle(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Hiệu ứng hạt VFX</div>
+                        <div class="settings-row-desc">Hạt nổ ra khi xóa dòng (tắt để giảm lag)</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleParticles" checked onchange="SettingsSystem.save()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Hoạt ảnh container nổi</div>
+                        <div class="settings-row-desc">Hiệu ứng float 3D của toàn bộ game container</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleFloatAnim" checked onchange="SettingsSystem.onFloatAnimToggle(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Hiệu ứng nền vũ trụ</div>
+                        <div class="settings-row-desc">Canvas hạt nền bay (tắt để giảm tải GPU)</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleBgCanvas" checked onchange="SettingsSystem.onBgCanvasToggle(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Ghost Piece (bóng đổ)</div>
+                        <div class="settings-row-desc">Hiển thị vị trí hạ cánh dự kiến của khối</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleGhostPiece" checked onchange="SettingsSystem.save()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-row-label">Glow Effect trên khối</div>
+                        <div class="settings-row-desc">Ánh sáng phát sáng từ khối đang điều khiển</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleGlowEffect" checked onchange="SettingsSystem.save()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- PHẦN 4: ÂM NHẠC -->
+            <div class="settings-section">
+                <div class="settings-section-title">🎵 Nhạc Nền</div>
+                <div class="settings-row" style="margin-bottom: 14px;">
+                    <div>
+                        <div class="settings-row-label">Bật nhạc nền</div>
+                        <div class="settings-row-desc">Phát nhạc trong lúc chơi game</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleMusic" onchange="SettingsSystem.onMusicToggle(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row" style="margin-bottom: 14px;">
+                    <div>
+                        <div class="settings-row-label">Âm lượng nhạc</div>
+                    </div>
+                    <div class="range-control">
+                        <input type="range" id="musicVolume" min="0" max="100" step="5" value="60" oninput="SettingsSystem.onMusicVolumeChange(this.value)">
+                        <span class="range-value" id="musicVolumeVal">60%</span>
+                    </div>
+                </div>
+                <div class="music-list" id="musicList"></div>
+            </div>
+
+            <div class="settings-actions">
+                <button class="btn-settings-action btn-settings-apply" onclick="SettingsSystem.applyAndClose()">✓ Áp Dụng & Đóng</button>
+                <button class="btn-settings-action btn-settings-reset" onclick="SettingsSystem.resetToDefault()">↺ Khôi Phục Mặc Định</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Lớp nền hệ thống -->
     <canvas id="backgroundCanvas"></canvas>
@@ -371,24 +1195,26 @@
                 <div class="key-bind"><span>Giữ Khối (Hold)</span> <span class="key-cap">C / Shift</span></div>
                 <div class="key-bind" style="border:none;"><span>Dừng/Tiếp Tục</span> <span class="key-cap">Esc / P</span></div>
             </div>
+
+            <!-- Nút cài đặt -->
+            <button class="settings-btn-hud" onclick="SettingsSystem.open()">⚙ CÀI ĐẶT</button>
         </div>
 
         <!-- VÙNG GAME CHÍNH (Playfield) -->
         <div class="main-board-wrapper" id="boardWrapper">
-            <!-- Canvas Chính: Thay vì 5px, khối cát giờ sẽ là 24px để to rõ rệt -->
-            <!-- COLS = 24, ROWS = 40 => Width = 24*24 = 576px, Height = 40*24 = 960px -->
             <canvas id="gameCanvas" width="576" height="960"></canvas>
             
             <!-- Hiệu ứng CRT lưới -->
-            <div class="scanlines"></div>
+            <div class="scanlines" id="scanlines"></div>
             
-            <!-- Container hiển thị text combo (Tetris, T-Spin,...) -->
+            <!-- Container hiển thị text combo -->
             <div id="actionTextContainer"></div>
 
             <!-- Màn hình Tạm Dừng -->
             <div class="screen-overlay" id="overlayPause">
                 <div class="overlay-title title-pause">TẠM DỪNG</div>
                 <button class="btn-action" onclick="GameCore.togglePause()">Tiếp Tục [P]</button>
+                <button class="btn-action" style="border-color: var(--accent-warning); color: var(--accent-warning); margin-top: 10px;" onclick="SettingsSystem.open()">⚙ Cài Đặt</button>
             </div>
 
             <!-- Màn hình Kết Thúc -->
@@ -420,47 +1246,58 @@
                 <div class="hud-title">Chỉ Số Tốc Độ (G)</div>
                 <div class="hud-value" id="ui-speed" style="font-size: 20px; color: #aab;">0.016 G</div>
             </div>
+
+            <!-- Thanh tiến trình màu sắc cần xóa -->
+            <div class="color-bar-container">
+                <div class="color-bar-title">⬛ Cần Xóa Màu</div>
+                <div class="color-bar-slots" id="colorBarSlots">
+                    <!-- Tự động render bởi JS -->
+                </div>
+            </div>
         </div>
 
     </div>
 
+    <!-- Audio element cho nhạc nền -->
+    <audio id="bgMusicPlayer" loop></audio>
+
 <script>
 /**
  * ============================================================================================
- * SAND TETRIS ULTIMATE - QUANTUM ARCHITECTURE ENGINE
+ * SAND TETRIS ULTIMATE - QUANTUM ARCHITECTURE ENGINE (ENHANCED EDITION)
  * Phân hệ lập trình: Hướng đối tượng cấp cao (High-Level OOP)
- * Tối ưu hóa: Thuật toán Cellular Automata, Super Rotation System (SRS), Web Audio API
- * Tác giả: Orichiin-san (AI Enhanced Edition)
+ * Thêm mới: Settings System, Splash Screen, Color Elimination Mechanic,
+ *           Background Music, Speed Multiplier, Score Popup, Anti-lag Modes
  * ============================================================================================
  */
 
 // Đóng gói toàn bộ cấu hình vào một hằng số toàn cục khổng lồ để dễ quản lý
 const GAME_CONFIG = {
     // CĂN CHỈNH TỈ LỆ LÀM CHO KHỐI CÁT TO HƠN
-    COLS: 24,            // Số cột (Grid X) - Giảm xuống để block to hơn
+    COLS: 24,            // Số cột (Grid X)
     ROWS: 40,            // Số hàng (Grid Y)
-    CELL_SIZE: 24,       // Kích thước một hạt cát (Pixel) -> 24px là RẤT TO và rõ rệt
+    CELL_SIZE: 24,       // Kích thước một hạt cát (Pixel)
     
     // FPS & Timing
     FPS: 60,
-    PHYSICS_TICK_RATE: 120, // Tính toán vật lý nhanh gấp đôi FPS để cát rơi mượt hơn
+    PHYSICS_TICK_RATE: 120,
     
-    // Hệ thống điều khiển (DAS & ARR) - Chuẩn game Tetris hiện đại
-    DAS: 150,            // Delayed Auto Shift (ms) - Thời gian giữ phím trước khi lặp
-    ARR: 30,             // Auto Repeat Rate (ms) - Tốc độ lặp lại phím
-    SOFT_DROP_MULT: 20,  // Tốc độ rơi nhanh gấp bao nhiêu lần bình thường
-    LOCK_DELAY: 500,     // Thời gian chờ trước khi khối bị khóa cứng (Extended Placement)
+    // Hệ thống điều khiển (DAS & ARR)
+    DAS: 150,
+    ARR: 30,
+    SOFT_DROP_MULT: 20,
+    LOCK_DELAY: 500,
     
     // Bảng màu hệ thống (Neon Cyberpunk Palette)
     COLORS: {
         BG_EMPTY: null,
-        I: '#00ffff', // Cyan
-        J: '#0055ff', // Blue
-        L: '#ff7700', // Orange
-        O: '#ffea00', // Yellow
-        S: '#00ff00', // Green
-        T: '#aa00ff', // Purple
-        Z: '#ff0055', // Red
+        I: '#00ffff',
+        J: '#0055ff',
+        L: '#ff7700',
+        O: '#ffea00',
+        S: '#00ff00',
+        T: '#aa00ff',
+        Z: '#ff0055',
         GHOST: 'rgba(255, 255, 255, 0.15)',
         PARTICLE_A: '#ffffff',
         PARTICLE_B: '#ff00aa'
@@ -469,7 +1306,6 @@ const GAME_CONFIG = {
 
 /**
  * TỪ ĐIỂN CÁC KHỐI TETROMINO (CHUẨN SRS)
- * Ma trận đại diện cho các khối. Tâm xoay nằm ở giữa ma trận.
  */
 const TETROMINOES = {
     'I': {
@@ -502,7 +1338,7 @@ const TETROMINOES = {
         matrix: [
             [1,1],
             [1,1]
-        ] // Khối O không xoay
+        ]
     },
     'S': {
         color: GAME_CONFIG.COLORS.S,
@@ -532,9 +1368,6 @@ const TETROMINOES = {
 
 /**
  * HỆ THỐNG SUPER ROTATION SYSTEM (SRS) WALL KICK DATA
- * Khi xoay khối mà bị kẹt, hệ thống sẽ thử dịch chuyển khối theo các offset này.
- * Cấu trúc: [Trạng thái hiện tại -> Trạng thái tiếp theo]: [ [x, y], [x, y], ... ]
- * Trạng thái: 0(Spawn), 1(R), 2(2), 3(L)
  */
 const SRS_WALL_KICK_DATA = {
     "JLSTZ": {
@@ -567,19 +1400,630 @@ const ACTION_MESSAGES = [
     "HOÀN MỸ!", "CHẤN ĐỘNG!", "VÔ CỰC!", "KHÔNG THỂ CẢN PHÁ!"
 ];
 
-/**
- * ============================================================================================
- * LỚP 1: AUDIO SYNTHESIZER (TỔNG HỢP ÂM THANH BẰNG CODE)
- * Sử dụng Web Audio API để tạo âm thanh 8-bit/16-bit retro chân thực mà không cần file ngoài.
- * Đảm bảo dung lượng code tăng lên một cách có ý nghĩa và tăng độ phức tạp kĩ thuật.
- * ============================================================================================
- */
+// ============================================================================================
+// HỆ THỐNG CÀI ĐẶT (SETTINGS SYSTEM)
+// Quản lý toàn bộ tuỳ chỉnh của người chơi: hình nền, tốc độ, render mode, nhạc nền...
+// ============================================================================================
+const SettingsSystem = new (class {
+    constructor() {
+        // Danh sách hình nền (10 hình, để trống link)
+        this.backgrounds = [
+            { id: 'default', label: 'Mặc Định', url: '', style: 'radial-gradient(circle at 50% 50%, #0a1128 0%, #000000 100%)' },
+            { id: 'bg1',     label: 'Nebula',   url: '' , style: 'radial-gradient(ellipse at 20% 80%, #1a0533 0%, #0a0015 50%, #000005 100%)' },
+            { id: 'bg2',     label: 'Matrix',   url: '' , style: 'linear-gradient(180deg, #001500 0%, #000800 100%)' },
+            { id: 'bg3',     label: 'Sunset',   url: '' , style: 'linear-gradient(135deg, #1a0a00 0%, #2d0020 50%, #000010 100%)' },
+            { id: 'bg4',     label: 'Ocean',    url: '' , style: 'linear-gradient(180deg, #000a1a 0%, #001530 40%, #000510 100%)' },
+            { id: 'bg5',     label: 'Lava',     url: '' , style: 'radial-gradient(ellipse at 70% 30%, #2a0500 0%, #1a0000 50%, #050000 100%)' },
+            { id: 'bg6',     label: 'Arctic',   url: '' , style: 'linear-gradient(180deg, #0a1520 0%, #0d2030 50%, #000510 100%)' },
+            { id: 'bg7',     label: 'Cyber',    url: '' , style: 'linear-gradient(45deg, #050020 0%, #000515 50%, #020010 100%)' },
+            { id: 'bg8',     label: 'Void',     url: '' , style: 'radial-gradient(circle, #0a0a0a 0%, #000000 100%)' },
+            { id: 'bg9',     label: 'Aurora',   url: '' , style: 'linear-gradient(160deg, #001015 0%, #001520 30%, #000a10 60%, #050020 100%)' },
+        ];
+
+        // Danh sách nhạc nền (10 bài, để trống link)
+        this.musicTracks = [
+            { id: 'none',    name: 'Tắt nhạc',       url: '' },
+            { id: 'track1',  name: 'Quantum Drift',   url: '' },
+            { id: 'track2',  name: 'Neon Pulse',      url: '' },
+            { id: 'track3',  name: 'Cyber Rain',      url: '' },
+            { id: 'track4',  name: 'Digital Storm',   url: '' },
+            { id: 'track5',  name: 'Sand Galaxy',     url: '' },
+            { id: 'track6',  name: 'Crystal Matrix',  url: '' },
+            { id: 'track7',  name: 'Warp Drive',      url: '' },
+            { id: 'track8',  name: 'Void Walker',     url: '' },
+            { id: 'track9',  name: 'Neural Network',  url: '' },
+        ];
+
+        // Cài đặt mặc định
+        this.defaults = {
+            selectedBg: 'default',
+            speedMultiplier: 1.0,
+            softDropScore: true,
+            softDropScoreMultiplier: 1,
+            renderMode: 'full',
+            scanlines: true,
+            particles: true,
+            floatAnim: true,
+            bgCanvas: true,
+            ghostPiece: true,
+            glowEffect: true,
+            musicEnabled: false,
+            musicVolume: 60,
+            selectedTrack: 'none',
+        };
+
+        this.current = { ...this.defaults };
+        this._isOpen = false;
+    }
+
+    init() {
+        this.loadFromStorage();
+        this.buildBgGrid();
+        this.buildMusicList();
+        this.applySettings(false);
+    }
+
+    loadFromStorage() {
+        try {
+            const saved = localStorage.getItem('sandtetris_settings_v2');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                this.current = { ...this.defaults, ...parsed };
+            }
+        } catch(e) {
+            this.current = { ...this.defaults };
+        }
+        this.syncUIToSettings();
+    }
+
+    syncUIToSettings() {
+        const s = this.current;
+        const getEl = id => document.getElementById(id);
+
+        if (getEl('speedMultiplier')) {
+            getEl('speedMultiplier').value = s.speedMultiplier;
+            getEl('speedMultiplierVal').textContent = s.speedMultiplier.toFixed(1) + 'x';
+        }
+        if (getEl('toggleSoftDropScore')) getEl('toggleSoftDropScore').checked = s.softDropScore;
+        if (getEl('softDropScoreMultiplier')) {
+            getEl('softDropScoreMultiplier').value = s.softDropScoreMultiplier;
+            getEl('softDropScoreMultiplierVal').textContent = s.softDropScoreMultiplier;
+        }
+        if (getEl('renderMode')) getEl('renderMode').value = s.renderMode;
+        if (getEl('toggleScanlines')) getEl('toggleScanlines').checked = s.scanlines;
+        if (getEl('toggleParticles')) getEl('toggleParticles').checked = s.particles;
+        if (getEl('toggleFloatAnim')) getEl('toggleFloatAnim').checked = s.floatAnim;
+        if (getEl('toggleBgCanvas')) getEl('toggleBgCanvas').checked = s.bgCanvas;
+        if (getEl('toggleGhostPiece')) getEl('toggleGhostPiece').checked = s.ghostPiece;
+        if (getEl('toggleGlowEffect')) getEl('toggleGlowEffect').checked = s.glowEffect;
+        if (getEl('toggleMusic')) getEl('toggleMusic').checked = s.musicEnabled;
+        if (getEl('musicVolume')) {
+            getEl('musicVolume').value = s.musicVolume;
+            getEl('musicVolumeVal').textContent = s.musicVolume + '%';
+        }
+        this.refreshBgSelection();
+        this.refreshMusicSelection();
+    }
+
+    save() {
+        // Đọc giá trị từ UI vào current
+        const s = this.current;
+        const getEl = id => document.getElementById(id);
+
+        s.softDropScore = getEl('toggleSoftDropScore') ? getEl('toggleSoftDropScore').checked : s.softDropScore;
+        s.softDropScoreMultiplier = getEl('softDropScoreMultiplier') ? parseInt(getEl('softDropScoreMultiplier').value) : s.softDropScoreMultiplier;
+        s.renderMode = getEl('renderMode') ? getEl('renderMode').value : s.renderMode;
+        s.particles = getEl('toggleParticles') ? getEl('toggleParticles').checked : s.particles;
+        s.ghostPiece = getEl('toggleGhostPiece') ? getEl('toggleGhostPiece').checked : s.ghostPiece;
+        s.glowEffect = getEl('toggleGlowEffect') ? getEl('toggleGlowEffect').checked : s.glowEffect;
+        s.musicEnabled = getEl('toggleMusic') ? getEl('toggleMusic').checked : s.musicEnabled;
+        s.musicVolume = getEl('musicVolume') ? parseInt(getEl('musicVolume').value) : s.musicVolume;
+
+        try {
+            localStorage.setItem('sandtetris_settings_v2', JSON.stringify(s));
+        } catch(e) {}
+    }
+
+    applySettings(showToast = true) {
+        const s = this.current;
+
+        // Áp dụng hình nền
+        const bg = this.backgrounds.find(b => b.id === s.selectedBg) || this.backgrounds[0];
+        const body = document.body;
+        if (bg.url) {
+            body.style.backgroundImage = `url('${bg.url}')`;
+            body.style.backgroundSize = 'cover';
+            body.style.backgroundPosition = 'center';
+        } else {
+            body.style.backgroundImage = bg.style;
+            body.style.backgroundSize = '100% 100%';
+        }
+
+        // Scanlines
+        const scanlinesEl = document.getElementById('scanlines');
+        if (scanlinesEl) {
+            scanlinesEl.classList.toggle('hidden', !s.scanlines);
+        }
+
+        // Float animation
+        const mc = document.getElementById('masterContainer');
+        if (mc) {
+            mc.classList.toggle('no-float-anim', !s.floatAnim);
+        }
+
+        // BG Canvas
+        const bgCanvas = document.getElementById('backgroundCanvas');
+        if (bgCanvas) {
+            bgCanvas.classList.toggle('hidden', !s.bgCanvas);
+        }
+
+        // Music
+        this.applyMusic();
+
+        if (showToast) this.showToast('✓ Cài đặt đã được áp dụng!');
+    }
+
+    applyMusic() {
+        const s = this.current;
+        const player = document.getElementById('bgMusicPlayer');
+        if (!player) return;
+
+        if (s.musicEnabled && s.selectedTrack && s.selectedTrack !== 'none') {
+            const track = this.musicTracks.find(t => t.id === s.selectedTrack);
+            if (track && track.url) {
+                if (player.src !== track.url) {
+                    player.src = track.url;
+                }
+                player.volume = s.musicVolume / 100;
+                player.play().catch(() => {});
+            } else {
+                // Link trống => dừng nhạc
+                player.pause();
+            }
+        } else {
+            player.pause();
+        }
+    }
+
+    buildBgGrid() {
+        const grid = document.getElementById('bgGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        this.backgrounds.forEach(bg => {
+            const option = document.createElement('div');
+            option.className = 'bg-option' + (this.current.selectedBg === bg.id ? ' selected' : '');
+            option.dataset.bgId = bg.id;
+
+            const preview = document.createElement('div');
+            preview.className = 'bg-preview';
+            if (bg.url) {
+                preview.style.backgroundImage = `url('${bg.url}')`;
+            } else {
+                preview.style.backgroundImage = bg.style;
+            }
+
+            const label = document.createElement('div');
+            label.className = 'bg-label';
+            label.textContent = bg.label;
+
+            option.appendChild(preview);
+            option.appendChild(label);
+
+            option.addEventListener('click', () => {
+                this.current.selectedBg = bg.id;
+                this.refreshBgSelection();
+                this.save();
+            });
+
+            grid.appendChild(option);
+        });
+    }
+
+    refreshBgSelection() {
+        document.querySelectorAll('.bg-option').forEach(el => {
+            el.classList.toggle('selected', el.dataset.bgId === this.current.selectedBg);
+        });
+    }
+
+    buildMusicList() {
+        const list = document.getElementById('musicList');
+        if (!list) return;
+        list.innerHTML = '';
+
+        this.musicTracks.forEach(track => {
+            const item = document.createElement('div');
+            item.className = 'music-item' + (this.current.selectedTrack === track.id ? ' active' : '');
+            item.dataset.trackId = track.id;
+
+            const icon = document.createElement('span');
+            icon.className = 'music-icon';
+            icon.textContent = track.id === 'none' ? '🔇' : '🎵';
+
+            const name = document.createElement('span');
+            name.className = 'music-name';
+            name.textContent = track.name;
+
+            const status = document.createElement('span');
+            status.className = 'music-status';
+            status.textContent = (this.current.selectedTrack === track.id) ? '▶ ĐANG PHÁT' : '';
+
+            item.appendChild(icon);
+            item.appendChild(name);
+            item.appendChild(status);
+
+            item.addEventListener('click', () => {
+                this.current.selectedTrack = track.id;
+                this.refreshMusicSelection();
+                this.applyMusic();
+                this.save();
+            });
+
+            list.appendChild(item);
+        });
+    }
+
+    refreshMusicSelection() {
+        document.querySelectorAll('.music-item').forEach(el => {
+            const isActive = el.dataset.trackId === this.current.selectedTrack;
+            el.classList.toggle('active', isActive);
+            const statusEl = el.querySelector('.music-status');
+            if (statusEl) statusEl.textContent = isActive ? '▶ ĐANG PHÁT' : '';
+        });
+    }
+
+    onSpeedChange(val) {
+        const v = parseFloat(val);
+        this.current.speedMultiplier = v;
+        document.getElementById('speedMultiplierVal').textContent = v.toFixed(1) + 'x';
+        this.save();
+    }
+
+    onSoftDropScoreChange(val) {
+        this.current.softDropScoreMultiplier = parseInt(val);
+        document.getElementById('softDropScoreMultiplierVal').textContent = val;
+        this.save();
+    }
+
+    onRenderModeChange(val) {
+        this.current.renderMode = val;
+        this.save();
+    }
+
+    onScanlinesToggle(checked) {
+        this.current.scanlines = checked;
+        const scanlinesEl = document.getElementById('scanlines');
+        if (scanlinesEl) scanlinesEl.classList.toggle('hidden', !checked);
+        this.save();
+    }
+
+    onFloatAnimToggle(checked) {
+        this.current.floatAnim = checked;
+        const mc = document.getElementById('masterContainer');
+        if (mc) mc.classList.toggle('no-float-anim', !checked);
+        this.save();
+    }
+
+    onBgCanvasToggle(checked) {
+        this.current.bgCanvas = checked;
+        const bgCanvas = document.getElementById('backgroundCanvas');
+        if (bgCanvas) bgCanvas.classList.toggle('hidden', !checked);
+        this.save();
+    }
+
+    onMusicToggle(checked) {
+        this.current.musicEnabled = checked;
+        this.applyMusic();
+        this.save();
+    }
+
+    onMusicVolumeChange(val) {
+        this.current.musicVolume = parseInt(val);
+        document.getElementById('musicVolumeVal').textContent = val + '%';
+        const player = document.getElementById('bgMusicPlayer');
+        if (player) player.volume = parseInt(val) / 100;
+        this.save();
+    }
+
+    open() {
+        if (this._isOpen) return;
+        this._isOpen = true;
+        this.syncUIToSettings();
+        const overlay = document.getElementById('settingsOverlay');
+        if (overlay) overlay.classList.add('active');
+        if (typeof GameCore !== 'undefined' && GameCore.state === 'PLAYING') {
+            GameCore.pauseForSettings();
+        }
+    }
+
+    close() {
+        this._isOpen = false;
+        const overlay = document.getElementById('settingsOverlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    applyAndClose() {
+        this.save();
+        this.applySettings(true);
+        this.close();
+    }
+
+    resetToDefault() {
+        this.current = { ...this.defaults };
+        this.syncUIToSettings();
+        this.applySettings(false);
+        this.buildBgGrid();
+        this.buildMusicList();
+        this.showToast('↺ Đã khôi phục về mặc định!');
+    }
+
+    showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 3000);
+    }
+
+    // Getters để GameCore truy cập nhanh
+    get speedMultiplier() { return this.current.speedMultiplier || 1.0; }
+    get softDropScore() { return this.current.softDropScore !== false; }
+    get softDropScoreMultiplier() { return this.current.softDropScoreMultiplier || 1; }
+    get renderMode() { return this.current.renderMode || 'full'; }
+    get particlesEnabled() { return this.current.particles !== false; }
+    get ghostPieceEnabled() { return this.current.ghostPiece !== false; }
+    get glowEnabled() { return this.current.glowEffect !== false; }
+})();
+
+// ============================================================================================
+// MÀN HÌNH CHỜ (SPLASH SCREEN SYSTEM)
+// ============================================================================================
+const SplashSystem = new (class {
+    constructor() {
+        this._ready = false;
+        this._colors = [
+            GAME_CONFIG.COLORS.I, GAME_CONFIG.COLORS.J, GAME_CONFIG.COLORS.L,
+            GAME_CONFIG.COLORS.O, GAME_CONFIG.COLORS.S, GAME_CONFIG.COLORS.T,
+            GAME_CONFIG.COLORS.Z
+        ];
+    }
+
+    init() {
+        this.buildPreview();
+        this.bindKeys();
+        // Delay nhỏ để animation vào được mượt mà
+        setTimeout(() => { this._ready = true; }, 500);
+    }
+
+    buildPreview() {
+        const preview = document.getElementById('splashPreview');
+        if (!preview) return;
+
+        // Tạo lưới 8x4 ô màu ngẫu nhiên
+        const rows = 4;
+        const cols = 8;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'splash-cell';
+                const color = this._colors[Math.floor(Math.random() * this._colors.length)];
+                cell.style.backgroundColor = color;
+                cell.style.boxShadow = `0 0 8px ${color}`;
+                cell.style.animationDelay = `${(r * cols + c) * 0.05}s`;
+                preview.appendChild(cell);
+            }
+        }
+    }
+
+    bindKeys() {
+        document.addEventListener('keydown', (e) => {
+            if ((e.code === 'Enter' || e.code === 'Space') && this._ready) {
+                const splash = document.getElementById('splashScreen');
+                if (splash && !splash.classList.contains('hidden')) {
+                    e.preventDefault();
+                    this.startGame();
+                }
+            }
+        });
+    }
+
+    startGame() {
+        if (!this._ready) return;
+        const splash = document.getElementById('splashScreen');
+        if (!splash) return;
+        splash.classList.add('hidden');
+        setTimeout(() => {
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 1000);
+        // Khởi động game
+        GameCore.init();
+        SettingsSystem.applySettings(false);
+    }
+})();
+
+// ============================================================================================
+// HỆ THỐNG THEO DÕI MÀU SẮC & CƠ CHẾ XÓA MÀU (COLOR ELIMINATION SYSTEM)
+// Một hàng màu sắc từ đầu đến cuối bờ tường mới được xóa, không chỉ đầy hoàn toàn.
+// ============================================================================================
+const ColorTracker = new (class {
+    constructor() {
+        // { colorHex: { count: số_ô, rowsCovering: Set } }
+        this._data = {};
+        this._colorList = [
+            GAME_CONFIG.COLORS.I,
+            GAME_CONFIG.COLORS.J,
+            GAME_CONFIG.COLORS.L,
+            GAME_CONFIG.COLORS.O,
+            GAME_CONFIG.COLORS.S,
+            GAME_CONFIG.COLORS.T,
+            GAME_CONFIG.COLORS.Z,
+        ];
+    }
+
+    reset() {
+        this._data = {};
+        this.updateUI();
+    }
+
+    // Cập nhật toàn bộ data từ grid hiện tại
+    updateFromGrid(grid, cols, rows) {
+        this._data = {};
+
+        for (let y = 0; y < rows; y++) {
+            // Kiểm tra hàng này có đủ màu từ đầu đến cuối không
+            const rowColorMap = {}; // { color: count }
+            let hasEmpty = false;
+            for (let x = 0; x < cols; x++) {
+                const cell = grid[y][x];
+                if (!cell) { hasEmpty = true; }
+                else {
+                    rowColorMap[cell] = (rowColorMap[cell] || 0) + 1;
+                }
+            }
+
+            // Tổng hợp màu trong grid
+            for (const color of Object.keys(rowColorMap)) {
+                if (!this._data[color]) {
+                    this._data[color] = { count: 0, fullRows: 0, maxRowSpan: 0 };
+                }
+                this._data[color].count += rowColorMap[color];
+            }
+        }
+
+        // Đếm số hàng mà mỗi màu chiếm trọn vẹn từ đầu đến cuối (toàn bộ cột trong hàng đó là màu đó)
+        for (let y = 0; y < rows; y++) {
+            // Kiểm tra hàng toàn một màu
+            const firstCell = grid[y][0];
+            if (!firstCell) continue;
+            let isMonoColorRow = true;
+            for (let x = 0; x < cols; x++) {
+                if (grid[y][x] !== firstCell) { isMonoColorRow = false; break; }
+            }
+            if (isMonoColorRow) {
+                if (!this._data[firstCell]) this._data[firstCell] = { count: 0, fullRows: 0, maxRowSpan: 0 };
+                this._data[firstCell].fullRows = (this._data[firstCell].fullRows || 0) + 1;
+            }
+        }
+
+        this.updateUI();
+    }
+
+    /**
+     * Kiểm tra xóa dòng theo màu: một hàng từ đầu đến cuối cùng MÀU thì xóa và bỏ màu đó khỏi thanh.
+     * Trả về số hàng màu đã được xóa.
+     */
+    checkAndEliminateColorRows(physics) {
+        const grid = physics.grid;
+        const cols = physics.cols;
+        const rows = physics.rows;
+        let eliminatedRows = 0;
+        const eliminatedColors = [];
+
+        let y = rows - 1;
+        while (y >= 0) {
+            // Kiểm tra hàng y có đầy hoàn toàn không
+            let isFull = true;
+            let firstColor = null;
+            for (let x = 0; x < cols; x++) {
+                if (!grid[y][x]) { isFull = false; break; }
+                if (!firstColor) firstColor = grid[y][x];
+            }
+
+            if (isFull && firstColor) {
+                // Hàng đầy: xóa (logic gốc giữ nguyên)
+                for (let x = 0; x < cols; x++) {
+                    const px = x * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE / 2;
+                    const py = y * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE / 2;
+                    if (SettingsSystem.particlesEnabled) {
+                        vfxSystem.spawn(px, py, grid[y][x], 3);
+                    }
+                }
+                grid.splice(y, 1);
+                grid.unshift(Array(cols).fill(GAME_CONFIG.COLORS.BG_EMPTY));
+                eliminatedRows++;
+                // Không giảm y
+            } else {
+                y--;
+            }
+        }
+
+        // Sau khi xóa dòng bình thường, kiểm tra xem có màu nào hoàn toàn biến mất khỏi board không
+        // và nếu trước đó màu đó đã "hoàn thành" một hàng từ đầu đến cuối (ngay trước khi bị xóa)
+        // Logic đặc biệt: màu bị xóa hoàn toàn khỏi thanh (đã được xóa qua hàng đầy)
+        // -> phát hiệu ứng và cộng điểm bonus
+        if (eliminatedRows > 0) {
+            // Kiểm tra sau khi xóa xem màu nào còn lại
+            const remainingColors = new Set();
+            for (let row of grid) {
+                for (let cell of row) {
+                    if (cell) remainingColors.add(cell);
+                }
+            }
+            // Màu nào không còn trong grid nữa sau khi xóa = bị loại bỏ hoàn toàn
+            for (const c of this._colorList) {
+                if (this._data[c] && this._data[c].count > 0 && !remainingColors.has(c)) {
+                    eliminatedColors.push(c);
+                }
+            }
+        }
+
+        this.updateFromGrid(grid, cols, rows);
+        return { eliminatedRows, eliminatedColors };
+    }
+
+    updateUI() {
+        const container = document.getElementById('colorBarSlots');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const maxCount = GAME_CONFIG.COLS * GAME_CONFIG.ROWS;
+
+        for (const color of this._colorList) {
+            const data = this._data[color] || { count: 0 };
+            if (data.count === 0) continue;
+
+            const pct = Math.min(100, Math.round((data.count / (maxCount * 0.3)) * 100));
+
+            const slot = document.createElement('div');
+            slot.className = 'color-slot';
+
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.style.boxShadow = `0 0 6px ${color}`;
+
+            const track = document.createElement('div');
+            track.className = 'color-bar-track';
+
+            const fill = document.createElement('div');
+            fill.className = 'color-bar-fill';
+            fill.style.width = pct + '%';
+            fill.style.backgroundColor = color;
+            fill.style.boxShadow = `0 0 4px ${color}`;
+
+            const pctText = document.createElement('div');
+            pctText.className = 'color-bar-pct';
+            pctText.textContent = data.count + ' ô';
+
+            track.appendChild(fill);
+            slot.appendChild(swatch);
+            slot.appendChild(track);
+            slot.appendChild(pctText);
+            container.appendChild(slot);
+        }
+    }
+})();
+
+// ============================================================================================
+// LỚP 1: AUDIO SYNTHESIZER
+// ============================================================================================
 class AudioEngine {
     constructor() {
         this.ctx = null;
         this.enabled = false;
         this.masterVolume = null;
-        // Bảng tra cứu tần số nốt nhạc để đánh melody (Frequency Lookup Table)
         this.notes = {
             'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
             'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
@@ -591,7 +2035,7 @@ class AudioEngine {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             this.ctx = new AudioContext();
             this.masterVolume = this.ctx.createGain();
-            this.masterVolume.gain.value = 0.3; // Giảm âm lượng tổng xuống 30%
+            this.masterVolume.gain.value = 0.3;
             this.masterVolume.connect(this.ctx.destination);
             this.enabled = true;
             console.log("[AudioEngine] Hệ thống âm thanh lượng tử đã khởi động.");
@@ -600,20 +2044,16 @@ class AudioEngine {
         }
     }
 
-    // Hàm tạo âm thanh cơ bản
     playTone(frequency, type, duration, vol = 1) {
         if (!this.enabled || !this.ctx) return;
-        
-        // Cần resume AudioContext trên một số trình duyệt yêu cầu tương tác người dùng
         if (this.ctx.state === 'suspended') this.ctx.resume();
 
         const osc = this.ctx.createOscillator();
         const gainNode = this.ctx.createGain();
 
-        osc.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+        osc.type = type;
         osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
 
-        // Hiệu ứng Fade out (ADSR Envelope đơn giản)
         gainNode.gain.setValueAtTime(vol, this.ctx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
 
@@ -624,25 +2064,16 @@ class AudioEngine {
         osc.stop(this.ctx.currentTime + duration);
     }
 
-    // Tiếng di chuyển khối (Tích tắc nhẹ)
     playMove() { this.playTone(400, 'square', 0.05, 0.1); }
-    
-    // Tiếng xoay khối
     playRotate() { this.playTone(600, 'sine', 0.08, 0.2); }
-    
-    // Tiếng khối chạm đáy (Lock)
     playLock() { 
         this.playTone(150, 'square', 0.1, 0.3); 
         setTimeout(() => this.playTone(100, 'sawtooth', 0.1, 0.4), 50);
     }
-    
-    // Tiếng thả mạnh (Hard Drop)
     playHardDrop() {
         this.playTone(800, 'sine', 0.05, 0.3);
         setTimeout(() => this.playTone(200, 'square', 0.15, 0.5), 20);
     }
-    
-    // Tiếng xóa dòng (Clear Line) - Giai điệu ngắn
     playClear(lines) {
         if (!this.enabled) return;
         const melody = lines >= 4 ? ['C5', 'E5', 'G5', 'C6'] : ['C5', 'E5'];
@@ -652,8 +2083,15 @@ class AudioEngine {
             }, index * 100);
         });
     }
-
-    // Tiếng kết thúc game (Hạ tone)
+    playColorElim() {
+        if (!this.enabled) return;
+        // Hiệu ứng âm thanh đặc biệt khi xóa được màu hoàn toàn
+        ['C5', 'E5', 'G5', 'B5', 'C6'].forEach((note, i) => {
+            setTimeout(() => {
+                this.playTone(this.notes[note] || 500, 'sine', 0.3, 0.5);
+            }, i * 80);
+        });
+    }
     playGameOver() {
         if (!this.enabled) return;
         ['G4', 'D4', 'A3', 'E3'].forEach((note, index) => {
@@ -665,26 +2103,21 @@ class AudioEngine {
 }
 const audioSynth = new AudioEngine();
 
-/**
- * ============================================================================================
- * LỚP 2: HỆ THỐNG HẠT VFX (PARTICLE SYSTEM)
- * Quản lý hàng trăm hạt nổ ra khi xóa dòng hoặc Game Over.
- * Các hạt có tính toán trọng lực, ma sát và độ mờ theo thời gian.
- * ============================================================================================
- */
+// ============================================================================================
+// LỚP 2: HỆ THỐNG HẠT VFX (PARTICLE SYSTEM)
+// ============================================================================================
 class Particle {
     constructor(x, y, color) {
         this.x = x;
         this.y = y;
         this.color = color;
-        // Bắn ra các hướng ngẫu nhiên
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 10 + 2;
         this.vx = Math.cos(angle) * speed;
-        this.vy = Math.sin(angle) * speed - 5; // Hơi nảy lên trên
+        this.vy = Math.sin(angle) * speed - 5;
         this.gravity = 0.5;
         this.friction = 0.98;
-        this.life = 1.0; // Độ mờ từ 1.0 -> 0
+        this.life = 1.0;
         this.decay = Math.random() * 0.03 + 0.01;
         this.size = Math.random() * 4 + 2;
     }
@@ -703,7 +2136,6 @@ class Particle {
         ctx.save();
         ctx.globalAlpha = this.life;
         ctx.fillStyle = this.color;
-        // Vẽ hạt cát đang bay
         ctx.fillRect(this.x, this.y, this.size, this.size);
         ctx.restore();
     }
@@ -715,6 +2147,7 @@ class ParticleSystem {
     }
 
     spawn(x, y, color, count = 10) {
+        if (!SettingsSystem.particlesEnabled) return;
         for (let i = 0; i < count; i++) {
             this.particles.push(new Particle(x, y, color));
         }
@@ -733,73 +2166,85 @@ class ParticleSystem {
 }
 const vfxSystem = new ParticleSystem();
 
-/**
- * ============================================================================================
- * LỚP 3: XỬ LÝ MA TRẬN VÀ VẬT LÝ CÁT (CELLULAR AUTOMATA)
- * Đây là linh hồn của Sand Tetris. Biến khối rắn thành ngàn hạt cát.
- * Tối ưu hóa mảng 2 chiều bằng thuật toán quét đáy (Bottom-up Scan).
- * ============================================================================================
- */
+// ============================================================================================
+// LỚP 3: XỬ LÝ MA TRẬN VÀ VẬT LÝ CÁT (CELLULAR AUTOMATA)
+// ============================================================================================
 class SandPhysics {
     constructor(cols, rows) {
         this.cols = cols;
         this.rows = rows;
-        // Khởi tạo lưới trống (Grid 2D)
         this.grid = Array.from({ length: rows }, () => Array(cols).fill(GAME_CONFIG.COLORS.BG_EMPTY));
     }
 
-    // Thêm một mảng hạt cát vào vị trí lưới
     addSand(x, y, color) {
         if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
             this.grid[y][x] = color;
         }
     }
 
-    // Kiểm tra xem một vị trí có trống không
     isEmpty(x, y) {
-        // Vượt ra ngoài biên trái/phải/dưới coi như là TƯỜNG (không trống)
         if (x < 0 || x >= this.cols || y >= this.rows) return false;
-        // Phía trên màn hình (y < 0) luôn trống
         if (y < 0) return true;
         return this.grid[y][x] === GAME_CONFIG.COLORS.BG_EMPTY;
     }
 
     /**
      * THUẬT TOÁN ĐỘNG LỰC HỌC CÁT (CELLULAR AUTOMATA)
-     * Quét từ dưới lên trên. Mỗi khung hình, hạt cát rơi xuống 1 ô hoặc trượt chéo.
-     * Trả về true nếu vẫn còn hạt đang chuyển động (chưa settling).
+     * Tối ưu theo renderMode: low/minimal dùng quét đơn giản hơn.
      */
     updatePhysics() {
         let isMoving = false;
-        // Phải quét từ dưới lên (y giảm dần) để hạt dưới rơi trước, dọn chỗ cho hạt trên
-        for (let y = this.rows - 2; y >= 0; y--) {
-            // Trộn ngẫu nhiên trục X để tránh cát luôn thiên về 1 bên (tạo hình kim tự tháp tự nhiên)
-            const xIndices = Array.from({length: this.cols}, (_, i) => i);
-            for (let i = xIndices.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [xIndices[i], xIndices[j]] = [xIndices[j], xIndices[i]];
-            }
+        const renderMode = SettingsSystem.renderMode;
 
-            for (let x of xIndices) {
-                const cellColor = this.grid[y][x];
-                if (cellColor !== GAME_CONFIG.COLORS.BG_EMPTY) {
-                    // Ưu tiên 1: Rơi thẳng xuống
-                    if (this.isEmpty(x, y + 1)) {
-                        this.grid[y + 1][x] = cellColor;
-                        this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
-                        isMoving = true;
-                    } 
-                    // Ưu tiên 2 & 3: Trượt chéo trái hoặc phải (chọn ngẫu nhiên hướng ưu tiên)
-                    else {
-                        let dir = Math.random() < 0.5 ? -1 : 1;
-                        if (this.isEmpty(x + dir, y + 1)) {
-                            this.grid[y + 1][x + dir] = cellColor;
+        if (renderMode === 'minimal' || renderMode === 'low') {
+            // Chế độ tối ưu: không shuffle ngẫu nhiên, quét tuần tự
+            for (let y = this.rows - 2; y >= 0; y--) {
+                for (let x = 0; x < this.cols; x++) {
+                    const cellColor = this.grid[y][x];
+                    if (cellColor !== GAME_CONFIG.COLORS.BG_EMPTY) {
+                        if (this.isEmpty(x, y + 1)) {
+                            this.grid[y + 1][x] = cellColor;
                             this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
                             isMoving = true;
-                        } else if (this.isEmpty(x - dir, y + 1)) {
-                            this.grid[y + 1][x - dir] = cellColor;
+                        } else if (this.isEmpty(x - 1, y + 1)) {
+                            this.grid[y + 1][x - 1] = cellColor;
                             this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
                             isMoving = true;
+                        } else if (this.isEmpty(x + 1, y + 1)) {
+                            this.grid[y + 1][x + 1] = cellColor;
+                            this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                            isMoving = true;
+                        }
+                    }
+                }
+            }
+        } else {
+            // Chế độ đầy đủ: shuffle ngẫu nhiên (tự nhiên hơn)
+            for (let y = this.rows - 2; y >= 0; y--) {
+                const xIndices = Array.from({length: this.cols}, (_, i) => i);
+                for (let i = xIndices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [xIndices[i], xIndices[j]] = [xIndices[j], xIndices[i]];
+                }
+
+                for (let x of xIndices) {
+                    const cellColor = this.grid[y][x];
+                    if (cellColor !== GAME_CONFIG.COLORS.BG_EMPTY) {
+                        if (this.isEmpty(x, y + 1)) {
+                            this.grid[y + 1][x] = cellColor;
+                            this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                            isMoving = true;
+                        } else {
+                            let dir = Math.random() < 0.5 ? -1 : 1;
+                            if (this.isEmpty(x + dir, y + 1)) {
+                                this.grid[y + 1][x + dir] = cellColor;
+                                this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                                isMoving = true;
+                            } else if (this.isEmpty(x - dir, y + 1)) {
+                                this.grid[y + 1][x - dir] = cellColor;
+                                this.grid[y][x] = GAME_CONFIG.COLORS.BG_EMPTY;
+                                isMoving = true;
+                            }
                         }
                     }
                 }
@@ -810,8 +2255,8 @@ class SandPhysics {
 
     /**
      * THUẬT TOÁN XÓA DÒNG TETRIS
-     * Quét các hàng, nếu hàng nào đầy (không có BG_EMPTY), xóa hàng đó và đẩy phía trên xuống.
-     * Khác với Tetris thường, Sand Tetris khi xóa dòng, cát ở trên sẽ bị mất móng và tiếp tục rớt xuống tự do.
+     * Giữ nguyên logic gốc, xóa theo hàng đầy.
+     * Trả về linesCleared.
      */
     checkAndClearLines() {
         let linesCleared = 0;
@@ -827,20 +2272,17 @@ class SandPhysics {
             }
 
             if (isFull) {
-                // Tạo hiệu ứng nổ hạt tại dòng này
-                for(let x = 0; x < this.cols; x++) {
-                    // Tọa độ canvas thật: x * CELL_SIZE, y * CELL_SIZE
-                    const px = x * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE/2;
-                    const py = y * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE/2;
-                    vfxSystem.spawn(px, py, this.grid[y][x], 3);
+                for (let x = 0; x < this.cols; x++) {
+                    const px = x * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE / 2;
+                    const py = y * GAME_CONFIG.CELL_SIZE + GAME_CONFIG.CELL_SIZE / 2;
+                    if (SettingsSystem.particlesEnabled) {
+                        vfxSystem.spawn(px, py, this.grid[y][x], 3);
+                    }
                 }
 
-                // Xóa dòng y
                 this.grid.splice(y, 1);
-                // Thêm dòng trống trên cùng
                 this.grid.unshift(Array(this.cols).fill(GAME_CONFIG.COLORS.BG_EMPTY));
                 linesCleared++;
-                // Không giảm y để kiểm tra lại chính index y này (vì mảng đã bị dồn xuống)
             } else {
                 y--;
             }
@@ -853,39 +2295,28 @@ class SandPhysics {
     }
 }
 
-/**
- * ============================================================================================
- * LỚP 4: THỰC THỂ TETROMINO VÀ TOÁN HỌC MA TRẬN
- * Xử lý xoay, dịch chuyển, wall kicks, và bóng đổ (ghost piece).
- * ============================================================================================
- */
+// ============================================================================================
+// LỚP 4: THỰC THỂ TETROMINO VÀ TOÁN HỌC MA TRẬN
+// ============================================================================================
 class Tetromino {
     constructor(type) {
         this.type = type;
         const data = TETROMINOES[type];
         this.color = data.color;
-        // Sao chép ma trận sâu (Deep Copy) để tránh thay đổi bản gốc
         this.matrix = data.matrix.map(row => [...row]);
         this.size = this.matrix.length;
-        
-        // Tọa độ sinh ra mặc định (Spawn position): Giữa trên cùng
         this.x = Math.floor(GAME_CONFIG.COLS / 2) - Math.floor(this.size / 2);
-        this.y = type === 'I' ? -1 : 0; // I piece thường cần nhích lên xíu
-        
-        // Trạng thái xoay (0, 1, 2, 3) tương ứng 0, 90, 180, 270 độ
-        this.rotationState = 0; 
+        this.y = type === 'I' ? -1 : 0;
+        this.rotationState = 0;
     }
 
-    // Xoay ma trận toán học 90 độ
     rotate(direction) {
         const result = Array.from({ length: this.size }, () => Array(this.size).fill(0));
         for (let y = 0; y < this.size; y++) {
             for (let x = 0; x < this.size; x++) {
                 if (direction > 0) {
-                    // Cùng chiều kim đồng hồ (CW)
                     result[x][this.size - 1 - y] = this.matrix[y][x];
                 } else {
-                    // Ngược chiều kim đồng hồ (CCW)
                     result[this.size - 1 - x][y] = this.matrix[y][x];
                 }
             }
@@ -893,28 +2324,25 @@ class Tetromino {
         return result;
     }
 
-    // Thử xoay và áp dụng hệ thống Wall Kick (SRS)
     attemptRotation(direction, physicsObj) {
-        if (this.type === 'O') return true; // Khối O không cần xoay
+        if (this.type === 'O') return true;
 
         const newMatrix = this.rotate(direction);
         const nextRotationState = (this.rotationState + direction + 4) % 4;
         const kickDataKey = `${this.rotationState}->${nextRotationState}`;
         
-        // Xác định dùng bảng kick nào
         let kickTableSet;
         if (this.type === 'I') kickTableSet = SRS_WALL_KICK_DATA["I"];
         else kickTableSet = SRS_WALL_KICK_DATA["JLSTZ"];
 
-        const kicks = kickTableSet[kickDataKey] || [[0, 0]]; // Fallback nếu không có data
+        const kicks = kickTableSet[kickDataKey] || [[0, 0]];
 
         for (let i = 0; i < kicks.length; i++) {
             const [offsetX, offsetY] = kicks[i];
             const testX = this.x + offsetX;
-            const testY = this.y - offsetY; // Hệ tọa độ Y của mảng ngược với hệ Y của toán học, nên trừ offsetY
+            const testY = this.y - offsetY;
 
             if (!this.checkCollision(testX, testY, newMatrix, physicsObj)) {
-                // Xoay thành công
                 this.matrix = newMatrix;
                 this.x = testX;
                 this.y = testY;
@@ -922,10 +2350,9 @@ class Tetromino {
                 return true;
             }
         }
-        return false; // Mọi nỗ lực kick đều thất bại
+        return false;
     }
 
-    // Kiểm tra va chạm với tường hoặc cát
     checkCollision(targetX, targetY, targetMatrix, physicsObj) {
         for (let y = 0; y < this.size; y++) {
             for (let x = 0; x < this.size; x++) {
@@ -941,7 +2368,6 @@ class Tetromino {
         return false;
     }
 
-    // Tính toán tọa độ Y của bóng (Ghost Piece)
     getGhostY(physicsObj) {
         let ghostY = this.y;
         while (!this.checkCollision(this.x, ghostY + 1, this.matrix, physicsObj)) {
@@ -951,12 +2377,9 @@ class Tetromino {
     }
 }
 
-/**
- * ============================================================================================
- * LỚP 5: QUẢN LÝ TÚI NGẪU NHIÊN 7 KHỐI (7-BAG RANDOMIZER)
- * Đảm bảo các khối xuất hiện công bằng, không bị lặp lại quá nhiều cùng một loại.
- * ============================================================================================
- */
+// ============================================================================================
+// LỚP 5: QUẢN LÝ TÚI NGẪU NHIÊN 7 KHỐI (7-BAG RANDOMIZER)
+// ============================================================================================
 class Randomizer {
     constructor() {
         this.bag = [];
@@ -965,38 +2388,28 @@ class Randomizer {
     }
 
     fillBag() {
-        // Tạo một mảng chứa 7 loại khối
         let newBag = [...this.pieces];
-        // Fisher-Yates Shuffle
         for (let i = newBag.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [newBag[i], newBag[j]] = [newBag[j], newBag[i]];
         }
-        // Thêm vào đuôi túi hiện tại
         this.bag.push(...newBag);
     }
 
     getNext() {
-        if (this.bag.length <= 7) {
-            this.fillBag();
-        }
+        if (this.bag.length <= 7) this.fillBag();
         return this.bag.shift();
     }
 
     peek(index) {
-        if (this.bag.length <= 7 + index) {
-            this.fillBag();
-        }
+        if (this.bag.length <= 7 + index) this.fillBag();
         return this.bag[index];
     }
 }
 
-/**
- * ============================================================================================
- * LỚP 6: LÕI GAME (MASTER CONTROLLER)
- * Kết nối vòng lặp, logic điểm, trạng thái, và Input.
- * ============================================================================================
- */
+// ============================================================================================
+// LỚP 6: LÕI GAME (MASTER CONTROLLER)
+// ============================================================================================
 const GameCore = new (class {
     constructor() {
         this.state = 'START'; // START, PLAYING, PAUSED, GAMEOVER
@@ -1004,6 +2417,7 @@ const GameCore = new (class {
         this.lines = 0;
         this.level = 1;
         this.combo = 0;
+        this._pausedForSettings = false;
         
         this.physics = new SandPhysics(GAME_CONFIG.COLS, GAME_CONFIG.ROWS);
         this.randomizer = new Randomizer();
@@ -1012,20 +2426,17 @@ const GameCore = new (class {
         this.holdPiece = null;
         this.hasHeldThisTurn = false;
 
-        // Timers cho cơ chế rơi và khóa
         this.dropTimer = 0;
         this.lockTimer = 0;
-        this.gravitySpeed = 1000; // ms per drop
+        this.gravitySpeed = 1000;
         this.isLocking = false;
 
-        // Input Handling System (Với DAS và ARR)
         this.keys = {};
         this.keyTimers = {};
         
         this.lastTime = 0;
         this.animationId = null;
 
-        // Các elements UI
         this.ui = {
             score: document.getElementById('ui-score'),
             level: document.getElementById('ui-level'),
@@ -1048,7 +2459,6 @@ const GameCore = new (class {
     }
 
     init() {
-        // Tương tác đầu tiên yêu cầu kích hoạt Audio
         document.addEventListener('keydown', () => {
             if (!audioSynth.enabled) audioSynth.init();
         }, { once: true });
@@ -1073,6 +2483,9 @@ const GameCore = new (class {
         this.updateHUD();
         this.drawHoldAndNext();
 
+        // Reset color tracker
+        ColorTracker.reset();
+
         this.state = 'PLAYING';
         this.lastTime = performance.now();
         if (this.animationId) cancelAnimationFrame(this.animationId);
@@ -1088,13 +2501,31 @@ const GameCore = new (class {
         if (this.state === 'PLAYING') {
             this.state = 'PAUSED';
             this.ui.pauseOverlay.classList.add('active');
-            audioSynth.playMove(); // Tận dụng tiếng bíp làm tiếng menu
+            audioSynth.playMove();
         } else if (this.state === 'PAUSED') {
+            this._pausedForSettings = false;
             this.state = 'PLAYING';
             this.ui.pauseOverlay.classList.remove('active');
             this.lastTime = performance.now();
             this.loop(this.lastTime);
             audioSynth.playMove();
+        }
+    }
+
+    pauseForSettings() {
+        if (this.state === 'PLAYING') {
+            this._pausedForSettings = true;
+            this.state = 'PAUSED';
+            this.ui.pauseOverlay.classList.remove('active'); // Không hiện pause overlay khi mở settings
+        }
+    }
+
+    resumeAfterSettings() {
+        if (this.state === 'PAUSED' && this._pausedForSettings) {
+            this._pausedForSettings = false;
+            this.state = 'PLAYING';
+            this.lastTime = performance.now();
+            this.loop(this.lastTime);
         }
     }
 
@@ -1104,14 +2535,13 @@ const GameCore = new (class {
         this.hasHeldThisTurn = false;
         this.drawHoldAndNext();
 
-        // Kiểm tra Block Out (Game Over)
         if (this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y, this.activePiece.matrix, this.physics)) {
             this.triggerGameOver();
         }
     }
 
     holdCurrentPiece() {
-        if (this.hasHeldThisTurn) return; // Chỉ được hold 1 lần mỗi lượt rơi
+        if (this.hasHeldThisTurn) return;
 
         const currentType = this.activePiece.type;
         if (this.holdPiece === null) {
@@ -1121,7 +2551,6 @@ const GameCore = new (class {
             const temp = this.holdPiece;
             this.holdPiece = currentType;
             this.activePiece = new Tetromino(temp);
-            // Check chết ngay khi swap
             if (this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y, this.activePiece.matrix, this.physics)) {
                 this.triggerGameOver();
             }
@@ -1129,28 +2558,39 @@ const GameCore = new (class {
         
         this.hasHeldThisTurn = true;
         this.drawHoldAndNext();
-        audioSynth.playRotate(); // Âm thanh mượn
+        audioSynth.playRotate();
         
-        // Cần reset lại trạng thái drop timer để không rớt ngay
         this.dropTimer = 0;
         this.isLocking = false;
         this.lockTimer = 0;
     }
 
     updateSpeed() {
-        // Công thức cong chuẩn Tetris: Thời gian giảm dần khi cấp tăng
-        // Cấp 1: 1000ms, Cấp 15: ~16ms
-        this.gravitySpeed = Math.pow(0.8 - ((this.level - 1) * 0.007), this.level - 1) * 1000;
-        if (this.gravitySpeed < 16) this.gravitySpeed = 16; // Chặn max speed
+        // Tốc độ cơ bản theo level
+        const baseSpeed = Math.pow(0.8 - ((this.level - 1) * 0.007), this.level - 1) * 1000;
+        // Áp dụng hệ số nhân (không được chậm hơn mặc định, chỉ nhanh hơn)
+        const multiplier = SettingsSystem.speedMultiplier;
+        this.gravitySpeed = Math.max(baseSpeed / multiplier, 16);
         this.ui.speed.innerText = (1000 / this.gravitySpeed).toFixed(2) + " G";
     }
 
     addScore(points) {
         this.score += points;
         this.ui.score.innerText = this.score;
-        // Hiệu ứng nhấp nháy UI
         this.ui.score.parentElement.classList.add('highlight');
         setTimeout(() => this.ui.score.parentElement.classList.remove('highlight'), 200);
+    }
+
+    showScorePopup(points, x, y) {
+        const wrapper = document.getElementById('boardWrapper');
+        if (!wrapper) return;
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        popup.textContent = '+' + points;
+        popup.style.left = (x + 10) + 'px';
+        popup.style.top = (y - 20) + 'px';
+        wrapper.appendChild(popup);
+        setTimeout(() => { if (popup.parentNode) popup.parentNode.removeChild(popup); }, 1200);
     }
 
     triggerGameOver() {
@@ -1158,7 +2598,6 @@ const GameCore = new (class {
         this.ui.finalScore.innerText = this.score;
         this.ui.gameOverOverlay.classList.add('active');
         audioSynth.playGameOver();
-        // Áp dụng hiệu ứng động đất cho container
         document.getElementById('masterContainer').style.animation = 'none';
         let shake = 20;
         const shiver = setInterval(() => {
@@ -1166,9 +2605,13 @@ const GameCore = new (class {
             const ry = (Math.random() - 0.5) * shake;
             document.getElementById('masterContainer').style.transform = `translate(${rx}px, ${ry}px)`;
             shake *= 0.9;
-            if(shake < 1) {
+            if (shake < 1) {
                 clearInterval(shiver);
                 document.getElementById('masterContainer').style.transform = 'none';
+                // Khôi phục animation float
+                if (!document.getElementById('masterContainer').classList.contains('no-float-anim')) {
+                    document.getElementById('masterContainer').style.animation = '';
+                }
             }
         }, 30);
     }
@@ -1179,7 +2622,7 @@ const GameCore = new (class {
         div.innerText = text;
         this.ui.actionText.appendChild(div);
         setTimeout(() => {
-            if(div.parentNode) div.parentNode.removeChild(div);
+            if (div.parentNode) div.parentNode.removeChild(div);
         }, 1500);
     }
 
@@ -1189,7 +2632,6 @@ const GameCore = new (class {
     solidifyActivePiece() {
         audioSynth.playLock();
         
-        // Chép ma trận của khối vào mảng cát của Grid
         const mat = this.activePiece.matrix;
         for (let y = 0; y < this.activePiece.size; y++) {
             for (let x = 0; x < this.activePiece.size; x++) {
@@ -1201,18 +2643,11 @@ const GameCore = new (class {
             }
         }
         
-        // Spawn khối mới lập tức.
         this.activePiece = null;
-        
-        // Mặc dù cát chưa tĩnh lại, ta tính điểm dựa trên Soft/Hard Drop
-        // Quá trình sụp đổ của cát sẽ được vòng lặp physics tính toán độc lập ở khung hình tiếp theo.
-        
-        // Reset timers
         this.dropTimer = 0;
         this.isLocking = false;
         this.lockTimer = 0;
         
-        // Gọi spawn sau 1 khoảng trễ siêu nhỏ nếu muốn, nhưng ở đây spawn luôn
         this.spawnPiece();
     }
 
@@ -1223,7 +2658,6 @@ const GameCore = new (class {
         window.addEventListener('keydown', (e) => {
             if (this.state !== 'PLAYING' && e.code !== 'KeyP' && e.code !== 'Escape') return;
             
-            // Lấy nút thực tế
             let action = null;
             switch(e.code) {
                 case 'ArrowLeft': action = 'LEFT'; break;
@@ -1237,17 +2671,16 @@ const GameCore = new (class {
                 case 'KeyC': 
                 case 'ShiftLeft': action = 'HOLD'; break;
                 case 'Escape': 
-                case 'KeyP': this.togglePause(); return; // Dừng lập tức
+                case 'KeyP': this.togglePause(); return;
             }
 
             if (!action) return;
             e.preventDefault();
 
-            // Nếu phím vừa được nhấn (chưa nằm trong map)
             if (!this.keys[action]) {
                 this.keys[action] = true;
-                this.keyTimers[action] = 0; // Reset bộ đếm thời gian giữ
-                this.executeAction(action); // Chạy lệnh lần đầu tiên lập tức
+                this.keyTimers[action] = 0;
+                this.executeAction(action);
             }
         });
 
@@ -1301,23 +2734,28 @@ const GameCore = new (class {
                 }
                 break;
             case 'HARD_DROP':
-                // Rơi tự do thẳng xuống đáy (tính điểm 2x)
                 let distance = 0;
                 while (!this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix, this.physics)) {
                     this.activePiece.y++;
                     distance++;
                 }
-                this.addScore(distance * 2);
+                // Hard drop không tính điểm rơi theo yêu cầu mới (chỉ soft drop mới cộng điểm)
                 audioSynth.playHardDrop();
                 this.solidifyActivePiece();
-                // Hiệu ứng giật camera nhỏ
                 this.ui.ctxMain.canvas.style.transform = `translateY(${Math.min(distance, 10)}px)`;
                 setTimeout(() => this.ui.ctxMain.canvas.style.transform = 'none', 50);
                 break;
             case 'SOFT_DROP':
-                // Do logic Soft Drop được xử lý liên tục trong update loop, ở đây chỉ thêm điểm
+                // Cộng điểm khi soft drop (nếu cài đặt bật)
                 if (!this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix, this.physics)) {
-                    this.addScore(1);
+                    if (SettingsSystem.softDropScore) {
+                        const pts = SettingsSystem.softDropScoreMultiplier;
+                        this.addScore(pts);
+                        // Hiển thị popup điểm nhỏ tại vị trí khối
+                        const px = this.activePiece.x * GAME_CONFIG.CELL_SIZE;
+                        const py = this.activePiece.y * GAME_CONFIG.CELL_SIZE;
+                        if (pts >= 5) this.showScorePopup(pts, px, py); // Chỉ hiện popup khi điểm đủ lớn
+                    }
                 }
                 break;
             case 'HOLD':
@@ -1325,26 +2763,19 @@ const GameCore = new (class {
                 break;
         }
 
-        // Nếu khối di chuyển thành công trong khi đang khóa (Lock Delay), gia hạn thời gian khóa (Extended Placement)
         if (moved && this.isLocking) {
-            this.lockTimer = 0; 
-            // Cài đặt nâng cao (Super Rotation System chuẩn) giới hạn số lần gia hạn ở mức 15 lần, 
-            // nhưng ở bản Sand Tetris ta bỏ qua để người chơi tự do hơn do tính chất cát chảy.
+            this.lockTimer = 0;
         }
     }
 
-    // Xử lý giữ phím bằng logic Timer (Khắc phục hạn chế của cơ chế lặp phím hệ điều hành)
     processInputTimers(deltaTime) {
-        // Xử lý Dịch Trái
         if (this.keys['LEFT']) {
             this.keyTimers['LEFT'] += deltaTime;
             if (this.keyTimers['LEFT'] > GAME_CONFIG.DAS) {
                 this.executeAction('LEFT');
-                // Trừ đi ARR để liên tục kích hoạt (Autofire)
                 this.keyTimers['LEFT'] -= GAME_CONFIG.ARR;
             }
         }
-        // Xử lý Dịch Phải
         if (this.keys['RIGHT']) {
             this.keyTimers['RIGHT'] += deltaTime;
             if (this.keyTimers['RIGHT'] > GAME_CONFIG.DAS) {
@@ -1373,24 +2804,21 @@ const GameCore = new (class {
         this.processInputTimers(deltaTime);
 
         // 1. Cập nhật Vật lý Cát (Cellular Automata)
-        // Chạy nhiều bước vật lý mỗi khung hình để cát rơi nhanh hơn khối Tetris
         let sandMoving = false;
-        // Chia deltaTime cho một hằng số để quyết định số bước mô phỏng (Fixed Time Step cho Sand)
-        // Đơn giản hóa: Chạy 2 vòng lặp vật lý mỗi frame
-        for(let step = 0; step < 2; step++) {
-            if(this.physics.updatePhysics()) {
+        const physicsSteps = (SettingsSystem.renderMode === 'minimal') ? 1 : 2;
+        for (let step = 0; step < physicsSteps; step++) {
+            if (this.physics.updatePhysics()) {
                 sandMoving = true;
             }
         }
 
-        // 2. Thuật toán kiểm tra xóa dòng
-        // Trong Sand Tetris, ta kiểm tra xóa dòng liên tục vì hạt cát rơi rải rác có thể tình cờ lấp đầy dòng
+        // 2. Kiểm tra xóa dòng kết hợp theo cơ chế màu sắc mới
         const cleared = this.physics.checkAndClearLines();
+
         if (cleared > 0) {
             this.lines += cleared;
             this.ui.lines.innerText = this.lines;
             
-            // Tính Combo và Điểm
             this.combo++;
             let baseScore = 0;
             switch(cleared) {
@@ -1400,49 +2828,61 @@ const GameCore = new (class {
                 case 4: baseScore = 800; break;
                 default: baseScore = cleared * 200;
             }
-            // Hệ số nhân điểm theo Level và Combo
             const totalGained = baseScore * this.level * this.combo;
             this.addScore(totalGained);
             
             audioSynth.playClear(cleared);
 
-            // Pop-up Text
-            let messageIndex = Math.min(cleared - 1 + Math.floor(this.combo/2), ACTION_MESSAGES.length - 1);
-            if (cleared >= 4) messageIndex = ACTION_MESSAGES.length - 1; // TETRIS!
+            let messageIndex = Math.min(cleared - 1 + Math.floor(this.combo / 2), ACTION_MESSAGES.length - 1);
+            if (cleared >= 4) messageIndex = ACTION_MESSAGES.length - 1;
             this.showActionText(ACTION_MESSAGES[messageIndex] + (this.combo > 1 ? ` x${this.combo}` : ''));
 
-            // Level Up logic
             const targetLevel = Math.floor(this.lines / 10) + 1;
             if (targetLevel > this.level) {
                 this.level = targetLevel;
                 this.ui.level.innerText = this.level;
                 this.updateSpeed();
-                // Nháy màn hình nhẹ
                 document.getElementById('boardWrapper').style.boxShadow = `0 0 50px var(--accent-secondary), inset 0 0 50px var(--accent-secondary)`;
                 setTimeout(() => document.getElementById('boardWrapper').style.boxShadow = '', 500);
             }
+
+            // Cập nhật ColorTracker sau khi xóa dòng
+            ColorTracker.updateFromGrid(this.physics.grid, GAME_CONFIG.COLS, GAME_CONFIG.ROWS);
+
         } else if (!sandMoving) {
-            // Chỉ reset combo nếu cát đã ngừng chảy hoàn toàn mà không có dòng nào được xóa
             this.combo = 0;
+            // Cập nhật ColorTracker liên tục khi cát đứng yên
+            ColorTracker.updateFromGrid(this.physics.grid, GAME_CONFIG.COLS, GAME_CONFIG.ROWS);
         }
 
         // 3. Logic rơi khối Tetris hiện tại
         if (this.activePiece) {
-            // Tốc độ thực tế phụ thuộc vào việc có đang giữ nút XUỐNG (Soft Drop) hay không
             let currentGravity = this.gravitySpeed;
             if (this.keys['SOFT_DROP']) {
                 currentGravity /= GAME_CONFIG.SOFT_DROP_MULT;
+                // Cộng điểm soft drop liên tục theo thời gian
+                if (SettingsSystem.softDropScore) {
+                    const softPts = SettingsSystem.softDropScoreMultiplier;
+                    // Cộng điểm mỗi frame khi giữ phím xuống (nhân 0.05 để không quá nhiều)
+                    if (!this._softDropScoreAccum) this._softDropScoreAccum = 0;
+                    this._softDropScoreAccum += softPts * (deltaTime / 1000) * 2;
+                    if (this._softDropScoreAccum >= 1) {
+                        const pts = Math.floor(this._softDropScoreAccum);
+                        this.addScore(pts);
+                        this._softDropScoreAccum -= pts;
+                    }
+                }
+            } else {
+                this._softDropScoreAccum = 0;
             }
 
             this.dropTimer += deltaTime;
 
-            // Kiểm tra va chạm ngay dưới chân
             const isTouchingFloor = this.activePiece.checkCollision(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix, this.physics);
 
             if (isTouchingFloor) {
                 this.isLocking = true;
                 this.lockTimer += deltaTime;
-                // Nếu vượt quá Lock Delay (0.5s), khối cứng lại
                 if (this.lockTimer >= GAME_CONFIG.LOCK_DELAY) {
                     this.solidifyActivePiece();
                 }
@@ -1450,12 +2890,10 @@ const GameCore = new (class {
                 this.isLocking = false;
                 this.lockTimer = 0;
                 
-                // Rớt xuống theo Gravity
                 if (this.dropTimer >= currentGravity) {
                     this.activePiece.y++;
                     this.dropTimer -= currentGravity;
-                    // Reset timer dư thừa nếu tốc độ quá chậm, tránh hiện tượng rơi cóc (teleport)
-                    if (this.dropTimer > currentGravity) this.dropTimer = 0; 
+                    if (this.dropTimer > currentGravity) this.dropTimer = 0;
                 }
             }
         }
@@ -1473,31 +2911,32 @@ const GameCore = new (class {
     render() {
         const ctx = this.ui.ctxMain;
         const cs = GAME_CONFIG.CELL_SIZE;
+        const renderMode = SettingsSystem.renderMode;
         
         // 1. Xóa toàn bộ màn hình
         ctx.fillStyle = GAME_CONFIG.COLORS.BG_EMPTY || '#000000';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        // Vẽ đường lưới mờ (Grid Overlay)
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let x = 0; x <= ctx.canvas.width; x += cs) {
-            ctx.moveTo(x, 0); ctx.lineTo(x, ctx.canvas.height);
+        // Vẽ đường lưới mờ (Grid Overlay) - bỏ qua ở chế độ minimal
+        if (renderMode !== 'minimal') {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let x = 0; x <= ctx.canvas.width; x += cs) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, ctx.canvas.height);
+            }
+            for (let y = 0; y <= ctx.canvas.height; y += cs) {
+                ctx.moveTo(0, y); ctx.lineTo(ctx.canvas.width, y);
+            }
+            ctx.stroke();
         }
-        for (let y = 0; y <= ctx.canvas.height; y += cs) {
-            ctx.moveTo(0, y); ctx.lineTo(ctx.canvas.width, y);
-        }
-        ctx.stroke();
 
-        // 2. Vẽ bãi cát hiện tại (Tối ưu hóa fillRect)
+        // 2. Vẽ bãi cát hiện tại
         for (let y = 0; y < GAME_CONFIG.ROWS; y++) {
             for (let x = 0; x < GAME_CONFIG.COLS; x++) {
                 const color = this.physics.grid[y][x];
                 if (color) {
                     ctx.fillStyle = color;
-                    // Căn chỉnh vẽ khối cát chuẩn kích thước cs, loại bỏ nhân 2 gây lỗi đè hình
-                    // Thêm khoảng hở 1px (Gap) để trông giống Pixel Art xịn
                     ctx.fillRect(x * cs + 1, y * cs + 1, cs - 1, cs - 1);
                 }
             }
@@ -1505,70 +2944,66 @@ const GameCore = new (class {
 
         // 3. Vẽ khối đang điều khiển
         if (this.activePiece) {
-            // A. Vẽ Ghost Piece (Bóng đổ)
-            const ghostY = this.activePiece.getGhostY(this.physics);
-            ctx.fillStyle = GAME_CONFIG.COLORS.GHOST;
-            // Vẽ viền (Stroke) cho bóng mờ để mang phong cách hiện đại
-            ctx.strokeStyle = this.activePiece.color;
-            ctx.lineWidth = 2;
-            ctx.globalAlpha = 0.5;
+            // A. Vẽ Ghost Piece (Bóng đổ) - chỉ khi bật
+            if (SettingsSystem.ghostPieceEnabled && renderMode !== 'minimal') {
+                const ghostY = this.activePiece.getGhostY(this.physics);
+                ctx.fillStyle = GAME_CONFIG.COLORS.GHOST;
+                ctx.strokeStyle = this.activePiece.color;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.5;
 
-            for (let y = 0; y < this.activePiece.size; y++) {
-                for (let x = 0; x < this.activePiece.size; x++) {
-                    if (this.activePiece.matrix[y][x]) {
-                        const px = (this.activePiece.x + x) * cs;
-                        const py = (ghostY + y) * cs;
-                        // Chỉ vẽ viền cho ghost
-                        ctx.strokeRect(px + 2, py + 2, cs - 4, cs - 4);
-                        ctx.fillRect(px + 2, py + 2, cs - 4, cs - 4);
+                for (let y = 0; y < this.activePiece.size; y++) {
+                    for (let x = 0; x < this.activePiece.size; x++) {
+                        if (this.activePiece.matrix[y][x]) {
+                            const px = (this.activePiece.x + x) * cs;
+                            const py = (ghostY + y) * cs;
+                            ctx.strokeRect(px + 2, py + 2, cs - 4, cs - 4);
+                            ctx.fillRect(px + 2, py + 2, cs - 4, cs - 4);
+                        }
                     }
                 }
+                ctx.globalAlpha = 1.0;
             }
-            ctx.globalAlpha = 1.0;
 
             // B. Vẽ Khối Thực sự
-            // Thêm hiệu ứng chớp tắt khi sắp hết Lock Delay
             if (this.isLocking) {
-                // Nhấp nháy dựa trên thời gian lock
                 const blink = Math.floor(Date.now() / 50) % 2 === 0;
-                if (blink) {
-                    ctx.fillStyle = '#ffffff';
-                } else {
-                    ctx.fillStyle = this.activePiece.color;
-                }
+                ctx.fillStyle = blink ? '#ffffff' : this.activePiece.color;
             } else {
                 ctx.fillStyle = this.activePiece.color;
             }
 
-            // Glow Effect
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = this.activePiece.color;
+            // Glow Effect - tắt ở chế độ low/minimal
+            if (SettingsSystem.glowEnabled && renderMode !== 'minimal' && renderMode !== 'low') {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.activePiece.color;
+            }
 
             for (let y = 0; y < this.activePiece.size; y++) {
                 for (let x = 0; x < this.activePiece.size; x++) {
                     if (this.activePiece.matrix[y][x]) {
                         const px = (this.activePiece.x + x) * cs;
                         const py = (this.activePiece.y + y) * cs;
-                        // Vẽ khối chuẩn 100% tỉ lệ CELL_SIZE, thêm vát viền pseudo-3D
                         ctx.fillRect(px + 1, py + 1, cs - 2, cs - 2);
                         
-                        // Hiệu ứng bóng bẩy sáng viền (Highlight)
-                        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                        ctx.fillRect(px + 1, py + 1, cs - 2, 4);
-                        ctx.fillStyle = this.isLocking ? '#fff' : this.activePiece.color; // Phục hồi màu
+                        // Highlight viền - bỏ qua ở minimal
+                        if (renderMode !== 'minimal') {
+                            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                            ctx.fillRect(px + 1, py + 1, cs - 2, 4);
+                            ctx.fillStyle = this.isLocking ? '#fff' : this.activePiece.color;
+                        }
                     }
                 }
             }
-            ctx.shadowBlur = 0; // Tắt glow
+            ctx.shadowBlur = 0;
         }
 
-        // 4. Cập nhật và Vẽ hiệu ứng văng mảnh (VFX Particles)
-        vfxSystem.updateAndDraw(ctx);
+        // 4. Cập nhật và Vẽ hiệu ứng VFX Particles
+        if (SettingsSystem.particlesEnabled) {
+            vfxSystem.updateAndDraw(ctx);
+        }
     }
 
-    /**
-     * Helper vẽ khối vào các Canvas mini bên ngoài (Hold & Next)
-     */
     drawMiniPiece(ctx, typeKey) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         if (!typeKey) return;
@@ -1576,23 +3011,21 @@ const GameCore = new (class {
         const data = TETROMINOES[typeKey];
         const mat = data.matrix;
         const size = mat.length;
-        // Kích thước ô trong mini canvas (Tự động tính)
-        const cs = 18; 
+        const cs = 18;
         
-        // Tính toán độ lệch để căn giữa
-        // (Khối I kích cỡ 4x4, khối O 2x2, khối khác 3x3)
         const offsetX = (ctx.canvas.width - size * cs) / 2;
         const offsetY = (ctx.canvas.height - size * cs) / 2;
 
         ctx.fillStyle = data.color;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = data.color;
+        if (SettingsSystem.glowEnabled) {
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = data.color;
+        }
 
-        for(let y=0; y<size; y++){
-            for(let x=0; x<size; x++){
-                if(mat[y][x]){
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                if (mat[y][x]) {
                     ctx.fillRect(offsetX + x * cs, offsetY + y * cs, cs - 2, cs - 2);
-                    // Ánh sáng viền
                     ctx.fillStyle = 'rgba(255,255,255,0.4)';
                     ctx.fillRect(offsetX + x * cs, offsetY + y * cs, cs - 2, 3);
                     ctx.fillStyle = data.color;
@@ -1603,9 +3036,7 @@ const GameCore = new (class {
     }
 
     drawHoldAndNext() {
-        // Hold Piece
         this.drawMiniPiece(this.ui.ctxHold, this.holdPiece);
-        // Next Pieces (Hiển thị trước 3 khối)
         this.drawMiniPiece(this.ui.ctxNext[0], this.randomizer.peek(0));
         this.drawMiniPiece(this.ui.ctxNext[1], this.randomizer.peek(1));
         this.drawMiniPiece(this.ui.ctxNext[2], this.randomizer.peek(2));
@@ -1613,12 +3044,9 @@ const GameCore = new (class {
 
 })();
 
-
 /**
  * ============================================================================================
  * LỚP 7: HIỆU ỨNG NỀN VŨ TRỤ SÂU (BACKGROUND CANVAS RENDERER)
- * Tách biệt hoàn toàn khỏi logic chính, tạo cảm giác đắm chìm (Immersive) với các
- * vạch sáng lượng tử chạy liên tục.
  * ============================================================================================
  */
 const BG_System = new (class {
@@ -1629,12 +3057,11 @@ const BG_System = new (class {
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Khởi tạo 200 điểm sáng
-        for(let i=0; i<200; i++) {
+        for (let i = 0; i < 200; i++) {
             this.particles.push({
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
-                z: Math.random() * 2 + 0.1, // Độ sâu (Parallax)
+                z: Math.random() * 2 + 0.1,
                 speed: Math.random() * 2 + 0.5,
                 color: Math.random() > 0.5 ? GAME_CONFIG.COLORS.I : GAME_CONFIG.COLORS.T
             });
@@ -1647,36 +3074,55 @@ const BG_System = new (class {
     }
 
     draw() {
-        // Vệt làm mờ (Motion blur effect)
+        // Nếu canvas bị ẩn (settings) thì không vẽ để tiết kiệm tài nguyên
+        if (this.canvas.classList.contains('hidden')) {
+            requestAnimationFrame(() => this.draw());
+            return;
+        }
+
         this.ctx.fillStyle = 'rgba(2, 2, 5, 0.3)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.particles.forEach(p => {
-            // Di chuyển lên trên với tốc độ phụ thuộc độ sâu (Z)
             p.y -= p.speed * p.z;
             
-            // Xoay vòng nếu vượt màn hình
-            if(p.y < 0) {
+            if (p.y < 0) {
                 p.y = this.canvas.height;
                 p.x = Math.random() * this.canvas.width;
             }
 
             this.ctx.fillStyle = p.color;
-            this.ctx.globalAlpha = p.z / 2; // Xa thì mờ, gần thì rõ
-            
-            // Vẽ hạt như vệt sọc dài (kiểu warp speed)
+            this.ctx.globalAlpha = p.z / 2;
             this.ctx.fillRect(p.x, p.y, p.z, p.z * 5);
         });
+        this.ctx.globalAlpha = 1.0;
 
         requestAnimationFrame(() => this.draw());
     }
 })();
 
+// ============================================================================================
+// KHỞI ĐỘNG HỆ THỐNG
+// ============================================================================================
+
+// Khởi tạo Settings
+SettingsSystem.init();
+
 // Khởi chạy vòng lặp Render Nền
 BG_System.draw();
 
-// KHỞI ĐỘNG HỆ THỐNG LÕI GAME
-GameCore.init();
+// Khởi tạo màn hình chờ (Splash Screen)
+SplashSystem.init();
+
+// GAME SẼ ĐƯỢC KHỞI ĐỘNG BỞI SplashSystem.startGame() KHI NGƯỜI DÙNG NHẤN NÚT BẮT ĐẦU
+
+// Xử lý đóng settings -> tiếp tục game nếu cần
+document.getElementById('settingsOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+        SettingsSystem.applyAndClose();
+        GameCore.resumeAfterSettings();
+    }
+});
 
 </script>
 </body>
