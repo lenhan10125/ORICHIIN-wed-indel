@@ -320,7 +320,6 @@
             transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
             backdrop-filter: blur(16px);
             position: relative;
-            overflow: hidden;
         }
         .app-card::before {
             content: '';
@@ -329,6 +328,7 @@
             background: linear-gradient(135deg, rgba(77,184,255,0.04), transparent);
             opacity: 0;
             transition: opacity 0.3s;
+            pointer-events: none; /* ← THÊM DÒNG NÀY */
         }
         .app-card:hover {
             border-color: var(--orc-border-hover);
@@ -625,6 +625,15 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
+            padding: 10px 20px;
+            border: 1px solid rgba(153,204,255,0.2);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .preview-close:hover {
+            color: #fff;
+            border-color: var(--orc-blue);
+            background: rgba(77,184,255,0.1);
         }
 
         /* ── Waves ── */
@@ -697,9 +706,9 @@
 <div class="bg-grid"></div>
 
 <!-- Preview Overlay -->
-<div class="preview-overlay" id="previewOverlay" onclick="closePreview()">
+<div class="preview-overlay" id="previewOverlay">
     <img id="previewImg" src="" alt="Preview">
-    <div class="preview-close">✕ &nbsp;NHẤN ĐỂ ĐÓNG (hoặc ESC)</div>
+    <div class="preview-close" id="previewClose">✕ &nbsp;NHẤN ĐỂ ĐÓNG (hoặc ESC)</div>
 </div>
 
 <!-- Navbar -->
@@ -759,7 +768,7 @@
         <div class="feature-card">
             <span class="feature-icon">📐</span>
             <div class="feature-title">Vector sắc nét</div>
-            <div class="feature-desc">File SVG không vỡ pixelở mọi kích thước in ấn và màn hình</div>
+            <div class="feature-desc">File SVG không vỡ pixel ở mọi kích thước in ấn và màn hình</div>
         </div>
         <div class="feature-card">
             <span class="feature-icon">📦</span>
@@ -878,16 +887,36 @@
                 <span class="variant-label">Chọn màu sắc:</span>
                 <span class="variant-note">⚠ Tính năng đa màu đang cập nhật — hiện chỉ có bản gốc</span>
                 <div class="variant-options">
-                    <button class="variant-btn active" onclick="selectVariant(this,'Đỏ','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🔴 Đỏ</button>
-                    <button class="variant-btn" onclick="selectVariant(this,'Xanh','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🔵 Xanh</button>
-                    <button class="variant-btn" onclick="selectVariant(this,'Vàng','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🟡 Vàng</button>
-                    <button class="variant-btn" onclick="selectVariant(this,'Tím','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🟣 Tím</button>
+                    <button class="variant-btn active"
+                        data-img="https://www.hentaiorc.xyz/image-video/nam-image.jpg"
+                        data-zip="https://hentaiorc.xyz/caynam-basic.zip"
+                        data-thumb="mushroomThumb"
+                        data-view="mushroomView"
+                        data-dl="mushroomDl">🔴 Đỏ</button>
+                    <button class="variant-btn"
+                        data-img="https://www.hentaiorc.xyz/image-video/nam-image.jpg"
+                        data-zip="https://hentaiorc.xyz/caynam-basic.zip"
+                        data-thumb="mushroomThumb"
+                        data-view="mushroomView"
+                        data-dl="mushroomDl">🔵 Xanh</button>
+                    <button class="variant-btn"
+                        data-img="https://www.hentaiorc.xyz/image-video/nam-image.jpg"
+                        data-zip="https://hentaiorc.xyz/caynam-basic.zip"
+                        data-thumb="mushroomThumb"
+                        data-view="mushroomView"
+                        data-dl="mushroomDl">🟡 Vàng</button>
+                    <button class="variant-btn"
+                        data-img="https://www.hentaiorc.xyz/image-video/nam-image.jpg"
+                        data-zip="https://hentaiorc.xyz/caynam-basic.zip"
+                        data-thumb="mushroomThumb"
+                        data-view="mushroomView"
+                        data-dl="mushroomDl">🟣 Tím</button>
                 </div>
             </div>
 
             <div class="app-btns">
-                <button class="btn-preview" id="mushroomView" onclick="openPreview('https://www.hentaiorc.xyz/image-video/nam-image.jpg')">Xem trước</button>
-                <button class="btn-download" id="mushroomDl" onclick="window.open('https://hentaiorc.xyz/caynam-basic.zip')">Tải ZIP</button>
+                <button class="btn-preview" id="mushroomView" data-preview="https://www.hentaiorc.xyz/image-video/nam-image.jpg">Xem trước</button>
+                <button class="btn-download" id="mushroomDl" data-zip="https://hentaiorc.xyz/caynam-basic.zip">Tải ZIP</button>
             </div>
         </div>
 
@@ -902,8 +931,8 @@
             <div class="app-name">Tin Học 10 — Trang 68</div>
             <div class="app-desc">File vector bài tập Tin học 10, trang 68. Vẽ sẵn đầy đủ chi tiết theo sách giáo khoa, chỉ cần mở Inkscape là dùng ngay — không cần vẽ lại từ đầu.</div>
             <div class="app-btns">
-                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/tin1068.png')">Xem trước</button>
-                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc10.zip')">Tải ZIP</button>
+                <button class="btn-preview" data-preview="https://hentaiorc.xyz/tin1068.png">Xem trước</button>
+                <button class="btn-download" data-zip="https://www.hentaiorc.xyz/filetinhoc10.zip">Tải ZIP</button>
             </div>
         </div>
 
@@ -918,8 +947,8 @@
             <div class="app-name">Tin Học 10 — Trang 74</div>
             <div class="app-desc">File SVG bài tập Tin học 10, trang 74. Độ chính xác cao, dùng được ngay cho bài nộp hoặc thực hành chỉnh sửa trong Inkscape.</div>
             <div class="app-btns">
-                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tin1074.png')">Xem trước</button>
-                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc1074.zip')">Tải ZIP</button>
+                <button class="btn-preview" data-preview="https://hentaiorc.xyz/image-video/tin1074.png">Xem trước</button>
+                <button class="btn-download" data-zip="https://www.hentaiorc.xyz/filetinhoc1074.zip">Tải ZIP</button>
             </div>
         </div>
 
@@ -934,8 +963,8 @@
             <div class="app-name">Tin Học 10 — Trang 84</div>
             <div class="app-desc">File SVG bài tập Tin học 10, trang 84. Bao gồm đầy đủ các hình vẽ theo yêu cầu sách giáo khoa, có thể mở và chỉnh sửa trong Inkscape.</div>
             <div class="app-btns">
-                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tin1084.png')">Xem trước</button>
-                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/tin1084.zip')">Tải ZIP</button>
+                <button class="btn-preview" data-preview="https://hentaiorc.xyz/image-video/tin1084.png">Xem trước</button>
+                <button class="btn-download" data-zip="https://www.hentaiorc.xyz/tin1084.zip">Tải ZIP</button>
             </div>
         </div>
 
@@ -950,8 +979,8 @@
             <div class="app-name">Tin Học 10 — Vận dụng</div>
             <div class="app-desc">File SVG phần Vận dụng của bài tập Tin học 10. Bài biển và dù — file được vẽ kỹ càng, đủ để dùng làm tài liệu học tập.</div>
             <div class="app-btns">
-                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tinhoc10vandung.png')">Xem trước</button>
-                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/tinhoc10vandung.zip')">Tải ZIP</button>
+                <button class="btn-preview" data-preview="https://hentaiorc.xyz/image-video/tinhoc10vandung.png">Xem trước</button>
+                <button class="btn-download" data-zip="https://www.hentaiorc.xyz/tinhoc10vandung.zip">Tải ZIP</button>
             </div>
         </div>
 
@@ -981,8 +1010,8 @@
                 <div class="app-name">🏆 File SVG Tin học Cuối kì — VIP</div>
                 <div class="app-desc">File SVG cuối kỳ chất lượng VIP. Không cần giải nén — mở file và dùng ngay. Được vẽ chính xác 100% theo đề thi, tiết kiệm toàn bộ thời gian vẽ lại.</div>
                 <div class="app-btns">
-                    <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tincuoikivip.png')">Xem trước</button>
-                    <button class="btn-download gold" onclick="window.open('https://www.hentaiorc.xyz/tincuoikivip.zip')">Tải ZIP ⭐</button>
+                    <button class="btn-preview" data-preview="https://hentaiorc.xyz/image-video/tincuoikivip.png">Xem trước</button>
+                    <button class="btn-download gold" data-zip="https://www.hentaiorc.xyz/tincuoikivip.zip">Tải ZIP ⭐</button>
                 </div>
             </div>
         </div>
@@ -993,7 +1022,7 @@
         <div class="section-title">❓ Câu hỏi thường gặp</div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>Tôi có cần cài Inkscape để dùng file không?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1005,7 +1034,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>File SVG có thể in ra giấy không?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1015,7 +1044,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>Tại sao tôi giải nén xong nhưng không thấy file SVG?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1025,7 +1054,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>Tôi có thể thay đổi màu sắc trong file SVG không?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1035,7 +1064,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>File VIP khác file thường ở điểm nào?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1045,7 +1074,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>Làm sao để xuất file SVG sang PNG hoặc PDF?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1055,7 +1084,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>Trang web có tự động cập nhật file mới không?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1065,7 +1094,7 @@
         </div>
 
         <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
+            <button class="faq-q">
                 <span>Tôi có thể đóng góp hoặc đề xuất thêm bài tập không?</span>
                 <span class="arrow">▶</span>
             </button>
@@ -1111,7 +1140,7 @@
     async function fetchUpdate() {
         try {
             const res = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
-            if (!res.ok) throw new Error('fetch error');
+            if (!res.ok) throw new Error();
             const text = await res.text();
             document.getElementById('updateContent').textContent = text.trim() || 'Chưa có thông tin mới.';
         } catch {
@@ -1123,40 +1152,100 @@
     function openPreview(url) {
         document.getElementById('previewImg').src = url;
         document.getElementById('previewOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
     }
+
     function closePreview() {
         document.getElementById('previewOverlay').classList.remove('show');
-    }
-    window.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
-
-    /* ── Variant selector ── */
-    function selectVariant(el, name, img, dl, thumbId, viewId, dlId) {
-        el.parentElement.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-
-        const thumb = document.getElementById(thumbId);
-        thumb.style.opacity = '0.4';
-        thumb.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            thumb.src = img;
-            thumb.style.opacity = '1';
-            thumb.style.transform = '';
-        }, 200);
-
-        document.getElementById(viewId).onclick = () => openPreview(img);
-        document.getElementById(dlId).onclick = () => window.open(dl);
+        document.getElementById('previewImg').src = '';
+        document.body.style.overflow = '';
     }
 
-    /* ── FAQ ── */
-    function toggleFaq(btn) {
-        const item = btn.parentElement;
-        const isOpen = item.classList.contains('open');
-        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-        if (!isOpen) item.classList.add('open');
-    }
+    /* ── Event delegation (gắn 1 lần trên document) ── */
+    document.addEventListener('click', function(e) {
 
-    /* ── Init ── */
-    window.addEventListener('DOMContentLoaded', fetchUpdate);
+        /* Nút XEM TRƯỚC */
+        const previewBtn = e.target.closest('.btn-preview');
+        if (previewBtn) {
+            const url = previewBtn.getAttribute('data-preview');
+            if (url) openPreview(url);
+            return;
+        }
+
+        /* Nút TẢI ZIP */
+        const dlBtn = e.target.closest('.btn-download');
+        if (dlBtn) {
+            const zip = dlBtn.getAttribute('data-zip');
+            if (zip) window.open(zip, '_blank');
+            return;
+        }
+
+        /* Đóng overlay khi click vào nền hoặc nút đóng */
+        if (
+            e.target.id === 'previewOverlay' ||
+            e.target.id === 'previewClose' ||
+            e.target.closest('#previewClose')
+        ) {
+            closePreview();
+            return;
+        }
+
+        /* VARIANT buttons */
+        const varBtn = e.target.closest('.variant-btn');
+        if (varBtn) {
+            /* Bỏ active cùng nhóm */
+            varBtn.closest('.variant-options')
+                  ?.querySelectorAll('.variant-btn')
+                  .forEach(b => b.classList.remove('active'));
+            varBtn.classList.add('active');
+
+            const img     = varBtn.dataset.img;
+            const zip     = varBtn.dataset.zip;
+            const thumbId = varBtn.dataset.thumb;
+            const viewId  = varBtn.dataset.view;
+            const dlId    = varBtn.dataset.dl;
+
+            /* Cập nhật thumbnail với fade */
+            if (thumbId && img) {
+                const thumb = document.getElementById(thumbId);
+                if (thumb) {
+                    thumb.style.transition = 'opacity .2s, transform .2s';
+                    thumb.style.opacity    = '0.4';
+                    thumb.style.transform  = 'scale(0.95)';
+                    setTimeout(() => {
+                        thumb.src            = img;
+                        thumb.style.opacity  = '1';
+                        thumb.style.transform = '';
+                    }, 200);
+                }
+            }
+
+            /* Sync data cho nút View & Download */
+            if (viewId && img)
+                document.getElementById(viewId)?.setAttribute('data-preview', img);
+            if (dlId && zip)
+                document.getElementById(dlId)?.setAttribute('data-zip', zip);
+
+            return;
+        }
+
+        /* FAQ toggle */
+        const faqBtn = e.target.closest('.faq-q');
+        if (faqBtn) {
+            const item   = faqBtn.closest('.faq-item');
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        }
+    });
+
+    /* Đóng preview bằng ESC */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closePreview();
+    });
+
+    /* Init */
+    document.addEventListener('DOMContentLoaded', fetchUpdate);
 </script>
 
 </body>
