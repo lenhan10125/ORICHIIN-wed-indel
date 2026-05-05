@@ -5,236 +5,501 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORICHIIN - CHAT SERVER</title>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAHEntigIN79IuzszmWDL6nnDxO5yp748I",
-            authDomain: "admin-bd0ff.firebaseapp.com",
-            projectId: "admin-bd0ff",
-            storageBucket: "admin-bd0ff.appspot.com",
-            messagingSenderId: "721293740677",
-            appId: "1:721293740677:web:8c6ae2228e9af16aa437ec"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let lastReloadKey = null;
-        let isSiteReady = false;
-        let pendingPopupData = null;
-
-        // --- CẬP NHẬT THÔNG BÁO VÀ RELOAD TỪ ADMIN (TRANG CHỦ) ---
-        onSnapshot(doc(db, "settings", "notice"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (lastReloadKey !== null && data.reloadTrigger !== lastReloadKey) {
-                    location.reload(); 
-                }
-                lastReloadKey = data.reloadTrigger;
-            }
-        });
-
-        // --- PHẦN LIÊN KẾT MỚI: LẮNG NGHE THÔNG BÁO RIÊNG CHO CHAT SERVER ---
-        onSnapshot(doc(db, "settings", "chat_notice"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const noticeElement = document.getElementById('live-chat-notice');
-                if (noticeElement && data.content) {
-                    noticeElement.innerHTML = data.content.replace(/\n/g, '<br>');
-                }
-            }
-        });
-
-        // Hệ thống Popup động (Đã nâng cấp logic chờ loading)
-        onSnapshot(doc(db, "settings", "popup"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (isSiteReady) {
-                    showPopup(data);
-                } else {
-                    pendingPopupData = data;
-                }
-            }
-        });
-
-        window.addEventListener("load", () => {
-            setTimeout(() => {
-                isSiteReady = true;
-                if (pendingPopupData) showPopup(pendingPopupData);
-            }, 1000);
-        });
-
-        function showPopup(data) {
-            const overlay = document.getElementById('popup-overlay');
-            const mainPopup = document.getElementById('main-popup');
-            const textElement = document.getElementById('popup-text');
-
-            if (data.active === true) {
-                if (data.bgColor && (data.bgColor.startsWith('http'))) {
-                    mainPopup.style.background = `url('${data.bgColor}') no-repeat center center`;
-                    mainPopup.style.backgroundSize = "cover";
-                } else {
-                    mainPopup.style.background = data.bgColor || "rgba(0,0,0,0.9)";
-                }
-
-                textElement.style.color = data.textColor || "#ffffff";
-                textElement.style.fontSize = data.fontSize || "18px";
-                textElement.style.fontFamily = data.fontFamily || "sans-serif";
-                textElement.innerText = data.content || "";
-                overlay.style.display = 'flex';
-                overlay.classList.remove('closing');
-            } else {
-                overlay.style.display = 'none';
-            }
-        }
-    </script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        /* FONTS */
-        @font-face {
-            font-family: 'Lato';
-            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+        :root {
+            --neon: #00f3ff;
+            --gold: #FFD700;
+            --dark: #0a0a0a;
         }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body, html {
-            margin: 0; padding: 0;
-            font-family: 'Lato', sans-serif;
-            background: #0f0f0f;
-            color: #FFFFFF;
-            overflow-x: hidden;
-        }
-
-        :root {
-            --neon-blue: #00f3ff;
-        }
-
-        .bg-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg) no-repeat center center fixed;
+            min-height: 100%; width: 100%;
+            font-family: 'Nunito', sans-serif;
+            color: #fff;
+            background: var(--dark);
             background-size: cover;
-            opacity: 0.3;
-            z-index: -1;
+            background-attachment: fixed;
+            background-position: center;
+            overflow-x: hidden;
+            transition: background 0.6s ease;
+        }
+
+        /* BG overlay */
+        .bg-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 0; pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .bg-overlay.hidden { opacity: 0; }
+
+        /* Particles */
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .p { position: absolute; border-radius: 50%; background: var(--neon); opacity: 0; animation: rise linear infinite; }
+        @keyframes rise {
+            0%   { transform: translateY(0) scale(1); opacity: 0; }
+            20%  { opacity: 0.3; }
+            80%  { opacity: 0.12; }
+            100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
         }
 
         @keyframes neon-burn {
             0%, 100% {
-                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
+                text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon);
+                box-shadow: inset 0 0 15px var(--neon), 0 0 10px rgba(0,243,255,0.2);
             }
             50% {
-                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
-                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
+                text-shadow: 0 0 20px var(--neon), 0 0 40px var(--neon), 0 0 60px var(--neon);
+                box-shadow: inset 0 0 45px var(--neon), 0 0 25px rgba(0,243,255,0.5);
             }
         }
 
+        /* NAV */
+        nav {
+            position: sticky; top: 0; z-index: 1000;
+            height: 64px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,243,255,0.15);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px;
+        }
+        .nav-logo img { height: 38px; filter: drop-shadow(0 0 6px rgba(0,243,255,0.4)); }
+        .nav-logo { text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 14px; }
+        .nav-home-btn {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #ccc; font-family: 'Nunito', sans-serif;
+            font-size: 13px; font-weight: 700;
+            padding: 7px 18px; border-radius: 20px;
+            cursor: pointer; text-decoration: none; transition: 0.25s;
+        }
+        .nav-home-btn:hover { background: rgba(0,243,255,0.12); border-color: var(--neon); color: var(--neon); }
+
+        /* Settings btn */
+        .settings-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon);
+            color: var(--neon); font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,243,255,0.3);
+            transition: 0.3s;
+        }
+        .settings-btn:hover { transform: rotate(60deg); box-shadow: 0 0 20px var(--neon); }
+
+        /* Settings panel */
+        .settings-panel {
+            position: fixed; top: 72px; right: 16px;
+            width: 310px;
+            background: rgba(8,8,12,0.97);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon);
+            border-radius: 20px;
+            padding: 22px;
+            z-index: 2000;
+            transform-origin: top right;
+            transform: scale(0); opacity: 0;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            box-shadow: 0 0 40px rgba(0,243,255,0.15);
+        }
+        .settings-panel.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .sp-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem; letter-spacing: 3px;
+            color: var(--neon); text-shadow: 0 0 10px var(--neon);
+            margin-bottom: 16px;
+        }
+        .sp-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 14px 0 8px; }
+        .bg-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+        .bg-chip {
+            height: 48px; border-radius: 9px;
+            border: 2px solid transparent;
+            cursor: pointer; transition: 0.25s;
+            background-size: cover; background-position: center;
+            position: relative; overflow: hidden;
+        }
+        .bg-chip:hover { transform: scale(1.06); border-color: rgba(0,243,255,0.5); }
+        .bg-chip.sel { border-color: var(--neon); box-shadow: 0 0 12px var(--neon); }
+        .bg-chip span { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); font-size: 9px; text-align: center; padding: 2px; color: #fff; }
+        .bg-url-row { display: flex; gap: 7px; margin-top: 6px; }
+        .bg-url-input {
+            flex: 1; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 9px; padding: 7px 11px;
+            color: white; font-size: 11px; outline: none; transition: 0.25s;
+        }
+        .bg-url-input:focus { border-color: var(--neon); }
+        .bg-url-input::placeholder { color: rgba(255,255,255,0.25); }
+        .sp-apply {
+            background: var(--neon); color: #000;
+            border: none; border-radius: 9px;
+            padding: 7px 13px; font-size: 11px; font-weight: 900;
+            cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .sp-apply:hover { box-shadow: 0 0 12px var(--neon); }
+        .overlay-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+        .overlay-row span { font-size: 12px; color: rgba(255,255,255,0.55); }
+        .tog { position: relative; width: 40px; height: 22px; }
+        .tog input { opacity: 0; width: 0; height: 0; }
+        .tog-sl { position: absolute; inset: 0; border-radius: 22px; background: rgba(255,255,255,0.15); cursor: pointer; transition: 0.3s; }
+        .tog-sl::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .tog input:checked + .tog-sl { background: var(--neon); }
+        .tog input:checked + .tog-sl::before { transform: translateX(18px); }
+        .sp-reset { margin-top: 14px; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); border-radius: 9px; padding: 8px; font-size: 11px; cursor: pointer; transition: 0.25s; }
+        .sp-reset:hover { border-color: var(--neon); color: var(--neon); }
+
+        /* MAIN CONTENT */
         .main-wrapper {
+            position: relative; z-index: 1;
             display: flex; flex-direction: column; align-items: center;
-            padding: 40px 20px; min-height: 100vh;
-            box-sizing: border-box;
+            padding: 40px 20px 0;
+            min-height: calc(100vh - 64px);
         }
 
+        /* Notice box */
         .notice-container {
             width: 100%; max-width: 800px;
-            background: rgba(0, 0, 0, 0.8);
-            border-left: 5px solid #99CCFF;
-            padding: 20px; border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.75);
+            border-left: 4px solid var(--neon);
+            padding: 20px 24px; border-radius: 14px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0,243,255,0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,243,255,0.15);
+            border-left: 4px solid var(--neon);
             transition: 0.3s;
         }
         .notice-container:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
-        .notice-container h2 { color: #99CCFF; margin: 0 0 10px 0; font-size: 1.5rem; }
-        .notice-container p { margin: 0; line-height: 1.6; color: #ddd; }
+        .notice-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        }
+        .notice-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--neon); flex-shrink: 0;
+            box-shadow: 0 0 8px var(--neon);
+            animation: pulse 1.5s ease infinite;
+        }
+        @keyframes pulse {
+            0%,100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.6); opacity: 0.6; }
+        }
+        .notice-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem; letter-spacing: 3px;
+            color: var(--neon);
+        }
+        .notice-body { color: rgba(255,255,255,0.75); line-height: 1.7; font-size: 14px; }
 
+        /* Chat frame */
         .chat-frame {
             width: 100%; max-width: 800px;
-            height: 600px;
-            background: rgba(26, 26, 26, 0.9);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 580px;
+            background: rgba(15,15,20,0.85);
+            border-radius: 16px;
+            border: 1px solid rgba(0,243,255,0.12);
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,243,255,0.05);
+            margin-bottom: 0;
         }
 
-        .back-btn {
-            align-self: flex-start; margin-bottom: 20px;
-            color: #99CCFF; text-decoration: none; font-weight: bold;
-            display: flex; align-items: center; gap: 8px;
-            transition: 0.3s;
+        /* Waves */
+        .wave-wrap {
+            position: relative; z-index: 1;
+            width: 100%; height: 80px; overflow: hidden;
+            margin-top: 40px;
         }
-        .back-btn:hover { color: white; transform: translateX(-5px); }
+        .wave-wrap svg { display: block; }
+        .parallax > use { animation: wave-move 20s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay:-2s; animation-duration:7s; }
+        .parallax > use:nth-child(2) { animation-delay:-3s; animation-duration:10s; }
+        .parallax > use:nth-child(3) { animation-delay:-4s; animation-duration:13s; }
+        .parallax > use:nth-child(4) { animation-delay:-5s; animation-duration:20s; }
+        @keyframes wave-move {
+            0%   { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
+        }
 
+        /* Footer */
+        footer {
+            position: relative; z-index: 1;
+            background: rgba(0,0,0,0.85);
+            border-top: 1px solid rgba(0,243,255,0.12);
+            padding: 28px 40px;
+            width: 100%;
+        }
+        .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+        .footer-logo { display: flex; align-items: center; gap: 10px; }
+        .footer-logo img { height: 28px; opacity: 0.7; }
+        .footer-logo span { font-family: 'Bebas Neue'; font-size: 1.1rem; letter-spacing: 3px; color: rgba(255,255,255,0.4); }
+        .update-banner {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: rgba(0,243,255,0.05);
+            border: 1px solid rgba(0,243,255,0.15);
+            border-radius: 10px; padding: 12px 18px;
+            font-size: 13px;
+        }
+        .update-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); flex-shrink: 0; margin-top: 4px; box-shadow: 0 0 8px var(--neon); animation: pulse 1.5s ease infinite; }
+        .update-label { color: var(--gold); font-weight: 900; margin-right: 6px; }
+        .update-text { color: rgba(255,255,255,0.55); line-height: 1.5; }
+        .footer-copy { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+
+        /* Popup */
         #popup-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; 
-            align-items: center; backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.85); z-index: 10001; 
+            justify-content: center; align-items: center; 
+            backdrop-filter: blur(5px);
             transition: opacity 0.3s ease;
         }
         #main-popup {
             width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; 
             position: relative; padding: 40px; box-sizing: border-box; 
             display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,1); 
+            align-items: center; text-align: center; 
+            box-shadow: 0 20px 60px rgba(0,0,0,1); 
             border: 1px solid #99CCFF;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
         }
         #popup-overlay.closing { opacity: 0; pointer-events: none; }
-        #popup-overlay.closing #main-popup {
-            transform: translate(-45vw, -45vh) scale(0);
-            opacity: 0;
-        }
+        #popup-overlay.closing #main-popup { transform: translate(-45vw,-45vh) scale(0); opacity: 0; }
     </style>
 </head>
 <body>
 
-    <div class="bg-overlay"></div>
+<div class="bg-overlay" id="bgOverlay"></div>
+<div id="particles"></div>
 
-    <div id="popup-overlay">
-        <div id="main-popup">
-            <button onclick="closePopup()" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
-            <div id="popup-text" style="word-wrap: break-word; width: 100%; white-space: pre-wrap; line-height: 1.5;"></div>
-        </div>
+<!-- POPUP -->
+<div id="popup-overlay">
+    <div id="main-popup">
+        <button onclick="closePopup()" style="position:absolute;top:15px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:24px;cursor:pointer;border-radius:50%;width:35px;height:35px;display:flex;align-items:center;justify-content:center;">&times;</button>
+        <div id="popup-text" style="word-wrap:break-word;width:100%;white-space:pre-wrap;line-height:1.5;"></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="https://hentaiorc.xyz">
+        <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORC Studio" onerror="this.style.display='none'">
+    </a>
+    <div class="nav-right">
+        <a class="nav-home-btn" href="https://hentaiorc.xyz">← Trang chủ</a>
+        <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
+    </div>
+</nav>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="sp-title">⚙ Cài đặt</div>
+
+    <div class="sp-label">🎨 Hình nền</div>
+    <div class="bg-grid" id="bgGrid">
+        <button class="bg-chip sel" data-bg="none" style="background:#0a0a0a;">
+            <span>Đen</span>
+        </button>
+        <button class="bg-chip" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
+            style="background-image:url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg);background-size:cover">
+            <span>Anime</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=300&q=50);background-size:cover">
+            <span>Vũ trụ</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&q=50);background-size:cover">
+            <span>Retro</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&q=50);background-size:cover">
+            <span>Núi</span>
+        </button>
+        <button class="bg-chip" data-bg="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80"
+            style="background-image:url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=50);background-size:cover">
+            <span>Thành phố</span>
+        </button>
     </div>
 
-    <div class="main-wrapper">
-        <a href="/" class="back-btn">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
-            QUAY LẠI TRANG CHỦ
-        </a>
-
-        <div class="notice-container">
-            <h2>NOTICE / THÔNG BÁO</h2>
-            <p id="live-chat-notice">Đang tải thông báo từ máy chủ...</p>
-        </div>
-
-        <div class="chat-frame">
-            <iframe src="https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg" 
-                    width="100%" 
-                    height="100%" 
-                    allowtransparency="yes" 
-                    allow="autoplay" 
-                    frameborder="0" 
-                    marginheight="0" 
-                    marginwidth="0" 
-                    scrolling="auto">
-            </iframe>
-        </div>
+    <div class="sp-label">🔗 URL tùy chỉnh</div>
+    <div class="bg-url-row">
+        <input type="text" id="bgUrl" class="bg-url-input" placeholder="https://example.com/bg.jpg">
+        <button class="sp-apply" id="bgApply">OK</button>
     </div>
 
-    <script>
-        function closePopup() {
-            const overlay = document.getElementById('popup-overlay');
-            overlay.classList.add('closing');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                overlay.classList.remove('closing');
-            }, 400);
-        }
-    </script>
+    <div class="overlay-row">
+        <span>Lớp phủ tối</span>
+        <label class="tog"><input type="checkbox" id="overlayTog" checked><span class="tog-sl"></span></label>
+    </div>
 
+    <button class="sp-reset" id="bgReset">↺ Đặt lại mặc định</button>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrapper">
+    <div class="notice-container">
+        <div class="notice-header">
+            <div class="notice-dot"></div>
+            <span class="notice-title">NOTICE · THÔNG BÁO</span>
+        </div>
+        <div class="notice-body" id="fetchUpdatenotice">Đang tải thông báo từ máy chủ...</div>
+    </div>
+
+    <div class="chat-frame">
+        <iframe src="https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg"
+                width="100%" height="100%"
+                allowtransparency="yes" allow="autoplay"
+                frameborder="0" marginheight="0" marginwidth="0" scrolling="auto">
+        </iframe>
+    </div>
+</div>
+
+<!-- WAVES -->
+<div class="wave-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" width="100%" height="80">
+        <defs>
+            <path id="gw" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
+        </defs>
+        <g class="parallax">
+            <use href="#gw" x="48" y="0"  fill="rgba(0,243,255,0.08)"/>
+            <use href="#gw" x="48" y="3"  fill="rgba(0,243,255,0.12)"/>
+            <use href="#gw" x="48" y="5"  fill="rgba(0,243,255,0.06)"/>
+            <use href="#gw" x="48" y="7"  fill="rgba(0,243,255,0.18)"/>
+        </g>
+    </svg>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-logo">
+            <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORC" onerror="this.style.display='none'">
+            <span>ORICHIIN STUDIO</span>
+        </div>
+
+        <div class="update-banner">
+            <div class="update-dot"></div>
+            <div>
+                <span class="update-label">CẬP NHẬT:</span>
+                <span class="update-text" id="updateText">Đang kiểm tra thông tin...</span>
+            </div>
+        </div>
+
+        <div class="footer-copy">© 2026 ORICHIIN STUDIO · All rights reserved</div>
+    </div>
+</footer>
+
+<script>
+// ── PARTICLES ─────────────────────────────────────────
+const pc = document.getElementById('particles');
+for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'p';
+    const s = Math.random() * 3 + 1;
+    p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}vw;top:${Math.random()*100}vh;animation-duration:${Math.random()*12+7}s;animation-delay:${Math.random()*8}s;`;
+    pc.appendChild(p);
+}
+
+// ── SETTINGS ──────────────────────────────────────────
+const settingsBtn   = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+const bgGrid        = document.getElementById('bgGrid');
+const bgUrlInput    = document.getElementById('bgUrl');
+const bgApplyBtn    = document.getElementById('bgApply');
+const bgResetBtn    = document.getElementById('bgReset');
+const overlayTog    = document.getElementById('overlayTog');
+const bgOverlay     = document.getElementById('bgOverlay');
+
+let spOpen = false;
+settingsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    spOpen = !spOpen;
+    settingsPanel.classList.toggle('open', spOpen);
+});
+document.addEventListener('click', e => {
+    if (spOpen && !settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+        spOpen = false; settingsPanel.classList.remove('open');
+    }
+});
+
+function applyBg(url) {
+    if (!url || url === 'none') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = '#0a0a0a';
+    } else {
+        document.body.style.backgroundImage = `url(${url})`;
+        document.body.style.backgroundColor = '';
+    }
+}
+
+bgGrid.querySelectorAll('.bg-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        applyBg(btn.dataset.bg);
+    });
+});
+
+bgApplyBtn.addEventListener('click', () => {
+    const url = bgUrlInput.value.trim();
+    if (url) {
+        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+        applyBg(url);
+    }
+});
+
+bgResetBtn.addEventListener('click', () => {
+    bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+    bgGrid.querySelector('[data-bg="none"]').classList.add('sel');
+    bgUrlInput.value = '';
+    applyBg('none');
+});
+
+overlayTog.addEventListener('change', function() {
+    bgOverlay.classList.toggle('hidden', !this.checked);
+});
+
+// ── POPUP CLOSE ───────────────────────────────────────
+function closePopup() {
+    const overlay = document.getElementById('popup-overlay');
+    overlay.classList.add('closing');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.classList.remove('closing');
+    }, 400);
+}
+window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePopup();
+});
+
+// ── UPDATE FETCH ──────────────────────────────────────
+async function fetchUpdate() {
+    try {
+        const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
+        if (!r.ok) throw new Error();
+        const txt = await r.text();
+        document.getElementById('updateText').textContent = txt;
+    } catch {
+        document.getElementById('updateText').textContent = 'Hiện tại chưa có thông tin mới.';
+    }
+}
+
+fetchUpdatenotice();
+async function fetchUpdatenotice() {
+    try {
+        const r = await fetch('https://www.hentaiorc.xyz/notice.txt?v=' + Date.now());
+        if (!r.ok) throw new Error();
+        const txt = await r.text();
+        document.getElementById('updateText').textContent = txt;
+    } catch {
+        document.getElementById('updateText').textContent = 'Hiện tại chưa có thông tin mới.';
+    }
+}
+fetchUpdatenotice();
+</script>
 </body>
-
 </html>
