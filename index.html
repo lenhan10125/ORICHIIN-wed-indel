@@ -450,6 +450,88 @@
         .trending-card {
             animation: cardEntrance 0.5s ease backwards;
         }
+        /* ── Neon Clock ── */
+        .neon-clock {
+            display: none;
+            text-align: center;
+            margin-bottom: 40px;
+            font-family: 'Lato', sans-serif;
+            position: relative;
+            z-index: 10;
+        }
+        .neon-clock.show { display: block; }
+
+        .neon-clock-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .neon-digit-group { display: flex; gap: 4px; }
+
+        .neon-digit {
+            width: 52px;
+            height: 76px;
+            border: 2px solid #00f3ff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: #00f3ff;
+            background: rgba(0, 243, 255, 0.04);
+            box-shadow:
+                inset 0 0 12px rgba(0,243,255,0.15),
+                0 0 10px rgba(0,243,255,0.3);
+            animation: clock-pulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        .neon-digit::after {
+            content: '';
+            position: absolute;
+            left: 6px; right: 6px;
+            top: 50%; height: 1px;
+            background: rgba(0,243,255,0.08);
+            transform: translateY(-50%);
+        }       
+
+        .neon-separator {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 4px;
+        }
+        .neon-dot {
+            width: 7px; height: 7px;
+            background: #00f3ff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00f3ff, 0 0 16px #00f3ff;
+            animation: dot-blink 1s step-end infinite;
+        }
+
+        @keyframes clock-pulse {
+            0%, 100% {
+                box-shadow: inset 0 0 12px rgba(0,243,255,0.15), 0 0 10px rgba(0,243,255,0.2);
+                border-color: #00f3ff;
+            }
+            50% {
+                box-shadow: inset 0 0 24px rgba(0,243,255,0.3), 0 0 25px rgba(0,243,255,0.5), 0 0 50px rgba(0,243,255,0.15);
+                border-color: #66f9ff;
+            }
+        }
+        @keyframes dot-blink {
+        0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .neon-clock-label {
+            font-size: 0.7rem;
+            color: rgba(0,243,255,0.5);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
@@ -562,7 +644,33 @@
             <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
             <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" style="color:var(--neon-blue)">Liên hệ nhà phát triển ORCcop</a></p>
         </div>
-
+    <!-- Neon Clock -->
+    <div class="neon-clock" id="neonClock">
+        <div class="neon-clock-display">
+            <div class="neon-digit-group">
+                <div class="neon-digit" id="ch">0</div>
+                <div class="neon-digit" id="cm">0</div>
+            </div>
+            <div class="neon-separator">
+                <div class="neon-dot"></div>
+                <div class="neon-dot"></div>
+            </div>
+            <div class="neon-digit-group">
+                <div class="neon-digit" id="mh">0</div>
+                <div class="neon-digit" id="mm">0</div>
+            </div>
+            <div class="neon-separator">
+                <div class="neon-dot"></div>
+                <div class="neon-dot"></div>
+            </div>
+            <div class="neon-digit-group">
+                <div class="neon-digit" id="sh">0</div>
+                <div class="neon-digit" id="sm">0</div>
+            </div>
+        </div>
+    </div>
+    <div class="neon-clock-label">⟢ Cập nhật ⟣</div>
+</div>
         <!-- ====== TRENDING SECTION ====== -->
         <div class="trending-section">
             <div class="trending-header">
@@ -650,7 +758,37 @@
                 gradient: "linear-gradient(135deg, #1a000a, #7a0030)"
             },*/
         ];
+/* ── Neon Clock ── */
+    function updateClock() {
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const h = pad(now.getHours());
+        const m = pad(now.getMinutes());
+        const s = pad(now.getSeconds());
+        document.getElementById('ch').textContent = h[0];
+        document.getElementById('cm').textContent = h[1];
+        document.getElementById('mh').textContent = m[0];
+        document.getElementById('mm').textContent = m[1];
+        document.getElementById('sh').textContent = s[0];
+        document.getElementById('sm').textContent = s[1];
+    }
 
+    async function fetchUpdate() {
+        try {
+            const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
+            if (!res.ok) throw new Error();
+            const text = await res.text();
+            const content = text.trim();
+            if (content) {
+                /* Có nội dung → hiện đồng hồ và chạy */
+                document.getElementById('neonClock').classList.add('show');
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+        } catch { /* không làm gì nếu lỗi */ }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchUpdate);
         // Render cards
         const grid = document.getElementById('trendingGrid');
         trendingItems.forEach((item, i) => {
