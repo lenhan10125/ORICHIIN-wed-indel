@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sand Tetris Ultimate - By Orichiin-san</title>
+    <style>
+        :root {
+            --bg-color: #050510;
+            --panel-bg: rgba(20, 20, 30, 0.8);
+            --border-color: #334;
+            --text-color: #e0e0e0;
+            --accent-color: #6a8caf;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Lớp canvas mô phỏng hiệu ứng mưa rơi làm nền */
+        #rainCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            gap: 20px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            width: 200px;
+        }
+
+        .main-board {
+            position: relative;
+        }
+
+        canvas#gameCanvas {
+            border: 2px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
+            image-rendering: pixelated; /* Đảm bảo hạt cát hiển thị sắc nét */
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .controls-help {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #889;
+            margin-top: auto;
+        }
+
+        .key {
+            display: inline-block;
+            background: #2a2a35;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #fff;
+            font-family: monospace;
+            border-bottom: 2px solid #111;
+        }
+
+        #gameOverOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #gameOverOverlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .game-over-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: #ff4a4a;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .restart-btn {
+            background: var(--accent-color);
+            color: #111;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            background: #8ab4f8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas cho hiệu ứng mưa (Background) -->
+    <canvas id="rainCanvas"></canvas>
+
+    <div class="game-container">
+        <!-- Bảng thông tin bên trái -->
+        <div class="panel">
+            <div class="info-box">
+                <div class="info-title">ĐIỂM SỐ</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-title">SỐ DÒNG</div>
+                <div class="info-value" id="lines">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-title">CẤP ĐỘ</div>
+                <div class="info-value" id="level">1</div>
+            </div>
+            
+            <div class="controls-help">
+                <div class="info-title" style="margin-bottom: 10px;">ĐIỀU KHIỂN</div>
+                <div><span class="key">←</span> <span class="key">→</span> Di chuyển</div>
+                <div><span class="key">↑</span> Xoay phải</div>
+                <div><span class="key">Z</span> Xoay trái</div>
+                <div><span class="key">↓</span> Rơi nhanh</div>
+                <div><span class="key">Space</span> Thả ngay</div>
+            </div>
+        </div>
+
+        <!-- Khung Game Chính -->
+        <div class="main-board">
+            <canvas id="gameCanvas"></canvas>
+            <div id="gameOverOverlay">
+                <div class="game-over-text">TRÒ CHƠI KẾT THÚC</div>
+                <button class="restart-btn" onclick="location.reload()">Chơi Lại</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+/**
+ * PHẦN 1: HỆ THỐNG HẠT MƯA LÀM NỀN (TẠO CẢM GIÁC THƯ GIÃN)
+ * Phân tích: Sử dụng một canvas riêng biệt, phủ kín màn hình bằng position: absolute.
+ * Cập nhật vị trí các hạt mưa trong một vòng lặp requestAnimationFrame độc lập.
+ */
+const rainCanvas = document.getElementById('rainCanvas');
+const rainCtx = rainCanvas.getContext('2d');
+let rainParticles = [];
+
+function resizeRainCanvas() {
+    rainCanvas.width = window.innerWidth;
+    rainCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeRainCanvas);
+resizeRainCanvas();
+
+class RainDrop {
+    constructor() {
+        this.reset(true);
+    }
+    
+    reset(randomY = false) {
+        this.x = Math.random() * rainCanvas.width;
+        // Nếu khởi tạo ban đầu, cho mưa rải rác. Nếu reset sau khi rơi xong, bắt đầu từ trên cùng.
+        this.y = randomY ? Math.random() * rainCanvas.height : -10;
+        this.length = Math.random() * 20 + 10;
+        this.speedY = Math.random() * 15 + 15;
+        this.speedX = (Math.random() - 0.5) * 2; // Hơi nghiêng nhẹ
+        this.opacity = Math.random() * 0.3 + 0.1;
+    }
+
+    update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        if (this.y > rainCanvas.height) {
+            this.reset();
+        }
+    }
+
+    draw() {
+        rainCtx.beginPath();
+        rainCtx.moveTo(this.x, this.y);
+        rainCtx.lineTo(this.x + this.speedX, this.y + this.length);
+        rainCtx.strokeStyle = `rgba(150, 180, 255, ${this.opacity})`;
+        rainCtx.lineWidth = 1;
+        rainCtx.stroke();
+    }
+}
+
+// Khởi tạo 150 hạt mưa
+for (let i = 0; i < 150; i++) {
+    rainParticles.push(new RainDrop());
+}
+
+function animateRain() {
+    // Tạo hiệu ứng vệt mờ (motion blur) bằng cách vẽ đè lên lớp đen trong suốt
+    rainCtx.fillStyle = 'rgba(5, 5, 16, 0.3)';
+    rainCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
+    
+    rainParticles.forEach(drop => {
+        drop.update();
+        drop.draw();
+    });
+    requestAnimationFrame(animateRain);
+}
+animateRain();
+
+
+/**
+ * PHẦN 2: LOGIC SAND TETRIS ULTIMATE
+ * Mở rộng: Độ phân giải cao hơn, kích thước hạt nhỏ hơn để giả lập cát chân thực hơn.
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const linesEl = document.getElementById('lines');
+const levelEl = document.getElementById('level');
+const overlayEl = document.getElementById('gameOverOverlay');
+
+// Cấu hình vật lý và hiển thị của lưới cát
+const ROWS = 120;       // Tăng số lượng hàng
+const COLS = 70;        // Tăng số lượng cột
+const CELL_SIZE = 5;    // Hạt cát nhỏ gọn hơn
+
+canvas.width = COLS * CELL_SIZE;
+canvas.height = ROWS * CELL_SIZE;
+
+// Khởi tạo lưới trống (null)
+let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+// Trạng thái hệ thống
+let score = 0;
+let linesClearedTotal = 0;
+let level = 1;
+let gameOver = false;
+let dropCounter = 0;
+let dropInterval = 1000; // Thay đổi tùy theo level
+let lastTime = 0;
+
+/**
+ * BẢNG ĐỊNH NGHĨA TETROMINOES
+ * Sử dụng ma trận vuông để đảm bảo xoay chính xác theo tâm.
+ * Hệ màu lấy cảm hứng từ các palette neon hiện đại.
+ */
+const SHAPES = [
+    { name: 'I', color: '#00ffff', map: [[0,0,0,0], [1,1,1,1], [0,0,0,0], [0,0,0,0]] },
+    { name: 'J', color: '#0055ff', map: [[1,0,0], [1,1,1], [0,0,0]] },
+    { name: 'L', color: '#ff7700', map: [[0,0,1], [1,1,1], [0,0,0]] },
+    { name: 'O', color: '#ffea00', map: [[1,1], [1,1]] },
+    { name: 'S', color: '#00ff00', map: [[0,1,1], [1,1,0], [0,0,0]] },
+    { name: 'T', color: '#aa00ff', map: [[0,1,0], [1,1,1], [0,0,0]] },
+    { name: 'Z', color: '#ff0055', map: [[1,1,0], [0,1,1], [0,0,0]] }
+];
+
+// Hệ thống SRS Kick Tables (Đơn giản hóa cho ma trận 3x3 và 4x4)
+// Vì thuật toán xoay trong code này xoay trực tiếp nội dung mảng, ta cần 
+// xử lý ngoại lệ khi khối xoay đập vào tường. Một kick table cơ bản thử dịch 
+// chuyển khối sang (x, y) để tìm không gian trống.
+const KICK_OFFSETS = [
+    {x: 0, y: 0},   // Thử xoay tại chỗ
+    {x: -1, y: 0},  // Thử đẩy sang trái 1 ô
+    {x: 1, y: 0},   // Thử đẩy sang phải 1 ô
+    {x: 0, y: -1},  // Thử đẩy lên trên 1 ô (tránh cát)
+    {x: -1, y: -1}, // Trái + Lên
+    {x: 1, y: -1},  // Phải + Lên
+    {x: -2, y: 0},  // Thử đẩy sang trái 2 ô (dành cho khối I)
+    {x: 2, y: 0}    // Thử đẩy sang phải 2 ô (dành cho khối I)
+];
+
+let currentPiece = null;
+
+// Sinh khối mới ngẫu nhiên
+function createPiece() {
+    const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+    return {
+        x: Math.floor(COLS / 2) - Math.floor(shape.map[0].length / 2),
+        y: 0,
+        color: shape.color,
+        map: shape.map,
+        name: shape.name
+    };
+}
+
+// Xoay ma trận 90 độ (Theo chiều kim đồng hồ)
+function rotateMatrixClockwise(matrix) {
+    const n = matrix.length;
+    let res = Array.from({ length: n }, () => Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            res[j][n - 1 - i] = matrix[i][j];
+        }
+    }
+    return res;
+}
+
+// Xoay ma trận 90 độ (Ngược chiều kim đồng hồ)
+function rotateMatrixCounterClockwise(matrix) {
+    const n = matrix.length;
+    let res = Array.from({ length: n }, () => Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            res[n - 1 - j][i] = matrix[i][j];
+        }
+    }
+    return res;
+}
+
+// Xử lý xoay có bao gồm Wall Kick (SRS)
+function attemptRotate(direction) {
+    if (!currentPiece) return;
+
+    const oldMap = currentPiece.map;
+    const oldX = currentPiece.x;
+    const oldY = currentPiece.y;
+
+    // Khối O không cần xoay
+    if (currentPiece.name === 'O') return;
+
+    if (direction === 'CW') {
+        currentPiece.map = rotateMatrixClockwise(currentPiece.map);
+    } else {
+        currentPiece.map = rotateMatrixCounterClockwise(currentPiece.map);
+    }
+
+    // Thử nghiệm các vị trí Kick
+    let rotated = false;
+    for (let i = 0; i < KICK_OFFSETS.length; i++) {
+        const offset = KICK_OFFSETS[i];
+        if (!checkCollision(currentPiece.x + offset.x, currentPiece.y + offset.y, currentPiece.map)) {
+            // Kick thành công
+            currentPiece.x += offset.x;
+            currentPiece.y += offset.y;
+            rotated = true;
+            break;
+        }
+    }
+
+    // Nếu mọi nỗ lực Kick đều thất bại do không gian quá hẹp, hoàn tác phép xoay
+    if (!rotated) {
+        currentPiece.map = oldMap;
+        currentPiece.x = oldX;
+        currentPiece.y = oldY;
+    }
+}
+
+// Kiểm tra va chạm (Bounds Checking và Overlap Checking)
+function checkCollision(targetX, targetY, map = currentPiece.map) {
+    for (let y = 0; y < map.length; y++) {
+        for (let x = 0; x < map[y].length; x++) {
+            if (map[y][x]) {
+                const gridX = targetX + x;
+                const gridY = targetY + y;
+                
+                // Va chạm tường trái, tường phải, hoặc đáy
+                if (gridX < 0 || gridX >= COLS || gridY >= ROWS) {
+                    return true;
+                }
+                // Va chạm với cát đã lưu trữ trên lưới (chỉ kiểm tra khi gridY >= 0)
+                if (gridY >= 0 && grid[gridY][gridX] !== null) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Chuyển đổi khối rắn thành các hạt cát độc lập trên lưới
+function solidifyPiece() {
+    currentPiece.map.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value) {
+                const gridX = currentPiece.x + x;
+                const gridY = currentPiece.y + y;
+                if (gridY >= 0 && gridY < ROWS) {
+                    grid[gridY][gridX] = currentPiece.color;
+                }
+            }
+        });
+    });
+    
+    // Kiểm tra xem việc Solidify có đè lên hàng trên cùng không (Game Over Trigger)
+    if (currentPiece.y <= 0) {
+        gameOver = true;
+        overlayEl.classList.add('active');
+    }
+    
+    currentPiece = null;
+    checkAndClearLines();
+}
+
+// VẬT LÝ CÁT: Cellular Automata xử lý sự sụp đổ của các hạt (Avalanche Effect)
+function updateSandPhysics() {
+    // Biến cờ (flag) để kiểm tra xem có hạt cát nào di chuyển không
+    let isSandMoving = false;
+
+    // Quét từ dưới lên trên (Bottom-Up) để mô phỏng trọng lực
+    for (let y = ROWS - 2; y >= 0; y--) {
+        // Quét ngẫu nhiên trục X để tránh cát luôn thiên lệch về một phía (Artifacting)
+        const xIndices = Array.from({length: COLS}, (_, i) => i).sort(() => Math.random() - 0.5);
+        
+        for (let x of xIndices) {
+            if (grid[y][x] !== null) {
+                const color = grid[y][x];
+                
+                // 1. Rơi tự do xuống dưới thẳng đứng
+                if (grid[y + 1][x] === null) {
+                    grid[y + 1][x] = color;
+                    grid[y][x] = null;
+                    isSandMoving = true;
+                } 
+                // 2. Trượt chéo (Diagonal Sliding) mô phỏng động lực học hạt
+                else {
+                    // Chọn hướng trượt ngẫu nhiên trước
+                    const dir = Math.random() < 0.5 ? -1 : 1;
+                    
+                    // Thử trượt sang hướng đã chọn
+                    if (x + dir >= 0 && x + dir < COLS && grid[y + 1][x + dir] === null) {
+                        grid[y + 1][x + dir] = color;
+                        grid[y][x] = null;
+                        isSandMoving = true;
+                    } 
+                    // Thử trượt sang hướng ngược lại nếu hướng kia bị kẹt
+                    else if (x - dir >= 0 && x - dir < COLS && grid[y + 1][x - dir] === null) {
+                        grid[y + 1][x - dir] = color;
+                        grid[y][x] = null;
+                        isSandMoving = true;
+                    }
+                }
+            }
+        }
+    }
+    return isSandMoving;
+}
+
+// Thuật toán kiểm tra và xóa dòng cát
+function checkAndClearLines() {
+    let linesClearedInThisFrame = 0;
+    
+    // Quét tất cả các dòng từ dưới lên
+    for (let y = ROWS - 1; y >= 0; y--) {
+        // Một dòng được coi là đầy nếu không có ô nào chứa null
+        if (grid[y].every(cell => cell !== null)) {
+            // Xóa dòng đó bằng cách cắt mảng
+            grid.splice(y, 1);
+            // Thêm một dòng trống mới ở trên cùng
+            grid.unshift(Array(COLS).fill(null));
+            linesClearedInThisFrame++;
+            // Do mảng đã bị dồn xuống, phải kiểm tra lại chính chỉ số y này
+            y++; 
+        }
+    }
+
+    if (linesClearedInThisFrame > 0) {
+        linesClearedTotal += linesClearedInThisFrame;
+        linesEl.innerText = linesClearedTotal;
+        
+        // Hệ thống tính điểm Tetris chuẩn
+        const lineScores = [0, 100, 300, 500, 800];
+        const scoreMultiplier = level;
+        score += (lineScores[linesClearedInThisFrame] || (linesClearedInThisFrame * 200)) * scoreMultiplier;
+        scoreEl.innerText = score;
+        
+        // Cập nhật Cấp độ (Mỗi 10 dòng tăng 1 cấp)
+        if (Math.floor(linesClearedTotal / 10) + 1 > level) {
+            level = Math.floor(linesClearedTotal / 10) + 1;
+            levelEl.innerText = level;
+            // Tăng tốc độ rơi của khối, giới hạn tối thiểu ở mức 100ms
+            dropInterval = Math.max(100, 1000 - (level - 1) * 80);
+        }
+    }
+}
+
+// Logic Hard Drop (Thả rơi ngay lập tức xuống đáy)
+function hardDrop() {
+    if (!currentPiece) return;
+    while (!checkCollision(currentPiece.x, currentPiece.y + 1)) {
+        currentPiece.y++;
+        // Tăng điểm nhỏ cho hành động Hard Drop (2 điểm mỗi ô)
+        score += 2; 
+    }
+    scoreEl.innerText = score;
+    solidifyPiece();
+    // Khóa độ trễ sau khi thả để tránh spawn dồn dập
+    dropCounter = 0; 
+}
+
+// Lắng nghe sự kiện bàn phím
+document.addEventListener('keydown', (e) => {
+    if (gameOver) return;
+    
+    switch (e.code) {
+        case 'ArrowLeft':
+            if (!checkCollision(currentPiece.x - 1, currentPiece.y)) {
+                currentPiece.x--;
+            }
+            break;
+        case 'ArrowRight':
+            if (!checkCollision(currentPiece.x + 1, currentPiece.y)) {
+                currentPiece.x++;
+            }
+            break;
+        case 'ArrowDown':
+            // Rơi nhanh (Soft Drop)
+            if (!checkCollision(currentPiece.x, currentPiece.y + 1)) {
+                currentPiece.y++;
+                score += 1; // Tăng 1 điểm mỗi ô Soft Drop
+                scoreEl.innerText = score;
+                // Reset bộ đếm thời gian rơi tự động để tránh bị rớt đột ngột
+                dropCounter = 0;
+            }
+            break;
+        case 'ArrowUp':
+            attemptRotate('CW'); // Xoay phải theo chuẩn mũi tên lên
+            break;
+        case 'KeyZ':
+            attemptRotate('CCW'); // Phím Z cho xoay trái (chuẩn game mod/emulator)
+            break;
+        case 'Space':
+            hardDrop();
+            break;
+    }
+});
+
+// Logic tính toán tọa độ y của Ghost Piece (bóng mờ)
+function getGhostY() {
+    if (!currentPiece) return 0;
+    let ghostY = currentPiece.y;
+    while (!checkCollision(currentPiece.x, ghostY + 1, currentPiece.map)) {
+        ghostY++;
+    }
+    return ghostY;
+}
+
+// Hàm vẽ chính sử dụng Canvas API
+function draw() {
+    // Làm sạch toàn bộ bề mặt vẽ
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 1. VẼ LƯỚI CÁT
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            if (grid[y][x]) {
+                ctx.fillStyle = grid[y][x];
+                // Sử dụng fillRect cho các ô vuông pixel-perfect
+                ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            }
+        }
+    }
+
+    // 2. VẼ KHỐI ĐANG RƠI (VÀ BÓNG CỦA NÓ)
+    if (currentPiece) {
+        // -- Vẽ Bóng (Ghost Piece) --
+        const ghostY = getGhostY();
+        ctx.fillStyle = currentPiece.color;
+        // Chỉnh độ trong suốt của canvas API thay vì rgba text để dễ quản lý
+        ctx.globalAlpha = 0.2; 
+        currentPiece.map.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value) {
+                    ctx.fillRect(
+                        (currentPiece.x + x) * CELL_SIZE, 
+                        (ghostY + y) * CELL_SIZE, 
+                        CELL_SIZE, 
+                        CELL_SIZE
+                    );
+                }
+            });
+        });
+        
+        // -- Vẽ khối rắn thật sự --
+        ctx.globalAlpha = 1.0; // Phục hồi lại độ đục hoàn toàn
+        
+        // Thêm hiệu ứng phát sáng nhẹ bằng shadow blur
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = currentPiece.color;
+        
+        currentPiece.map.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value) {
+                    ctx.fillRect(
+                        (currentPiece.x + x) * CELL_SIZE, 
+                        (currentPiece.y + y) * CELL_SIZE, 
+                        CELL_SIZE *2, 
+                        CELL_SIZE *2
+                    );
+                }
+            });
+        });
+        
+        // Tắt shadow để không ảnh hưởng tới lần vẽ sau
+        ctx.shadowBlur = 0; 
+    }
+}
+
+// Vòng lặp chính của Game (Main Game Loop) sử dụng RequestAnimationFrame
+function update(time = 0) {
+    if (gameOver) return;
+
+    const deltaTime = time - lastTime;
+    lastTime = time;
+
+    // 1. Khởi tạo khối nếu chưa có
+    if (!currentPiece) {
+        currentPiece = createPiece();
+        // Kiểm tra GameOver ngay khi khối vừa được tạo
+        if (checkCollision(currentPiece.x, currentPiece.y)) {
+            gameOver = true;
+            overlayEl.classList.add('active');
+            return;
+        }
+    }
+
+    // 2. Cập nhật cơ chế rơi của khối dựa trên Timer (dropInterval)
+    dropCounter += deltaTime;
+    if (dropCounter > dropInterval) {
+        if (!checkCollision(currentPiece.x, currentPiece.y + 1)) {
+            currentPiece.y++;
+        } else {
+            solidifyPiece();
+        }
+        dropCounter = 0;
+    }
+
+    // 3. Cập nhật Vật lý Cát mỗi khung hình để cát chảy mượt nhất có thể
+    // Hàm này trả về true nếu cát vẫn đang chuyển động
+    let sandIsSettling = updateSandPhysics();
+    
+    // Nếu cát đang ngưng đọng hoặc khối đang rơi, tiến hành vẽ lại Canvas
+    draw();
+
+    // Tiếp tục lặp
+    requestAnimationFrame(update);
+}
+
+// Bắt đầu vòng lặp game
+requestAnimationFrame(update);
+
+</script>
+</body>
+</html>
