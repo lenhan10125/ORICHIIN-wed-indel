@@ -4,104 +4,395 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORC Studio - List</title>
+    <title>ORC Studio - Danh Sách Tài Nguyên</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gura-blue: #99CCFF;
-            --gura-dark: #0a0e14;
-            --gura-accent: #3399FF;
-            --gura-yellow: #FFD700;
+            --orc-bg: #060b12;
+            --orc-surface: rgba(12, 20, 32, 0.75);
+            --orc-blue: #4db8ff;
+            --orc-blue-dim: #99ccff;
+            --orc-accent: #0072ff;
+            --orc-accent2: #00c8ff;
+            --orc-yellow: #ffd700;
+            --orc-gold: #ffb700;
+            --orc-green: #00e5a0;
+            --orc-border: rgba(77, 184, 255, 0.18);
+            --orc-border-hover: rgba(77, 184, 255, 0.6);
+            --orc-text: #e2eeff;
+            --orc-muted: #8aa5c0;
+            --font: 'Be Vietnam Pro', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --radius: 16px;
+            --radius-sm: 10px;
         }
 
-        /* Tối ưu hóa cuộn trang và hiển thị */
-        body, html {
-            margin: 0; padding: 0; 
-            min-height: 100%; width: 100%;
-            background: var(--gura-dark);
-            color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; flex-direction: column;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--orc-bg);
+            color: var(--orc-text);
+            min-height: 100vh;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* Lớp nền đã sửa lỗi viền trắng */
-        .bg-overlay {
-            position: fixed; 
-            top: -10px; left: -10px; 
-            width: calc(100% + 20px); height: calc(100% + 20px);
-            background-color: #0066ff;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover; 
-            filter: blur(5px) brightness(0.4);
+        /* ── Background ── */
+        .bg-layer {
+            position: fixed;
+            inset: -10px;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 0%, rgba(0,100,255,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,200,255,0.08) 0%, transparent 55%),
+                linear-gradient(160deg, #060b12 0%, #080f1c 50%, #050a10 100%);
+            z-index: -2;
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(77,184,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(77,184,255,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
             z-index: -1;
-            transition: background 0.5s ease, background-color 0.5s ease;
-            transform: translateZ(0); /* Tăng tốc phần cứng */
         }
 
-        .pure-nav {
-            height: 60px; background: rgba(0, 0, 0, 0.7);
-            display: flex; align-items: center; justify-content: center;
-            border-bottom: 2px solid var(--gura-blue); width: 100%;
-            position: sticky; top: 0; z-index: 1000;
-            backdrop-filter: blur(10px);
+        /* ── Navbar ── */
+        .navbar {
+            height: 64px;
+            background: rgba(6, 11, 18, 0.85);
+            border-bottom: 1px solid var(--orc-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-
-        .wrapper { 
-            flex: 1; display: flex; flex-direction: column; 
-            justify-content: flex-start; align-items: center; 
-            padding: 40px 20px; 
-        }
-
-        .section-title { 
-            color: var(--gura-blue); font-size: 2.5rem; font-weight: bold; 
-            margin-bottom: 40px; text-shadow: 0 0 15px rgba(153, 204, 255, 0.5); 
-            text-align: center;
-        }
-        .section-title-yellow { 
-            color: var(--gura-yellow); font-size: 2.5rem; font-weight: bold; 
-            margin-bottom: 40px; text-shadow: 0 0 15px rgba(153, 204, 255, 0.5); 
-            text-align: center;
-        }
-        .app-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 30px; width: 100%; max-width: 1100px; 
-        }
-
-        .app-card { 
-            background: rgba(10, 14, 20, 0.6); 
-            border: 1px solid rgba(153, 204, 255, 0.2); 
-            border-radius: 20px; padding: 25px; 
-            text-align: center; transition: all 0.3s ease; 
-            backdrop-filter: blur(15px);
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        .app-card:hover { 
-            background: rgba(153, 204, 255, 0.1); 
-            transform: translateY(-5px); 
-            border-color: var(--gura-blue); 
-        }
-
-        .app-icon { 
-            width: 120px; height: 120px; margin-bottom: 15px; 
-            border-radius: 15px; object-fit: cover;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
-            transition: 0.3s;
-        }
-
-        .variant-selector {
-            width: 100%;
-            margin: 15px 0;
-            text-align: left;
-        }
-        .variant-label {
-            font-size: 0.8rem;
-            color: var(--gura-blue);
-            margin-bottom: 8px;
-            display: block;
+        .navbar-logo {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--orc-blue);
             text-transform: uppercase;
-            font-weight: bold;
+        }
+        .navbar-logo span { color: var(--orc-yellow); }
+        .navbar-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+        .navbar-links a {
+            color: var(--orc-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+            text-transform: uppercase;
+        }
+        .navbar-links a:hover { color: var(--orc-blue); }
+
+        /* ── Banner ── */
+        .update-banner {
+            background: rgba(77,184,255,0.06);
+            border-bottom: 1px solid rgba(77,184,255,0.12);
+            padding: 10px 24px;
+            text-align: center;
+            font-size: 0.88rem;
+            position: sticky;
+            top: 64px;
+            z-index: 999;
+            backdrop-filter: blur(8px);
+        }
+        .update-banner .tag { color: var(--orc-yellow); font-weight: 700; margin-right: 8px; }
+        .update-banner .content { color: var(--orc-muted); }
+
+        /* ── Main layout ── */
+        .page-wrap { max-width: 1160px; margin: 0 auto; padding: 48px 24px 120px; }
+
+        /* ── Back button ── */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--orc-blue-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            transition: all 0.25s;
+            padding: 8px 16px;
+            border: 1px solid rgba(153,204,255,0.15);
+            border-radius: var(--radius-sm);
+        }
+        .back-btn:hover {
+            color: #fff;
+            border-color: var(--orc-blue);
+            transform: translateX(-4px);
+            background: rgba(77,184,255,0.05);
+        }
+
+        /* ── Section titles ── */
+        .section-title {
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, var(--orc-blue-dim), var(--orc-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-title-gold {
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, var(--orc-gold), var(--orc-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Info/Guide block ── */
+        .guide-block {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-left: 4px solid var(--orc-blue);
+            border-radius: var(--radius);
+            padding: 32px 36px;
+            margin-bottom: 64px;
+            backdrop-filter: blur(16px);
+        }
+        .guide-block h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--orc-blue);
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .guide-block p {
+            color: var(--orc-muted);
+            font-size: 0.95rem;
+            line-height: 1.75;
+            margin-bottom: 12px;
+        }
+        .guide-block p:last-child { margin-bottom: 0; }
+        .guide-divider {
+            border: none;
+            border-top: 1px solid var(--orc-border);
+            margin: 24px 0;
+        }
+        .guide-step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .guide-step-num {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orc-accent), var(--orc-accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+            font-family: var(--mono);
+        }
+        .guide-step-content { flex: 1; }
+        .guide-step-content strong {
+            color: var(--orc-text);
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+        .guide-step-content p {
+            margin: 0;
+            font-size: 0.88rem;
+        }
+        .guide-img {
+            width: 100%;
+            max-width: 680px;
+            height: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--orc-border);
+            margin: 12px 0 4px;
+            display: block;
+        }
+
+        /* ── Inkscape info card ── */
+        .info-card {
+            background: rgba(0,114,255,0.06);
+            border: 1px solid rgba(0,200,255,0.15);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 32px;
+        }
+        .info-card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--orc-accent2);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        .info-card p {
+            color: var(--orc-muted);
+            font-size: 0.92rem;
+            line-height: 1.75;
+            margin-bottom: 10px;
+        }
+        .info-card img {
+            width: 100%;
+            max-width: 640px;
+            border-radius: 10px;
+            border: 1px solid var(--orc-border);
+            margin-top: 16px;
+            display: block;
+        }
+
+        /* ── Tag pills ── */
+        .tag-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: var(--mono);
+            letter-spacing: 0.5px;
+        }
+        .tag-free {
+            background: rgba(0,229,160,0.12);
+            color: var(--orc-green);
+            border: 1px solid rgba(0,229,160,0.25);
+        }
+        .tag-vip {
+            background: rgba(255,215,0,0.12);
+            color: var(--orc-yellow);
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        .tag-svg {
+            background: rgba(0,114,255,0.12);
+            color: var(--orc-blue);
+            border: 1px solid rgba(77,184,255,0.25);
+        }
+        .tag-new {
+            background: rgba(255,80,80,0.12);
+            color: #ff6b6b;
+            border: 1px solid rgba(255,80,80,0.3);
+            animation: pulse-new 2s ease-in-out infinite;
+        }
+        @keyframes pulse-new { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+        /* ── App Grid ── */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* ── App Card ── */
+        .app-card {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-radius: var(--radius);
+            padding: 28px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+        }
+        .app-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(77,184,255,0.04), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .app-card:hover {
+            border-color: var(--orc-border-hover);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(77,184,255,0.1);
+        }
+        .app-card:hover::before { opacity: 1; }
+
+        .card-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .app-thumb {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 2px solid var(--orc-border);
+            margin-bottom: 18px;
+            transition: all 0.3s;
+            background: #0a1420;
+        }
+        .app-card:hover .app-thumb {
+            border-color: rgba(77,184,255,0.5);
+            transform: scale(1.04);
+        }
+
+        .app-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--orc-text);
+            text-align: center;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .app-desc {
+            font-size: 0.875rem;
+            color: var(--orc-muted);
+            text-align: center;
+            line-height: 1.65;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        /* ── Variant selector ── */
+        .variant-selector { width: 100%; margin-bottom: 18px; }
+        .variant-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--orc-blue);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .variant-note {
+            font-size: 0.75rem;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            display: block;
         }
         .variant-options {
             display: flex;
@@ -109,307 +400,764 @@
             gap: 8px;
             justify-content: center;
         }
-        .variant-item {
-            padding: 6px 12px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.2);
+        .variant-btn {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            font-family: var(--font);
+            color: var(--orc-muted);
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
-        .variant-item:hover {
-            border-color: var(--gura-blue);
-        }
-        .variant-item.active {
-            background: var(--gura-accent);
-            border-color: var(--gura-blue);
-            color: white;
+        .variant-btn:hover { border-color: var(--orc-blue-dim); color: var(--orc-text); }
+        .variant-btn.active {
+            background: rgba(0,114,255,0.2);
+            border-color: var(--orc-blue);
+            color: var(--orc-blue);
+            font-weight: 600;
         }
 
-        .app-name { font-weight: bold; font-size: 1.3rem; margin: 10px 0; color: #fff; }
-        .app-desc { font-size: 0.9rem; color: #cbd5e0; margin-bottom: 20px; line-height: 1.5; }
+        /* ── Action buttons ── */
+        .app-btns { display: flex; gap: 10px; width: 100%; }
+        .btn-preview, .btn-download {
+            flex: 1;
+            padding: 11px 10px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: var(--font);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-preview {
+            background: rgba(255,255,255,0.06);
+            color: var(--orc-blue-dim);
+            border: 1px solid rgba(153,204,255,0.2);
+        }
+        .btn-preview:hover {
+            background: rgba(153,204,255,0.1);
+            border-color: var(--orc-blue-dim);
+            color: #fff;
+        }
+        .btn-download {
+            background: linear-gradient(135deg, var(--orc-accent), var(--orc-accent2));
+            color: #fff;
+        }
+        .btn-download:hover {
+            opacity: 0.88;
+            transform: scale(0.98);
+        }
 
-        .app-buttons { display: flex; gap: 12px; width: 100%; margin-top: auto; }
-        .btn-app-view, .btn-app-dl { 
-            padding: 12px; border-radius: 10px; border: none; 
-            cursor: pointer; font-size: 0.8rem; font-weight: bold; 
-            transition: 0.2s; flex: 1; text-transform: uppercase;
+        /* ── VIP Section ── */
+        .vip-section { margin-top: 72px; }
+        .vip-banner {
+            background: linear-gradient(135deg, rgba(255,183,0,0.08), rgba(255,215,0,0.04));
+            border: 1px solid rgba(255,183,0,0.2);
+            border-radius: var(--radius);
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
         }
-        .btn-app-view { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-app-dl { background: linear-gradient(45deg, var(--gura-accent), #0072ff); color: white; }
+        .vip-icon {
+            font-size: 2rem;
+            line-height: 1;
+        }
+        .vip-banner h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--orc-yellow);
+            margin-bottom: 4px;
+        }
+        .vip-banner p {
+            font-size: 0.85rem;
+            color: var(--orc-muted);
+            margin: 0;
+        }
 
-        /* Preview Overlay */
-        #preview-overlay { 
-            display: none; position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.95); z-index: 20000; 
-            justify-content: center; align-items: center; backdrop-filter: blur(10px); 
+        .app-card.vip-card {
+            border-color: rgba(255,183,0,0.2);
         }
-        #preview-img { 
-            max-width: 90%; max-height: 85%; border-radius: 10px; 
-            border: 2px solid var(--gura-blue); 
+        .app-card.vip-card:hover {
+            border-color: rgba(255,215,0,0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,215,0,0.1);
         }
-        .asus-wave-container {
-            position: fixed; width: 100%; height: 15vh; bottom: 0; left: 0;
-            z-index: 1000; pointer-events: none;
+        .btn-download.gold {
+            background: linear-gradient(135deg, #b8860b, #ffd700, #b8860b);
+            color: #1a1200;
         }
-        .waves { position: relative; width: 100%; height: 100%; }
-        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .btn-download.gold:hover { opacity: 0.9; }
+
+        /* ── Features row ── */
+        .features-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        .feature-card {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-radius: var(--radius-sm);
+            padding: 20px 18px;
+            text-align: center;
+            backdrop-filter: blur(12px);
+        }
+        .feature-icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .feature-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--orc-text);
+            margin-bottom: 6px;
+        }
+        .feature-desc { font-size: 0.8rem; color: var(--orc-muted); line-height: 1.5; }
+
+        /* ── Stats row ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 56px;
+        }
+        .stat-card {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(12px);
+        }
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: var(--mono);
+            background: linear-gradient(135deg, var(--orc-blue), var(--orc-accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .stat-label { font-size: 0.8rem; color: var(--orc-muted); }
+
+        /* ── FAQ ── */
+        .faq-section { margin-top: 72px; margin-bottom: 64px; }
+        .faq-item {
+            background: var(--orc-surface);
+            border: 1px solid var(--orc-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+        .faq-q {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--orc-text);
+            font-family: var(--font);
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .faq-q:hover { background: rgba(77,184,255,0.04); }
+        .faq-q .arrow {
+            color: var(--orc-blue);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+            min-width: 16px;
+            text-align: center;
+        }
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.3s ease;
+            padding: 0 24px;
+            font-size: 0.88rem;
+            color: var(--orc-muted);
+            line-height: 1.7;
+        }
+        .faq-item.open .faq-a { max-height: 300px; padding: 4px 24px 20px; }
+        .faq-item.open .arrow { transform: rotate(90deg); }
+
+        /* ── Preview overlay ── */
+        .preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(16px);
+        }
+        .preview-overlay.show { display: flex; }
+        .preview-overlay img {
+            max-width: 88vw;
+            max-height: 80vh;
+            border-radius: 12px;
+            border: 2px solid var(--orc-blue);
+            box-shadow: 0 0 80px rgba(0,114,255,0.3);
+        }
+        .preview-close {
+            color: var(--orc-blue-dim);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        /* ── Waves ── */
+        .wave-container {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .wave-container svg { width: 100%; height: 100%; }
+        .parallax > use { animation: wave-move 20s cubic-bezier(.55,.5,.45,.5) infinite; }
         .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
         .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
         .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
         .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
-        @keyframes move-forever {
+        @keyframes wave-move {
             0% { transform: translate3d(-90px,0,0); }
             100% { transform: translate3d(85px,0,0); }
         }
-        .back-btn {
-            align-self: flex-start; margin-bottom: 20px;
-            color: #99CCFF; text-decoration: none; font-weight: bold;
-            display: flex; align-items: center; gap: 8px;
-            transition: 0.3s;
+
+        /* ── Footer ── */
+        footer {
+            background: rgba(6,11,18,0.9);
+            border-top: 1px solid var(--orc-border);
+            padding: 32px 24px;
+            text-align: center;
         }
-        .back-btn:hover { color: white; transform: translateX(-5px); }
+        .footer-logo {
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--orc-blue);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .footer-sub { font-size: 0.82rem; color: var(--orc-muted); margin-bottom: 16px; }
+        .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .footer-links a {
+            font-size: 0.8rem;
+            color: var(--orc-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--orc-blue); }
+        .footer-copy { font-size: 0.75rem; color: rgba(130,160,192,0.5); margin-top: 20px; font-family: var(--mono); }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .navbar { padding: 0 16px; }
+            .navbar-links { display: none; }
+            .page-wrap { padding: 32px 16px 100px; }
+            .guide-block { padding: 24px 20px; }
+            .app-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Animations ── */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fade-up 0.6s ease both; }
+        .fade-up:nth-child(2) { animation-delay: 0.1s; }
+        .fade-up:nth-child(3) { animation-delay: 0.2s; }
+        .fade-up:nth-child(4) { animation-delay: 0.3s; }
     </style>
 </head>
-<body> 
-
-    <div class="bg-overlay"></div>
-
-    <div id="preview-overlay" onclick="this.style.display='none'">
-        <img id="preview-img" src="" alt="Preview">
-        <p style="position:absolute; bottom:30px; color: var(--gura-blue); font-weight:bold;">NHẤN ĐỂ ĐÓNG</p>
-    </div>
-
-    <nav class="pure-nav">
-        <div style="font-weight: bold; color: var(--gura-blue); font-size: 1.3rem; letter-spacing: 3px;">ORICHIIN STUDIO 🦈</div>
-    </nav>
-    <div id="update-banner" style="background: rgba(153, 204, 255, 0.1); border-bottom: 1px solid var(--gura-accent); padding: 10px; text-align: center; font-size: 0.9rem; position: sticky; top: 60px; z-index: 999; backdrop-filter: blur(5px);">
-        <span style="color: var(--gura-yellow); font-weight: bold;">CẬP NHẬT:</span> 
-        <span id="update-content" style="color: #cbd5e0;">Đang kiểm tra thông tin...</span>
-    </div>
-    <a href="https://www.hentaiorc.xyz/list.html" class="back-btn">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
-        QUAY LẠI TRANG CHỦ
-    </a>
-    <div class="wrapper">
-        <div class="section-title">Hướng dẫn</div>
-    </div>
-    <div style="background:#e7f3ff; border-left:5px solid #2196F3; padding:15px; margin:20px 0; border-radius:4px; font-family:sans-serif;">
-    <strong style="color:#0d47a1; display:block; margin: auto 150px;">Inkscape Là Gì?</strong>
-    <p style="margin:0; color:#333; line-height:1.5;">______________________________________________________</p>
-    <p style="margin:0; color:#333; line-height:1.5;">
-        Inkscape là phần mềm mã nguồn mở thiết kế vector, tạo hình ảnh hoàn toàn miễn phí. Phần mềm dành cho các nhà thiết kế đồ hoạ, sáng tạo nội dung hay nghệ sĩ bởi khả năng mạnh mẽ và tính linh hoạt cao. Inkscape cung cấp môi trường làm việc cực chất lượng, chuyên nghiệp. 
-        Thành phẩm là các hình ảnh vector sắc nét, đa dạng biểu đồ thay vì sử dụng pixel như trong đồ hoạ raster.
-    </p>
-    <p style="margin:0; color:#333; line-height:5;">
-    Inkscape là phần mềm mã nguồn mở nên người dùng có thể đóng góp để phát triển. Người dùng tự do thay đổi, phân phối, sao chép phần mềm theo nhu cầu.
-    </p>
-    <img src="https://lanit.com.vn/wp-content/uploads/2024/07/inkscape-la-gi-2.jpg" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
-    <strong style="color:#0d47a1; display:block; margin: auto 150px;">Cách Tải file và Sử dụng của chúng tôi</strong>
-    <p style="margin:0; color:#333; line-height:1.5;">
-    1. Tải file: Nhấn vào nút "Tải ZIP" để tải về máy tính. File sẽ ở định dạng .zip, bạn cần giải nén để sử dụng.</p>
-    <img src="https://hentaiorc.xyz/image-video/huongdan1.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
-    <p style="margin:0; color:#333; line-height:1.5;">
-    2. sau khi tai ban se can phai giai nen file o trong thu muc.</p>
-    <img src="https://hentaiorc.xyz/image-video/huongdan2.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
-    <p style="margin:0; color:#333; line-height:1.5;">
-    3. Để giải nén, bạn có thể sử dụng phần mềm tích hợp sẵn trên hệ điều hành hoặc các công cụ giải nén miễn phí như WinRAR, 7-Zip. Nhấp chuột phải vào file .zip và chọn "Extract Here" hoặc "Extract to [Tên thư mục]".</p>
-    <img src="https://hentaiorc.xyz/image-video/huongdan3.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
-    <p style="margin:0; color:#333; line-height:1.5;">
-    4. Sau khi giải nén, bạn sẽ thấy các file có định dạng .svg hoặc .png. Đây là các file vector mà bạn có thể mở bằng phần mềm Inkscape để chỉnh sửa hoặc sử dụng trực tiếp.</p>
-    <img src="https://hentaiorc.xyz/image-video/huongdan4.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">  
-    5. bam chuot phai vao file svg va chon open with inkscape de mo file bang phan mem inkscape. sau do ban co the chinh sua theo y muon hoac su dung truc tiep.</p>
-    <img src="https://hentaiorc.xyz/image-video/huongdan5.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
-    6. sau khi mo file bang inkscape ban co the chinh sua theo y muon hoac su dung truc tiep.</p>
-    <img src="https://hentaiorc.xyz/image-video/huongdan6.png" style="width: 70%; height: auto; margin-top:10px; border-radius:5px;">
-</div>
-</body>
 <body>
 
-    <div class="bg-overlay"></div>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
 
-    <div id="preview-overlay" onclick="this.style.display='none'">
-        <img id="preview-img" src="" alt="Preview">
-        <p style="position:absolute; bottom:30px; color: var(--gura-blue); font-weight:bold;">NHẤN ĐỂ ĐÓNG</p>
-    </div>
-
-    <nav class="pure-nav">
-        <div style="font-weight: bold; color: var(--gura-blue); font-size: 1.3rem; letter-spacing: 3px;"></div>
-    </nav>
-    <div class="wrapper">
-        <div class="section-title">🍄 Các File bài tập tin học vẽ inkscape vector</div>
-        
-        <div class="app-container">
-            <div class="app-card">
-                <img src="https://www.hentaiorc.xyz/image-video/nam-image.jpg" class="app-icon">
-                <div class="app-name">Mushroom Vector Pack</div>
-                <div class="app-desc">Bộ sưu tập cây nấm vector nhiều màu sắc. Chọn màu bên dưới để xem và tải file tương ứng.</div>
-                
-                <div class="variant-selector">
-                    <span class="variant-label">Chọn màu sắc:</span>
-                    <p><color: #FF5555>lỗi tính năng tạm thời chỉ có màu cơ bản nguyên gốc</color:></p>
-                    <div class="variant-options">
-                        <div class="variant-item active" onclick="selectVariant(this, 'Đỏ', 'https://www.hentaiorc.xyz/image-video/nam-image.jpg', 'https://hentaiorc.xyz/caynam-basic.zip')">Đỏ</div>
-                        <div class="variant-item" onclick="selectVariant(this, 'Xanh', 'https://www.hentaiorc.xyz/image-video/nam-image.jpg', 'https://hentaiorc.xyz/caynam-basic.zip')">Xanh</div>
-                        <div class="variant-item" onclick="selectVariant(this, 'Vàng', 'https://www.hentaiorc.xyz/image-video/nam-image.jpg', 'https://hentaiorc.xyz/caynam-basic.zip')">Vàng</div>
-                        <div class="variant-item" onclick="selectVariant(this, 'Tím', 'https://www.hentaiorc.xyz/image-video/nam-image.jpg', 'https://hentaiorc.xyz/caynam-basic.zip')">Tím</div>
-                    </div>
-                </div>
-
-                <div class="app-buttons">
-                    <button class="btn-app-view" onclick="previewApp('https://www.hentaiorc.xyz/image-video/nam-image.jpg')">Xem trước</button>
-                    <button class="btn-app-dl" onclick="window.open('https://hentaiorc.xyz/caynam-basic.zip')">Tải File</button>
-                </div>
-            </div>
-
-            <div class="app-card">
-                <img src="https://hentaiorc.xyz/tin1068.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
-                <div class="app-name">Tin Học Vector 10</div>
-                <div class="app-desc">Tài liệu bài tập Tin học 10 - Trang 68. File vector dành cho các bạn lười vẽ lại hình.</div>
-                <div class="app-buttons">
-                    <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/tin1068.png')">Xem trước</button>
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc10.zip')">Tải ZIP</button>
-                </div>
-            </div>
-            <div class="app-card">
-                <img src="https://hentaiorc.xyz/image-video/tin1074.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
-                <div class="app-name">File svg Tin học 10</div>
-                <div class="app-desc">Tài liệu bài tập Tin học 10 - Trang 74. File vector dành cho các bạn lười vẽ lại hình.</div>
-                <div class="app-buttons">
-                    <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/image-video/tin1074.png')">Xem trước</button>
-                    <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc1074.zip')">Tải ZIP</button>
-                </div>
-            </div>
-        </div>
-        <div class="app-card">
-            <img src="https://hentaiorc.xyz/image-video/tin1084.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
-            <div class="app-name">File tin học 10</div>
-            <div class="app-desc">Tài liệu bài tập Tin học 10 - Trang 84. File vector dành cho các bạn lười vẽ lại hình.</div>
-            <div class="app-buttons">
-                <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/image-video/tin1084.png')">Xem trước</button>
-                <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/tin1084.zip')">Tải ZIP</button>
-            </div>
-        </div>
-        <div class="app-card">
-            <img src="https://hentaiorc.xyz/image-video/tinhoc10vandung.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
-            <div class="app-name">File tin học 10</div>
-            <div class="app-desc">Tài liệu bài tập Tin học 10 - van dung. bai bien va du</div>
-            <div class="app-buttons">
-                <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/image-video/tinhoc10vandung.png')">Xem trước</button>
-                <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/tinhoc10vandung.zip')">Tải ZIP</button>
-            </div>
-        </div>
+<!-- Preview Overlay -->
+<div class="preview-overlay" id="previewOverlay" onclick="closePreview()">
+    <img id="previewImg" src="" alt="Preview">
+    <div class="preview-close">✕ &nbsp;NHẤN ĐỂ ĐÓNG (hoặc ESC)</div>
 </div>
-<div class="section-title-yellow" style="margin: 60px 0 40px 0;">🎁 khu vực vip</div> 
-<div class="app-container" style="width: 10000; max-width: 11000px;height: auto;;">
-    <div class="app-card">
-        <img src="https://hentaiorc.xyz/image-video/tincuoikivip.png" class="app-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
-        <div class="app-name">File svg tin cuối kì vip không cần giải nén dùng ngay</div>
-        <div class="app-desc">Đảm bảo giống 100%</div>
-        <div class="app-buttons">
-            <button class="btn-app-view" onclick="previewApp('https://hentaiorc.xyz/image-video/tincuoikivip.png')">Xem trước</button>
-            <button class="btn-app-dl" onclick="window.open('https://www.hentaiorc.xyz/tincuoikivip.zip')">Tải ZIP</button>
-        </div>
-    </div>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-logo">ORICHIIN <span>STUDIO</span> 🦈</div>
+    <ul class="navbar-links">
+        <li><a href="https://www.hentaiorc.xyz/list.html">Trang chủ</a></li>
+        <li><a href="#free-section">Miễn phí</a></li>
+        <li><a href="#vip-section">VIP</a></li>
+        <li><a href="#faq-section">FAQ</a></li>
+    </ul>
+</nav>
+
+<!-- Update banner -->
+<div class="update-banner">
+    <span class="tag">CẬP NHẬT:</span>
+    <span class="content" id="updateContent">Đang kiểm tra thông tin...</span>
 </div>
-        <div class="asus-wave-container">
-        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
-            <defs>
-                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
-            </defs>
-            <g class="parallax">
-                <use href="#gentle-wave" x="48" y="0" fill="rgba(0, 243, 255, 0.2)" />
-                <use href="#gentle-wave" x="48" y="3" fill="rgba(0, 243, 255, 0.3)" />
-                <use href="#gentle-wave" x="48" y="5" fill="rgba(0, 243, 255, 0.1)" />
-                <use href="#gentle-wave" x="48" y="7" fill="rgba(0, 243, 255, 0.5)" />
-            </g>
+
+<!-- Main content -->
+<div class="page-wrap">
+
+    <a href="https://www.hentaiorc.xyz/list.html" class="back-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
         </svg>
+        Quay lại trang chủ
+    </a>
+
+    <!-- Stats row -->
+    <div class="stats-row fade-up">
+        <div class="stat-card">
+            <span class="stat-num">6+</span>
+            <span class="stat-label">File Vector</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Miễn phí</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num">SVG</span>
+            <span class="stat-label">Định dạng</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num">∞</span>
+            <span class="stat-label">Tải không giới hạn</span>
+        </div>
     </div>
-    <script>
-        function downloadRandomFile() {
-        const randomFiles = [
-            'https://www.hentaiorc.xyz/tincuoiki.zip',
-            'https://www.hentaiorc.xyz/tincuoiki.zip',
-            'https://www.hentaiorc.xyz/tincuoiki.zip',
-            'https://www.hentaiorc.xyz/tincuoiki.zip',
-            'https://www.hentaiorc.xyz/tincuoiki.zip'
-        ];
 
-        const randomIndex = Math.floor(Math.random() * randomFiles.length);
-        const selectedFile = randomFiles[randomIndex];
+    <!-- Features row -->
+    <div class="features-row fade-up">
+        <div class="feature-card">
+            <span class="feature-icon">🎨</span>
+            <div class="feature-title">Chỉnh sửa tự do</div>
+            <div class="feature-desc">Mở bằng Inkscape và tuỳ chỉnh màu sắc, kích thước theo ý muốn</div>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">📐</span>
+            <div class="feature-title">Vector sắc nét</div>
+            <div class="feature-desc">File SVG không vỡ pixelở mọi kích thước in ấn và màn hình</div>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">📦</span>
+            <div class="feature-title">Dễ sử dụng</div>
+            <div class="feature-desc">Tải về, giải nén và mở bằng Inkscape trong vài giây</div>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🔄</span>
+            <div class="feature-title">Cập nhật thường xuyên</div>
+            <div class="feature-desc">Thêm bài tập mới theo chương trình Tin học 10 cập nhật</div>
+        </div>
+    </div>
 
-        window.open(selectedFile, '_blank');
-        
-        console.log("Đang tải file ngẫu nhiên:", selectedFile);
-    }
+    <!-- ── HƯỚNG DẪN SỬ DỤNG ── -->
+    <div class="section-title fade-up">📖 Hướng dẫn sử dụng</div>
 
-        function previewApp(url) {
-            window.open(url, '_blank');
-        }
-        // Hàm xử lý chọn biến thể động (Không dùng ID cứng)
-        function selectVariant(element, colorName, imgPreview, downloadUrl) {
-            // 1. Cập nhật trạng thái Active của nút
-            const options = element.parentElement.querySelectorAll('.variant-item');
-            options.forEach(opt => opt.classList.remove('active'));
-            element.classList.add('active');
+    <div class="info-card fade-up">
+        <h2>Inkscape là gì?</h2>
+        <p>
+            Inkscape là phần mềm mã nguồn mở dùng để thiết kế đồ hoạ vector, hoàn toàn miễn phí và đa nền tảng (Windows, macOS, Linux).
+            Phần mềm phù hợp cho nhà thiết kế đồ hoạ, giáo viên, học sinh và bất kỳ ai cần tạo hoặc chỉnh sửa hình ảnh vector chất lượng cao.
+        </p>
+        <p>
+            Khác với đồ hoạ raster (JPEG, PNG), hình ảnh vector trong Inkscape được mô tả bằng toán học, nên sẽ <strong style="color:var(--orc-blue)">không bao giờ bị vỡ hình</strong>
+            dù phóng to đến bất kỳ kích thước nào — lý tưởng cho in ấn và trình chiếu.
+        </p>
+        <p>
+            Vì là phần mềm mã nguồn mở, người dùng có thể tự do sao chép, chỉnh sửa và phân phối lại theo giấy phép GPL.
+        </p>
+        <img src="https://lanit.com.vn/wp-content/uploads/2024/07/inkscape-la-gi-2.jpg" alt="Inkscape là gì">
+    </div>
 
-            // 2. Tìm chính xác thẻ App Card đang chứa nút vừa bấm
-            const card = element.closest('.app-card');
+    <div class="guide-block fade-up">
+        <h2>Cách tải và sử dụng file của chúng tôi</h2>
+        <hr class="guide-divider">
 
-            // 3. Thay đổi ảnh đại diện (Thumbnail) của thẻ đó
-            const mainImg = card.querySelector('.app-icon');
-            mainImg.style.opacity = '0.5';
-            setTimeout(() => {
-                mainImg.src = imgPreview;
-                mainImg.style.opacity = '1';
-            }, 150);
+        <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-content">
+                <strong>Nhấn nút "Tải ZIP" trên thẻ file muốn dùng</strong>
+                <p>File sẽ được tải về máy tính dưới dạng <code style="color:var(--orc-accent2);font-family:var(--mono)">.zip</code>. Kiểm tra thư mục Download nếu không thấy cửa sổ lưu file xuất hiện.</p>
+                <img src="https://hentaiorc.xyz/image-video/huongdan1.png" alt="Bước 1 - Tải file" class="guide-img">
+            </div>
+        </div>
 
-            // 4. Cập nhật chức năng cho các nút bấm của thẻ đó
-            const viewBtn = card.querySelector('.btn-app-view');
-            const dlBtn = card.querySelector('.btn-app-dl');
+        <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-content">
+                <strong>Tìm file .zip vừa tải trong thư mục Download</strong>
+                <p>File thường có tên dạng <code style="color:var(--orc-accent2);font-family:var(--mono)">caynam-basic.zip</code> hoặc <code style="color:var(--orc-accent2);font-family:var(--mono)">filetinhoc10.zip</code>. Chưa mở được ngay — bạn cần giải nén trước.</p>
+                <img src="https://hentaiorc.xyz/image-video/huongdan2.png" alt="Bước 2 - Tìm file" class="guide-img">
+            </div>
+        </div>
 
-            viewBtn.setAttribute('onclick', `previewApp('${imgPreview}')`);
-            dlBtn.setAttribute('onclick', `window.open('${downloadUrl}')`);
-        }
+        <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-content">
+                <strong>Giải nén file ZIP</strong>
+                <p>Nhấp chuột phải vào file <code style="color:var(--orc-accent2);font-family:var(--mono)">.zip</code> → chọn <em style="color:var(--orc-text)">"Extract Here"</em> hoặc <em style="color:var(--orc-text)">"Extract to [Tên thư mục]"</em>.
+                Bạn có thể dùng công cụ tích hợp sẵn của Windows/macOS, hoặc cài thêm <a href="https://www.7-zip.org" target="_blank" style="color:var(--orc-blue)">7-Zip</a> / <a href="https://www.win-rar.com" target="_blank" style="color:var(--orc-blue)">WinRAR</a> (miễn phí).</p>
+                <img src="https://hentaiorc.xyz/image-video/huongdan3.png" alt="Bước 3 - Giải nén" class="guide-img">
+            </div>
+        </div>
 
-        // Hàm xem trước ảnh
-        function previewApp(imgUrl) {
-            const overlay = document.getElementById('preview-overlay');
-            const img = document.getElementById('preview-img');
-            img.src = imgUrl;
-            overlay.style.display = 'flex';
-        }
+        <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-content">
+                <strong>Mở thư mục sau khi giải nén</strong>
+                <p>Bên trong bạn sẽ thấy các file có đuôi <code style="color:var(--orc-accent2);font-family:var(--mono)">.svg</code> hoặc <code style="color:var(--orc-accent2);font-family:var(--mono)">.png</code>. File <code style="color:var(--orc-accent2);font-family:var(--mono)">.svg</code> là file vector dùng để chỉnh sửa trong Inkscape.</p>
+                <img src="https://hentaiorc.xyz/image-video/huongdan4.png" alt="Bước 4 - Mở thư mục" class="guide-img">
+            </div>
+        </div>
 
-        // Đóng bằng phím Esc
-        window.addEventListener('keydown', function(e) {
-            if (e.key === "Escape") {
-                document.getElementById('preview-overlay').style.display = 'none';
-            }
-        });
-    async function fetchUpdateInfo() {
-        const updateFileUrl = 'https://www.hentaiorc.xyz/update.txt'; 
-        
+        <div class="guide-step">
+            <div class="guide-step-num">5</div>
+            <div class="guide-step-content">
+                <strong>Mở file bằng Inkscape</strong>
+                <p>Nhấp chuột phải vào file <code style="color:var(--orc-accent2);font-family:var(--mono)">.svg</code> → chọn <em style="color:var(--orc-text)">"Open with"</em> → chọn <em style="color:var(--orc-text)">Inkscape</em>.
+                Nếu Inkscape chưa được cài, tải tại <a href="https://inkscape.org/release/" target="_blank" style="color:var(--orc-blue)">inkscape.org</a> (miễn phí hoàn toàn).</p>
+                <img src="https://hentaiorc.xyz/image-video/huongdan5.png" alt="Bước 5 - Mở Inkscape" class="guide-img">
+            </div>
+        </div>
+
+        <div class="guide-step">
+            <div class="guide-step-num">6</div>
+            <div class="guide-step-content">
+                <strong>Chỉnh sửa hoặc xuất file</strong>
+                <p>File sẽ mở trong Inkscape với đầy đủ các layer, màu sắc và hình dạng. Bạn có thể chỉnh sửa tự do: thay màu, thêm chữ, resize... Sau đó xuất ra PNG hoặc in trực tiếp.</p>
+                <img src="https://hentaiorc.xyz/image-video/huongdan6.png" alt="Bước 6 - Chỉnh sửa" class="guide-img">
+            </div>
+        </div>
+
+        <hr class="guide-divider">
+        <p style="text-align:center; color:var(--orc-green); font-size:0.88rem; font-weight:600;">
+            ✅ Đơn giản chỉ vậy thôi! Nếu gặp lỗi, liên hệ qua trang chủ để được hỗ trợ.
+        </p>
+    </div>
+
+    <!-- ── FILE MIỄN PHÍ ── -->
+    <div id="free-section" class="section-title fade-up">🍄 Bộ sưu tập file Inkscape miễn phí</div>
+
+    <div class="app-grid">
+
+        <!-- Mushroom Pack -->
+        <div class="app-card fade-up">
+            <div class="card-tags">
+                <span class="tag-pill tag-free">Miễn phí</span>
+                <span class="tag-pill tag-svg">SVG</span>
+                <span class="tag-pill tag-new">Mới</span>
+            </div>
+            <img src="https://www.hentaiorc.xyz/image-video/nam-image.jpg" class="app-thumb" id="mushroomThumb" alt="Mushroom Vector">
+            <div class="app-name">Mushroom Vector Pack 🍄</div>
+            <div class="app-desc">Bộ sưu tập cây nấm vector nhiều màu sắc, đường nét mượt mà. Thích hợp làm bài tập vẽ Inkscape cơ bản hoặc minh hoạ sáng tạo.</div>
+
+            <div class="variant-selector">
+                <span class="variant-label">Chọn màu sắc:</span>
+                <span class="variant-note">⚠ Tính năng đa màu đang cập nhật — hiện chỉ có bản gốc</span>
+                <div class="variant-options">
+                    <button class="variant-btn active" onclick="selectVariant(this,'Đỏ','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🔴 Đỏ</button>
+                    <button class="variant-btn" onclick="selectVariant(this,'Xanh','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🔵 Xanh</button>
+                    <button class="variant-btn" onclick="selectVariant(this,'Vàng','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🟡 Vàng</button>
+                    <button class="variant-btn" onclick="selectVariant(this,'Tím','https://www.hentaiorc.xyz/image-video/nam-image.jpg','https://hentaiorc.xyz/caynam-basic.zip','mushroomThumb','mushroomView','mushroomDl')">🟣 Tím</button>
+                </div>
+            </div>
+
+            <div class="app-btns">
+                <button class="btn-preview" id="mushroomView" onclick="openPreview('https://www.hentaiorc.xyz/image-video/nam-image.jpg')">Xem trước</button>
+                <button class="btn-download" id="mushroomDl" onclick="window.open('https://hentaiorc.xyz/caynam-basic.zip')">Tải ZIP</button>
+            </div>
+        </div>
+
+        <!-- Tin Học 10 - Trang 68 -->
+        <div class="app-card fade-up">
+            <div class="card-tags">
+                <span class="tag-pill tag-free">Miễn phí</span>
+                <span class="tag-pill tag-svg">SVG</span>
+            </div>
+            <img src="https://hentaiorc.xyz/tin1068.png" class="app-thumb" alt="Tin Học 10 trang 68"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+            <div class="app-name">Tin Học 10 — Trang 68</div>
+            <div class="app-desc">File vector bài tập Tin học 10, trang 68. Vẽ sẵn đầy đủ chi tiết theo sách giáo khoa, chỉ cần mở Inkscape là dùng ngay — không cần vẽ lại từ đầu.</div>
+            <div class="app-btns">
+                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/tin1068.png')">Xem trước</button>
+                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc10.zip')">Tải ZIP</button>
+            </div>
+        </div>
+
+        <!-- Tin Học 10 - Trang 74 -->
+        <div class="app-card fade-up">
+            <div class="card-tags">
+                <span class="tag-pill tag-free">Miễn phí</span>
+                <span class="tag-pill tag-svg">SVG</span>
+            </div>
+            <img src="https://hentaiorc.xyz/image-video/tin1074.png" class="app-thumb" alt="Tin Học 10 trang 74"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+            <div class="app-name">Tin Học 10 — Trang 74</div>
+            <div class="app-desc">File SVG bài tập Tin học 10, trang 74. Độ chính xác cao, dùng được ngay cho bài nộp hoặc thực hành chỉnh sửa trong Inkscape.</div>
+            <div class="app-btns">
+                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tin1074.png')">Xem trước</button>
+                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/filetinhoc1074.zip')">Tải ZIP</button>
+            </div>
+        </div>
+
+        <!-- Tin Học 10 - Trang 84 -->
+        <div class="app-card fade-up">
+            <div class="card-tags">
+                <span class="tag-pill tag-free">Miễn phí</span>
+                <span class="tag-pill tag-svg">SVG</span>
+            </div>
+            <img src="https://hentaiorc.xyz/image-video/tin1084.png" class="app-thumb" alt="Tin Học 10 trang 84"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+            <div class="app-name">Tin Học 10 — Trang 84</div>
+            <div class="app-desc">File SVG bài tập Tin học 10, trang 84. Bao gồm đầy đủ các hình vẽ theo yêu cầu sách giáo khoa, có thể mở và chỉnh sửa trong Inkscape.</div>
+            <div class="app-btns">
+                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tin1084.png')">Xem trước</button>
+                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/tin1084.zip')">Tải ZIP</button>
+            </div>
+        </div>
+
+        <!-- Tin Học 10 - Vận dụng -->
+        <div class="app-card fade-up">
+            <div class="card-tags">
+                <span class="tag-pill tag-free">Miễn phí</span>
+                <span class="tag-pill tag-svg">SVG</span>
+            </div>
+            <img src="https://hentaiorc.xyz/image-video/tinhoc10vandung.png" class="app-thumb" alt="Tin Học 10 vận dụng"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+            <div class="app-name">Tin Học 10 — Vận dụng</div>
+            <div class="app-desc">File SVG phần Vận dụng của bài tập Tin học 10. Bài biển và dù — file được vẽ kỹ càng, đủ để dùng làm tài liệu học tập.</div>
+            <div class="app-btns">
+                <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tinhoc10vandung.png')">Xem trước</button>
+                <button class="btn-download" onclick="window.open('https://www.hentaiorc.xyz/tinhoc10vandung.zip')">Tải ZIP</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── VIP SECTION ── -->
+    <div id="vip-section" class="vip-section">
+        <div class="section-title-gold">🎁 Khu vực VIP</div>
+
+        <div class="vip-banner">
+            <span class="vip-icon">👑</span>
+            <div>
+                <h3>File VIP — Chất lượng cao nhất</h3>
+                <p>Các file VIP được vẽ tỉ mỉ hơn, đảm bảo giống 100% yêu cầu đề thi. Không cần giải nén — mở và dùng ngay.</p>
+            </div>
+        </div>
+
+        <div class="app-grid">
+            <div class="app-card vip-card fade-up">
+                <div class="card-tags">
+                    <span class="tag-pill tag-vip">VIP</span>
+                    <span class="tag-pill tag-svg">SVG</span>
+                    <span class="tag-pill tag-new">Đảm bảo 100%</span>
+                </div>
+                <img src="https://hentaiorc.xyz/image-video/tincuoikivip.png" class="app-thumb" alt="Tin Học cuối kì VIP"
+                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
+                <div class="app-name">🏆 File SVG Tin học Cuối kì — VIP</div>
+                <div class="app-desc">File SVG cuối kỳ chất lượng VIP. Không cần giải nén — mở file và dùng ngay. Được vẽ chính xác 100% theo đề thi, tiết kiệm toàn bộ thời gian vẽ lại.</div>
+                <div class="app-btns">
+                    <button class="btn-preview" onclick="openPreview('https://hentaiorc.xyz/image-video/tincuoikivip.png')">Xem trước</button>
+                    <button class="btn-download gold" onclick="window.open('https://www.hentaiorc.xyz/tincuoikivip.zip')">Tải ZIP ⭐</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FAQ ── -->
+    <div id="faq-section" class="faq-section">
+        <div class="section-title">❓ Câu hỏi thường gặp</div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>Tôi có cần cài Inkscape để dùng file không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Có, bạn cần cài Inkscape để mở và chỉnh sửa file <code style="color:var(--orc-accent2)">.svg</code>. Tải miễn phí tại
+                <a href="https://inkscape.org/release/" target="_blank" style="color:var(--orc-blue)">inkscape.org</a>.
+                Nếu chỉ muốn xem file mà không chỉnh sửa, bạn có thể mở file .svg bằng trình duyệt web như Chrome hoặc Firefox.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>File SVG có thể in ra giấy không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Hoàn toàn có thể! Đó chính là ưu điểm lớn nhất của vector. File SVG khi in sẽ cực kỳ sắc nét ở mọi kích thước, từ A4 đến khổ lớn như banner hay áp phích. Bạn có thể in trực tiếp từ Inkscape hoặc xuất ra PDF trước khi in.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>Tại sao tôi giải nén xong nhưng không thấy file SVG?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Thử kiểm tra lại trong thư mục con bên trong thư mục vừa giải nén — đôi khi file nằm trong một subfolder. Nếu vẫn không thấy, hãy thử giải nén lại bằng phần mềm khác như 7-Zip hoặc WinRAR. Đảm bảo file .zip tải về không bị lỗi (kiểm tra dung lượng có bình thường không).
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>Tôi có thể thay đổi màu sắc trong file SVG không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Được! Đây chính là sức mạnh của file vector. Trong Inkscape, bạn chỉ cần chọn đối tượng (click vào hình) rồi thay đổi màu bằng bảng màu phía dưới màn hình. Bạn cũng có thể dùng chức năng "Edit > Find/Replace" để thay màu hàng loạt.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>File VIP khác file thường ở điểm nào?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                File VIP được vẽ tỉ mỉ hơn, đảm bảo giống 100% yêu cầu đề thi cuối kỳ. File thường phù hợp cho bài tập luyện tập trong SGK, trong khi file VIP tập trung vào đề kiểm tra chính thức. Ngoài ra, file VIP không cần giải nén — tải về là dùng ngay.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>Làm sao để xuất file SVG sang PNG hoặc PDF?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Trong Inkscape: vào menu <strong>File → Export PNG Image</strong> để xuất PNG (có thể chọn DPI). Để xuất PDF, vào <strong>File → Save a Copy → chọn PDF</strong>. Bạn cũng có thể dùng <strong>File → Print</strong> để in trực tiếp hoặc in ra PDF bằng máy in ảo.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>Trang web có tự động cập nhật file mới không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Có! Thanh thông báo ở đầu trang sẽ hiển thị thông tin cập nhật mới nhất. Chúng tôi thường xuyên bổ sung thêm file bài tập mới theo tiến độ chương trình Tin học 10. Hãy bookmark trang này để không bỏ lỡ tài liệu mới!
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                <span>Tôi có thể đóng góp hoặc đề xuất thêm bài tập không?</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="faq-a">
+                Được chứ! Nếu bạn muốn đề xuất thêm bài tập hoặc thấy bài nào chưa có, hãy liên hệ qua trang chủ. Chúng tôi cũng rất hoan nghênh nếu bạn muốn đóng góp file bài tập do mình vẽ để chia sẻ với cộng đồng.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Wave decoration -->
+<div class="wave-container">
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+        <defs>
+            <path id="wave" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
+        </defs>
+        <g class="parallax">
+            <use href="#wave" x="48" y="0" fill="rgba(0,114,255,0.08)"/>
+            <use href="#wave" x="48" y="3" fill="rgba(0,200,255,0.1)"/>
+            <use href="#wave" x="48" y="5" fill="rgba(0,114,255,0.06)"/>
+            <use href="#wave" x="48" y="7" fill="rgba(0,200,255,0.15)"/>
+        </g>
+    </svg>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-logo">ORICHIIN STUDIO 🦈</div>
+    <div class="footer-sub">Nơi chia sẻ tài nguyên số miễn phí cho học sinh</div>
+    <div class="footer-links">
+        <a href="https://www.hentaiorc.xyz/list.html">Trang chủ</a>
+        <a href="#free-section">File miễn phí</a>
+        <a href="#vip-section">Khu VIP</a>
+        <a href="#faq-section">FAQ</a>
+        <a href="https://inkscape.org/release/" target="_blank">Tải Inkscape</a>
+    </div>
+    <div class="footer-copy">&copy; 2024 ORICHIIN STUDIO — All rights reserved</div>
+</footer>
+
+<script>
+    /* ── Update banner ── */
+    async function fetchUpdate() {
         try {
-        const response = await fetch(updateFileUrl + '?v=' + Date.now());
-        if (!response.ok) throw new Error('error info updating');
-        
-        const text = await response.text();
-        
-        document.getElementById('update-content').innerText = text;
-        } catch (error) {
-        console.error('Lỗi tải cập nhật:', error);
-        document.getElementById('update-content').innerText = "Hiện tại chưa có thông tin mới.";
+            const res = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
+            if (!res.ok) throw new Error('fetch error');
+            const text = await res.text();
+            document.getElementById('updateContent').textContent = text.trim() || 'Chưa có thông tin mới.';
+        } catch {
+            document.getElementById('updateContent').textContent = 'Hiện tại chưa có thông tin mới.';
         }
     }
 
-    // Chạy hàm ngay khi trang web tải xong
-    window.addEventListener('DOMContentLoaded', fetchUpdateInfo);
-    </script>;
-    <footer style="text-align: center; padding: 20px; color: #ffffff; font-size: 0.8rem;">
-        <div style="margin-bottom: 5px; z-index: 20000;">ORICHIIN STUDIO - Nơi chia sẻ tài nguyên số miễn phí</div>
-        &copy; 2024 ORICHIIN STUDIO. All rights reserved.
-    </footer>
+    /* ── Preview overlay ── */
+    function openPreview(url) {
+        document.getElementById('previewImg').src = url;
+        document.getElementById('previewOverlay').classList.add('show');
+    }
+    function closePreview() {
+        document.getElementById('previewOverlay').classList.remove('show');
+    }
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
+
+    /* ── Variant selector ── */
+    function selectVariant(el, name, img, dl, thumbId, viewId, dlId) {
+        el.parentElement.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+
+        const thumb = document.getElementById(thumbId);
+        thumb.style.opacity = '0.4';
+        thumb.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            thumb.src = img;
+            thumb.style.opacity = '1';
+            thumb.style.transform = '';
+        }, 200);
+
+        document.getElementById(viewId).onclick = () => openPreview(img);
+        document.getElementById(dlId).onclick = () => window.open(dl);
+    }
+
+    /* ── FAQ ── */
+    function toggleFaq(btn) {
+        const item = btn.parentElement;
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    }
+
+    /* ── Init ── */
+    window.addEventListener('DOMContentLoaded', fetchUpdate);
+</script>
 
 </body>
 </html>
