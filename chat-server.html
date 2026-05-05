@@ -4,7 +4,7 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORICHIIN - CHAT SERVER</title>
+    <title>CHAT SERVER</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,7 +26,6 @@
             transition: background 0.6s ease;
         }
 
-        /* BG overlay */
         .bg-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.55);
@@ -35,7 +34,6 @@
         }
         .bg-overlay.hidden { opacity: 0; }
 
-        /* Particles */
         #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .p { position: absolute; border-radius: 50%; background: var(--neon); opacity: 0; animation: rise linear infinite; }
         @keyframes rise {
@@ -56,7 +54,6 @@
             }
         }
 
-        /* NAV */
         nav {
             position: sticky; top: 0; z-index: 1000;
             height: 64px;
@@ -79,7 +76,6 @@
         }
         .nav-home-btn:hover { background: rgba(0,243,255,0.12); border-color: var(--neon); color: var(--neon); }
 
-        /* Settings btn */
         .settings-btn {
             width: 40px; height: 40px; border-radius: 50%;
             background: rgba(0,0,0,0.5);
@@ -92,7 +88,6 @@
         }
         .settings-btn:hover { transform: rotate(60deg); box-shadow: 0 0 20px var(--neon); }
 
-        /* Settings panel */
         .settings-panel {
             position: fixed; top: 72px; right: 16px;
             width: 310px;
@@ -154,7 +149,6 @@
         .sp-reset { margin-top: 14px; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); border-radius: 9px; padding: 8px; font-size: 11px; cursor: pointer; transition: 0.25s; }
         .sp-reset:hover { border-color: var(--neon); color: var(--neon); }
 
-        /* MAIN CONTENT */
         .main-wrapper {
             position: relative; z-index: 1;
             display: flex; flex-direction: column; align-items: center;
@@ -162,7 +156,6 @@
             min-height: calc(100vh - 64px);
         }
 
-        /* Notice box */
         .notice-container {
             width: 100%; max-width: 800px;
             background: rgba(0,0,0,0.75);
@@ -196,6 +189,84 @@
         }
         .notice-body { color: rgba(255,255,255,0.75); line-height: 1.7; font-size: 14px; }
 
+        /* ── CHAT TOOLBAR ── */
+        .chat-toolbar {
+            width: 100%; max-width: 800px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .chat-toolbar-left { display: flex; align-items: center; gap: 8px; }
+        .chat-toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        /* Reload button */
+        .btn-reload {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(0,243,255,0.08);
+            border: 1px solid rgba(0,243,255,0.35);
+            color: var(--neon);
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px; font-weight: 700;
+            padding: 7px 16px; border-radius: 20px;
+            cursor: pointer; transition: 0.25s;
+            letter-spacing: 1px;
+        }
+        .btn-reload:hover {
+            background: rgba(0,243,255,0.18);
+            box-shadow: 0 0 14px rgba(0,243,255,0.35);
+        }
+        .btn-reload:active .reload-icon { transform: rotate(360deg); }
+        .reload-icon {
+            display: inline-block;
+            transition: transform 0.5s ease;
+            font-size: 14px;
+        }
+        .btn-reload.spinning .reload-icon {
+            animation: spin 0.6s linear;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Network buttons */
+        .btn-net {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.7);
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px; font-weight: 700;
+            padding: 7px 14px; border-radius: 20px;
+            cursor: pointer; transition: 0.25s;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .btn-net:hover {
+            background: rgba(255,215,0,0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .btn-net.running {
+            border-color: var(--neon);
+            color: var(--neon);
+            background: rgba(0,243,255,0.07);
+        }
+
+        /* Network result badge */
+        .net-result {
+            font-size: 11px; font-weight: 700;
+            padding: 4px 10px; border-radius: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            transition: 0.3s;
+            white-space: nowrap;
+            display: none;
+        }
+        .net-result.show { display: inline-block; }
+        .net-result.good { border-color: #00ff88; color: #00ff88; background: rgba(0,255,136,0.08); }
+        .net-result.ok   { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.08); }
+        .net-result.bad  { border-color: #ff4455; color: #ff4455; background: rgba(255,68,85,0.08); }
+
         /* Chat frame */
         .chat-frame {
             width: 100%; max-width: 800px;
@@ -206,9 +277,12 @@
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,243,255,0.05);
             margin-bottom: 0;
+            transition: box-shadow 0.3s;
+        }
+        .chat-frame.reloading {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 25px rgba(0,243,255,0.4);
         }
 
-        /* Waves */
         .wave-wrap {
             position: relative; z-index: 1;
             width: 100%; height: 80px; overflow: hidden;
@@ -225,7 +299,6 @@
             100% { transform: translate3d(85px,0,0); }
         }
 
-        /* Footer */
         footer {
             position: relative; z-index: 1;
             background: rgba(0,0,0,0.85);
@@ -249,7 +322,6 @@
         .update-text { color: rgba(255,255,255,0.55); line-height: 1.5; }
         .footer-copy { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
 
-        /* Popup */
         #popup-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.85); z-index: 10001; 
@@ -349,8 +421,27 @@
         <div class="notice-body" id="updateNotice">Đang tải thông báo từ máy chủ...</div>
     </div>
 
-    <div class="chat-frame">
-        <iframe src="https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg"
+    <!-- CHAT TOOLBAR -->
+    <div class="chat-toolbar">
+        <div class="chat-toolbar-left">
+            <button class="btn-reload" id="reloadChatBtn" title="Tải lại khung chat">
+                <span class="reload-icon">↻</span> RELOAD CHAT
+            </button>
+        </div>
+        <div class="chat-toolbar-right">
+            <button class="btn-net" id="pingBtn" title="Kiểm tra độ trễ mạng">
+                📡 TEST PING
+            </button>
+            <button class="btn-net" id="speedBtn" title="Kiểm tra tốc độ mạng">
+                ⚡ TEST TỐC ĐỘ
+            </button>
+            <span class="net-result" id="netResult"></span>
+        </div>
+    </div>
+
+    <div class="chat-frame" id="chatFrame">
+        <iframe id="chatIframe"
+                src="https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg"
                 width="100%" height="100%"
                 allowtransparency="yes" allow="autoplay"
                 frameborder="0" marginheight="0" marginwidth="0" scrolling="auto">
@@ -476,35 +567,119 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') closePopup();
 });
 
-// ── FETCH DATA TỪ SERVER ──────────────────────────────
+// ── RELOAD CHAT ───────────────────────────────────────
+const reloadBtn   = document.getElementById('reloadChatBtn');
+const chatIframe  = document.getElementById('chatIframe');
+const chatFrame   = document.getElementById('chatFrame');
+const CHAT_SRC    = 'https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg';
 
-// Hàm lấy thông báo cho phần Banner chính
+reloadBtn.addEventListener('click', () => {
+    if (reloadBtn.disabled) return;
+    reloadBtn.disabled = true;
+    reloadBtn.classList.add('spinning');
+    chatFrame.classList.add('reloading');
+
+    // Reload iframe bằng cách gán lại src
+    chatIframe.src = 'about:blank';
+    setTimeout(() => {
+        chatIframe.src = CHAT_SRC;
+        chatFrame.classList.remove('reloading');
+        reloadBtn.classList.remove('spinning');
+        reloadBtn.disabled = false;
+    }, 600);
+});
+
+// ── NETWORK TEST ──────────────────────────────────────
+const pingBtn    = document.getElementById('pingBtn');
+const speedBtn   = document.getElementById('speedBtn');
+const netResult  = document.getElementById('netResult');
+
+function showResult(text, quality) {
+    netResult.textContent = text;
+    netResult.className   = 'net-result show ' + quality;
+}
+
+// Ping test — đo thời gian fetch một tài nguyên nhỏ
+pingBtn.addEventListener('click', async () => {
+    if (pingBtn.classList.contains('running')) return;
+    pingBtn.classList.add('running');
+    pingBtn.textContent = '📡 Đang đo...';
+    netResult.className = 'net-result show';
+    netResult.textContent = '...';
+
+    const samples = [];
+    for (let i = 0; i < 4; i++) {
+        const t0 = performance.now();
+        try {
+            await fetch('https://www.cloudflare.com/cdn-cgi/trace?_=' + Date.now() + i, { cache: 'no-store', mode: 'no-cors' });
+        } catch (_) {}
+        samples.push(Math.round(performance.now() - t0));
+        await new Promise(r => setTimeout(r, 150));
+    }
+    const avg = Math.round(samples.reduce((a,b) => a+b, 0) / samples.length);
+    const quality = avg < 80 ? 'good' : avg < 200 ? 'ok' : 'bad';
+    const label   = avg < 80 ? '🟢' : avg < 200 ? '🟡' : '🔴';
+    showResult(`${label} Ping: ${avg} ms`, quality);
+
+    pingBtn.textContent = '📡 TEST PING';
+    pingBtn.classList.remove('running');
+});
+
+// Speed test — tải file ~500KB và tính throughput
+speedBtn.addEventListener('click', async () => {
+    if (speedBtn.classList.contains('running')) return;
+    speedBtn.classList.add('running');
+    speedBtn.textContent = '⚡ Đang đo...';
+    netResult.className = 'net-result show';
+    netResult.textContent = '...';
+
+    // Dùng ảnh lớn từ Unsplash (~500-700KB)
+    const testUrl = 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=90&_=' + Date.now();
+    const t0 = performance.now();
+    let bytes = 0;
+    try {
+        const res  = await fetch(testUrl, { cache: 'no-store' });
+        const buf  = await res.arrayBuffer();
+        bytes = buf.byteLength;
+    } catch (_) {
+        showResult('⚠ Không thể đo', 'bad');
+        speedBtn.textContent = '⚡ TEST TỐC ĐỘ';
+        speedBtn.classList.remove('running');
+        return;
+    }
+    const elapsed = (performance.now() - t0) / 1000; // giây
+    const mbps    = ((bytes * 8) / elapsed / 1_000_000).toFixed(1);
+    const quality = mbps >= 10 ? 'good' : mbps >= 2 ? 'ok' : 'bad';
+    const label   = mbps >= 10 ? '🟢' : mbps >= 2 ? '🟡' : '🔴';
+    showResult(`${label} Tốc độ: ${mbps} Mbps`, quality);
+
+    speedBtn.textContent = '⚡ TEST TỐC ĐỘ';
+    speedBtn.classList.remove('running');
+});
+
+// ── FETCH DATA TỪ SERVER ──────────────────────────────
 async function loadMainNotice() {
     try {
         const r = await fetch('https://www.hentaiorc.xyz/notice.txt?v=' + Date.now());
         if (!r.ok) throw new Error();
         const txt = await r.text();
-        // Cập nhật vào đúng ID ở phần Notice container
         document.getElementById('updateNotice').textContent = txt;
     } catch (err) {
         document.getElementById('updateNotice').textContent = 'Hiện tại chưa có thông báo mới.';
     }
 }
 
-// Hàm lấy thông tin cập nhật cho phần Footer
 async function loadFooterUpdate() {
     try {
         const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
         if (!r.ok) throw new Error();
         const txt = await r.text();
-        // Cập nhật vào ID dưới Footer
         document.getElementById('updateText').textContent = txt;
     } catch (err) {
         document.getElementById('updateText').textContent = 'Chưa có thông tin cập nhật.';
     }
 }
 
-// Gọi hàm sau khi đã định nghĩa xong để đảm bảo an toàn
 loadMainNotice();
 loadFooterUpdate();
 </script>
