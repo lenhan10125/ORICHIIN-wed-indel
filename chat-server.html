@@ -476,30 +476,37 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') closePopup();
 });
 
-// ── UPDATE FETCH ──────────────────────────────────────
-async function fetchUpdate() {
-    try {
-        const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
-        if (!r.ok) throw new Error();
-        const txt = await r.text();
-        document.getElementById('updateText').textContent = txt;
-    } catch {
-        document.getElementById('updateText').textContent = 'Hiện tại chưa có thông tin mới.';
-    }
-}
+// ── FETCH DATA TỪ SERVER ──────────────────────────────
 
-fetchUpdatenotice();
-async function fetchUpdatenotice() {
+// Hàm lấy thông báo cho phần Banner chính
+async function loadMainNotice() {
     try {
         const r = await fetch('https://www.hentaiorc.xyz/notice.txt?v=' + Date.now());
         if (!r.ok) throw new Error();
         const txt = await r.text();
-        document.getElementById('fetchUpdatenotice').textContent = txt;
-    } catch {
-        document.getElementById('fetchUpdatenotice').textContent = 'Hiện tại chưa có thông tin mới.';
+        // Cập nhật vào đúng ID ở phần Notice container
+        document.getElementById('updateNotice').textContent = txt;
+    } catch (err) {
+        document.getElementById('updateNotice').textContent = 'Hiện tại chưa có thông báo mới.';
     }
 }
-fetchUpdatenotice();
+
+// Hàm lấy thông tin cập nhật cho phần Footer
+async function loadFooterUpdate() {
+    try {
+        const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
+        if (!r.ok) throw new Error();
+        const txt = await r.text();
+        // Cập nhật vào ID dưới Footer
+        document.getElementById('updateText').textContent = txt;
+    } catch (err) {
+        document.getElementById('updateText').textContent = 'Chưa có thông tin cập nhật.';
+    }
+}
+
+// Gọi hàm sau khi đã định nghĩa xong để đảm bảo an toàn
+loadMainNotice();
+loadFooterUpdate();
 </script>
 </body>
 </html>
