@@ -1129,7 +1129,7 @@
     }
     async function fetchUpdate() {
         try {
-            const res = await fetch('https://www.hentaiorc.xyz/date.txt?v=' + Date.now());
+            const res = await fetch('https://www.hentaiorc.xyz/holidays.txt?v=' + Date.now());
             if (!res.ok) throw new Error();
             const text = await res.text();
             const timeValue = text.trim();
