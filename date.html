@@ -4,7 +4,7 @@
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lịch Vạn năng</title>
+    <title>ORCcop</title>
     <style>
         @font-face {
             font-family: 'Lato';
@@ -780,6 +780,17 @@
 
     <div class="container" id="main-content">
         <!-- Info box -->
+        <div class="content-box">Trang wed này thuộc quyền sở hữu của ORCcop
+            <h1>ORICHIIN STUDIO</h1>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Chào mừng bạn đến với ORC-STUDIO</p>
+            <p id="live-notice" style="color: #f900e0; font-weight: bold;">Trang wed này thuộc quyền sở hữu của ORCcop</p>
+            <p id="live-notice" style="color: #ff0000; font-weight: bold;">Chúng tôi thông báo sẽ chuyển đổi tên miền từ hentaiorc.xyz dễ gây hiểu lầm là trang 18+</p>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Thành ORCcop.com hoặc ORCcop.edu hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.</p>
+            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Thời gian chuyển đổi dự kiến: [3/5/2027]</p>
+            <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
+            <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" style="color:var(--neon-blue)">Liên hệ nhà phát triển ORCcop</a></p>
+        </div>
+
         <!-- Domain switch countdown -->
         <div class="neon-clock" id="neonClock">
             <div class="neon-clock-display">
@@ -867,39 +878,39 @@
     ];
 
     // ==========================================
-    // HOLIDAY DATA — ngày lễ Việt Nam 2025-2026
+    // HOLIDAY DATA — load từ file ngoài holidays.json
+    // Fallback: dùng danh sách mặc định nếu fetch lỗi
     // ==========================================
-    const now = new Date();
-    const Y = now.getFullYear(); // 2026
 
-    const holidays = [
-        // ── Quốc gia ──
+    // ── Danh sách mặc định (fallback) ──
+    const HOLIDAYS_FALLBACK = [
         { id: "tet_2026", emoji: "🧧", name: "Tết Nguyên Đán 2026", note: "Bính Ngọ — Giao thừa & 3 ngày nghỉ lễ", dateStr: "2026-02-17", category: "quocgia", accent: "#ff4d00" },
-        { id: "quochanhung", emoji: "🏯", name: "Giỗ Tổ Hùng Vương", note: "10/3 Âm lịch — ngày Quốc lễ", dateStr: `${Y}-04-07`, category: "quocgia", accent: "#e8a020" },
-        { id: "giaiphong", emoji: "🎉", name: "Ngày Giải Phóng Miền Nam", note: "30 tháng 4", dateStr: `${Y}-04-30`, category: "quocgia", accent: "#ff2244" },
-        { id: "quocte_laodong", emoji: "⚒️", name: "Ngày Quốc Tế Lao Động", note: "1 tháng 5", dateStr: `${Y}-05-01`, category: "quocgia", accent: "#ff6622" },
-        { id: "quockhanh", emoji: "🇻🇳", name: "Quốc Khánh Việt Nam", note: "2 tháng 9 — Ngày Độc Lập", dateStr: `${Y}-09-02`, category: "quocgia", accent: "#dd0000" },
+        { id: "quochanhung", emoji: "🏯", name: "Giỗ Tổ Hùng Vương", note: "10/3 Âm lịch — ngày Quốc lễ", dateStr: "2026-04-07", category: "quocgia", accent: "#e8a020" },
+        { id: "giaiphong", emoji: "🎉", name: "Ngày Giải Phóng Miền Nam", note: "30 tháng 4", dateStr: "2026-04-30", category: "quocgia", accent: "#ff2244" },
+        { id: "quocte_laodong", emoji: "⚒️", name: "Ngày Quốc Tế Lao Động", note: "1 tháng 5", dateStr: "2026-05-01", category: "quocgia", accent: "#ff6622" },
+        { id: "quockhanh", emoji: "🇻🇳", name: "Quốc Khánh Việt Nam", note: "2 tháng 9 — Ngày Độc Lập", dateStr: "2026-09-02", category: "quocgia", accent: "#dd0000" },
         { id: "tetduonglich", emoji: "🎆", name: "Tết Dương Lịch", note: "1 tháng 1 năm mới", dateStr: "2027-01-01", category: "quocgia", accent: "#aa44ff" },
-        // ── Học tập ──
-        { id: "nghihe", emoji: "☀️", name: "Bắt đầu Nghỉ Hè 2026", note: "Học sinh THCS/THPT kết thúc năm học", dateStr: `${Y}-05-25`, category: "hoc", accent: "#ffbb00" },
-        { id: "tuukhoa", emoji: "📚", name: "Tựu Trường Năm Học 2026-2027", note: "Học sinh trở lại trường", dateStr: `${Y}-08-25`, category: "hoc", accent: "#00c8ff" },
-        { id: "khaigiang", emoji: "🎒", name: "Khai Giảng Năm Học Mới", note: "Lễ khai giảng toàn quốc", dateStr: `${Y}-09-05`, category: "hoc", accent: "#00aaff" },
-        { id: "thay20", emoji: "👨‍🏫", name: "Ngày Nhà Giáo Việt Nam", note: "20 tháng 11", dateStr: `${Y}-11-20`, category: "hoc", accent: "#00e5a0" },
-        { id: "thitnspt", emoji: "📝", name: "Thi Tốt Nghiệp THPT 2026", note: "Kỳ thi quốc gia quan trọng", dateStr: `${Y}-06-25`, category: "hoc", accent: "#ff5599" },
-        { id: "ngayhocsinh", emoji: "🏫", name: "Ngày Học Sinh Sinh Viên", note: "9 tháng 1", dateStr: `${Y}-01-09`, category: "hoc", accent: "#33ddff" },
-        // ── Văn hóa ──
-        { id: "trungthu", emoji: "🌕", name: "Tết Trung Thu 2026", note: "15/8 Âm lịch — Tết thiếu nhi", dateStr: `${Y}-09-26`, category: "vanhoa", accent: "#ffaa00" },
-        { id: "thandoan", emoji: "🎭", name: "Tết Đoan Ngọ", note: "5/5 Âm lịch — diệt sâu bọ", dateStr: `${Y}-06-19`, category: "vanhoa", accent: "#ff6600" },
-        { id: "valentinvn", emoji: "💝", name: "Ngày Tình Nhân Valentine", note: "14 tháng 2", dateStr: `${Y + 1}-02-14`, category: "vanhoa", accent: "#ff2277" },
-        { id: "halloween", emoji: "🎃", name: "Halloween", note: "31 tháng 10", dateStr: `${Y}-10-31`, category: "vanhoa", accent: "#ff6600" },
-        { id: "noel", emoji: "🎄", name: "Giáng Sinh (Noel)", note: "25 tháng 12", dateStr: `${Y}-12-25`, category: "vanhoa", accent: "#22cc55" },
-        // ── Quốc tế ──
-        { id: "phunutg", emoji: "💐", name: "Ngày Quốc Tế Phụ Nữ", note: "8 tháng 3", dateStr: `${Y + 1}-03-08`, category: "quocte", accent: "#ff55cc" },
-        { id: "thieu_nhi_qt", emoji: "🧒", name: "Ngày Quốc Tế Thiếu Nhi", note: "1 tháng 6", dateStr: `${Y}-06-01`, category: "quocte", accent: "#33aaff" },
-        { id: "moitruong", emoji: "🌍", name: "Ngày Môi Trường Thế Giới", note: "5 tháng 6", dateStr: `${Y}-06-05`, category: "quocte", accent: "#00dd66" },
-        { id: "phunu_vn", emoji: "🌸", name: "Ngày Phụ Nữ Việt Nam", note: "20 tháng 10", dateStr: `${Y}-10-20`, category: "quocte", accent: "#ff66aa" },
         { id: "namnay", emoji: "🎊", name: "Giao Thừa Năm Mới 2027", note: "Đếm ngược đón chào năm mới", dateStr: "2026-12-31", category: "quocgia", accent: "#cc88ff" },
+        { id: "nghihe", emoji: "☀️", name: "Bắt đầu Nghỉ Hè 2026", note: "Học sinh THCS/THPT kết thúc năm học", dateStr: "2026-05-25", category: "hoc", accent: "#ffbb00" },
+        { id: "tuukhoa", emoji: "📚", name: "Tựu Trường Năm Học 2026-2027", note: "Học sinh trở lại trường", dateStr: "2026-08-25", category: "hoc", accent: "#00c8ff" },
+        { id: "khaigiang", emoji: "🎒", name: "Khai Giảng Năm Học Mới", note: "Lễ khai giảng toàn quốc", dateStr: "2026-09-05", category: "hoc", accent: "#00aaff" },
+        { id: "thay20", emoji: "👨‍🏫", name: "Ngày Nhà Giáo Việt Nam", note: "20 tháng 11", dateStr: "2026-11-20", category: "hoc", accent: "#00e5a0" },
+        { id: "thitnspt", emoji: "📝", name: "Thi Tốt Nghiệp THPT 2026", note: "Kỳ thi quốc gia quan trọng", dateStr: "2026-06-25", category: "hoc", accent: "#ff5599" },
+        { id: "ngayhocsinh", emoji: "🏫", name: "Ngày Học Sinh Sinh Viên", note: "9 tháng 1", dateStr: "2026-01-09", category: "hoc", accent: "#33ddff" },
+        { id: "trungthu", emoji: "🌕", name: "Tết Trung Thu 2026", note: "15/8 Âm lịch — Tết thiếu nhi", dateStr: "2026-09-26", category: "vanhoa", accent: "#ffaa00" },
+        { id: "thandoan", emoji: "🎭", name: "Tết Đoan Ngọ", note: "5/5 Âm lịch — diệt sâu bọ", dateStr: "2026-06-19", category: "vanhoa", accent: "#ff6600" },
+        { id: "valentinvn", emoji: "💝", name: "Ngày Tình Nhân Valentine", note: "14 tháng 2", dateStr: "2027-02-14", category: "vanhoa", accent: "#ff2277" },
+        { id: "halloween", emoji: "🎃", name: "Halloween", note: "31 tháng 10", dateStr: "2026-10-31", category: "vanhoa", accent: "#ff6600" },
+        { id: "noel", emoji: "🎄", name: "Giáng Sinh (Noel)", note: "25 tháng 12", dateStr: "2026-12-25", category: "vanhoa", accent: "#22cc55" },
+        { id: "phunutg", emoji: "💐", name: "Ngày Quốc Tế Phụ Nữ", note: "8 tháng 3", dateStr: "2027-03-08", category: "quocte", accent: "#ff55cc" },
+        { id: "thieu_nhi_qt", emoji: "🧒", name: "Ngày Quốc Tế Thiếu Nhi", note: "1 tháng 6", dateStr: "2026-06-01", category: "quocte", accent: "#33aaff" },
+        { id: "moitruong", emoji: "🌍", name: "Ngày Môi Trường Thế Giới", note: "5 tháng 6", dateStr: "2026-06-05", category: "quocte", accent: "#00dd66" },
+        { id: "phunu_vn", emoji: "🌸", name: "Ngày Phụ Nữ Việt Nam", note: "20 tháng 10", dateStr: "2026-10-20", category: "quocte", accent: "#ff66aa" },
     ];
+
+    // ── Biến lưu danh sách đang dùng ──
+    let holidays = HOLIDAYS_FALLBACK;
+    let currentFilter = 'all';
 
     function parseDate(str) { return new Date(str + 'T00:00:00'); }
 
@@ -1013,10 +1024,77 @@
         if (!tab) return;
         document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        renderHolidays(tab.dataset.filter);
+        currentFilter = tab.dataset.filter;
+        renderHolidays(currentFilter);
     });
 
-    renderHolidays();
+    // ── Fetch holidays.txt từ server (nội dung JSON bên trong) ──
+    async function loadHolidays() {
+        const grid = document.getElementById('holidayGrid');
+
+        // Hiển thị spinner loading
+        grid.innerHTML = `
+            <div style="grid-column:1/-1; display:flex; align-items:center; gap:12px; color:rgba(0,243,255,0.5); font-size:0.9rem; padding:20px 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                Đang tải lịch ngày lễ...
+            </div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+        `;
+
+        try {
+            const res = await fetch('holidays.txt?v=' + Date.now());
+            if (!res.ok) throw new Error(`HTTP ${res.status} — Không tìm thấy file holidays.txt`);
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text.trim());
+            } catch {
+                throw new Error('File holidays.txt không đúng định dạng JSON');
+            }
+            if (!Array.isArray(data) || data.length === 0) throw new Error('Danh sách ngày lễ trong file rỗng');
+            holidays = data;
+            console.log(`✅ Đã tải ${holidays.length} ngày lễ từ holidays.txt`);
+            renderHolidays(currentFilter);
+
+        } catch (err) {
+            console.error('❌ Lỗi tải holidays.txt:', err.message);
+            // Hiển thị thông báo lỗi đẹp trong grid
+            grid.innerHTML = `
+                <div style="
+                    grid-column: 1 / -1;
+                    display: flex; flex-direction: column; align-items: center;
+                    gap: 16px; padding: 48px 24px; text-align: center;
+                    border: 1px dashed rgba(255,80,80,0.3); border-radius: 18px;
+                    background: rgba(255,30,30,0.05);
+                ">
+                    <div style="font-size: 3rem;">⚠️</div>
+                    <div style="color:#ff5555; font-size:1.1rem; font-weight:900; letter-spacing:1px;">
+                        Không thể tải dữ liệu lịch
+                    </div>
+                    <div style="color:rgba(255,150,150,0.7); font-size:0.85rem; max-width:420px; line-height:1.6;">
+                        ${err.message}
+                    </div>
+                    <div style="color:rgba(255,255,255,0.25); font-size:0.75rem; font-style:italic;">
+                        Kiểm tra file <code style="color:rgba(0,243,255,0.5)">holidays.txt</code> đã được đặt đúng thư mục chưa
+                    </div>
+                    <button onclick="loadHolidays()" style="
+                        margin-top: 8px; padding: 10px 24px;
+                        background: rgba(0,243,255,0.1); border: 1px solid rgba(0,243,255,0.4);
+                        color: var(--neon-blue); border-radius: 30px; cursor: pointer;
+                        font-size: 13px; font-weight: bold; letter-spacing: 1px;
+                        transition: 0.3s;
+                    " onmouseover="this.style.background='rgba(0,243,255,0.2)'"
+                       onmouseout="this.style.background='rgba(0,243,255,0.1)'">
+                        ↺ Thử lại
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    loadHolidays();
     setInterval(tickCards, 1000);
 
     // ==========================================
@@ -1051,7 +1129,7 @@
     }
     async function fetchUpdate() {
         try {
-            const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
+            const res = await fetch('https://www.hentaiorc.xyz/date.txt?v=' + Date.now());
             if (!res.ok) throw new Error();
             const text = await res.text();
             const timeValue = text.trim();

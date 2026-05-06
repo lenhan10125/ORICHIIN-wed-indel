@@ -1,0 +1,200 @@
+[
+  {
+    "id": "tet_2026",
+    "emoji": "🧧",
+    "name": "Tết Nguyên Đán 2026",
+    "note": "Bính Ngọ — Giao thừa & 3 ngày nghỉ lễ",
+    "dateStr": "2026-02-17",
+    "category": "quocgia",
+    "accent": "#ff4d00"
+  },
+  {
+    "id": "quochanhung",
+    "emoji": "🏯",
+    "name": "Giỗ Tổ Hùng Vương",
+    "note": "10/3 Âm lịch — ngày Quốc lễ",
+    "dateStr": "2026-04-07",
+    "category": "quocgia",
+    "accent": "#e8a020"
+  },
+  {
+    "id": "giaiphong",
+    "emoji": "🎉",
+    "name": "Ngày Giải Phóng Miền Nam",
+    "note": "30 tháng 4",
+    "dateStr": "2026-04-30",
+    "category": "quocgia",
+    "accent": "#ff2244"
+  },
+  {
+    "id": "quocte_laodong",
+    "emoji": "⚒️",
+    "name": "Ngày Quốc Tế Lao Động",
+    "note": "1 tháng 5",
+    "dateStr": "2026-05-01",
+    "category": "quocgia",
+    "accent": "#ff6622"
+  },
+  {
+    "id": "quockhanh",
+    "emoji": "🇻🇳",
+    "name": "Quốc Khánh Việt Nam",
+    "note": "2 tháng 9 — Ngày Độc Lập",
+    "dateStr": "2026-09-02",
+    "category": "quocgia",
+    "accent": "#dd0000"
+  },
+  {
+    "id": "tetduonglich",
+    "emoji": "🎆",
+    "name": "Tết Dương Lịch",
+    "note": "1 tháng 1 năm mới",
+    "dateStr": "2027-01-01",
+    "category": "quocgia",
+    "accent": "#aa44ff"
+  },
+  {
+    "id": "namnay",
+    "emoji": "🎊",
+    "name": "Giao Thừa Năm Mới 2027",
+    "note": "Đếm ngược đón chào năm mới",
+    "dateStr": "2026-12-31",
+    "category": "quocgia",
+    "accent": "#cc88ff"
+  },
+  {
+    "id": "nghihe",
+    "emoji": "☀️",
+    "name": "Bắt đầu Nghỉ Hè 2026",
+    "note": "Học sinh THCS/THPT kết thúc năm học",
+    "dateStr": "2026-05-25",
+    "category": "hoc",
+    "accent": "#ffbb00"
+  },
+  {
+    "id": "tuukhoa",
+    "emoji": "📚",
+    "name": "Tựu Trường Năm Học 2026-2027",
+    "note": "Học sinh trở lại trường",
+    "dateStr": "2026-08-25",
+    "category": "hoc",
+    "accent": "#00c8ff"
+  },
+  {
+    "id": "khaigiang",
+    "emoji": "🎒",
+    "name": "Khai Giảng Năm Học Mới",
+    "note": "Lễ khai giảng toàn quốc",
+    "dateStr": "2026-09-05",
+    "category": "hoc",
+    "accent": "#00aaff"
+  },
+  {
+    "id": "thay20",
+    "emoji": "👨‍🏫",
+    "name": "Ngày Nhà Giáo Việt Nam",
+    "note": "20 tháng 11",
+    "dateStr": "2026-11-20",
+    "category": "hoc",
+    "accent": "#00e5a0"
+  },
+  {
+    "id": "thitnspt",
+    "emoji": "📝",
+    "name": "Thi Tốt Nghiệp THPT 2026",
+    "note": "Kỳ thi quốc gia quan trọng",
+    "dateStr": "2026-06-25",
+    "category": "hoc",
+    "accent": "#ff5599"
+  },
+  {
+    "id": "ngayhocsinh",
+    "emoji": "🏫",
+    "name": "Ngày Học Sinh Sinh Viên",
+    "note": "9 tháng 1",
+    "dateStr": "2026-01-09",
+    "category": "hoc",
+    "accent": "#33ddff"
+  },
+  {
+    "id": "trungthu",
+    "emoji": "🌕",
+    "name": "Tết Trung Thu 2026",
+    "note": "15/8 Âm lịch — Tết thiếu nhi",
+    "dateStr": "2026-09-26",
+    "category": "vanhoa",
+    "accent": "#ffaa00"
+  },
+  {
+    "id": "thandoan",
+    "emoji": "🎭",
+    "name": "Tết Đoan Ngọ",
+    "note": "5/5 Âm lịch — diệt sâu bọ",
+    "dateStr": "2026-06-19",
+    "category": "vanhoa",
+    "accent": "#ff6600"
+  },
+  {
+    "id": "valentinvn",
+    "emoji": "💝",
+    "name": "Ngày Tình Nhân Valentine",
+    "note": "14 tháng 2",
+    "dateStr": "2027-02-14",
+    "category": "vanhoa",
+    "accent": "#ff2277"
+  },
+  {
+    "id": "halloween",
+    "emoji": "🎃",
+    "name": "Halloween",
+    "note": "31 tháng 10",
+    "dateStr": "2026-10-31",
+    "category": "vanhoa",
+    "accent": "#ff6600"
+  },
+  {
+    "id": "noel",
+    "emoji": "🎄",
+    "name": "Giáng Sinh (Noel)",
+    "note": "25 tháng 12",
+    "dateStr": "2026-12-25",
+    "category": "vanhoa",
+    "accent": "#22cc55"
+  },
+  {
+    "id": "phunutg",
+    "emoji": "💐",
+    "name": "Ngày Quốc Tế Phụ Nữ",
+    "note": "8 tháng 3",
+    "dateStr": "2027-03-08",
+    "category": "quocte",
+    "accent": "#ff55cc"
+  },
+  {
+    "id": "thieu_nhi_qt",
+    "emoji": "🧒",
+    "name": "Ngày Quốc Tế Thiếu Nhi",
+    "note": "1 tháng 6",
+    "dateStr": "2026-06-01",
+    "category": "quocte",
+    "accent": "#33aaff"
+  },
+  {
+    "id": "moitruong",
+    "emoji": "🌍",
+    "name": "Ngày Môi Trường Thế Giới",
+    "note": "5 tháng 6",
+    "dateStr": "2026-06-05",
+    "category": "quocte",
+    "accent": "#00dd66"
+  },
+  {
+    "id": "phunu_vn",
+    "emoji": "🌸",
+    "name": "Ngày Phụ Nữ Việt Nam",
+    "note": "20 tháng 10",
+    "dateStr": "2026-10-20",
+    "category": "quocte",
+    "accent": "#ff66aa"
+  }
+]
