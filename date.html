@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lịch Vạn năng</title>
+    <style>
+        @font-face {
+            font-family: 'Lato';
+            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+        }
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Lato', sans-serif;
+            color: #FFFFFF !important;
+            background: #0a0a0a no-repeat center center fixed;
+            background-size: cover;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            transition: background 0.6s ease;
+        }
+        :root {
+            --yt-bg: rgba(15, 15, 15, 0.85);
+            --yt-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f3ff;
+            --neon-flame: #00f3ff;
+        }
+
+        @keyframes neon-burn {
+            0%, 100% {
+                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
+                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
+            }
+        }
+
+        @keyframes flame-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
+            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
+        }
+
+        .yt-header {
+            position: fixed; top: 0; width: 100%; height: 56px;
+            background: var(--yt-bg); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 1000; box-sizing: border-box;
+        }
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle-btn {
+            background: rgba(0,0,0,0.5); border: 2px solid #ffcc00; cursor: pointer;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
+            position: relative; z-index: 2100;
+        }
+        .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
+        .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
+        .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+        .open .hamburger span:nth-child(2) { opacity: 0; }
+        .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+        
+        .header-center { flex: 0 1 720px; margin: 0 15px; position: relative; }
+        .search-container {
+            display: flex; background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--yt-border); border-radius: 40px;
+            overflow: hidden; padding-left: 20px;
+        }
+        .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
+        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; transition: 0.3s; }
+        .search-btn:hover { background: rgba(0, 243, 255, 0.2); }
+        .search-btn svg { width: 20px; height: 20px; fill: white; }
+
+        .suggestion-box {
+            position: absolute; top: 110%; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid var(--neon-blue); border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+            display: none; z-index: 2000; max-height: 350px; overflow-y: auto;
+        }
+        .suggestion-item {
+            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s; display: flex; flex-direction: column;
+        }
+        .suggestion-item:hover { background: rgba(0, 243, 255, 0.15); padding-left: 25px; }
+        .suggestion-item .web-name { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
+        .suggestion-item .web-url { color: rgba(153, 204, 255, 0.6); font-size: 12px; margin-top: 4px; }
+        
+        .settings-btn {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon-blue);
+            cursor: pointer;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 10px rgba(0,243,255,0.4);
+            transition: 0.4s;
+            position: relative; z-index: 2100;
+            color: var(--neon-blue);
+            font-size: 18px;
+        }
+        .settings-btn:hover {
+            box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
+            transform: rotate(45deg);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 65px; right: 16px;
+            width: 320px;
+            background: rgba(10, 10, 10, 0.97);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.2);
+            z-index: 1500;
+            padding: 24px;
+            transform-origin: top right;
+            transform: scale(0); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .settings-panel.active {
+            transform: scale(1); opacity: 1;
+            pointer-events: auto;
+        }
+        .settings-title {
+            color: var(--neon-blue);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--neon-blue);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .settings-section-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            margin-top: 16px;
+        }
+        .bg-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .bg-preset-btn {
+            height: 52px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+        .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
+        .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
+        .bg-preset-btn span {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.7);
+            font-size: 9px; text-align: center;
+            padding: 3px; color: #fff;
+        }
+        .bg-url-row {
+            display: flex; gap: 8px; margin-top: 8px;
+        }
+        .bg-url-input {
+            flex: 1; background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px; padding: 8px 12px;
+            color: white; font-size: 12px; outline: none;
+            transition: 0.3s;
+        }
+        .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
+        .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
+        .bg-apply-btn {
+            background: var(--neon-blue); color: black;
+            border: none; border-radius: 10px;
+            padding: 8px 14px; font-size: 12px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            white-space: nowrap;
+        }
+        /* FIX: Removed extra ) from box-shadow */
+        .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
+        .bg-overlay-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 14px;
+        }
+        .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .toggle-switch { position: relative; width: 40px; height: 22px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 22px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: ''; position: absolute;
+            width: 16px; height: 16px;
+            left: 3px; bottom: 3px;
+            background: white; border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+        
+        .menu-overlay {
+            position: fixed; top: 65px; left: 16px;
+            width: fit-content; height: auto;
+            min-width: 260px; padding: 25px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            z-index: 1500;
+            display: flex; flex-direction: column;
+            transform-origin: top left;
+            transform: scale(0); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .nav-content { display: flex; flex-direction: column; text-align: left; }
+        .nav-item {
+            font-size: 1.3rem; color: #99CCFF; text-decoration: none;
+            font-weight: bold; margin: 10px 0; transition: 0.3s;
+            padding: 5px 10px; border-radius: 10px;
+        }
+        .nav-item:hover { 
+            animation: neon-burn 0.8s infinite alternate ease-in-out;
+            color: var(--neon-blue); 
+            transform: translateX(8px); 
+        }
+
+        .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
+        @keyframes floatDust {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* PARTICLE — mouse click effect */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            width: 4px; height: 4px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-blue);
+            z-index: 2200;
+            animation: particleFly 1s forwards;
+        }
+        @keyframes particleFly {
+            0% { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
+        }
+
+        #loader-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c8b8f; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
+        .neon-loading-container { width: 320px; margin: 10px 0; }
+        .neon-text-row { display: flex; justify-content: space-between; color: var(--neon-flame); font-weight: bold; font-size: 18px; text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px; }
+        .neon-bar-border { width: 100%; height: 22px; border: 2px solid var(--neon-flame); border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 10px var(--neon-flame); }
+        .neon-bar-fill { height: 100%; width: 0%; background: var(--neon-flame); border-radius: 10px; box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame); animation: flame-glow 0.5s infinite alternate; }
+        .loader-hidden { opacity: 0; visibility: hidden; }
+        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
+        .container.show { opacity: 1; }
+        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
+        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
+        h1 { color: #d9b8ab; font-size: 2.5em; }
+
+        /* ====== TRENDING SECTION ====== */
+        .trending-section {
+            width: 92%;
+            max-width: 1200px;
+            margin: 0 auto 60px auto;
+            position: relative;
+            z-index: 10;
+        }
+        .trending-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .trending-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        .trending-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent);
+        }
+        .trending-scroll-wrapper {
+            position: relative;
+        }
+        .trending-grid {
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+        .trending-grid::-webkit-scrollbar { display: none; }
+
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(0,243,255,0.4);
+            color: white;
+            width: 36px; height: 80px;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .scroll-btn:hover {
+            background: rgba(0,243,255,0.15);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0,243,255,0.3);
+        }
+        .scroll-btn.left { left: -18px; }
+        .scroll-btn.right { right: -18px; }
+
+        .trending-card {
+            position: relative;
+            flex: 0 0 auto;
+            width: 140px;
+            height: 210px;
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            margin-right: -28px;
+        }
+        .trending-card:last-child { margin-right: 0; }
+        .trending-card:hover {
+            transform: scale(1.08) translateY(-6px);
+            z-index: 5;
+        }
+        .card-rank {
+            position: absolute;
+            bottom: -8px;
+            left: -4px;
+            font-size: 6.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 3px rgba(255,255,255,0.85);
+            z-index: 2;
+            pointer-events: none;
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+            user-select: none;
+        }
+        .card-poster {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            display: block;
+            position: relative;
+            z-index: 1;
+            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
+            transition: box-shadow 0.3s;
+        }
+        .trending-card:hover .card-poster {
+            box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
+        }
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 3;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .trending-card:hover .card-overlay { opacity: 1; }
+        .card-title-hover {
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            width: 100%;
+            line-height: 1.3;
+        }
+        .card-poster-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
+            transition: box-shadow 0.3s;
+        }
+        .card-badge {
+            position: absolute;
+            top: 7px;
+            left: 7px;
+            z-index: 4;
+            background: #e50914;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            width: 18px; height: 18px;
+            border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .trending-card {
+            animation: cardEntrance 0.5s ease backwards;
+        }
+
+        /* ============================
+           NEON CLOCK (domain switch)
+           ============================ */
+        .neon-clock {
+            display: none;
+            text-align: center;
+            margin-bottom: 40px;
+            font-family: 'Lato', sans-serif;
+            position: relative;
+            z-index: 10;
+        }
+        .neon-clock.show { display: block; }
+        .neon-clock-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .neon-digit-group { display: flex; gap: 4px; }
+        .neon-digit {
+            width: 52px; height: 76px;
+            border: 2px solid #00f3ff;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.6rem; font-weight: 900;
+            color: #00f3ff;
+            background: rgba(0, 243, 255, 0.04);
+            box-shadow: inset 0 0 12px rgba(0,243,255,0.15), 0 0 10px rgba(0,243,255,0.3);
+            animation: clock-pulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        .neon-digit::after {
+            content: ''; position: absolute;
+            left: 6px; right: 6px; top: 50%; height: 1px;
+            background: rgba(0,243,255,0.08);
+            transform: translateY(-50%);
+        }       
+        .neon-separator { display: flex; flex-direction: column; gap: 10px; padding-bottom: 4px; }
+        .neon-dot {
+            width: 7px; height: 7px;
+            background: #00f3ff; border-radius: 50%;
+            box-shadow: 0 0 8px #00f3ff, 0 0 16px #00f3ff;
+            animation: dot-blink 1s step-end infinite;
+        }
+        @keyframes clock-pulse {
+            0%, 100% { box-shadow: inset 0 0 12px rgba(0,243,255,0.15), 0 0 10px rgba(0,243,255,0.2); border-color: #00f3ff; }
+            50% { box-shadow: inset 0 0 24px rgba(0,243,255,0.3), 0 0 25px rgba(0,243,255,0.5), 0 0 50px rgba(0,243,255,0.15); border-color: #66f9ff; }
+        }
+        @keyframes dot-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .neon-clock-label {
+            font-size: 0.7rem; color: rgba(0,243,255,0.5);
+            letter-spacing: 3px; text-transform: uppercase; margin-top: 12px;
+        }
+
+        /* ============================
+           HOLIDAY COUNTDOWN SECTION
+           ============================ */
+        .holiday-section {
+            width: 92%;
+            max-width: 1200px;
+            margin: 0 auto 60px auto;
+            position: relative;
+            z-index: 10;
+        }
+        .holiday-header {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+        }
+        .holiday-title {
+            font-size: 1.4rem; font-weight: 900; color: #ffffff; letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .holiday-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(255,200,0,0.5), transparent);
+        }
+
+        /* Filter tabs */
+        .holiday-filter-bar {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;
+        }
+        .filter-tab {
+            padding: 7px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
+            font-size: 12px; font-weight: bold;
+            cursor: pointer; transition: 0.3s; letter-spacing: 1px;
+        }
+        .filter-tab:hover, .filter-tab.active {
+            background: rgba(255,200,0,0.15);
+            border-color: #ffcc00;
+            color: #ffcc00;
+            box-shadow: 0 0 12px rgba(255,200,0,0.2);
+        }
+
+        /* Grid of holiday cards */
+        .holiday-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .holiday-card {
+            position: relative;
+            border-radius: 18px;
+            padding: 22px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.35s ease;
+            overflow: hidden;
+            cursor: default;
+            animation: cardEntrance 0.5s ease backwards;
+        }
+        .holiday-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            border-radius: 18px 18px 0 0;
+            background: var(--card-accent, #00f3ff);
+            box-shadow: 0 0 14px var(--card-accent, #00f3ff);
+        }
+        .holiday-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--card-accent, rgba(0,243,255,0.3));
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,243,255,0.08);
+        }
+        .holiday-card.passed {
+            opacity: 0.5;
+            filter: grayscale(0.6);
+        }
+        .holiday-card.today {
+            border-color: gold;
+            box-shadow: 0 0 30px rgba(255,215,0,0.3), inset 0 0 20px rgba(255,215,0,0.05);
+        }
+        .holiday-card.today::before {
+            background: gold;
+            box-shadow: 0 0 20px gold;
+            animation: pulse-top 1.5s ease infinite;
+        }
+        @keyframes pulse-top {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hcard-emoji { font-size: 2.2rem; margin-bottom: 10px; display: block; }
+        .hcard-name {
+            font-size: 1rem; font-weight: 900; color: #fff;
+            margin-bottom: 4px; letter-spacing: 0.5px;
+        }
+        .hcard-date {
+            font-size: 0.75rem; color: rgba(255,255,255,0.4);
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+        }
+
+        /* Mini countdown inside card */
+        .hcard-countdown {
+            display: flex; gap: 8px; align-items: center;
+        }
+        .hcd-unit {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .hcd-number {
+            font-size: 1.5rem; font-weight: 900;
+            color: var(--card-accent, #00f3ff);
+            display: block; line-height: 1;
+            text-shadow: 0 0 10px var(--card-accent, #00f3ff);
+        }
+        .hcd-label {
+            font-size: 9px; color: rgba(255,255,255,0.3);
+            letter-spacing: 1px; text-transform: uppercase;
+            margin-top: 3px; display: block;
+        }
+
+        /* Status badge */
+        .hcard-status {
+            position: absolute; top: 18px; right: 18px;
+            font-size: 10px; font-weight: bold; letter-spacing: 1px;
+            padding: 4px 10px; border-radius: 20px;
+        }
+        .hcard-status.upcoming {
+            background: rgba(0,243,255,0.1);
+            color: var(--neon-blue);
+            border: 1px solid rgba(0,243,255,0.3);
+        }
+        .hcard-status.today-badge {
+            background: rgba(255,215,0,0.2);
+            color: gold;
+            border: 1px solid rgba(255,215,0,0.5);
+            animation: pulse-top 1s ease infinite;
+        }
+        .hcard-status.passed-badge {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .hcard-passed-msg {
+            color: rgba(255,255,255,0.25);
+            font-size: 0.8rem;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        /* Progress bar inside card */
+        .hcard-progress-wrap {
+            margin-top: 14px;
+            height: 3px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .hcard-progress-bar {
+            height: 100%;
+            background: var(--card-accent, #00f3ff);
+            border-radius: 3px;
+            transition: width 1s linear;
+            box-shadow: 0 0 6px var(--card-accent, #00f3ff);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .holiday-grid { grid-template-columns: 1fr; }
+            .header-center { display: none; }
+            .neon-clock-display { flex-wrap: wrap; justify-content: center; }
+        }
+
+        /* ====== CUSTOM CURSOR ====== */
+        body { cursor: crosshair; }
+    </style>
+</head>
+<body>
+    <div class="ambient-dust" id="dustContainer"></div>
+    
+    <div id="loader-wrapper">
+        <img src="ORC.png" alt="Logo" class="loader-top-img">
+        <div class="neon-loading-container">
+            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
+            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
+        </div>
+        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
+    </div>
+
+    <nav class="yt-header">
+        <div class="header-left">
+            <button class="menu-toggle-btn" id="menuBtn">
+                <div class="hamburger"><span></span><span></span><span></span></div>
+            </button>
+            <div class="logo">
+                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="ORC.png" alt="Logo" class="loader-top-img">                
+                </a>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" id="mainSearch" placeholder="Tìm kiếm hệ sinh thái Orichiin..." class="search-input" autocomplete="off">
+                <button class="search-btn" id="searchTrigger">
+                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
+                </button>
+            </div>
+            <div id="suggestionBox" class="suggestion-box"></div>
+        </div>
+        <div class="header-right">
+            <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
+            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
+        </div>
+    </nav>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-title">⚙ Cài đặt</div>
+        <div class="settings-section-label">🎨 Hình nền có sẵn</div>
+        <div class="bg-presets" id="bgPresets">
+            <button class="bg-preset-btn active-bg" data-bg="none" style="background:#0a0a0a;">
+                <span>Đen</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
+                style="background-image: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg); background-size: cover; background-position: center;">
+                <span>Anime</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
+                style="background-image: url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60); background-size: cover;">
+                <span>Vũ trụ</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+                style="background-image: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60); background-size: cover;">
+                <span>Núi</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80"
+                style="background-image: url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60); background-size: cover;">
+                <span>Thành phố</span>
+            </button>
+            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80"
+                style="background: linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);">
+                <span>Gradient</span>
+            </button>
+        </div>
+        <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
+        <div class="bg-url-row">
+            <input type="text" id="bgUrlInput" class="bg-url-input" placeholder="https://example.com/image.jpg">
+            <button class="bg-apply-btn" id="bgApplyBtn">Áp dụng</button>
+        </div>
+        <div class="bg-overlay-toggle" style="margin-top: 14px;">
+            <span class="bg-overlay-label">Lớp phủ tối</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="overlayToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <button id="bgResetBtn" style="margin-top: 16px; width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px; cursor:pointer; font-size:12px; transition:0.3s;"
+            onmouseover="this.style.borderColor='var(--neon-blue)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+            ↺ Đặt lại về mặc định
+        </button>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <nav class="nav-content">
+            <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
+            <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
+            <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
+            <a href="https://www.hentaiorc.xyz/caculate.html" class="nav-item">Calculate</a>
+        </nav>
+    </div>
+
+    <div class="container" id="main-content">
+        <!-- Info box -->
+        <!-- Domain switch countdown -->
+        <div class="neon-clock" id="neonClock">
+            <div class="neon-clock-display">
+                <div class="neon-digit-group">
+                    <div class="neon-digit" id="d1">0</div>
+                    <div class="neon-digit" id="d2">0</div>
+                    <div class="neon-digit" id="d3">0</div>
+                </div>
+                <div class="neon-clock-label" style="margin: 0 5px; align-self: center;">Ngày</div>
+                <div class="neon-digit-group">
+                    <div class="neon-digit" id="ch">0</div>
+                    <div class="neon-digit" id="cm">0</div>
+                </div>
+                <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
+                <div class="neon-digit-group">
+                    <div class="neon-digit" id="mh">0</div>
+                    <div class="neon-digit" id="mm">0</div>
+                </div>
+                <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
+                <div class="neon-digit-group">
+                    <div class="neon-digit" id="sh">0</div>
+                    <div class="neon-digit" id="sm">0</div>
+                </div>
+            </div>
+            <div class="neon-clock-label">⟢ Thời gian còn lại đến khi chuyển đổi tên miền ⟣</div>
+        </div>
+
+        <!-- ====== HOLIDAY COUNTDOWN SECTION ====== -->
+        <div class="holiday-section">
+            <div class="holiday-header">
+                <span class="holiday-title">📅 Lịch Ngày Lễ & Sự Kiện Việt Nam</span>
+                <div class="holiday-line"></div>
+            </div>
+            <div class="holiday-filter-bar" id="holidayFilterBar">
+                <button class="filter-tab active" data-filter="all">Tất cả</button>
+                <button class="filter-tab" data-filter="quocgia">Quốc gia</button>
+                <button class="filter-tab" data-filter="hoc">Học tập</button>
+                <button class="filter-tab" data-filter="vanhoa">Văn hóa</button>
+                <button class="filter-tab" data-filter="quocte">Quốc tế</button>
+            </div>
+            <div class="holiday-grid" id="holidayGrid">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+        <!-- ====== END HOLIDAY SECTION ====== -->
+
+        <!-- ====== TRENDING SECTION ====== -->
+        <div class="trending-section">
+            <div class="trending-header">
+                <span class="trending-title">🔥 Danh sách</span>
+                <div class="trending-line"></div>
+            </div>
+            <div class="trending-scroll-wrapper">
+                <button class="scroll-btn left" id="scrollLeft">‹</button>
+                <div class="trending-grid" id="trendingGrid"></div>
+                <button class="scroll-btn right" id="scrollRight">›</button>
+            </div>
+        </div>
+        <!-- ====== END TRENDING SECTION ====== -->
+    </div>
+
+    <script>
+    // ==========================================
+    // TRENDING DATA
+    // ==========================================
+    const trendingItems = [
+        {
+            rank: 1, title: "MINI GAME", subtitle: "Sand box",
+            url: "https://hentaiorc.xyz/mini-game.html",
+            poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
+            gradient: "linear-gradient(135deg, #1a0a00, #8B2500)"
+        },
+        {
+            rank: 2, title: "List", subtitle: "danh sách app, tiện ích",
+            url: "https://hentaiorc.xyz/list.html",
+            poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
+            gradient: "linear-gradient(135deg, #0a1a00, #2d6a00)"
+        },
+        {
+            rank: 3, title: "chat server", subtitle: "nơi mọi người có thể trò chuyện với nhau",
+            url: "https://hentaiorc.xyz/chat-server.html",
+            poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a@@._V1_FMjpg_UX400_.jpg",
+            gradient: "linear-gradient(135deg, #00103a, #0038a8)"
+        },
+    ];
+
+    // ==========================================
+    // HOLIDAY DATA — ngày lễ Việt Nam 2025-2026
+    // ==========================================
+    const now = new Date();
+    const Y = now.getFullYear(); // 2026
+
+    const holidays = [
+        // ── Quốc gia ──
+        { id: "tet_2026", emoji: "🧧", name: "Tết Nguyên Đán 2026", note: "Bính Ngọ — Giao thừa & 3 ngày nghỉ lễ", dateStr: "2026-02-17", category: "quocgia", accent: "#ff4d00" },
+        { id: "quochanhung", emoji: "🏯", name: "Giỗ Tổ Hùng Vương", note: "10/3 Âm lịch — ngày Quốc lễ", dateStr: `${Y}-04-07`, category: "quocgia", accent: "#e8a020" },
+        { id: "giaiphong", emoji: "🎉", name: "Ngày Giải Phóng Miền Nam", note: "30 tháng 4", dateStr: `${Y}-04-30`, category: "quocgia", accent: "#ff2244" },
+        { id: "quocte_laodong", emoji: "⚒️", name: "Ngày Quốc Tế Lao Động", note: "1 tháng 5", dateStr: `${Y}-05-01`, category: "quocgia", accent: "#ff6622" },
+        { id: "quockhanh", emoji: "🇻🇳", name: "Quốc Khánh Việt Nam", note: "2 tháng 9 — Ngày Độc Lập", dateStr: `${Y}-09-02`, category: "quocgia", accent: "#dd0000" },
+        { id: "tetduonglich", emoji: "🎆", name: "Tết Dương Lịch", note: "1 tháng 1 năm mới", dateStr: "2027-01-01", category: "quocgia", accent: "#aa44ff" },
+        // ── Học tập ──
+        { id: "nghihe", emoji: "☀️", name: "Bắt đầu Nghỉ Hè 2026", note: "Học sinh THCS/THPT kết thúc năm học", dateStr: `${Y}-05-25`, category: "hoc", accent: "#ffbb00" },
+        { id: "tuukhoa", emoji: "📚", name: "Tựu Trường Năm Học 2026-2027", note: "Học sinh trở lại trường", dateStr: `${Y}-08-25`, category: "hoc", accent: "#00c8ff" },
+        { id: "khaigiang", emoji: "🎒", name: "Khai Giảng Năm Học Mới", note: "Lễ khai giảng toàn quốc", dateStr: `${Y}-09-05`, category: "hoc", accent: "#00aaff" },
+        { id: "thay20", emoji: "👨‍🏫", name: "Ngày Nhà Giáo Việt Nam", note: "20 tháng 11", dateStr: `${Y}-11-20`, category: "hoc", accent: "#00e5a0" },
+        { id: "thitnspt", emoji: "📝", name: "Thi Tốt Nghiệp THPT 2026", note: "Kỳ thi quốc gia quan trọng", dateStr: `${Y}-06-25`, category: "hoc", accent: "#ff5599" },
+        { id: "ngayhocsinh", emoji: "🏫", name: "Ngày Học Sinh Sinh Viên", note: "9 tháng 1", dateStr: `${Y}-01-09`, category: "hoc", accent: "#33ddff" },
+        // ── Văn hóa ──
+        { id: "trungthu", emoji: "🌕", name: "Tết Trung Thu 2026", note: "15/8 Âm lịch — Tết thiếu nhi", dateStr: `${Y}-09-26`, category: "vanhoa", accent: "#ffaa00" },
+        { id: "thandoan", emoji: "🎭", name: "Tết Đoan Ngọ", note: "5/5 Âm lịch — diệt sâu bọ", dateStr: `${Y}-06-19`, category: "vanhoa", accent: "#ff6600" },
+        { id: "valentinvn", emoji: "💝", name: "Ngày Tình Nhân Valentine", note: "14 tháng 2", dateStr: `${Y + 1}-02-14`, category: "vanhoa", accent: "#ff2277" },
+        { id: "halloween", emoji: "🎃", name: "Halloween", note: "31 tháng 10", dateStr: `${Y}-10-31`, category: "vanhoa", accent: "#ff6600" },
+        { id: "noel", emoji: "🎄", name: "Giáng Sinh (Noel)", note: "25 tháng 12", dateStr: `${Y}-12-25`, category: "vanhoa", accent: "#22cc55" },
+        // ── Quốc tế ──
+        { id: "phunutg", emoji: "💐", name: "Ngày Quốc Tế Phụ Nữ", note: "8 tháng 3", dateStr: `${Y + 1}-03-08`, category: "quocte", accent: "#ff55cc" },
+        { id: "thieu_nhi_qt", emoji: "🧒", name: "Ngày Quốc Tế Thiếu Nhi", note: "1 tháng 6", dateStr: `${Y}-06-01`, category: "quocte", accent: "#33aaff" },
+        { id: "moitruong", emoji: "🌍", name: "Ngày Môi Trường Thế Giới", note: "5 tháng 6", dateStr: `${Y}-06-05`, category: "quocte", accent: "#00dd66" },
+        { id: "phunu_vn", emoji: "🌸", name: "Ngày Phụ Nữ Việt Nam", note: "20 tháng 10", dateStr: `${Y}-10-20`, category: "quocte", accent: "#ff66aa" },
+        { id: "namnay", emoji: "🎊", name: "Giao Thừa Năm Mới 2027", note: "Đếm ngược đón chào năm mới", dateStr: "2026-12-31", category: "quocgia", accent: "#cc88ff" },
+    ];
+
+    function parseDate(str) { return new Date(str + 'T00:00:00'); }
+
+    function sortHolidays(list) {
+        const todayStr = new Date().toISOString().slice(0,10);
+        return [...list].sort((a, b) => {
+            const aDate = a.dateStr, bDate = b.dateStr;
+            const isToday = d => d === todayStr;
+            const isPassed = d => d < todayStr;
+            if (isToday(aDate)) return -1;
+            if (isToday(bDate)) return 1;
+            if (!isPassed(aDate) && isPassed(bDate)) return -1;
+            if (isPassed(aDate) && !isPassed(bDate)) return 1;
+            return aDate.localeCompare(bDate);
+        });
+    }
+
+    function formatViDate(dateStr) {
+        const d = parseDate(dateStr);
+        const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+        return `${days[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+    }
+
+    function getTimeLeft(dateStr) {
+        const target = parseDate(dateStr).getTime();
+        const nowMs = Date.now();
+        const diff = target - nowMs;
+        if (diff < -86400000) return { passed: true };
+        if (Math.abs(diff) < 86400000) return { today: true };
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        return { days: d, hours: h, minutes: m, seconds: s, passed: false, today: false };
+    }
+
+    function buildCard(item) {
+        const card = document.createElement('div');
+        card.className = 'holiday-card';
+        card.dataset.category = item.category;
+        card.dataset.id = item.id;
+        card.style.setProperty('--card-accent', item.accent);
+
+        const tl = getTimeLeft(item.dateStr);
+        let statusHtml = '', countdownHtml = '', progressHtml = '';
+
+        if (tl.passed) {
+            card.classList.add('passed');
+            statusHtml = `<span class="hcard-status passed-badge">Đã qua</span>`;
+            countdownHtml = `<p class="hcard-passed-msg">Sự kiện đã diễn ra 🌿</p>`;
+        } else if (tl.today) {
+            card.classList.add('today');
+            statusHtml = `<span class="hcard-status today-badge">🎉 Hôm nay!</span>`;
+            countdownHtml = `<p style="color:gold;font-weight:bold;font-size:1rem;margin-top:8px;">✨ Chính là hôm nay! ✨</p>`;
+        } else {
+            statusHtml = `<span class="hcard-status upcoming">Sắp tới</span>`;
+            const totalRange = parseDate(item.dateStr) - new Date(new Date().getFullYear(), 0, 1);
+            const elapsed = Date.now() - new Date(new Date().getFullYear(), 0, 1);
+            const pct = Math.min(100, Math.max(0, (elapsed / totalRange * 100)));
+            countdownHtml = `
+                <div class="hcard-countdown" data-target="${item.dateStr}">
+                    <div class="hcd-unit"><span class="hcd-number" data-unit="d">${String(tl.days).padStart(2,'0')}</span><span class="hcd-label">Ngày</span></div>
+                    <div class="hcd-unit"><span class="hcd-number" data-unit="h">${String(tl.hours).padStart(2,'0')}</span><span class="hcd-label">Giờ</span></div>
+                    <div class="hcd-unit"><span class="hcd-number" data-unit="m">${String(tl.minutes).padStart(2,'0')}</span><span class="hcd-label">Phút</span></div>
+                    <div class="hcd-unit"><span class="hcd-number" data-unit="s">${String(tl.seconds).padStart(2,'0')}</span><span class="hcd-label">Giây</span></div>
+                </div>`;
+            progressHtml = `<div class="hcard-progress-wrap"><div class="hcard-progress-bar" style="width:${pct.toFixed(1)}%"></div></div>`;
+        }
+
+        card.innerHTML = `
+            ${statusHtml}
+            <span class="hcard-emoji">${item.emoji}</span>
+            <div class="hcard-name">${item.name}</div>
+            <div class="hcard-date">${formatViDate(item.dateStr)}${item.note ? ' · ' + item.note : ''}</div>
+            ${countdownHtml}
+            ${progressHtml}
+        `;
+        return card;
+    }
+
+    function renderHolidays(filter = 'all') {
+        const grid = document.getElementById('holidayGrid');
+        grid.innerHTML = '';
+        const sorted = sortHolidays(holidays);
+        sorted.forEach((item, i) => {
+            if (filter !== 'all' && item.category !== filter) return;
+            const card = buildCard(item);
+            card.style.animationDelay = `${i * 0.06}s`;
+            grid.appendChild(card);
+        });
+    }
+
+    function tickCards() {
+        document.querySelectorAll('.hcard-countdown').forEach(wrap => {
+            const dateStr = wrap.dataset.target;
+            const tl = getTimeLeft(dateStr);
+            if (tl.passed || tl.today) return;
+            const dEl = wrap.querySelector('[data-unit="d"]');
+            const hEl = wrap.querySelector('[data-unit="h"]');
+            const mEl = wrap.querySelector('[data-unit="m"]');
+            const sEl = wrap.querySelector('[data-unit="s"]');
+            if (dEl) dEl.textContent = String(tl.days).padStart(2,'0');
+            if (hEl) hEl.textContent = String(tl.hours).padStart(2,'0');
+            if (mEl) mEl.textContent = String(tl.minutes).padStart(2,'0');
+            if (sEl) sEl.textContent = String(tl.seconds).padStart(2,'0');
+        });
+    }
+
+    document.getElementById('holidayFilterBar').addEventListener('click', e => {
+        const tab = e.target.closest('.filter-tab');
+        if (!tab) return;
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderHolidays(tab.dataset.filter);
+    });
+
+    renderHolidays();
+    setInterval(tickCards, 1000);
+
+    // ==========================================
+    // DOMAIN COUNTDOWN
+    // ==========================================
+    let countdownTarget = null;
+    function updateCountdown() {
+        if (!countdownTarget) return;
+        const nowMs = new Date().getTime();
+        const distance = countdownTarget - nowMs;
+        if (distance < 0) {
+            document.getElementById('neonClock').innerHTML = "<h2 style='color:var(--neon-blue)'>DỰ ÁN ĐÃ BẮT ĐẦU CHUYỂN ĐỔI!</h2>";
+            return;
+        }
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const dStr = String(days).padStart(3, '0');
+        const hStr = String(hours).padStart(2, '0');
+        const mStr = String(minutes).padStart(2, '0');
+        const sStr = String(seconds).padStart(2, '0');
+        document.getElementById('d1').textContent = dStr[0];
+        document.getElementById('d2').textContent = dStr[1];
+        document.getElementById('d3').textContent = dStr[2];
+        document.getElementById('ch').textContent = hStr[0];
+        document.getElementById('cm').textContent = hStr[1];
+        document.getElementById('mh').textContent = mStr[0];
+        document.getElementById('mm').textContent = mStr[1];
+        document.getElementById('sh').textContent = sStr[0];
+        document.getElementById('sm').textContent = sStr[1];
+    }
+    async function fetchUpdate() {
+        try {
+            const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
+            if (!res.ok) throw new Error();
+            const text = await res.text();
+            const timeValue = text.trim();
+            if (timeValue) {
+                countdownTarget = new Date(timeValue).getTime();
+                if (!isNaN(countdownTarget)) {
+                    document.getElementById('neonClock').classList.add('show');
+                    updateCountdown();
+                    setInterval(updateCountdown, 1000);
+                }
+            }
+        } catch (err) { console.error("Không thể tải thời gian đếm ngược:", err); }
+    }
+    document.addEventListener('DOMContentLoaded', fetchUpdate);
+
+    // ==========================================
+    // TRENDING RENDER
+    // ==========================================
+    const grid = document.getElementById('trendingGrid');
+    trendingItems.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'trending-card';
+        card.style.animationDelay = `${i * 0.07}s`;
+        card.onclick = () => { if(item.url !== '#') window.location.href = item.url; };
+        card.innerHTML = `
+            <span class="card-rank">${item.rank}</span>
+            ${item.poster 
+                ? `<img class="card-poster" src="${item.poster}" alt="${item.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                   <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
+                : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`
+            }
+            <div class="card-overlay">
+                <div class="card-title-hover">${item.title}${item.subtitle ? '<br><span style="opacity:0.7;font-weight:normal">' + item.subtitle + '</span>' : ''}</div>
+            </div>
+            <div class="card-badge">ORC</div>
+        `;
+        grid.appendChild(card);
+    });
+    document.getElementById('scrollLeft').addEventListener('click', () => grid.scrollBy({ left: -300, behavior: 'smooth' }));
+    document.getElementById('scrollRight').addEventListener('click', () => grid.scrollBy({ left: 300, behavior: 'smooth' }));
+
+    // ==========================================
+    // SETTINGS PANEL LOGIC
+    // ==========================================
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const bgPresets = document.getElementById('bgPresets');
+    const bgUrlInput = document.getElementById('bgUrlInput');
+    const bgApplyBtn = document.getElementById('bgApplyBtn');
+    const bgResetBtn = document.getElementById('bgResetBtn');
+    const overlayToggle = document.getElementById('overlayToggle');
+    const mainContent = document.getElementById('main-content');
+    let settingsOpen = false;
+    function toggleSettings(e) {
+        e.stopPropagation();
+        settingsOpen = !settingsOpen;
+        settingsPanel.classList.toggle('active', settingsOpen);
+    }
+    settingsBtn.addEventListener('click', toggleSettings);
+    window.addEventListener('click', (e) => {
+        if (settingsOpen && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+            settingsOpen = false;
+            settingsPanel.classList.remove('active');
+        }
+    });
+    function applyBackground(url) {
+        if (!url || url === 'none') {
+            document.body.style.backgroundImage = 'none';
+            document.body.style.backgroundColor = '#0a0a0a';
+        } else {
+            document.body.style.backgroundImage = `url(${url})`;
+            document.body.style.backgroundColor = '';
+        }
+    }
+    bgPresets.querySelectorAll('.bg-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
+            btn.classList.add('active-bg');
+            applyBackground(btn.dataset.bg);
+        });
+    });
+    bgApplyBtn.addEventListener('click', () => {
+        const url = bgUrlInput.value.trim();
+        if (url) {
+            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
+            applyBackground(url);
+        }
+    });
+    bgResetBtn.addEventListener('click', () => {
+        bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
+        const first = bgPresets.querySelector('[data-bg="none"]');
+        if (first) first.classList.add('active-bg');
+        bgUrlInput.value = '';
+        applyBackground('none');
+    });
+    overlayToggle.addEventListener('change', function() {
+        mainContent.style.background = this.checked ? 'rgba(0,0,0,0.2)' : 'transparent';
+    });
+
+    // ==========================================
+    // MOUSE PARTICLE EFFECT (previously missing JS)
+    // ==========================================
+    document.addEventListener('click', function(e) {
+        const count = 10;
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const angle = (i / count) * 2 * Math.PI;
+            const distance = 40 + Math.random() * 60;
+            const mx = Math.cos(angle) * distance + 'px';
+            const my = Math.sin(angle) * distance + 'px';
+            p.style.left = e.clientX + 'px';
+            p.style.top = e.clientY + 'px';
+            p.style.setProperty('--mx', mx);
+            p.style.setProperty('--my', my);
+            // Random size & color variation
+            const size = 3 + Math.random() * 4;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.animationDuration = (0.6 + Math.random() * 0.6) + 's';
+            document.body.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        }
+    });
+
+    // ==========================================
+    // SEARCH TRIGGER BUTTON (previously missing listener)
+    // ==========================================
+    const searchInput = document.getElementById('mainSearch');
+    const suggestionBox = document.getElementById('suggestionBox');
+    const myWebsites = [
+        { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio" },
+        { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message" },
+        { name: "List", url: "https://hentaiorc.xyz/list.html", tags: "List" },
+        { name: "Calculate", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate" },
+        { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social contact" },
+        { name: "Sắc Mưa (The Garden of Words)", url: "#", tags: "anime project rain garden" },
+        { name: "Mini-game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game" }
+    ];
+
+    function doSearch() {
+        const val = searchInput.value.toLowerCase().trim();
+        if (!val) return;
+        const matches = myWebsites.filter(web =>
+            web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val)
+        );
+        if (matches.length > 0) {
+            // Navigate to first match
+            window.location.href = matches[0].url;
+        } else {
+            // Fallback: open Google search
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
+        }
+    }
+
+    // Search on button click
+    document.getElementById('searchTrigger').addEventListener('click', doSearch);
+
+    // Search on Enter key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doSearch();
+    });
+
+    // Live suggestions on input
+    searchInput.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
+        suggestionBox.innerHTML = "";
+        if (val.length > 0) {
+            const matches = myWebsites.filter(web =>
+                web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val)
+            );
+            if (matches.length > 0) {
+                matches.forEach(web => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.innerHTML = `<span class="web-name">${web.name}</span><span class="web-url">${web.url}</span>`;
+                    item.onclick = () => window.location.href = web.url;
+                    suggestionBox.appendChild(item);
+                });
+                suggestionBox.style.display = "block";
+            } else {
+                suggestionBox.style.display = "none";
+            }
+        } else {
+            suggestionBox.style.display = "none";
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+            suggestionBox.style.display = "none";
+        }
+    });
+
+    // ==========================================
+    // DUST PARTICLES
+    // ==========================================
+    const dustContainer = document.getElementById('dustContainer');
+    function createDust() {
+        const dust = document.createElement('div');
+        dust.className = 'dust-particle';
+        const size = Math.random() * 3 + 1;
+        dust.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}vw;top:110vh;animation-duration:${Math.random()*8+5}s`;
+        dustContainer.appendChild(dust);
+        setTimeout(() => dust.remove(), 10000);
+    }
+    setInterval(createDust, 300);
+
+    // ==========================================
+    // MENU LOGIC
+    // ==========================================
+    const menuBtn = document.getElementById('menuBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
+    function toggleMenu() {
+        menuBtn.classList.toggle('open');
+        menuOverlay.classList.toggle('active');
+    }
+    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
+    window.addEventListener('click', (e) => {
+        if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
+    });
+
+    // ==========================================
+    // LOADER
+    // ==========================================
+    window.addEventListener("load", function() {
+        const loader = document.getElementById("loader-wrapper");
+        const content = document.getElementById("main-content");
+        const fill = document.getElementById("load-fill");
+        const val = document.getElementById("load-val");
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if(progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                setTimeout(() => {
+                    loader.classList.add("loader-hidden");
+                    content.classList.add("show");
+                }, 500);
+            }
+            if(fill) fill.style.width = progress + "%";
+            if(val) val.innerText = Math.floor(progress) + "%";
+        }, 100);
+    });
+    </script>
+</body>
+</html>
