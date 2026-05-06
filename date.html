@@ -780,7 +780,6 @@
 
     <div class="container" id="main-content">
         <!-- Info box -->
-
         <!-- Domain switch countdown -->
         <div class="neon-clock" id="neonClock">
             <div class="neon-clock-display">
@@ -813,6 +812,11 @@
             <div class="holiday-header">
                 <span class="holiday-title">📅 Lịch Ngày Lễ & Sự Kiện Việt Nam</span>
                 <div class="holiday-line"></div>
+                <button id="holidayRefreshBtn" title="Tải lại từ holidays.txt" style="flex-shrink:0;background:rgba(0,243,255,0.07);border:1px solid rgba(0,243,255,0.3);color:var(--neon-blue);border-radius:30px;padding:6px 16px;font-size:12px;font-weight:bold;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:0.3s;white-space:nowrap;"
+                    onmouseover="this.style.background='rgba(0,243,255,0.18)';this.style.boxShadow='0 0 12px rgba(0,243,255,0.3)'"
+                    onmouseout="this.style.background='rgba(0,243,255,0.07)';this.style.boxShadow='none'">
+                    <span id="refreshIcon" style="display:inline-block;transition:transform 0.5s;">🔄</span> Làm mới
+                </button>
             </div>
             <div class="holiday-filter-bar" id="holidayFilterBar">
                 <button class="filter-tab active" data-filter="all">Tất cả</button>
@@ -1084,6 +1088,70 @@
         }
     }
 
+    // ── Toast thông báo ──
+    function showToast(msg, success = true) {
+        const existing = document.getElementById('holidayToast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'holidayToast';
+        toast.style.cssText = `
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: ${success ? 'rgba(0,30,30,0.95)' : 'rgba(30,0,0,0.95)'};
+            border: 1px solid ${success ? 'rgba(0,243,255,0.5)' : 'rgba(255,80,80,0.5)'};
+            color: ${success ? 'var(--neon-blue)' : '#ff5555'};
+            padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: bold;
+            box-shadow: 0 0 20px ${success ? 'rgba(0,243,255,0.2)' : 'rgba(255,0,0,0.2)'};
+            z-index: 9999; letter-spacing: 1px; white-space: nowrap;
+            transition: all 0.4s ease; opacity: 0;
+        `;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        });
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(10px)';
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    // ── Nút làm mới ──
+    document.getElementById('holidayRefreshBtn').addEventListener('click', async function() {
+        const icon = document.getElementById('refreshIcon');
+        const btn = this;
+
+        // Disable + xoay icon
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+        icon.style.animation = 'spin 0.6s linear infinite';
+
+        const prevCount = holidays.length;
+
+        await loadHolidays();
+
+        // Dừng xoay
+        icon.style.animation = '';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+
+        // Chỉ hiện toast nếu không có lỗi (grid không phải error state)
+        const grid = document.getElementById('holidayGrid');
+        if (!grid.querySelector('[style*="ff5555"]')) {
+            const newCount = holidays.length;
+            if (newCount !== prevCount) {
+                showToast(`✅ Đã cập nhật — ${newCount} ngày lễ`, true);
+            } else {
+                showToast(`✅ Dữ liệu đã mới nhất (${newCount} ngày lễ)`, true);
+            }
+        } else {
+            showToast('❌ Tải thất bại — kiểm tra file holidays.txt', false);
+        }
+    });
+
     loadHolidays();
     setInterval(tickCards, 1000);
 
@@ -1119,7 +1187,7 @@
     }
     async function fetchUpdate() {
         try {
-            const res = await fetch('https://www.hentaiorc.xyz/holidays.txt?v=' + Date.now());
+            const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
             if (!res.ok) throw new Error();
             const text = await res.text();
             const timeValue = text.trim();
