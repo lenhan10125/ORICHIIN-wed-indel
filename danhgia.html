@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ORCcop Review</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+        :root{
+            --neon:#00f3ff;
+            --neon2:#7b2fff;
+            --green:#00e5a0;
+            --gold:#FFD700;
+
+            --dark:#060b12;
+            --surface:rgba(12,20,32,0.78);
+
+            --border:rgba(0,243,255,0.12);
+            --border-hover:rgba(0,243,255,0.45);
+
+            --text:#e2eeff;
+            --muted:#8aa5c0;
+
+            --mono:'JetBrains Mono', monospace;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+        body{
+            font-family:'Nunito',sans-serif;
+            background:var(--dark);
+            color:var(--text);
+            overflow-x:hidden;
+            min-height:100vh;
+        }
+
+        /* BACKGROUND */
+
+        .bg-layer{
+            position:fixed;
+            inset:0;
+
+            background:
+            radial-gradient(circle at 20% 0%, rgba(0,100,255,0.12), transparent 35%),
+            radial-gradient(circle at 80% 100%, rgba(123,47,255,0.12), transparent 35%),
+            linear-gradient(160deg,#060b12 0%,#08101e 50%,#060b12 100%);
+
+            z-index:-2;
+        }
+
+        .bg-grid{
+            position:fixed;
+            inset:0;
+
+            background-image:
+            linear-gradient(rgba(0,243,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,243,255,0.03) 1px, transparent 1px);
+
+            background-size:42px 42px;
+
+            z-index:-1;
+        }
+
+        /* PARTICLES */
+
+        #particles{
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            overflow:hidden;
+            z-index:0;
+        }
+
+        .p{
+            position:absolute;
+            border-radius:50%;
+            opacity:0;
+            animation:rise linear infinite;
+        }
+
+        .p.cyan{
+            background:var(--neon);
+        }
+
+        .p.purple{
+            background:var(--neon2);
+        }
+
+        .p.green{
+            background:var(--green);
+        }
+
+        @keyframes rise{
+
+            0%{
+                transform:translateY(0) scale(1);
+                opacity:0;
+            }
+
+            20%{
+                opacity:0.25;
+            }
+
+            100%{
+                transform:translateY(-120vh) scale(0.2);
+                opacity:0;
+            }
+        }
+
+        /* NAV */
+
+        nav{
+            position:sticky;
+            top:0;
+            z-index:1000;
+
+            height:64px;
+
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+
+            padding:0 30px;
+
+            background:rgba(6,11,18,0.85);
+
+            backdrop-filter:blur(18px);
+
+            border-bottom:1px solid var(--border);
+        }
+
+        .nav-brand{
+            display:flex;
+            align-items:center;
+            gap:12px;
+
+            text-decoration:none;
+        }
+
+        .nav-logo{
+            width:38px;
+            height:38px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            border-radius:10px;
+
+            background:rgba(0,243,255,0.08);
+
+            border:1px solid rgba(0,243,255,0.3);
+
+            box-shadow:0 0 16px rgba(0,243,255,0.18);
+
+            font-size:18px;
+        }
+
+        .nav-text{
+            font-family:'Bebas Neue',sans-serif;
+            letter-spacing:3px;
+            font-size:1.4rem;
+
+            color:var(--neon);
+        }
+
+        .nav-text span{
+            color:var(--gold);
+        }
+
+        .nav-link{
+            color:var(--muted);
+            text-decoration:none;
+
+            font-size:0.8rem;
+            font-weight:700;
+
+            letter-spacing:1px;
+
+            transition:0.25s;
+        }
+
+        .nav-link:hover{
+            color:var(--neon);
+        }
+
+        /* HERO */
+
+        .hero{
+            text-align:center;
+            padding:90px 20px 50px;
+            position:relative;
+            z-index:1;
+        }
+
+        .hero-tag{
+            display:inline-block;
+
+            font-family:var(--mono);
+
+            font-size:0.72rem;
+
+            color:var(--neon);
+
+            border:1px solid rgba(0,243,255,0.25);
+
+            padding:6px 16px;
+
+            border-radius:20px;
+
+            letter-spacing:2px;
+
+            background:rgba(0,243,255,0.05);
+
+            margin-bottom:24px;
+        }
+
+        .hero-title{
+            font-family:'Bebas Neue',sans-serif;
+
+            font-size:clamp(3rem,8vw,6rem);
+
+            line-height:1;
+
+            letter-spacing:6px;
+
+            margin-bottom:14px;
+        }
+
+        .hero-title span{
+            background:linear-gradient(135deg,#fff,var(--neon));
+
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .hero-desc{
+            max-width:760px;
+
+            margin:auto;
+
+            color:var(--muted);
+
+            line-height:1.8;
+
+            font-size:1rem;
+        }
+
+        /* WRAPPER */
+
+        .wrapper{
+            max-width:1180px;
+            margin:auto;
+
+            padding:0 20px 80px;
+
+            position:relative;
+            z-index:1;
+        }
+
+        /* CARD */
+
+        .card{
+            background:var(--surface);
+
+            border:1px solid var(--border);
+
+            border-radius:24px;
+
+            overflow:hidden;
+
+            backdrop-filter:blur(16px);
+
+            transition:0.35s;
+
+            box-shadow:
+            0 0 0 1px rgba(255,255,255,0.02),
+            0 20px 50px rgba(0,0,0,0.35);
+        }
+
+        .card:hover{
+            transform:translateY(-6px);
+
+            border-color:var(--border-hover);
+
+            box-shadow:
+            0 24px 60px rgba(0,0,0,0.55),
+            0 0 40px rgba(0,243,255,0.08);
+        }
+
+        .card-bar{
+            height:3px;
+
+            background:
+            linear-gradient(90deg,var(--neon),var(--neon2));
+        }
+
+        .card-inner{
+            padding:38px;
+        }
+
+        /* HEADER */
+
+        .top-layout{
+            display:flex;
+            gap:30px;
+
+            align-items:flex-start;
+
+            margin-bottom:34px;
+        }
+
+        .main-icon{
+            width:100px;
+            height:100px;
+
+            min-width:100px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            border-radius:24px;
+
+            font-size:48px;
+
+            background:rgba(0,243,255,0.06);
+
+            border:1px solid rgba(0,243,255,0.18);
+        }
+
+        .badges{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+
+            margin-bottom:14px;
+        }
+
+        .badge{
+            font-family:var(--mono);
+
+            font-size:0.68rem;
+
+            padding:4px 10px;
+
+            border-radius:20px;
+
+            font-weight:700;
+        }
+
+        .live{
+            background:rgba(0,229,160,0.1);
+            color:var(--green);
+            border:1px solid rgba(0,229,160,0.2);
+        }
+
+        .ai{
+            background:rgba(123,47,255,0.1);
+            color:#b18cff;
+            border:1px solid rgba(123,47,255,0.22);
+        }
+
+        .v2{
+            background:rgba(255,215,0,0.1);
+            color:var(--gold);
+            border:1px solid rgba(255,215,0,0.2);
+        }
+
+        .card-title{
+            font-family:'Bebas Neue',sans-serif;
+
+            font-size:2.4rem;
+
+            letter-spacing:3px;
+
+            margin-bottom:6px;
+        }
+
+        .card-code{
+            font-family:var(--mono);
+
+            color:var(--neon);
+
+            opacity:0.7;
+
+            font-size:0.75rem;
+
+            margin-bottom:18px;
+        }
+
+        .card-desc{
+            color:var(--muted);
+
+            line-height:1.9;
+
+            font-size:0.96rem;
+
+            margin-bottom:22px;
+        }
+
+        /* LIST */
+
+        .feature-list{
+            list-style:none;
+
+            display:flex;
+            flex-direction:column;
+
+            gap:10px;
+
+            margin-bottom:26px;
+        }
+
+        .feature-list li{
+            color:var(--muted);
+
+            font-size:0.88rem;
+
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .feature-list li::before{
+            content:"▸";
+            color:var(--neon);
+        }
+
+        /* BUTTON */
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+
+            padding:12px 24px;
+
+            border-radius:14px;
+
+            text-decoration:none;
+
+            background:
+            linear-gradient(135deg,
+            rgba(0,114,255,0.95),
+            rgba(0,200,255,0.95));
+
+            color:white;
+
+            font-weight:800;
+
+            letter-spacing:1px;
+
+            transition:0.25s;
+        }
+
+        .btn:hover{
+            transform:scale(0.97);
+
+            box-shadow:
+            0 0 24px rgba(0,200,255,0.35);
+        }
+
+        /* CONTENT */
+
+        .content{
+            display:flex;
+            flex-direction:column;
+            gap:24px;
+        }
+
+        /* FOOTER */
+
+        .footer{
+            margin-top:34px;
+
+            padding-top:22px;
+
+            border-top:1px solid rgba(255,255,255,0.06);
+
+            display:flex;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            gap:12px;
+        }
+
+        .footer span{
+            font-family:var(--mono);
+
+            font-size:0.72rem;
+
+            color:rgba(138,165,192,0.55);
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px){
+
+            .top-layout{
+                flex-direction:column;
+            }
+
+            .main-icon{
+                width:74px;
+                height:74px;
+                min-width:74px;
+
+                font-size:32px;
+            }
+
+            .card-inner{
+                padding:24px;
+            }
+
+            nav{
+                padding:0 16px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+
+<div id="particles"></div>
+
+<!-- NAV -->
+
+<nav>
+
+    <a class="nav-brand" href="https://hentaiorc.xyz">
+
+        <div class="nav-logo">℗</div>
+
+        <div class="nav-text">
+            ORC <span>cop</span>
+        </div>
+
+    </a>
+
+    <a class="nav-link"
+       href="https://hentaiorc.xyz"
+       target="_blank">
+
+        TRANG CHỦ
+
+    </a>
+
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="hero-tag">
+        ORCCOP · CYBERPUNK WEBSITE
+    </div>
+
+    <h1 class="hero-title">
+        <span>ORCCOP REVIEW</span>
+    </h1>
+
+    <p class="hero-desc">
+
+        Giới thiệu và đánh giá chi tiết giao diện, hiệu ứng,
+        thiết kế frontend và phong cách cyberpunk hiện đại
+        của website ORCcop.
+
+    </p>
+
+</section>
+
+<!-- MAIN -->
+
+<div class="wrapper">
+
+    <div class="card">
+
+        <div class="card-bar"></div>
+
+        <div class="card-inner">
+
+            <div class="top-layout">
+
+                <div class="main-icon">
+                    🌌
+                </div>
+
+                <div>
+
+                    <div class="badges">
+
+                        <div class="badge live">
+                            ● REVIEW
+                        </div>
+
+                        <div class="badge ai">
+                            CYBER UI
+                        </div>
+
+                        <div class="badge v2">
+                            ORCCOP
+                        </div>
+
+                    </div>
+
+                    <div class="card-title">
+                        Website ORCcop — Nền Tảng Cyberpunk Hiện Đại
+                    </div>
+
+                    <div class="card-code">
+                        // orccop_frontend_showcase
+                    </div>
+
+                    <div class="card-desc">
+
+                        ORCcop là một website mang phong cách neon futuristic
+                        kết hợp dashboard cyberpunk và nhiều hiệu ứng giao diện hiện đại.
+                        Dự án tập trung mạnh vào trải nghiệm thị giác,
+                        animation và khả năng tương tác trực quan.
+
+                    </div>
+
+                    <ul class="feature-list">
+
+                        <li>Thiết kế neon futuristic nổi bật</li>
+
+                        <li>Glow animation và particle effect mượt mà</li>
+
+                        <li>Dashboard hiện đại tối ưu UX/UI</li>
+
+                        <li>Responsive tốt trên mobile và desktop</li>
+
+                        <li>Phong cách cyberpunk đồng bộ toàn hệ thống</li>
+
+                    </ul>
+
+                    <a class="btn"
+                       href="https://hentaiorc.xyz"
+                       target="_blank">
+
+                        Truy cập Website →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- CONTENT -->
+
+            <div class="content">
+
+                <div class="card-desc">
+
+                    Điểm nổi bật nhất của ORCcop nằm ở giao diện cyberpunk
+                    đậm chất công nghệ tương lai.
+                    Website sử dụng nền tối kết hợp hiệu ứng neon xanh dương phát sáng,
+                    tạo cảm giác giống như một bảng điều khiển sci-fi hiện đại.
+
+                </div>
+
+                <div class="card-desc">
+
+                    Hệ thống particle animation, glow effect,
+                    floating light và transition được xử lý khá mượt,
+                    giúp toàn bộ website có chiều sâu thị giác mạnh hơn
+                    so với các giao diện thông thường.
+
+                </div>
+
+                <div class="card-desc">
+
+                    Trang chủ được xây dựng theo kiểu dashboard hiện đại
+                    với bố cục rõ ràng, menu động
+                    và nhiều thành phần tương tác trực quan.
+
+                </div>
+
+                <div class="card-desc">
+
+                    Một điểm đáng chú ý khác là khả năng cá nhân hóa giao diện.
+                    Người dùng có thể thay đổi background,
+                    preset hình nền, overlay
+                    và nhiều hiệu ứng hiển thị khác nhau.
+
+                </div>
+
+                <div class="card-desc">
+
+                    Website sử dụng CSS Variables khá tốt để quản lý màu sắc,
+                    giúp giao diện đồng bộ và dễ mở rộng về sau.
+                    Layout responsive hoạt động ổn định
+                    trên cả điện thoại lẫn desktop.
+
+                </div>
+
+                <div class="card-desc">
+
+                    Tuy nhiên, do sử dụng khá nhiều animation và hiệu ứng glow,
+                    website có thể tiêu tốn tài nguyên trên các thiết bị cấu hình yếu.
+                    Nếu tối ưu thêm rendering và loading performance,
+                    trải nghiệm tổng thể sẽ còn tốt hơn nữa.
+
+                </div>
+
+                <div class="card-desc">
+
+                    Tổng thể, ORCcop là một dự án frontend rất ấn tượng
+                    với phong cách thiết kế riêng biệt,
+                    tư duy UI/UX hiện đại
+                    và dấu ấn cá nhân rõ rệt.
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+
+            <div class="footer">
+
+                <span>
+                    ORCCOP REVIEW · CYBERPUNK UI
+                </span>
+
+                <span>
+                    UPDATED 2026
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    // PARTICLES
+
+    const pc = document.getElementById('particles');
+
+    const colors = ['cyan','purple','green'];
+
+    for(let i = 0; i < 32; i++){
+
+        const p = document.createElement('div');
+
+        p.className = 'p ' + colors[i % 3];
+
+        const s = Math.random() * 3 + 1;
+
+        p.style.cssText = `
+            width:${s}px;
+            height:${s}px;
+            left:${Math.random()*100}vw;
+            top:${Math.random()*100}vh;
+            animation-duration:${Math.random()*14+8}s;
+            animation-delay:${Math.random()*10}s;
+        `;
+
+        pc.appendChild(p);
+    }
+
+</script>
+
+</body>
+</html>
