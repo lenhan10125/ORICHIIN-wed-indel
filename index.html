@@ -56,6 +56,7 @@
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
             position: relative; z-index: 2100;
+            flex-shrink: 0;
         }
         .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
         .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
@@ -63,6 +64,20 @@
         .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
         .open .hamburger span:nth-child(2) { opacity: 0; }
         .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+        /* ====== FIX LOGO ====== */
+        .header-logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .header-logo-img {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
         
         .header-center { flex: 0 1 720px; margin: 0 15px; position: relative; }
         .search-container {
@@ -102,6 +117,7 @@
             position: relative; z-index: 2100;
             color: var(--neon-blue);
             font-size: 18px;
+            flex-shrink: 0;
         }
         .settings-btn:hover {
             box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
@@ -214,6 +230,16 @@
         }
         .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
         .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+        /* ====== SAVED BG INDICATOR ====== */
+        .save-status {
+            font-size: 11px;
+            color: rgba(0,243,255,0.7);
+            text-align: center;
+            margin-top: 8px;
+            min-height: 16px;
+            transition: opacity 0.5s;
+        }
         
         .menu-overlay {
             position: fixed; top: 65px; left: 16px;
@@ -347,7 +373,7 @@
             height: 210px;
             cursor: pointer;
             transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            margin-right: -28px; /* overlap for rank number */
+            margin-right: -28px;
         }
         .trending-card:last-child { margin-right: 0; }
         .trending-card:hover {
@@ -551,11 +577,10 @@
             <button class="menu-toggle-btn" id="menuBtn">
                 <div class="hamburger"><span></span><span></span><span></span></div>
             </button>
-            <div class="logo">
-                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="ORC.png" alt="Logo" class="loader-top-img">                
-                </a>
-            </div>
+            <!-- FIX: Logo với kích thước phù hợp cho header -->
+            <a href="https://hentaiorc.xyz" class="header-logo-link">
+                <img src="ORC.png" alt="Logo" class="header-logo-img">
+            </a>
         </div>
         <div class="header-center">
             <div class="search-container">
@@ -567,9 +592,8 @@
             <div id="suggestionBox" class="suggestion-box"></div>
         </div>
         <div class="header-right">
-            <!-- Settings Button -->
             <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
-            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
+            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; flex-shrink:0;">O</div>
         </div>
     </nav>
 
@@ -618,7 +642,10 @@
             </label>
         </div>
 
-        <button id="bgResetBtn" style="margin-top: 16px; width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px; cursor:pointer; font-size:12px; transition:0.3s;"
+        <!-- Save status message -->
+        <div class="save-status" id="saveStatus"></div>
+
+        <button id="bgResetBtn" style="margin-top: 8px; width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px; cursor:pointer; font-size:12px; transition:0.3s;"
             onmouseover="this.style.borderColor='var(--neon-blue)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
             ↺ Đặt lại về mặc định
         </button>
@@ -695,7 +722,7 @@
 
     <script>
         // ==========================================
-        // TRENDING DATA — chỉnh sửa tại đây
+        // TRENDING DATA
         // ==========================================
         const trendingItems = [
             {
@@ -738,96 +765,64 @@
                 poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
                 gradient: "linear-gradient(135deg, #001a1a, #006060)"
             },
-             /*{
-                rank: 6,
-                title: "công cụ phân tích trắc nghiệm-beta",
-                subtitle: "giúp bạn phân tích kết quả các bài trắc nghiệm một cách trực quan và dễ hiểu",
-                url: "https://hentaiorc.xyz/beta/phantich_beta_2.html",
-                poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #0a0f1a, #1a3a6e)"
-            },
-            {
-                rank: 7,
-                title: "none",
-                subtitle: "none",
-                url: "#",
-                poster: "https://m.media-amazon.com/images/M/MV5BNzc5MTczNDQtNDFjNi00ZDU5LWFkNzItOTE1NzQzMzdhNzMxXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #1a0000, #8b0000)"
-            },
-            {
-                rank: 8,
-                title: "none",
-                subtitle: "none",
-                url: "#",
-                poster: "https://m.media-amazon.com/images/M/MV5BZjZjNzI5MDctY2Y4YS00NmM4LTljMmItZTFkOTExNGI3ODRhXkEyXkFqcGdeQXVyNjc3MjQzNTI@._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #1a000a, #7a0030)"
-            },*/
         ];
-let countdownTarget = null;
 
-function updateCountdown() {
-    if (!countdownTarget) return;
+        // ==========================================
+        // COUNTDOWN LOGIC
+        // ==========================================
+        let countdownTarget = null;
 
-    const now = new Date().getTime();
-    const distance = countdownTarget - now;
+        function updateCountdown() {
+            if (!countdownTarget) return;
+            const now = new Date().getTime();
+            const distance = countdownTarget - now;
+            if (distance < 0) {
+                document.getElementById('neonClock').innerHTML = "<h2 style='color:var(--neon-blue)'>DỰ ÁN ĐÃ BẮT ĐẦU CHUYỂN ĐỔI!</h2>";
+                return;
+            }
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const dStr = String(days).padStart(3, '0');
+            const hStr = String(hours).padStart(2, '0');
+            const mStr = String(minutes).padStart(2, '0');
+            const sStr = String(seconds).padStart(2, '0');
+            document.getElementById('d1').textContent = dStr[0];
+            document.getElementById('d2').textContent = dStr[1];
+            document.getElementById('d3').textContent = dStr[2];
+            document.getElementById('ch').textContent = hStr[0];
+            document.getElementById('cm').textContent = hStr[1];
+            document.getElementById('mh').textContent = mStr[0];
+            document.getElementById('mm').textContent = mStr[1];
+            document.getElementById('sh').textContent = sStr[0];
+            document.getElementById('sm').textContent = sStr[1];
+        }
 
-    // Nếu đã hết thời gian
-    if (distance < 0) {
-        document.getElementById('neonClock').innerHTML = "<h2 style='color:var(--neon-blue)'>DỰ ÁN ĐÃ BẮT ĐẦU CHUYỂN ĐỔI!</h2>";
-        return;
-    }
-
-    // Tính toán Ngày, Giờ, Phút, Giây
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    // Định dạng chuỗi (thêm số 0 ở trước nếu cần)
-    const dStr = String(days).padStart(3, '0');
-    const hStr = String(hours).padStart(2, '0');
-    const mStr = String(minutes).padStart(2, '0');
-    const sStr = String(seconds).padStart(2, '0');
-
-    // Cập nhật giao diện
-    document.getElementById('d1').textContent = dStr[0];
-    document.getElementById('d2').textContent = dStr[1];
-    document.getElementById('d3').textContent = dStr[2];
-    
-    document.getElementById('ch').textContent = hStr[0];
-    document.getElementById('cm').textContent = hStr[1];
-    
-    document.getElementById('mh').textContent = mStr[0];
-    document.getElementById('mm').textContent = mStr[1];
-    
-    document.getElementById('sh').textContent = sStr[0];
-    document.getElementById('sm').textContent = sStr[1];
-}
-
-async function fetchUpdate() {
-    try {
-        const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
-        if (!res.ok) throw new Error();
-        const text = await res.text();
-        const timeValue = text.trim();
-
-        if (timeValue) {
-            // Chuyển đổi nội dung file thành mốc thời gian (Timestamp)
-            countdownTarget = new Date(timeValue).getTime();
-
-            if (!isNaN(countdownTarget)) {
-                document.getElementById('neonClock').classList.add('show');
-                updateCountdown();
-                setInterval(updateCountdown, 1000);
+        async function fetchUpdate() {
+            try {
+                const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
+                if (!res.ok) throw new Error();
+                const text = await res.text();
+                const timeValue = text.trim();
+                if (timeValue) {
+                    countdownTarget = new Date(timeValue).getTime();
+                    if (!isNaN(countdownTarget)) {
+                        document.getElementById('neonClock').classList.add('show');
+                        updateCountdown();
+                        setInterval(updateCountdown, 1000);
+                    }
+                }
+            } catch (err) {
+                console.error("Không thể tải thời gian đếm ngược:", err);
             }
         }
-    } catch (err) {
-        console.error("Không thể tải thời gian đếm ngược:", err);
-    }
-}
 
-document.addEventListener('DOMContentLoaded', fetchUpdate);
-        // Render cards
+        document.addEventListener('DOMContentLoaded', fetchUpdate);
+
+        // ==========================================
+        // TRENDING CARDS RENDER
+        // ==========================================
         const grid = document.getElementById('trendingGrid');
         trendingItems.forEach((item, i) => {
             const card = document.createElement('div');
@@ -850,25 +845,81 @@ document.addEventListener('DOMContentLoaded', fetchUpdate);
         });
 
         // Scroll buttons
-        const scrollLeft = document.getElementById('scrollLeft');
-        const scrollRight = document.getElementById('scrollRight');
-        scrollLeft.addEventListener('click', () => grid.scrollBy({ left: -300, behavior: 'smooth' }));
-        scrollRight.addEventListener('click', () => grid.scrollBy({ left: 300, behavior: 'smooth' }));
+        document.getElementById('scrollLeft').addEventListener('click', () => grid.scrollBy({ left: -300, behavior: 'smooth' }));
+        document.getElementById('scrollRight').addEventListener('click', () => grid.scrollBy({ left: 300, behavior: 'smooth' }));
 
         // ==========================================
-        // SETTINGS PANEL LOGIC
+        // BACKGROUND — localStorage PERSISTENCE
         // ==========================================
-        const settingsBtn = document.getElementById('settingsBtn');
+        const LS_BG_KEY   = 'orc_bg_url';
+        const LS_OVL_KEY  = 'orc_overlay';
+
+        const settingsBtn   = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
-        const bgPresets = document.getElementById('bgPresets');
-        const bgUrlInput = document.getElementById('bgUrlInput');
-        const bgApplyBtn = document.getElementById('bgApplyBtn');
-        const bgResetBtn = document.getElementById('bgResetBtn');
+        const bgPresets     = document.getElementById('bgPresets');
+        const bgUrlInput    = document.getElementById('bgUrlInput');
+        const bgApplyBtn    = document.getElementById('bgApplyBtn');
+        const bgResetBtn    = document.getElementById('bgResetBtn');
         const overlayToggle = document.getElementById('overlayToggle');
-        const mainContent = document.getElementById('main-content');
+        const mainContent   = document.getElementById('main-content');
+        const saveStatus    = document.getElementById('saveStatus');
 
         let settingsOpen = false;
 
+        function showSaveStatus(msg, color) {
+            saveStatus.style.color = color || 'rgba(0,243,255,0.8)';
+            saveStatus.style.opacity = '1';
+            saveStatus.textContent = msg;
+            setTimeout(() => { saveStatus.style.opacity = '0'; }, 2000);
+        }
+
+        function applyBackground(url, save) {
+            if (!url || url === 'none') {
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundColor = '#0a0a0a';
+            } else {
+                document.body.style.backgroundImage = `url(${url})`;
+                document.body.style.backgroundColor = '';
+            }
+            if (save) {
+                try {
+                    localStorage.setItem(LS_BG_KEY, url || 'none');
+                    showSaveStatus('✔ Đã lưu hình nền vào bộ nhớ');
+                } catch(e) {
+                    showSaveStatus('⚠ Không thể lưu', '#ff6b6b');
+                }
+            }
+        }
+
+        function syncPresetActive(bgValue) {
+            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => {
+                b.classList.toggle('active-bg', b.dataset.bg === bgValue);
+            });
+        }
+
+        // Restore saved background on page load
+        (function restoreSavedBg() {
+            const savedBg  = localStorage.getItem(LS_BG_KEY);
+            const savedOvl = localStorage.getItem(LS_OVL_KEY);
+
+            if (savedBg) {
+                applyBackground(savedBg, false);
+                syncPresetActive(savedBg);
+                // Fill URL input if it's a custom URL (not a preset)
+                const isPreset = Array.from(bgPresets.querySelectorAll('.bg-preset-btn'))
+                    .some(b => b.dataset.bg === savedBg);
+                if (!isPreset && savedBg !== 'none') {
+                    bgUrlInput.value = savedBg;
+                }
+            }
+            if (savedOvl !== null) {
+                const isOn = savedOvl === 'true';
+                overlayToggle.checked = isOn;
+                mainContent.style.background = isOn ? 'rgba(0,0,0,0.2)' : 'transparent';
+            }
+        })();
+
+        // Settings panel toggle
         function toggleSettings(e) {
             e.stopPropagation();
             settingsOpen = !settingsOpen;
@@ -882,46 +933,38 @@ document.addEventListener('DOMContentLoaded', fetchUpdate);
             }
         });
 
-        function applyBackground(url) {
-            if (!url || url === 'none') {
-                document.body.style.backgroundImage = 'none';
-                document.body.style.backgroundColor = '#0a0a0a';
-            } else {
-                document.body.style.backgroundImage = `url(${url})`;
-                document.body.style.backgroundColor = '';
-            }
-        }
-
-        // Preset buttons
+        // Preset buttons — save on click
         bgPresets.querySelectorAll('.bg-preset-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
-                btn.classList.add('active-bg');
-                applyBackground(btn.dataset.bg);
+                syncPresetActive(btn.dataset.bg);
+                applyBackground(btn.dataset.bg, true);
+                bgUrlInput.value = '';
             });
         });
 
-        // Custom URL
+        // Custom URL — save on apply
         bgApplyBtn.addEventListener('click', () => {
             const url = bgUrlInput.value.trim();
             if (url) {
-                bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
-                applyBackground(url);
+                syncPresetActive('__custom__');
+                applyBackground(url, true);
             }
         });
 
-        // Reset
+        // Reset — clear localStorage
         bgResetBtn.addEventListener('click', () => {
-            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
-            const first = bgPresets.querySelector('[data-bg="none"]');
-            if (first) first.classList.add('active-bg');
+            syncPresetActive('none');
             bgUrlInput.value = '';
-            applyBackground('none');
+            applyBackground('none', true);
+            localStorage.removeItem(LS_BG_KEY);
+            showSaveStatus('↺ Đã đặt lại hình nền');
         });
 
-        // Overlay toggle
+        // Overlay toggle — save state
         overlayToggle.addEventListener('change', function() {
-            mainContent.style.background = this.checked ? 'rgba(0,0,0,0.2)' : 'transparent';
+            const isOn = this.checked;
+            mainContent.style.background = isOn ? 'rgba(0,0,0,0.2)' : 'transparent';
+            try { localStorage.setItem(LS_OVL_KEY, String(isOn)); } catch(e) {}
         });
 
         // ==========================================
@@ -941,7 +984,7 @@ document.addEventListener('DOMContentLoaded', fetchUpdate);
         // ==========================================
         // MENU LOGIC
         // ==========================================
-        const menuBtn = document.getElementById('menuBtn');
+        const menuBtn     = document.getElementById('menuBtn');
         const menuOverlay = document.getElementById('menuOverlay');
         function toggleMenu() {
             menuBtn.classList.toggle('open');
@@ -956,14 +999,14 @@ document.addEventListener('DOMContentLoaded', fetchUpdate);
         // LOADER
         // ==========================================
         window.addEventListener("load", function() {
-            const loader = document.getElementById("loader-wrapper");
+            const loader  = document.getElementById("loader-wrapper");
             const content = document.getElementById("main-content");
-            const fill = document.getElementById("load-fill");
-            const val = document.getElementById("load-val");
+            const fill    = document.getElementById("load-fill");
+            const val     = document.getElementById("load-val");
             let progress = 0;
             const interval = setInterval(() => {
                 progress += Math.random() * 15;
-                if(progress >= 100) {
+                if (progress >= 100) {
                     progress = 100;
                     clearInterval(interval);
                     setTimeout(() => {
@@ -971,39 +1014,49 @@ document.addEventListener('DOMContentLoaded', fetchUpdate);
                         content.classList.add("show");
                     }, 500);
                 }
-                if(fill) fill.style.width = progress + "%";
-                if(val) val.innerText = Math.floor(progress) + "%";
+                if (fill) fill.style.width = progress + "%";
+                if (val)  val.innerText = Math.floor(progress) + "%";
             }, 100);
         });
 
         // ==========================================
-        // SEARCH LOGIC
+        // SEARCH LOGIC — danh sách mở rộng
         // ==========================================
-        const searchInput = document.getElementById('mainSearch');
+        const searchInput   = document.getElementById('mainSearch');
         const suggestionBox = document.getElementById('suggestionBox');
 
         const myWebsites = [
-            { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio" },
-            { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message" },
-            { name: "List", url: "https://hentaiorc.xyz/list.html", tags: "List" },
-            { name: "Calculate", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate" },
-            { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social contact" },
-            { name: "Sắc Mưa (The Garden of Words)", url: "#", tags: "anime project rain garden" },
-            { name: "Mini-game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game" }
-
+            // ── Trang chính ──
+            { name: "Trang chủ ORC",          url: "https://hentaiorc.xyz",                           tags: "home main studio orichiin trang chu" },
+            { name: "Chat Server",             url: "https://hentaiorc.xyz/chat-server.html",           tags: "chat talk message nhan tin" },
+            { name: "List (Danh sách)",        url: "https://hentaiorc.xyz/list.html",                  tags: "list danh sach app tien ich cong cu" },
+            { name: "Calculate (Máy tính)",    url: "https://www.hentaiorc.xyz/caculate.html",          tags: "calculate may tinh toan so hoc" },
+            { name: "Mini Game",               url: "https://hentaiorc.xyz/mini-game.html",             tags: "mini game sandbox choi game" },
+            { name: "Lịch vạn năng",           url: "https://hentaiorc.xyz/date.html",                  tags: "lich van nang calendar ngay thang dem nguoc hen gio" },
+            { name: "Phòng thí nghiệm ORC",    url: "https://hentaiorc.xyz/beta/beta.html",             tags: "beta phong thi nghiem trac nghiem phan tich" },
+            // ── Mạng xã hội ──
+            { name: "Facebook ORCcop",         url: "https://www.facebook.com/orichiin",                tags: "facebook fb social mang xa hoi orichiin orc" },
+            { name: "Facebook Giang-artist",   url: "https://www.facebook.com/langducabpt",             tags: "fb social giang artist lang duc" },
+            // ── Dự án / Beta ──
+            { name: "Sắc Mưa (Garden of Words)", url: "#",                                             tags: "anime project sac mua rain garden the garden of words" },
+            { name: "Beta phân tích trắc nghiệm", url: "https://hentaiorc.xyz/beta/phantich_beta_2.html", tags: "beta phan tich trac nghiem ket qua" },
+            // ── Tiện ích nhanh ──
+            { name: "ORC – Đổi tên miền",      url: "https://hentaiorc.xyz",                           tags: "doi ten mien orccop domain chuyen doi" },
         ];
 
         searchInput.addEventListener('input', function() {
             const val = this.value.toLowerCase().trim();
             suggestionBox.innerHTML = "";
             if (val.length > 0) {
-                const matches = myWebsites.filter(web => web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val));
+                const matches = myWebsites.filter(web =>
+                    web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val)
+                );
                 if (matches.length > 0) {
                     matches.forEach(web => {
                         const item = document.createElement('div');
                         item.className = 'suggestion-item';
                         item.innerHTML = `<span class="web-name">${web.name}</span><span class="web-url">${web.url}</span>`;
-                        item.onclick = () => window.location.href = web.url;
+                        item.onclick = () => { if (web.url !== '#') window.location.href = web.url; };
                         suggestionBox.appendChild(item);
                     });
                     suggestionBox.style.display = "block";
