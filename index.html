@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ORCcop</title>
+    <meta name="description" content="ORICHIIN STUDIO - Trang web học tập, trao đổi thông tin học tập chính quy và chia sẻ kiến thức lập trình tin học dành cho học sinh, sinh viên.">
+    <link rel="icon" type="image/x-icon" href="ORC.ico">
     <style>
         @font-face {
             font-family: 'Lato';
@@ -79,15 +80,15 @@
             display: block;
         }
         
-        .header-center { flex: 0 1 720px; margin: 0 15px; position: relative; }
+        .header-center { flex: 1 1 0; min-width: 0; margin: 0 10px; position: relative; }
         .search-container {
             display: flex; background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--yt-border); border-radius: 40px;
-            overflow: hidden; padding-left: 20px;
+            overflow: hidden; padding-left: 14px;
         }
-        .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
-        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
-        .search-btn svg { width: 20px; height: 20px; fill: white; }
+        .search-input { flex: 1; min-width: 0; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
+        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; flex-shrink: 0; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
+        .search-btn svg { width: 18px; height: 18px; fill: white; }
 
         .suggestion-box {
             position: absolute; top: 110%; left: 0; width: 100%;
@@ -296,6 +297,9 @@
         .loader-hidden { opacity: 0; visibility: hidden; }
         .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
         .container.show { opacity: 1; }
+        @media (max-width: 600px) {
+            .container { padding-top: 80px; }
+        }
         .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
         .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
         h1 { color: #d9b8ab; font-size: 2.5em; }
@@ -557,6 +561,63 @@
             letter-spacing: 3px;
             text-transform: uppercase;
             margin-top: 12px;
+        }
+
+        /* ============================
+           RESPONSIVE — MOBILE
+           ============================ */
+        @media (max-width: 600px) {
+            /* Header */
+            .yt-header { padding: 0 8px; height: 52px; }
+            .header-left { gap: 8px; }
+            .header-right { gap: 8px; }
+            .header-center { margin: 0 6px; }
+            .search-input { font-size: 13px; }
+            .search-btn { width: 38px; }
+            /* Hide avatar circle on very small screens */
+            .header-right > div:last-child { display: none; }
+
+            /* Suggestion box */
+            .suggestion-box { border-radius: 10px; }
+            .suggestion-item { padding: 10px 14px; }
+            .suggestion-item .web-name { font-size: 13px; }
+
+            /* Neon clock — compact on mobile */
+            .neon-clock-display { gap: 4px; flex-wrap: nowrap; }
+            .neon-digit {
+                width: 32px;
+                height: 48px;
+                font-size: 1.5rem;
+                border-radius: 5px;
+            }
+            .neon-digit-group { gap: 2px; }
+            .neon-separator { gap: 6px; }
+            .neon-dot { width: 5px; height: 5px; }
+            .neon-clock-label { font-size: 0.55rem; letter-spacing: 1.5px; margin-top: 8px; }
+            .neon-clock-label[style] { font-size: 0.6rem !important; }
+
+            /* Trending cards smaller */
+            .trending-card { width: 110px; height: 165px; }
+            .card-rank { font-size: 5rem; }
+            .scroll-btn { width: 28px; height: 60px; font-size: 14px; }
+            .scroll-btn.left { left: -14px; }
+            .scroll-btn.right { right: -14px; }
+
+            /* Content box */
+            .content-box { padding: 24px 16px; }
+            h1 { font-size: 1.8em; }
+
+            /* Menu overlay */
+            .menu-overlay { left: 8px; top: 60px; min-width: 200px; padding: 18px; }
+            .nav-item { font-size: 1.1rem; }
+
+            /* Settings panel */
+            .settings-panel { right: 8px; top: 60px; width: calc(100vw - 16px); max-width: 320px; padding: 18px; }
+        }
+
+        @media (max-width: 380px) {
+            .neon-digit { width: 26px; height: 40px; font-size: 1.2rem; }
+            .neon-clock-label { font-size: 0.45rem; letter-spacing: 1px; }
         }
     </style>
 </head>

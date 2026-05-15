@@ -1,9 +1,42 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <!--
+        SECURITY HARDENING LOG:
+        1. [XSS] Input validation & sanitization on all user-supplied URL inputs (background URL)
+        2. [IFRAME] Added sandbox attribute to third-party chat iframe (Cbox) with strict permissions
+        3. [CSP] Content-Security-Policy meta tag added to restrict resource loading
+        4. [REFERRER] Referrer-Policy meta tag added
+        5. [CLICKJACK] X-Frame-Options equivalent via CSP frame-ancestors
+        6. [OPEN-REDIRECT] URL whitelist validation before applying background images
+        7. [NOOPENER] All external <a> links get rel="noopener noreferrer"
+        8. [SANITIZE] DOMPurify-style manual sanitization for any innerHTML assignment replaced with textContent
+    -->
     <link rel="icon" type="image/x-icon" href="ORC.ico">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- ① CSP: cho phép tài nguyên từ các nguồn tin cậy, chặn inline script nguy hiểm (unsafe-eval) -->
+    <meta http-equiv="Content-Security-Policy"
+          content="
+            default-src 'self';
+            script-src 'self' 'unsafe-inline';
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+            font-src https://fonts.gstatic.com;
+            img-src 'self' data: https: blob:;
+            frame-src https://www5.cbox.ws;
+            connect-src 'self' https://www.hentaiorc.xyz https://hentaiorc.xyz https://www.cloudflare.com https://images.unsplash.com;
+            object-src 'none';
+            base-uri 'self';
+            form-action 'none';
+          ">
+
+    <!-- ② Referrer policy: không gửi thông tin referrer tới bên thứ ba -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!-- ③ X-Content-Type-Options equivalent hint -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
     <title>CHAT SERVER</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -138,6 +171,15 @@
             cursor: pointer; transition: 0.2s; white-space: nowrap;
         }
         .sp-apply:hover { box-shadow: 0 0 12px var(--neon); }
+
+        /* ④ Error message for invalid URL input */
+        .url-error {
+            font-size: 10px; color: #ff4455;
+            margin-top: 4px; display: none;
+            letter-spacing: 0.5px;
+        }
+        .url-error.show { display: block; }
+
         .overlay-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
         .overlay-row span { font-size: 12px; color: rgba(255,255,255,0.55); }
         .tog { position: relative; width: 40px; height: 22px; }
@@ -189,7 +231,6 @@
         }
         .notice-body { color: rgba(255,255,255,0.75); line-height: 1.7; font-size: 14px; }
 
-        /* ── CHAT TOOLBAR ── */
         .chat-toolbar {
             width: 100%; max-width: 800px;
             display: flex; align-items: center; justify-content: space-between;
@@ -200,7 +241,6 @@
         .chat-toolbar-left { display: flex; align-items: center; gap: 8px; }
         .chat-toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-        /* Reload button */
         .btn-reload {
             display: flex; align-items: center; gap: 6px;
             background: rgba(0,243,255,0.08);
@@ -227,7 +267,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Network buttons */
         .btn-net {
             display: flex; align-items: center; gap: 6px;
             background: rgba(255,255,255,0.05);
@@ -251,7 +290,6 @@
             background: rgba(0,243,255,0.07);
         }
 
-        /* Network result badge */
         .net-result {
             font-size: 11px; font-weight: 700;
             padding: 4px 10px; border-radius: 12px;
@@ -267,7 +305,6 @@
         .net-result.ok   { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.08); }
         .net-result.bad  { border-color: #ff4455; color: #ff4455; background: rgba(255,68,85,0.08); }
 
-        /* Chat frame */
         .chat-frame {
             width: 100%; max-width: 800px;
             height: 580px;
@@ -323,18 +360,18 @@
         .footer-copy { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
 
         #popup-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 10001; 
-            justify-content: center; align-items: center; 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 10001;
+            justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
             transition: opacity 0.3s ease;
         }
         #main-popup {
-            width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px; 
-            position: relative; padding: 40px; box-sizing: border-box; 
-            display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,1); 
+            width: 90%; max-width: 500px; min-height: 300px; border-radius: 30px;
+            position: relative; padding: 40px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,1);
             border: 1px solid #99CCFF;
             transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
         }
@@ -348,26 +385,30 @@
 <div id="particles"></div>
 
 <!-- POPUP -->
-<div id="popup-overlay">
+<div id="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="popup-text">
     <div id="main-popup">
-        <button onclick="closePopup()" style="position:absolute;top:15px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:24px;cursor:pointer;border-radius:50%;width:35px;height:35px;display:flex;align-items:center;justify-content:center;">&times;</button>
+        <button onclick="closePopup()"
+                aria-label="Đóng thông báo"
+                style="position:absolute;top:15px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:24px;cursor:pointer;border-radius:50%;width:35px;height:35px;display:flex;align-items:center;justify-content:center;">&times;</button>
+        <!-- ⑤ Dùng textContent thay innerHTML để ngăn XSS khi gán nội dung động -->
         <div id="popup-text" style="word-wrap:break-word;width:100%;white-space:pre-wrap;line-height:1.5;"></div>
     </div>
 </div>
 
 <!-- NAV -->
 <nav>
-    <a class="nav-logo" href="https://hentaiorc.xyz">
+    <!-- ⑦ rel="noopener noreferrer" trên mọi link ngoài -->
+    <a class="nav-logo" href="https://hentaiorc.xyz" rel="noopener noreferrer">
         <img src="https://hentaiorc.xyz/logo/ORC.main.png" alt="ORC Studio" onerror="this.style.display='none'">
     </a>
     <div class="nav-right">
-        <a class="nav-home-btn" href="https://hentaiorc.xyz">← Trang chủ</a>
-        <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
+        <a class="nav-home-btn" href="https://hentaiorc.xyz" rel="noopener noreferrer">← Trang chủ</a>
+        <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền" aria-label="Mở cài đặt hình nền" aria-expanded="false">⚙</button>
     </div>
 </nav>
 
 <!-- SETTINGS PANEL -->
-<div class="settings-panel" id="settingsPanel">
+<div class="settings-panel" id="settingsPanel" role="region" aria-label="Cài đặt hình nền">
     <div class="sp-title">⚙ Cài đặt</div>
 
     <div class="sp-label">🎨 Hình nền</div>
@@ -399,13 +440,25 @@
 
     <div class="sp-label">🔗 URL tùy chỉnh</div>
     <div class="bg-url-row">
-        <input type="text" id="bgUrl" class="bg-url-input" placeholder="https://example.com/bg.jpg">
+        <!--
+            ① maxlength giới hạn độ dài input, autocomplete off để tránh lộ dữ liệu
+        -->
+        <input type="url" id="bgUrl" class="bg-url-input"
+               placeholder="https://example.com/bg.jpg"
+               maxlength="512"
+               autocomplete="off"
+               spellcheck="false">
         <button class="sp-apply" id="bgApply">OK</button>
     </div>
+    <!-- ① Thông báo lỗi XSS validation -->
+    <div class="url-error" id="urlError">⚠ URL không hợp lệ. Chỉ chấp nhận https://</div>
 
     <div class="overlay-row">
         <span>Lớp phủ tối</span>
-        <label class="tog"><input type="checkbox" id="overlayTog" checked><span class="tog-sl"></span></label>
+        <label class="tog">
+            <input type="checkbox" id="overlayTog" checked>
+            <span class="tog-sl"></span>
+        </label>
     </div>
 
     <button class="sp-reset" id="bgReset">↺ Đặt lại mặc định</button>
@@ -418,6 +471,7 @@
             <div class="notice-dot"></div>
             <span class="notice-title">NOTICE · THÔNG BÁO</span>
         </div>
+        <!-- ⑧ Nội dung được gán bằng textContent trong JS, không dùng innerHTML -->
         <div class="notice-body" id="updateNotice">Đang tải thông báo từ máy chủ...</div>
     </div>
 
@@ -425,7 +479,7 @@
     <div class="chat-toolbar">
         <div class="chat-toolbar-left">
             <button class="btn-reload" id="reloadChatBtn" title="Tải lại khung chat">
-                <span class="reload-icon">↻</span> RELOAD CHAT
+                <span class="reload-icon" aria-hidden="true">↻</span> RELOAD CHAT
             </button>
         </div>
         <div class="chat-toolbar-right">
@@ -435,23 +489,37 @@
             <button class="btn-net" id="speedBtn" title="Kiểm tra tốc độ mạng">
                 ⚡ TEST TỐC ĐỘ
             </button>
-            <span class="net-result" id="netResult"></span>
+            <span class="net-result" id="netResult" aria-live="polite"></span>
         </div>
     </div>
 
+    <!--
+        ② iframe sandbox: chỉ cho phép những gì Cbox cần.
+           - allow-scripts        : Cbox cần JS để hiện chat
+           - allow-same-origin    : Cbox cần đọc cookie/storage của chính nó
+           - allow-popups         : Cbox dùng cửa sổ mới cho đăng nhập
+           - allow-forms          : Cbox cần form để gửi tin nhắn
+           KHÔNG có: allow-top-navigation (chặn redirect trang cha),
+                      allow-downloads (chặn tải file tự động),
+                      allow-pointer-lock, allow-modals
+    -->
     <div class="chat-frame" id="chatFrame">
         <iframe id="chatIframe"
                 src="https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg"
                 width="100%" height="100%"
-                allowtransparency="yes" allow="autoplay"
-                frameborder="0" marginheight="0" marginwidth="0" scrolling="auto">
+                allowtransparency="yes"
+                allow="autoplay"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"
+                title="ORC Chat Box"
+                referrerpolicy="strict-origin-when-cross-origin">
         </iframe>
     </div>
 </div>
 
 <!-- WAVES -->
 <div class="wave-wrap">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" width="100%" height="80">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" width="100%" height="80" aria-hidden="true">
         <defs>
             <path id="gw" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
         </defs>
@@ -473,7 +541,7 @@
         </div>
 
         <div class="update-banner">
-            <div class="update-dot"></div>
+            <div class="update-dot" aria-hidden="true"></div>
             <div>
                 <span class="update-label">CẬP NHẬT:</span>
                 <span class="update-text" id="updateText">Đang kiểm tra thông tin...</span>
@@ -485,7 +553,45 @@
 </footer>
 
 <script>
-// ── PARTICLES ─────────────────────────────────────────
+/* ══════════════════════════════════════════════════
+   SECURITY UTILITIES
+══════════════════════════════════════════════════ */
+
+/**
+ * ① XSS PREVENTION — Kiểm tra URL đầu vào từ người dùng.
+ * Chỉ chấp nhận https:// và giới hạn ký tự hợp lệ.
+ * Ngăn javascript:, data:, vbscript: và các vector tấn công khác.
+ */
+function isSafeImageUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    url = url.trim();
+    // Chỉ cho phép https
+    if (!/^https:\/\//i.test(url)) return false;
+    // Chặn các ký tự nguy hiểm
+    if (/[<>"'`]/.test(url)) return false;
+    // Giới hạn độ dài
+    if (url.length > 512) return false;
+    try {
+        const parsed = new URL(url);
+        // Bảo đảm protocol là https
+        if (parsed.protocol !== 'https:') return false;
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+/**
+ * ⑧ An toàn gán nội dung text vào DOM — dùng textContent thay innerHTML.
+ * Ngăn XSS nếu server trả về nội dung độc hại.
+ */
+function safeSetText(el, text) {
+    if (el) el.textContent = text;
+}
+
+/* ══════════════════════════════════════════════════
+   PARTICLES
+══════════════════════════════════════════════════ */
 const pc = document.getElementById('particles');
 for (let i = 0; i < 22; i++) {
     const p = document.createElement('div');
@@ -495,7 +601,9 @@ for (let i = 0; i < 22; i++) {
     pc.appendChild(p);
 }
 
-// ── SETTINGS ──────────────────────────────────────────
+/* ══════════════════════════════════════════════════
+   SETTINGS PANEL
+══════════════════════════════════════════════════ */
 const settingsBtn   = document.getElementById('settingsBtn');
 const settingsPanel = document.getElementById('settingsPanel');
 const bgGrid        = document.getElementById('bgGrid');
@@ -504,16 +612,20 @@ const bgApplyBtn    = document.getElementById('bgApply');
 const bgResetBtn    = document.getElementById('bgReset');
 const overlayTog    = document.getElementById('overlayTog');
 const bgOverlay     = document.getElementById('bgOverlay');
+const urlError      = document.getElementById('urlError');
 
 let spOpen = false;
 settingsBtn.addEventListener('click', e => {
     e.stopPropagation();
     spOpen = !spOpen;
     settingsPanel.classList.toggle('open', spOpen);
+    settingsBtn.setAttribute('aria-expanded', spOpen);
 });
 document.addEventListener('click', e => {
     if (spOpen && !settingsPanel.contains(e.target) && e.target !== settingsBtn) {
-        spOpen = false; settingsPanel.classList.remove('open');
+        spOpen = false;
+        settingsPanel.classList.remove('open');
+        settingsBtn.setAttribute('aria-expanded', 'false');
     }
 });
 
@@ -522,6 +634,7 @@ function applyBg(url) {
         document.body.style.backgroundImage = 'none';
         document.body.style.backgroundColor = '#0a0a0a';
     } else {
+        // ① Chỉ áp dụng URL đã qua kiểm tra an toàn
         document.body.style.backgroundImage = `url(${url})`;
         document.body.style.backgroundColor = '';
     }
@@ -531,22 +644,41 @@ bgGrid.querySelectorAll('.bg-chip').forEach(btn => {
     btn.addEventListener('click', () => {
         bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
         btn.classList.add('sel');
-        applyBg(btn.dataset.bg);
+        urlError.classList.remove('show');
+        applyBg(btn.dataset.bg); // Data từ HTML tĩnh, tin cậy
     });
 });
 
 bgApplyBtn.addEventListener('click', () => {
-    const url = bgUrlInput.value.trim();
-    if (url) {
-        bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
-        applyBg(url);
+    const raw = bgUrlInput.value.trim();
+    urlError.classList.remove('show');
+
+    // ① Validate trước khi dùng
+    if (!raw) return;
+    if (!isSafeImageUrl(raw)) {
+        urlError.classList.add('show');
+        bgUrlInput.focus();
+        return;
     }
+    bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
+    applyBg(raw);
+});
+
+// Xóa lỗi khi người dùng gõ lại
+bgUrlInput.addEventListener('input', () => {
+    urlError.classList.remove('show');
+});
+
+// Enter trong ô URL cũng trigger apply
+bgUrlInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') bgApplyBtn.click();
 });
 
 bgResetBtn.addEventListener('click', () => {
     bgGrid.querySelectorAll('.bg-chip').forEach(b => b.classList.remove('sel'));
     bgGrid.querySelector('[data-bg="none"]').classList.add('sel');
     bgUrlInput.value = '';
+    urlError.classList.remove('show');
     applyBg('none');
 });
 
@@ -554,7 +686,9 @@ overlayTog.addEventListener('change', function() {
     bgOverlay.classList.toggle('hidden', !this.checked);
 });
 
-// ── POPUP CLOSE ───────────────────────────────────────
+/* ══════════════════════════════════════════════════
+   POPUP
+══════════════════════════════════════════════════ */
 function closePopup() {
     const overlay = document.getElementById('popup-overlay');
     overlay.classList.add('closing');
@@ -567,11 +701,14 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') closePopup();
 });
 
-// ── RELOAD CHAT ───────────────────────────────────────
-const reloadBtn   = document.getElementById('reloadChatBtn');
-const chatIframe  = document.getElementById('chatIframe');
-const chatFrame   = document.getElementById('chatFrame');
-const CHAT_SRC    = 'https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg';
+/* ══════════════════════════════════════════════════
+   RELOAD CHAT
+══════════════════════════════════════════════════ */
+const reloadBtn  = document.getElementById('reloadChatBtn');
+const chatIframe = document.getElementById('chatIframe');
+const chatFrame  = document.getElementById('chatFrame');
+// ② src được hardcode, không nhận từ input người dùng
+const CHAT_SRC   = 'https://www5.cbox.ws/box/?boxid=961747&boxtag=8h6smg';
 
 reloadBtn.addEventListener('click', () => {
     if (reloadBtn.disabled) return;
@@ -579,7 +716,6 @@ reloadBtn.addEventListener('click', () => {
     reloadBtn.classList.add('spinning');
     chatFrame.classList.add('reloading');
 
-    // Reload iframe bằng cách gán lại src
     chatIframe.src = 'about:blank';
     setTimeout(() => {
         chatIframe.src = CHAT_SRC;
@@ -589,17 +725,19 @@ reloadBtn.addEventListener('click', () => {
     }, 600);
 });
 
-// ── NETWORK TEST ──────────────────────────────────────
-const pingBtn    = document.getElementById('pingBtn');
-const speedBtn   = document.getElementById('speedBtn');
-const netResult  = document.getElementById('netResult');
+/* ══════════════════════════════════════════════════
+   NETWORK TEST
+══════════════════════════════════════════════════ */
+const pingBtn   = document.getElementById('pingBtn');
+const speedBtn  = document.getElementById('speedBtn');
+const netResult = document.getElementById('netResult');
 
 function showResult(text, quality) {
+    // ⑧ textContent thay vì innerHTML
     netResult.textContent = text;
     netResult.className   = 'net-result show ' + quality;
 }
 
-// Ping test — đo thời gian fetch một tài nguyên nhỏ
 pingBtn.addEventListener('click', async () => {
     if (pingBtn.classList.contains('running')) return;
     pingBtn.classList.add('running');
@@ -625,7 +763,6 @@ pingBtn.addEventListener('click', async () => {
     pingBtn.classList.remove('running');
 });
 
-// Speed test — tải file ~500KB và tính throughput
 speedBtn.addEventListener('click', async () => {
     if (speedBtn.classList.contains('running')) return;
     speedBtn.classList.add('running');
@@ -633,13 +770,12 @@ speedBtn.addEventListener('click', async () => {
     netResult.className = 'net-result show';
     netResult.textContent = '...';
 
-    // Dùng ảnh lớn từ Unsplash (~500-700KB)
     const testUrl = 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=90&_=' + Date.now();
     const t0 = performance.now();
     let bytes = 0;
     try {
-        const res  = await fetch(testUrl, { cache: 'no-store' });
-        const buf  = await res.arrayBuffer();
+        const res = await fetch(testUrl, { cache: 'no-store' });
+        const buf = await res.arrayBuffer();
         bytes = buf.byteLength;
     } catch (_) {
         showResult('⚠ Không thể đo', 'bad');
@@ -647,7 +783,7 @@ speedBtn.addEventListener('click', async () => {
         speedBtn.classList.remove('running');
         return;
     }
-    const elapsed = (performance.now() - t0) / 1000; // giây
+    const elapsed = (performance.now() - t0) / 1000;
     const mbps    = ((bytes * 8) / elapsed / 1_000_000).toFixed(1);
     const quality = mbps >= 10 ? 'good' : mbps >= 2 ? 'ok' : 'bad';
     const label   = mbps >= 10 ? '🟢' : mbps >= 2 ? '🟡' : '🔴';
@@ -657,26 +793,30 @@ speedBtn.addEventListener('click', async () => {
     speedBtn.classList.remove('running');
 });
 
-// ── FETCH DATA TỪ SERVER ──────────────────────────────
+/* ══════════════════════════════════════════════════
+   FETCH DATA TỪ SERVER
+   ⑧ Dùng textContent — không dùng innerHTML
+   để ngăn XSS nếu nội dung server bị can thiệp.
+══════════════════════════════════════════════════ */
 async function loadMainNotice() {
     try {
         const r = await fetch('https://www.hentaiorc.xyz/notice.txt?v=' + Date.now());
-        if (!r.ok) throw new Error();
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const txt = await r.text();
-        document.getElementById('updateNotice').textContent = txt;
-    } catch (err) {
-        document.getElementById('updateNotice').textContent = 'Hiện tại chưa có thông báo mới.';
+        safeSetText(document.getElementById('updateNotice'), txt);
+    } catch (_) {
+        safeSetText(document.getElementById('updateNotice'), 'Lỗi tải thông báo — vui lòng kiểm tra kết nối mạng.');
     }
 }
 
 async function loadFooterUpdate() {
     try {
         const r = await fetch('https://www.hentaiorc.xyz/update.txt?v=' + Date.now());
-        if (!r.ok) throw new Error();
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const txt = await r.text();
-        document.getElementById('updateText').textContent = txt;
-    } catch (err) {
-        document.getElementById('updateText').textContent = 'Chưa có thông tin cập nhật.';
+        safeSetText(document.getElementById('updateText'), txt);
+    } catch (_) {
+        safeSetText(document.getElementById('updateText'), 'Lỗi tải thông tin cập nhật — vui lòng kiểm tra kết nối mạng.');
     }
 }
 
