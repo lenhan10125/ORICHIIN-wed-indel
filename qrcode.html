@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Tạo Và Tùy Biến Mã QR Chuyên Nghiệp - Premium QR Tool</title>
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 20px;
+            color: var(--primary-color);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        .editor-side {
+            flex: 1.6;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .preview-side {
+            flex: 1;
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* Hệ thống chuyển đổi Tab nội dung */
+        .type-tabs {
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .type-tab {
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+        }
+
+        .type-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .content-panel {
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: #fff;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, textarea:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Khu vực cấu hình Màu Sắc nâng cao */
+        .color-setting-block {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+
+        .color-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .color-mode-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 12px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .color-mode-btn.active {
+            background: #e0e7ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .gradient-controls {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .gradient-controls.active {
+            display: block;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .color-hex-text {
+            font-size: 13px;
+            font-family: monospace;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            width: 100%;
+            border: none;
+            outline: none;
+        }
+
+        .slider-group {
+            margin-top: 10px;
+        }
+
+        .slider-label-val {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary-color);
+        }
+
+        /* Giao diện khung Xem trước và tải về */
+        .preview-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 30px;
+            min-height: 340px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        #canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: #fff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .file-upload-zone {
+            border: 2px dashed var(--border-color);
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload-zone:hover {
+            border-color: var(--primary-color);
+            background: #f0fdf4;
+        }
+
+        .file-upload-zone input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .file-upload-text span {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .logo-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .logo-img-preview {
+            width: 45px;
+            height: 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            object-fit: contain;
+            background: #fff;
+            display: none;
+        }
+
+        .clear-logo-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Responsive thiết bị di động */
+        @media (max-width: 992px) {
+            .main-wrapper {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .preview-side {
+                position: static;
+            }
+            .type-tabs {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M21 16H16V21"/><path d="M9 9H9.01"/><path d="M9 15H9.01"/><path d="M15 9H9V15H15V9Z" stroke-dasharray="2 2"/><path d="M15 15H19"/></svg>
+            Premium QR Code Generator Studio
+        </h1>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="editor-side">
+            
+            <div class="card">
+                <div class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Bước 1: Chọn loại dữ liệu mã QR
+                </div>
+                
+                <div class="type-tabs">
+                    <div class="type-tab active" onclick="switchTab('url')">Liên kết</div>
+                    <div class="type-tab" onclick="switchTab('text')">Văn bản</div>
+                    <div class="type-tab" onclick="switchTab('wifi')">Wi-Fi</div>
+                    <div class="type-tab" onclick="switchTab('vcard')">Danh bạ</div>
+                    <div class="type-tab" onclick="switchTab('email')">Email</div>
+                </div>
+
+                <div id="panel-url" class="content-panel active">
+                    <div class="form-group">
+                        <label for="input-url">Đường dẫn trang web (URL)</label>
+                        <input type="text" id="input-url" placeholder="https://example.com/du-an-cua-ban" value="https://example.com" oninput="generateQRData()">
+                    </div>
+                </div>
+
+                <div id="panel-text" class="content-panel">
+                    <div class="form-group">
+                        <label for="input-text">Nội dung văn bản tự do</label>
+                        <textarea id="input-text" placeholder="Nhập văn bản, thông điệp, mã số tại đây..." oninput="generateQRData()"></textarea>
+                    </div>
+                </div>
+
+                <div id="panel-wifi" class="content-panel">
+                    <div class="form-group">
+                        <label for="input-wifi-ssid">Tên mạng Wi-Fi (SSID)</label>
+                        <input type="text" id="input-wifi-ssid" placeholder="Ví dụ: Mang Nha Tuan Co" oninput="generateQRData()">
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="input-wifi-pass">Mật khẩu bảo mật</label>
+                            <input type="password" id="input-wifi-pass" placeholder="Nhập mật khẩu Wi-Fi" oninput="generateQRData()">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-wifi-type">Phương thức mã hóa</label>
+                            <select id="input-wifi-type" onchange="generateQRData()">
+                                <option value="WPA">WPA/WPA2</option>
+                                <option value="WEP">WEP</option>
+                                <option value="nopass">Không mật khẩu (Mở công khai)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-vcard" class="content-panel">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="vcard-name">Họ và Tên</label>
+                            <input type="text" id="vcard-name" placeholder="Nguyễn Văn A" oninput="generateQRData()">
+                        </div>
+                        <div class="form-group">
+                            <label for="vcard-phone">Số điện thoại</label>
+                            <input type="text" id="vcard-phone" placeholder="0901234567" oninput="generateQRData()">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="vcard-email">Địa chỉ Email</label>
+                            <input type="email" id="vcard-email" placeholder="name@company.com" oninput="generateQRData()">
+                        </div>
+                        <div class="form-group">
+                            <label for="vcard-org">Tên công ty / Tổ chức</label>
+                            <input type="text" id="vcard-org" placeholder="Công ty Cổ phần công nghệ ABC" oninput="generateQRData()">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-email" class="content-panel">
+                    <div class="form-group">
+                        <label for="email-to">Gửi đến địa chỉ Email</label>
+                        <input type="email" id="email-to" placeholder="example@gmail.com" oninput="generateQRData()">
+                    </div>
+                    <div class="form-group">
+                        <label for="email-subject">Tiêu đề Email (Subject)</label>
+                        <input type="text" id="email-subject" placeholder="Hợp tác kinh doanh" oninput="generateQRData()">
+                    </div>
+                    <div class="form-group">
+                        <label for="email-body">Nội dung thư mẫu (Body)</label>
+                        <textarea id="email-body" placeholder="Xin chào, tôi muốn tìm hiểu thêm về dịch vụ..." oninput="generateQRData()"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                    Bước 2: Thiết kế Điểm Chấm Dữ Liệu (Body Dots)
+                </div>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="dots-type">Hình dạng điểm chấm</label>
+                        <select id="dots-type" onchange="renderQR()">
+                            <option value="square">Hình vuông cổ điển (Square)</option>
+                            <option value="dots">Chấm tròn rời rạc (Dots)</option>
+                            <option value="rounded">Hình bo góc mềm (Rounded)</option>
+                            <option value="extra-rounded">Bo góc cực đại (Extra Rounded)</option>
+                            <option value="classy">Phong cách cách điệu chéo (Classy)</option>
+                            <option value="classy-rounded">Phong cách chéo bo cạnh (Classy Rounded)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cơ chế đổ màu điểm chấm</label>
+                        <div class="color-type-selector">
+                            <div class="color-mode-btn active" id="dots-mode-single" onclick="setColorMode('dots', 'single')">Màu đơn</div>
+                            <div class="color-mode-btn" id="dots-mode-gradient" onclick="setColorMode('dots', 'gradient')">Màu Gradient</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-setting-block">
+                    <div class="grid-2" id="dots-single-container">
+                        <div class="form-group">
+                            <label>Chọn màu đơn</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="dots-color-main" value="#000000" oninput="syncColorHex('dots-color-main', 'dots-hex-main')">
+                                <input type="text" id="dots-hex-main" value="#000000" class="color-hex-text" onchange="syncColorPicker('dots-hex-main', 'dots-color-main')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="gradient-controls" id="dots-gradient-container">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Màu bắt đầu</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" id="dots-grad-1" value="#6a11cb" oninput="syncColorHex('dots-grad-1', 'dots-hex-g1')">
+                                    <input type="text" id="dots-hex-g1" value="#6A11CB" class="color-hex-text" onchange="syncColorPicker('dots-hex-g1', 'dots-grad-1')">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Màu kết thúc</label>
+                                <div class="color-picker-wrapper"
