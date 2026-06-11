@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Builder Pro — 30 Mẫu Hoá Đơn</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f2f5;color:#222}
+#app{display:flex;height:100vh;min-height:600px;overflow:hidden}
+
+/* ── Sidebar ── */
+#sidebar{width:270px;min-width:200px;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;overflow:hidden}
+#sidebar-header{padding:12px 14px;border-bottom:1px solid #e5e7eb;flex-shrink:0}
+#sidebar-header h2{font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+#search-box{width:100%;padding:6px 10px;font-size:12px;border:1px solid #e5e7eb;border-radius:6px;outline:none;background:#f9fafb}
+#search-box:focus{border-color:#2563eb}
+#template-list{overflow-y:auto;flex:1;padding:6px}
+.tpl-item{padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px;color:#374151;border:1px solid transparent;margin-bottom:2px;transition:background .15s}
+.tpl-item:hover{background:#f3f4f6}
+.tpl-item.active{background:#eff6ff;border-color:#bfdbfe;font-weight:600;color:#1d4ed8}
+.tpl-item i{font-size:16px;color:#9ca3af;flex-shrink:0}
+.tpl-item.active i{color:#2563eb}
+.tpl-tag{font-size:10px;padding:1px 6px;border-radius:10px;margin-left:auto;flex-shrink:0;background:#f3f4f6;color:#6b7280;white-space:nowrap}
+
+/* ── Main area ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#toolbar{padding:8px 12px;border-bottom:1px solid #e5e7eb;display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0;background:#fff}
+.tb-btn{padding:5px 10px;font-size:12px;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;background:#fff;color:#374151;transition:background .15s;font-family:inherit}
+.tb-btn:hover{background:#f3f4f6}
+.tb-btn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
+.tb-btn.primary:hover{background:#1d4ed8}
+.tb-sep{width:1px;height:20px;background:#e5e7eb;flex-shrink:0}
+.tb-select{padding:5px 8px;font-size:12px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;font-family:inherit;color:#374151}
+.color-wrap{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#6b7280;cursor:pointer}
+.color-wrap input[type=color]{width:22px;height:22px;border:1px solid #e5e7eb;border-radius:4px;cursor:pointer;padding:1px}
+#preview-wrap{flex:1;overflow-y:auto;padding:20px;background:#e5e7eb}
+
+/* ── Invoice Canvas ── */
+#invoice-canvas{max-width:820px;margin:0 auto;background:#fff;border-radius:10px;border:1px solid #e5e7eb;min-height:500px;color:#222;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+
+/* Invoice structure */
+.inv-section{padding:24px 28px}
+.inv-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.inv-logo-area{flex:1}
+.inv-logo-text{font-size:22px;font-weight:700;cursor:pointer;outline:none;min-width:20px;color:#111}
+.inv-logo-text:empty:before{content:'Tên công ty';color:#d1d5db}
+.inv-tagline{font-size:12px;color:#9ca3af;outline:none;margin-top:3px}
+.inv-tagline:empty:before{content:'Địa chỉ công ty';color:#e5e7eb}
+.inv-contact{font-size:12px;color:#9ca3af;outline:none;margin-top:1px}
+.inv-contact:empty:before{content:'Email | Điện thoại';color:#e5e7eb}
+.inv-info-right{text-align:right;min-width:180px}
+.inv-badge{display:inline-block;padding:3px 12px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+.inv-number{font-size:20px;font-weight:700;color:#111}
+.inv-meta{font-size:12px;color:#6b7280;margin-top:4px}
+.inv-meta span{display:block;line-height:1.6}
+.inv-type-bar{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6}
+.inv-type-bar .label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:16px 28px;background:#f9fafb;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6}
+.party-box h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9ca3af;margin-bottom:8px}
+.party-box p{font-size:13px;line-height:1.65;outline:none;min-height:18px;color:#374151}
+.party-box p:empty:before{content:'Nhấn để chỉnh sửa...';color:#d1d5db}
+
+.inv-table-wrap{padding:20px 28px}
+.inv-table{width:100%;border-collapse:collapse;font-size:13px}
+.inv-table th{text-align:left;padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;border-bottom:2px solid #f3f4f6}
+.inv-table th:last-child{width:32px}
+.inv-table td{padding:8px 10px;border-bottom:1px solid #f9fafb;vertical-align:top}
+.inv-table td:last-child{text-align:right}
+.inv-table td[contenteditable]{outline:none;min-width:30px}
+.inv-table td[contenteditable]:focus{background:#fffbf0;border-radius:3px}
+.inv-table tr:hover td{background:#fafafa}
+.add-row-btn{margin:10px 0 0;font-size:12px;color:#9ca3af;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;border:1px dashed #e5e7eb;background:none;font-family:inherit}
+.add-row-btn:hover{background:#f9fafb;color:#6b7280;border-color:#d1d5db}
+.del-row{color:#e5e7eb;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:4px;transition:all .15s}
+.del-row:hover{color:#ef4444;background:#fef2f2}
+
+.inv-totals{padding:0 28px 20px;display:flex;justify-content:flex-end}
+.totals-box{width:280px}
+.total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#6b7280}
+.total-row.grand{font-weight:700;font-size:16px;color:#111;border-top:2px solid #f3f4f6;margin-top:8px;padding-top:10px}
+
+.inv-footer{padding:16px 28px;border-top:1px solid #f3f4f6;font-size:12px;color:#9ca3af;outline:none;line-height:1.6}
+.inv-footer:empty:before{content:'Ghi chú, điều khoản thanh toán...';color:#e5e7eb}
+
+.inv-bank{padding:14px 28px;background:#f9fafb;border-top:1px solid #f3f4f6}
+.inv-bank h4{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.inv-bank p{font-size:12px;outline:none;min-height:16px;color:#374151;line-height:1.6}
+.inv-bank p:empty:before{content:'Thông tin thanh toán...';color:#e5e7eb}
+
+.inv-doc-footer{padding:10px 28px;display:flex;justify-content:space-between;font-size:10px;color:#d1d5db;border-top:1px solid #f9fafb;border-radius:0 0 10px 10px}
+.watermark-paid{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:90px;font-weight:900;opacity:.04;pointer-events:none;letter-spacing:6px;user-select:none}
+
+/* ── Modal ── */
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;align-items:center;justify-content:center}
+#modal.open{display:flex}
+#modal-box{background:#fff;border-radius:12px;padding:22px;width:360px;border:1px solid #e5e7eb;box-shadow:0 8px 32px rgba(0,0,0,.12);max-height:90vh;overflow-y:auto}
+#modal-box h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:#111}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-field{margin-bottom:12px}
+.modal-field label{font-size:11px;color:#6b7280;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.modal-field input,.modal-field select{width:100%;padding:7px 10px;font-size:13px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;outline:none;font-family:inherit;color:#111}
+.modal-field input:focus,.modal-field select:focus{border-color:#2563eb}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #f3f4f6}
+
+/* ── Print ── */
+@media print{
+  body{background:#fff}
+  #sidebar,#toolbar,#modal,#add-row-btn-wrap{display:none!important}
+  #main{width:100%;height:auto;overflow:visible}
+  #preview-wrap{padding:0;background:#fff;overflow:visible;height:auto}
+  #invoice-canvas{border:none;border-radius:0;box-shadow:none;max-width:100%;margin:0}
+  .add-row-btn,.del-row{display:none!important}
+  #app{height:auto;overflow:visible}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ── Mobile ── */
+@media(max-width:640px){
+  #app{flex-direction:column;height:auto;max-height:none;min-height:100vh}
+  #sidebar{width:100%;height:auto;max-height:220px;border-right:none;border-bottom:1px solid #e5e7eb}
+  #template-list{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:6px}
+  .tpl-item{flex-shrink:0;width:150px}
+  .inv-section{padding:16px}
+  .inv-parties{grid-template-columns:1fr}
+  .inv-table-wrap{padding:12px 16px}
+  .inv-totals{padding:0 16px 16px}
+  .inv-head{flex-direction:column;gap:12px}
+  .inv-info-right{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <h2><i class="ti ti-file-invoice" aria-hidden="true"></i> 30 Mẫu Hoá Đơn</h2>
+      <input id="search-box" type="text" placeholder="Tìm kiếm mẫu..." oninput="filterTpl(this.value)" autocomplete="off">
+    </div>
+    <div id="template-list"></div>
+  </div>
+
+  <!-- Main -->
+  <div id="main">
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <button class="tb-btn" onclick="execCmd('bold')" title="In đậm (Ctrl+B)"><i class="ti ti-bold" aria-hidden="true"></i></button>
+      <button class="tb-btn" onclick="execCmd('italic')" title="In nghiêng (Ctrl+I)"><i class="ti ti-italic" aria-hidden="true"></i></button>
+      <button class="tb-btn" onclick="execCmd('underline')" title="Gạch chân (Ctrl+U)"><i class="ti ti-underline" aria-hidden="true"></i></button>
+      <button class="tb-btn" onclick="execCmd('strikeThrough')" title="Gạch ngang"><i class="ti ti-strikethrough" aria-hidden="true"></i></button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="execCmd('justifyLeft')" title="Căn trái"><i class="ti ti-align-left" aria-hidden="true"></i></button>
+      <button class="tb-btn" onclick="execCmd('justifyCenter')" title="Căn giữa"><i class="ti ti-align-center" aria-hidden="true"></i></button>
+      <button class="tb-btn" onclick="execCmd('justifyRight')" title="Căn phải"><i class="ti ti-align-right" aria-hidden="true"></i></button>
+      <div class="tb-sep"></div>
+      <label class="color-wrap" title="Màu chữ">
+        <i class="ti ti-palette" style="font-size:16px" aria-hidden="true"></i>
+        <input type="color" id="fc" value="#222222" onchange="execCmd('foreColor',this.value)">
+      </label>
+      <label class="color-wrap" title="Màu nền chữ">
+        <i class="ti ti-highlight" style="font-size:16px" aria-hidden="true"></i>
+        <input type="color" id="bc" value="#ffff00" onchange="execCmd('hiliteColor',this.value)">
+      </label>
+      <div class="tb-sep"></div>
+      <select class="tb-select" onchange="execCmd('fontSize',this.value)" title="Cỡ chữ" style="width:64px">
+        <option value="1">10</option>
+        <option value="2">12</option>
+        <option value="3" selected>14</option>
+        <option value="4">16</option>
+        <option value="5">18</option>
+        <option value="6">22</option>
+        <option value="7">28</option>
+      </select>
+      <select class="tb-select" onchange="execCmd('fontName',this.value)" title="Font chữ" style="width:120px">
+        <option value="Arial" selected>Arial</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Trebuchet MS">Trebuchet MS</option>
+      </select>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="openSettings()" title="Cài đặt hoá đơn"><i class="ti ti-settings" aria-hidden="true"></i> Cài đặt</button>
+      <button class="tb-btn" onclick="addRow()" title="Thêm dòng hàng hoá"><i class="ti ti-row-insert-bottom" aria-hidden="true"></i> Thêm dòng</button>
+      <button class="tb-btn" onclick="toggleFullscreen()" title="Toàn màn hình"><i class="ti ti-maximize" aria-hidden="true" id="fs-icon"></i></button>
+      <button class="tb-btn primary" onclick="window.print()" title="In hoặc lưu PDF"><i class="ti ti-printer" aria-hidden="true"></i> In / PDF</button>
+    </div>
+
+    <!-- Preview -->
+    <div id="preview-wrap">
+      <div id="invoice-canvas"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="modal" role="dialog" aria-modal="true" aria-label="Cài đặt hoá đơn">
+  <div id="modal-box">
+    <h3><i class="ti ti-settings" aria-hidden="true"></i> Cài đặt hoá đơn</h3>
+
+    <div class="modal-field">
+      <label>Màu chủ đạo</label>
+      <input type="color" id="s-color" value="#2563eb">
+    </div>
+
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Số hoá đơn</label>
+        <input type="text" id="s-invno" value="INV-2024-001">
+      </div>
+      <div class="modal-field">
+        <label>Trạng thái</label>
+        <select id="s-status">
+          <option value="">— Không hiện —</option>
+          <option value="DRAFT">Nháp</option>
+          <option value="SENT">Đã gửi</option>
+          <option value="PAID">Đã thanh toán</option>
+          <option value="OVERDUE">Quá hạn</option>
+          <option value="CANCELLED">Đã huỷ</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Ngày phát hành</label>
+        <input type="date" id="s-date">
+      </div>
+      <div class="modal-field">
+        <label>Ngày đến hạn</label>
+        <input type="date" id="s-duedate">
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Đơn vị tiền tệ</label>
+        <select id="s-currency">
+          <option value="VNĐ">VNĐ (₫)</option>
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="JPY">JPY (¥)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="SGD">SGD (S$)</option>
+          <option value="THB">THB (฿)</option>
+          <option value="KRW">KRW (₩)</option>
+          <option value="AUD">AUD (A$)</option>
+          <option value="CAD">CAD (C$)</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Phương thức TT</label>
+        <select id="s-paymethod">
+          <option value="">— Không hiện —</option>
+          <option value="Chuyển khoản ngân hàng">Chuyển khoản</option>
+          <option value="Tiền mặt">Tiền mặt</option>
+          <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+          <option value="Momo / ZaloPay">Ví điện tử</option>
+          <option value="COD">COD</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Thuế VAT (%)</label>
+        <input type="number" id="s-vat" value="10" min="0" max="100" step="1">
+      </div>
+      <div class="modal-field">
+        <label>Chiết khấu (%)</label>
+        <input type="number" id="s-discount" value="0" min="0" max="100" step="1">
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <label>Điều khoản thanh toán</label>
+      <input type="text" id="s-terms" value="Thanh toán trong vòng 30 ngày">
+    </div>
+
+    <div class="modal-btns">
+      <button class="tb-btn" onclick="closeModal()"><i class="ti ti-x" aria-hidden="true"></i> Đóng</button>
+      <button class="tb-btn primary" onclick="applySettings()"><i class="ti ti-check" aria-hidden="true"></i> Áp dụng</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Template Data ───────────────────────────────────────────────────────────
+const TEMPLATES = [
+  {name:'Hoá đơn bán hàng',     icon:'ti-shopping-cart',      tag:'Thương mại',
+   cols:['Sản phẩm','Số lượng','Đơn giá','Thành tiền'],
+   rows:[['Áo thun nam',2,150000,300000],['Quần jean',1,350000,350000],['Giày sneaker',1,450000,450000]]},
+
+  {name:'Hoá đơn dịch vụ',      icon:'ti-briefcase',           tag:'Dịch vụ',
+   cols:['Mô tả dịch vụ','Số giờ','Đơn giá/giờ','Thành tiền'],
+   rows:[['Tư vấn chiến lược',5,800000,4000000],['Triển khai hệ thống',10,600000,6000000]]},
+
+  {name:'Hoá đơn tư vấn',       icon:'ti-user-check',          tag:'Tư vấn',
+   cols:['Hạng mục','Ngày','Số giờ','Phí'],
+   rows:[['Phân tích yêu cầu','01/12/2024',3,2700000],['Lập kế hoạch','02/12/2024',4,3600000]]},
+
+  {name:'Hoá đơn GTGT',         icon:'ti-receipt',             tag:'Kế toán',
+   cols:['Hàng hoá / Dịch vụ','ĐVT','Số lượng','Đơn giá','Thành tiền'],
+   rows:[['Phần mềm kế toán','Gói',1,5000000,5000000],['Hỗ trợ kỹ thuật','Tháng',3,500000,1500000]]},
+
+  {name:'Hoá đơn thuê nhà',     icon:'ti-home',                tag:'Bất động sản',
+   cols:['Hạng mục','Đơn vị','Số lượng','Đơn giá','Tiền'],
+   rows:[['Tiền thuê phòng','Tháng',1,8000000,8000000],['Điện','kWh',120,3500,420000],['Nước','m³',8,15000,120000]]},
+
+  {name:'Hoá đơn nhà hàng',     icon:'ti-tools-kitchen-2',     tag:'F&B',
+   cols:['Món ăn','Số lượng','Đơn giá','Thành tiền'],
+   rows:[['Phở bò đặc biệt',2,85000,170000],['Cơm tấm sườn',3,65000,195000],['Nước chanh muối',4,25000,100000]]},
+
+  {name:'Hoá đơn khách sạn',    icon:'ti-building',            tag:'Du lịch',
+   cols:['Dịch vụ','Ngày nhận','Số đêm','Giá/đêm','Tổng'],
+   rows:[['Phòng Deluxe','15/12',3,1200000,3600000],['Bữa sáng','3 ngày',3,150000,450000],['Minibar','—',1,300000,300000]]},
+
+  {name:'Hoá đơn vận chuyển',   icon:'ti-truck',               tag:'Logistics',
+   cols:['Tuyến đường','Loại hàng','Trọng lượng','Cước phí'],
+   rows:[['HCM → Hà Nội','Đồ điện tử','15 kg',350000],['HCM → Đà Nẵng','Quần áo','8 kg',180000]]},
+
+  {name:'Hoá đơn y tế',         icon:'ti-stethoscope',         tag:'Y tế',
+   cols:['Dịch vụ / Thuốc','ĐVT','Số lượng','Đơn giá','Thành tiền'],
+   rows:[['Khám tổng quát','Lần',1,300000,300000],['Xét nghiệm máu','Lần',1,250000,250000],['Paracetamol 500mg','Vỉ',2,15000,30000]]},
+
+  {name:'Hoá đơn giáo dục',     icon:'ti-school',              tag:'Giáo dục',
+   cols:['Khoá học','Thời gian','Số buổi','Học phí'],
+   rows:[['Toán nâng cao','3 tháng',24,4800000],['Tiếng Anh IELTS','3 tháng',36,5400000]]},
+
+  {name:'Hoá đơn thiết kế',     icon:'ti-palette',             tag:'Sáng tạo',
+   cols:['Hạng mục','Phiên bản','Ngày giao','Giá'],
+   rows:[['Thiết kế logo','3 phương án','10/12',2000000],['Bộ nhận diện thương hiệu','Hoàn chỉnh','20/12',5000000]]},
+
+  {name:'Hoá đơn IT / Phần mềm',icon:'ti-code',                tag:'Công nghệ',
+   cols:['Hạng mục','Loại','Số giờ','Đơn giá','Tổng'],
+   rows:[['Phát triển API','Backend',20,800000,16000000],['Thiết kế UI','Frontend',15,700000,10500000],['Kiểm thử','QA',10,500000,5000000]]},
+
+  {name:'Hoá đơn bảo hiểm',     icon:'ti-shield',              tag:'Tài chính',
+   cols:['Gói bảo hiểm','Kỳ hạn','Mức bảo vệ','Phí bảo hiểm'],
+   rows:[['Bảo hiểm sức khoẻ','1 năm','500 triệu',12000000],['Bảo hiểm xe máy','1 năm','150 triệu',800000]]},
+
+  {name:'Hoá đơn sửa chữa',     icon:'ti-tools',               tag:'Kỹ thuật',
+   cols:['Hạng mục','Linh kiện / Vật tư','Công','Tổng'],
+   rows:[['Thay màn hình ĐT','Màn hình Samsung',50000,350000],['Sửa điều hoà','Gas + nhân công',200000,500000]]},
+
+  {name:'Hoá đơn in ấn',        icon:'ti-printer',             tag:'In ấn',
+   cols:['Sản phẩm','Kích thước','Số lượng','Đơn giá','Tổng'],
+   rows:[['Danh thiếp','9×5cm',500,500,250000],['Tờ rơi A5','148×210mm',1000,800,800000],['Banner hội nghị','1×2m',2,350000,700000]]},
+
+  {name:'Hoá đơn nông nghiệp',  icon:'ti-plant',               tag:'Nông nghiệp',
+   cols:['Sản phẩm','Xuất xứ','Số lượng','Giá/kg','Thành tiền'],
+   rows:[['Lúa ST25','Sóc Trăng','500 kg',22000,11000000],['Cà phê Robu
