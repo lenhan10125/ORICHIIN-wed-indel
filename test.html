@@ -1,1659 +1,985 @@
-# FILE test.html HOÀN THIỆN
-
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ôn Tập Lịch Sử 10A</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORICHIIN STUDIO – ORCcop</title>
+  <link rel="icon" href="https://hentaiorc.xyz/ORC.png" />
+  <style>
+    @font-face {
+      font-family: 'Lato';
+      src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+    }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    *, *::before, *::after { box-sizing: border-box; }
 
-<style>
-:root{
---fs:16px;
---primary:#2563eb;
---bg:#eef4ff;
---surface:#ffffff;
---text:#0f172a;
---text2:#64748b;
---border:#dbe3f0;
---success:#16a34a;
---danger:#dc2626;
---warning:#f59e0b;
---radius:18px;
---font:'Be Vietnam Pro',sans-serif;
-}
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      font-family: 'Lato', sans-serif;
+      color: #fff;
+      background: #0a0a0a no-repeat center center fixed;
+      background-size: cover;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: background 0.6s ease;
+    }
 
-[data-theme="dark"]{
---bg:#0f172a;
---surface:#1e293b;
---text:#f1f5f9;
---text2:#94a3b8;
---border:#334155;
-}
+    :root {
+      --yt-bg: rgba(15,15,15,0.85);
+      --yt-border: rgba(255,255,255,0.1);
+      --neon-blue: #00f3ff;
+      --neon-flame: #00f3ff;
+    }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+    /* ── Animations ─────────────────────────────────── */
 
-body{
-font-family:var(--font);
-background:var(--bg);
-color:var(--text);
-padding:20px;
-font-size:var(--fs);
-overflow-x:hidden;
-}
+    @keyframes neon-burn {
+      0%,100% {
+        text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0,243,255,0.2);
+      }
+      50% {
+        text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
+        box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0,243,255,0.5);
+      }
+    }
 
-.screen{
-display:none;
-max-width:1000px;
-margin:auto;
-}
+    @keyframes flame-glow {
+      0%,100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
+      50%      { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
+    }
 
-.screen.active{
-display:block;
-}
+    @keyframes floatDust {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      50%  { opacity: 0.5; }
+      100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+    }
 
-.card{
-background:var(--surface);
-border-radius:var(--radius);
-padding:24px;
-border:1px solid var(--border);
-box-shadow:0 10px 30px rgba(0,0,0,.08);
-}
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(30px) scale(0.9); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-.title{
-font-size:2rem;
-font-weight:800;
-margin-bottom:10px;
-text-align:center;
-color:var(--primary);
-}
+    @keyframes dot-blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0; }
+    }
 
-.subtitle{
-text-align:center;
-color:var(--text2);
-margin-bottom:25px;
-}
+    /* ── Loader ─────────────────────────────────────── */
 
-.btn{
-border:none;
-cursor:pointer;
-padding:14px 18px;
-border-radius:12px;
-font-weight:700;
-transition:.2s;
-font-family:var(--font);
-}
+    #loader-wrapper {
+      position: fixed; inset: 0;
+      background: #2c8b8f;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .loader-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    .loader-top-img {
+      width: min(360px, 80vw);
+      height: auto; margin-bottom: 20px;
+    }
+    .neon-loading-container { width: min(320px, 80vw); margin: 10px 0; }
+    .neon-text-row {
+      display: flex; justify-content: space-between;
+      color: var(--neon-flame); font-weight: bold; font-size: 18px;
+      text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px;
+    }
+    .neon-bar-border {
+      width: 100%; height: 22px;
+      border: 2px solid var(--neon-flame); border-radius: 15px;
+      padding: 2px; box-shadow: 0 0 10px var(--neon-flame);
+    }
+    .neon-bar-fill {
+      height: 100%; width: 0; background: var(--neon-flame);
+      border-radius: 10px;
+      box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame);
+      animation: flame-glow 0.5s infinite alternate;
+      transition: width 0.1s linear;
+    }
 
-.btn:hover{
-transform:translateY(-2px);
-}
+    /* ── Header ─────────────────────────────────────── */
 
-.btn-primary{
-background:var(--primary);
-color:#fff;
-}
+    .yt-header {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      background: var(--yt-bg); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; z-index: 1000;
+      gap: 8px;
+    }
 
-.btn-secondary{
-background:#e2e8f0;
-}
+    .header-left {
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
 
-.btn-success{
-background:var(--success);
-color:#fff;
-}
+    .header-right {
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:14px;
-margin:20px 0;
-}
+    .header-center {
+      flex: 1 1 0;
+      min-width: 0;
+      position: relative;
+    }
 
-.box{
-background:#f8fafc;
-border:1px solid var(--border);
-padding:18px;
-border-radius:16px;
-text-align:center;
-}
+    .header-logo-link { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+    .header-logo-img  { height: 32px; width: auto; object-fit: contain; display: block; }
 
-.box .n{
-font-size:1.8rem;
-font-weight:800;
-color:var(--primary);
-}
+    /* Hamburger */
+    .menu-toggle-btn {
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #ffcc00;
+      cursor: pointer;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 10px #ffcc00;
+      transition: 0.4s;
+      position: relative; z-index: 2100;
+      flex-shrink: 0; padding: 0;
+    }
+    .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
+    .hamburger { width: 18px; height: 12px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+    .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
+    .menu-toggle-btn.open .hamburger span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+    .menu-toggle-btn.open .hamburger span:nth-child(2) { opacity: 0; }
+    .menu-toggle-btn.open .hamburger span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
-.mode-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:14px;
-margin-top:20px;
-}
+    /* Search */
+    .search-container {
+      display: flex;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--yt-border);
+      border-radius: 40px;
+      overflow: hidden;
+      padding-left: 12px;
+    }
+    .search-input {
+      flex: 1; min-width: 0;
+      background: transparent; border: none;
+      color: white; outline: none;
+      font-size: 14px; height: 38px;
+      font-family: 'Lato', sans-serif;
+    }
+    .search-btn {
+      background: rgba(255,255,255,0.1); border: none;
+      width: 42px; flex-shrink: 0; height: 38px;
+      border-left: 1px solid var(--yt-border); cursor: pointer;
+    }
+    .search-btn svg { width: 16px; height: 16px; fill: white; }
 
-.mode-card{
-padding:20px;
-border-radius:16px;
-border:2px solid var(--border);
-text-align:center;
-cursor:pointer;
-transition:.2s;
-}
+    /* Suggestion box */
+    .suggestion-box {
+      position: absolute; top: 110%; left: 0; right: 0;
+      background: rgba(10,10,10,0.95); backdrop-filter: blur(15px);
+      border: 1px solid var(--neon-blue); border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,243,255,0.3);
+      z-index: 2000; max-height: 350px; overflow-y: auto;
+      display: none;
+    }
+    .suggestion-item {
+      padding: 12px 20px; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: 0.3s; display: flex; flex-direction: column;
+    }
+    .suggestion-item:hover { background: rgba(0,243,255,0.15); padding-left: 25px; }
+    .suggestion-item .web-name  { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
+    .suggestion-item .web-url   { color: rgba(153,204,255,0.6); font-size: 12px; margin-top: 4px; word-break: break-all; }
 
-.mode-card.selected{
-border-color:var(--primary);
-background:#dbeafe;
-}
+    /* Settings button */
+    .settings-btn {
+      background: rgba(0,0,0,0.5);
+      border: 2px solid var(--neon-blue);
+      cursor: pointer;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 10px rgba(0,243,255,0.4);
+      transition: 0.4s;
+      z-index: 2100;
+      color: var(--neon-blue); font-size: 18px;
+      flex-shrink: 0; padding: 0;
+    }
+    .settings-btn:hover {
+      box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
+      transform: rotate(45deg);
+    }
 
-.progress{
-height:12px;
-background:#dbe3f0;
-border-radius:999px;
-overflow:hidden;
-margin-bottom:15px;
-}
+    /* Avatar */
+    .avatar-circle {
+      width: 32px; height: 32px;
+      background: var(--neon-blue); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: black; font-weight: bold; flex-shrink: 0;
+      font-size: 14px;
+    }
 
-.progress div{
-height:100%;
-background:linear-gradient(90deg,#2563eb,#60a5fa);
-width:0%;
-transition:.3s;
-}
+    /* ── Settings Panel ──────────────────────────────── */
 
-.question{
-font-size:1.1rem;
-font-weight:700;
-line-height:1.7;
-margin-bottom:20px;
-word-break:break-word;
-}
+    .settings-panel {
+      position: fixed;
+      top: 65px; right: 16px;
+      width: 300px;
+      background: rgba(10,10,10,0.97); backdrop-filter: blur(20px);
+      border: 2px solid var(--neon-blue); border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,243,255,0.2);
+      z-index: 1500; padding: 20px;
+      transform-origin: top right;
+      transform: scale(0); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      pointer-events: none;
+    }
+    .settings-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
 
-.option{
-width:100%;
-text-align:left;
-padding:16px;
-border-radius:14px;
-border:2px solid var(--border);
-background:var(--surface);
-margin-bottom:12px;
-cursor:pointer;
-font-size:1rem;
-transition:.2s;
-color:var(--text);
-}
+    .settings-title {
+      color: var(--neon-blue); font-size: 1rem; font-weight: bold;
+      margin-bottom: 14px; letter-spacing: 2px;
+      text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .settings-section-label {
+      color: rgba(255,255,255,0.5); font-size: 11px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 8px; margin-top: 14px;
+    }
 
-.option:hover{
-border-color:var(--primary);
-}
+    .bg-presets {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 8px; margin-bottom: 10px;
+    }
+    .bg-preset-btn {
+      height: 48px; border-radius: 10px;
+      border: 2px solid transparent; cursor: pointer;
+      transition: 0.3s; position: relative; overflow: hidden;
+      background-size: cover; background-position: center;
+    }
+    .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
+    .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
+    .bg-preset-btn span {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.7); font-size: 9px;
+      text-align: center; padding: 3px; color: #fff;
+    }
 
-.option.correct{
-background:#dcfce7;
-border-color:var(--success);
-}
+    .bg-url-row { display: flex; gap: 8px; margin-top: 8px; }
+    .bg-url-input {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 8px 10px;
+      color: white; font-size: 12px; outline: none; transition: 0.3s;
+      font-family: 'Lato', sans-serif;
+    }
+    .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
+    .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
+    .bg-apply-btn {
+      background: var(--neon-blue); color: black;
+      border: none; border-radius: 10px;
+      padding: 8px 12px; font-size: 12px;
+      font-weight: bold; cursor: pointer; transition: 0.3s;
+      white-space: nowrap; flex-shrink: 0;
+      font-family: 'Lato', sans-serif;
+    }
+    .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
 
-.option.wrong{
-background:#fee2e2;
-border-color:var(--danger);
-}
+    .bg-overlay-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px;
+    }
+    .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
 
-.nav{
-display:flex;
-gap:10px;
-margin-top:20px;
-flex-wrap:wrap;
-}
+    .toggle-switch { position: relative; width: 40px; height: 22px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer;
+      inset: 0; background: rgba(255,255,255,0.15);
+      border-radius: 22px; transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; bottom: 3px;
+      background: white; border-radius: 50%; transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
-.nav .btn{
-flex:1;
-}
+    .save-status {
+      font-size: 11px; color: rgba(0,243,255,0.7);
+      text-align: center; margin-top: 8px;
+      min-height: 16px; transition: opacity 0.5s;
+    }
 
-.quick{
-display:flex;
-flex-wrap:wrap;
-gap:6px;
-margin:15px 0;
-}
+    .bg-reset-btn {
+      margin-top: 8px; width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      border-radius: 10px; padding: 8px;
+      cursor: pointer; font-size: 12px; transition: 0.3s;
+      font-family: 'Lato', sans-serif;
+    }
+    .bg-reset-btn:hover { border-color: var(--neon-blue); }
 
-.quick button{
-width:40px;
-height:40px;
-border-radius:10px;
-border:none;
-font-weight:700;
-cursor:pointer;
-}
+    /* ── Menu Overlay ────────────────────────────────── */
 
-.review-item{
-padding:16px;
-border-radius:14px;
-margin-bottom:14px;
-border-left:6px solid var(--border);
-background:#f8fafc;
-}
+    .menu-overlay {
+      position: fixed; top: 65px; left: 16px;
+      width: fit-content; height: auto; min-width: 220px;
+      padding: 20px;
+      background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
+      border: 2px solid var(--neon-blue); border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,243,255,0.2);
+      z-index: 1500;
+      display: flex; flex-direction: column;
+      transform-origin: top left;
+      transform: scale(0); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      pointer-events: none;
+    }
+    .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
 
-.review-item.correct{
-border-color:var(--success);
-}
+    .nav-content { display: flex; flex-direction: column; }
+    .nav-item {
+      font-size: 1.2rem; color: #99CCFF;
+      text-decoration: none; font-weight: bold;
+      margin: 8px 0; transition: 0.3s;
+      padding: 5px 10px; border-radius: 10px;
+    }
+    .nav-item:hover {
+      animation: neon-burn 0.8s infinite alternate ease-in-out;
+      color: var(--neon-blue); transform: translateX(8px);
+    }
 
-.review-item.wrong{
-border-color:var(--danger);
-}
+    /* ── Main container ──────────────────────────────── */
 
-.result-bar{
-height:20px;
-background:#dbe3f0;
-border-radius:999px;
-overflow:hidden;
-margin-top:20px;
-}
+    .container {
+      min-height: 100vh;
+      padding-top: 76px;
+      display: flex; flex-direction: column; align-items: center;
+      opacity: 0; transition: opacity 1s ease-in;
+    }
+    .container.show { opacity: 1; }
 
-.result-bar div{
-height:100%;
-width:0%;
-background:linear-gradient(90deg,#22c55e,#3b82f6);
-transition:.4s;
-}
+    /* ── Content box ─────────────────────────────────── */
 
-.setting-row{
-margin-bottom:18px;
-}
+    .content-box {
+      position: relative; z-index: 10;
+      width: 92%; max-width: 700px;
+      padding: 36px 32px;
+      border-radius: 25px;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: center; transition: 0.3s;
+      margin-bottom: 40px;
+    }
+    .content-box h1 { color: #d9b8ab; font-size: 2.2em; margin: 12px 0; }
+    .content-box p  { margin: 8px 0; line-height: 1.5; }
 
-@media(max-width:600px){
-.title{
-font-size:1.5rem;
-}
+    /* ── Trending Section ────────────────────────────── */
 
-.question{
-font-size:1rem;
-}
-}
-</style>
+    .trending-section {
+      width: 92%; max-width: 1200px;
+      margin: 0 auto 60px auto;
+      position: relative; z-index: 10;
+    }
+
+    .trending-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .trending-title  { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; white-space: nowrap; }
+    .trending-line   { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent); }
+
+    .trending-scroll-wrapper { position: relative; }
+    .trending-grid {
+      display: flex; gap: 0;
+      overflow-x: auto; scroll-behavior: smooth;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .trending-grid::-webkit-scrollbar { display: none; }
+
+    .scroll-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.8);
+      border: 1px solid rgba(0,243,255,0.4);
+      color: white; width: 34px; height: 76px;
+      border-radius: 6px; cursor: pointer; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: 0.3s; backdrop-filter: blur(10px);
+    }
+    .scroll-btn:hover {
+      background: rgba(0,243,255,0.15);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0,243,255,0.3);
+    }
+    .scroll-btn.left  { left: -17px; }
+    .scroll-btn.right { right: -17px; }
+
+    /* Cards */
+    .trending-card {
+      position: relative; flex: 0 0 auto;
+      width: 140px; height: 210px;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      margin-right: -28px;
+      animation: cardEntrance 0.5s ease backwards;
+    }
+    .trending-card:last-child { margin-right: 0; }
+    .trending-card:hover { transform: scale(1.08) translateY(-6px); z-index: 5; }
+
+    .card-rank {
+      position: absolute; bottom: -8px; left: -4px;
+      font-size: 6.5rem; font-weight: 900; line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 3px rgba(255,255,255,0.85);
+      z-index: 2; pointer-events: none;
+      font-family: 'Arial Black','Impact',sans-serif;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+      user-select: none;
+    }
+
+    .card-poster {
+      width: 100%; height: 100%; border-radius: 8px;
+      object-fit: cover; display: block; position: relative; z-index: 1;
+      box-shadow: 4px 4px 20px rgba(0,0,0,0.7); transition: box-shadow 0.3s;
+    }
+    .trending-card:hover .card-poster {
+      box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
+    }
+
+    .card-overlay {
+      position: absolute; inset: 0; border-radius: 8px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+      opacity: 0; transition: 0.3s; z-index: 3;
+      display: flex; align-items: flex-end;
+      padding: 10px;
+    }
+    .trending-card:hover .card-overlay { opacity: 1; }
+    .card-title-hover {
+      font-size: 11px; font-weight: bold; color: white;
+      text-align: center; width: 100%; line-height: 1.3;
+    }
+
+    .card-poster-placeholder {
+      width: 100%; height: 100%; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; text-align: center; color: white;
+      box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
+    }
+
+    .card-badge {
+      position: absolute; top: 7px; left: 7px; z-index: 4;
+      background: #e50914; color: white;
+      font-size: 10px; font-weight: 900;
+      width: 18px; height: 18px; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Dust ────────────────────────────────────────── */
+
+    .ambient-dust { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+    .dust-particle {
+      position: absolute; background: white; border-radius: 50%;
+      opacity: 0.4; filter: blur(1px);
+      bottom: -10px;
+      animation: floatDust linear infinite;
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE — TABLET (≤ 900px)
+       ════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .trending-card { width: 125px; height: 188px; }
+      .card-rank { font-size: 5.8rem; }
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE — MOBILE (≤ 600px)
+       ════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .yt-header { height: 52px; padding: 0 8px; gap: 6px; }
+      .header-left  { gap: 6px; }
+      .header-right { gap: 6px; }
+      .menu-toggle-btn { width: 34px; height: 34px; }
+      .settings-btn    { width: 34px; height: 34px; font-size: 16px; }
+      .avatar-circle   { display: none; }
+      .header-logo-img { height: 26px; }
+      .header-center { margin: 0; }
+      .search-input  { font-size: 13px; height: 34px; }
+      .search-btn    { width: 36px; height: 34px; }
+      .search-btn svg { width: 14px; height: 14px; }
+      .suggestion-box { border-radius: 10px; }
+      .suggestion-item { padding: 10px 14px; }
+      .suggestion-item .web-name { font-size: 13px; }
+      .menu-overlay { left: 8px; top: 58px; min-width: 180px; padding: 16px; }
+      .nav-item { font-size: 1.05rem; margin: 6px 0; }
+      .settings-panel { right: 8px; top: 58px; width: calc(100vw - 16px); max-width: 300px; padding: 16px; }
+      .container { padding-top: 68px; }
+      .content-box { width: 95%; padding: 22px 16px; }
+      .content-box h1 { font-size: 1.6em; }
+      .trending-card  { width: 108px; height: 162px; }
+      .card-rank      { font-size: 5rem; }
+      .scroll-btn     { width: 26px; height: 58px; font-size: 14px; }
+      .scroll-btn.left  { left: -13px; }
+      .scroll-btn.right { right: -13px; }
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE — VERY SMALL (≤ 380px)
+       ════════════════════════════════════════════════ */
+    @media (max-width: 380px) {
+      .trending-card { width: 94px; height: 141px; }
+      .card-rank { font-size: 4.2rem; }
+      .content-box h1 { font-size: 1.35em; }
+      .menu-toggle-btn { width: 30px; height: 30px; }
+      .settings-btn    { width: 30px; height: 30px; font-size: 14px; }
+      .header-logo-img { height: 22px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="screen active" id="welcome">
-<div class="card">
-<div class="title">📚 Ôn Tập Lịch Sử 10A</div>
-<div class="subtitle">Hệ thống luyện đề thông minh</div>
-
-<div class="grid">
-<div class="box"><div class="n">60</div>Tổng  </div>
-<div class="box"><div class="n">40</div>Trắc nghiệm</div>
-<div class="box"><div class="n">20</div>Đúng / Sai</div>
-<div class="box"><div class="n">60'</div>Thời gian</div>
-</div>
-
-<button class="btn btn-primary" style="width:100%;" onclick="go('mode')">Bắt đầu</button>
-</div>
-</div>
-
-<div class="screen" id="mode">
-<div class="card">
-<div class="title">⚙️ Chọn chế độ</div>
-
-<div class="mode-grid">
-<div class="mode-card selected" data-mode="both" onclick="pickMode(this)">
-<h3>Tất cả</h3>
-<p>60  </p>
-</div>
-
-<div class="mode-card" data-mode="mcq" onclick="pickMode(this)">
-<h3>Trắc nghiệm</h3>
-<p>40  </p>
-</div>
-
-<div class="mode-card" data-mode="tf" onclick="pickMode(this)">
-<h3>Đúng / Sai</h3>
-<p>20  </p>
-</div>
-</div>
-
-<div class="setting-row">
-<label>Thứ tự làm bài</label>
-<select id="order" style="width:100%;padding:14px;border-radius:12px;margin-top:8px;">
-<option value="mix">Ngẫu nhiên</option>
-<option value="mcq">Trắc nghiệm trước</option>
-<option value="tf">Đúng/Sai trước</option>
-</select>
-</div>
-
-<div class="setting-row">
-<label>Cỡ chữ</label>
-<input type="range" min="13" max="24" value="16" oninput="setFont(this.value)">
-</div>
-
-<div class="setting-row">
-<button class="btn btn-secondary" onclick="toggleDark()">🌙 Dark Mode</button>
-</div>
-
-<div class="nav">
-<button class="btn btn-secondary" onclick="go('welcome')">Quay lại</button>
-<button class="btn btn-primary" onclick="startQuiz()">Làm bài</button>
-</div>
-</div>
-</div>
-
-<div class="screen" id="quiz">
-<div class="card">
-
-<div class="progress">
-<div id="bar"></div>
-</div>
-
-<div style="display:flex;justify-content:space-between;margin-bottom:15px;gap:10px;flex-wrap:wrap;">
-<div id="progressText">  1</div>
-<div id="timer">60:00</div>
-<div id="scoreText">0 điểm</div>
-</div>
-
-<div class="quick" id="quick"></div>
-
-<div class="question" id="question"></div>
-
-<div id="context"></div>
-
-<div id="options"></div>
-
-<div class="nav">
-<button class="btn btn-secondary" onclick="prevQuestion()">←   trước</button>
-<button class="btn btn-primary" onclick="nextQuestion()">  tiếp →</button>
-</div>
-
-</div>
-</div>
-
-<div class="screen" id="result">
-<div class="card">
-<div class="title">🎯 Kết quả</div>
-
-<h1 id="finalScore" style="text-align:center;font-size:4rem;margin:20px 0;color:var(--primary);">0%</h1>
-
-<div class="grid">
-<div class="box"><div class="n" id="correctCount">0</div>Đúng</div>
-<div class="box"><div class="n" id="wrongCount">0</div>Sai</div>
-<div class="box"><div class="n" id="skipCount">0</div>Bỏ qua</div>
-</div>
-
-<div class="result-bar">
-<div id="resultFill"></div>
-</div>
-
-<h2 id="rank" style="text-align:center;margin-top:16px;"></h2>
-
-<div class="nav">
-<button class="btn btn-secondary" onclick="buildReview();go('review')">Xem lại</button>
-<button class="btn btn-success" onclick="restart()">Làm lại</button>
-</div>
-
-</div>
-</div>
-
-<div class="screen" id="review">
-<div class="card">
-<div class="title">🔍 Xem đáp án</div>
-<div id="reviewList"></div>
-<div class="nav">
-<button class="btn btn-primary" onclick="go('result')">Quay lại</button>
-</div>
-</div>
-</div>
-
-<script>
-
-const quizData = [
-{
-type:'mcq',
-question:'  1. Nội dung nào sau đây là cơ sở kinh tế dẫn đến sự hình thành nền văn minh Văn Lang - Âu Lạc?',
-options:[
-'A. Bắt đầu xuất hiện sự phân hóa giữa các tầng lớp xã hội.',
-'B. Nông nghiệp trồng lúa nước đạt trình độ phát triển cao.',
-'C. Hoạt động thương nghiệp đường biển đặc biệt phát triển.',
-'D. Nhu cầu chống giặc ngoại xâm ngày càng trở nên bức thiết.'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'      Nội dung nào sau đây phản ánh đúng về tổ chức xã hội và Nhà nước Văn Lang – Âu Lạc?',
-options:[
-'A. Nhà nước quân chủ chuyên chế tập quyền cao.',
-'B. Nhà nước sơ khai do vua đứng đầu, dưới có Lạc hầu, Lạc tướng.',
-'C. Xã hội phân chia giai cấp sâu sắc, mâu thuẫn gay gắt.',
-'D. Bộ máy nhà nước hoàn chỉnh, có luật pháp chặt chẽ.'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  3. Việc chia đất nước thành các bộ và cử Lạc tướng cai quản cho thấy Nhà nước Văn Lang – Âu Lạc',
-options:[
-'A. bước đầu tổ chức quản lí xã hội trên phạm vi lãnh thổ rộng.',
-'B. áp dụng mô hình nhà nước phương Tây cổ đại.',
-'C. hoàn toàn xóa bỏ vai trò của cộng đồng làng xã.',
-'D. đã có bộ máy nhà nước quan liêu phức tạp.'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  4. Bộ máy nhà nước Văn Lang – Âu Lạc được xem là tiến bộ vì',
-options:[
-'A. thể hiện sự phân công quản lí giữa trung ương và địa phương.',
-'B. quản lí xã hội chủ yếu bằng pháp luật thành văn.',
-'C. được tổ chức giống với nhà nước phong kiến Trung Quốc.',
-'D. có đầy đủ các cơ quan lập pháp, hành pháp và tư pháp.'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  5. Nền văn minh Văn Lang - Âu Lạc được hình thành ở khu vực nào sau đây của Việt Nam?',
-options:[
-'A. Vùng duyên hải và cao nguyên miền Trung Việt Nam.',
-'B. Lưu vực sông Hồng, sông Thu Bồn và sông Cửu Long.',
-'C. Khu vực Bắc Bộ và Bắc Trung Bộ Việt Nam ngày nay.',
-'D. Vùng ven biển Nam Trung Bộ và Nam Bộ Việt Nam.'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  6. Điều kiện tự nhiên nào sau đây tạo thuận lợi cho cư dân Văn Lang – Âu Lạc phát triển ngành nông nghiệp lúa nước?',
-options:[
-'A. Khí hậu khô hạn, lượng nhiệt lớn',
-'B. Tài nguyên khoáng sản phong phú',
-'C. Tiếp giáp với các nền văn minh lớn',
-'D. Hệ thống đất phù sa màu mỡ'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  7. Trong bộ máy nhà nước Văn Lang – Âu Lạc, người đứng đầu là ai?',
-options:[
-'A. Lạc hầu',
-'B. Lạc tướng',
-'C. Vua (Hùng Vương/An Dương Vương)',
-'D. Quan lại'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'     Một trong những công trình kiến trúc tiêu biểu được xây dựng dưới thời kì nhà nước Âu Lạc là',
-options:[
-'A. thành Cổ Loa',
-'B. tháp Phổ Minh',
-'C. chùa Một Cột',
-'D. kinh thành Huế'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'      Nội dung nào sau đây phản ánh sự phát triển kinh tế của cư dân Văn Lang - Âu Lạc?',
-options:[
-'A. Thương nghiệp đường biển phát triển vượt bậc.',
-'B. Làm chủ nhiều vùng rộng lớn ở Đông Nam Á.',
-'C. Kĩ thuật luyện kim, đúc đồng đạt trình độ cao.',
-'D. Kĩ thuật đóng gạch xây tháp đạt mức hoàn mĩ.'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  10. Ngành kinh tế nào sau đây phát triển mạnh dưới thời kì Văn Lang – Âu Lạc?',
-options:[
-'A. Chế tạo máy',
-'B. Làm giấy',
-'C. Đóng tàu biển',
-'D. Trồng lúa nước'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  11. Một cơ sở quan trọng hình thành văn minh Đại Việt là kế thừa từ nền văn minh nào?',
-options:[
-'A. Văn minh Văn Lang – Âu Lạc',
-'B. Văn minh Trung Hoa',
-'C. Văn minh Ấn Độ',
-'D. Văn minh Chăm-pa'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  1    Yếu tố nào tạo điều kiện quan trọng giúp văn minh Đại Việt phát triển?',
-options:[
-'A. Mở rộng lãnh thổ về phía Nam',
-'B. Đất nước độc lập, tự chủ',
-'C. Phát triển thương mại biển',
-'D. Giao lưu với các nước phương Tây'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  13. Văn minh Đại Việt chịu ảnh hưởng của những nền văn hóa nào?',
-options:[
-'A. Ấn Độ và Ba Tư',
-'B. Trung Quốc và Ấn Độ',
-'C. Trung Quốc và Nhật Bản',
-'D. Nhật Bản và Triều Tiên'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  14. Tôn giáo nào có ảnh hưởng lớn đến đời sống tinh thần của người Đại Việt thời trung đại?',
-options:[
-'A. Hồi giáo',
-'B. Do Thái giáo',
-'C. Thiên Chúa giáo',
-'D. Phật giáo'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  15. Người Đại Việt kế thừa truyền thống văn hóa nào từ cư dân Văn Lang – Âu Lạc?',
-options:[
-'A. Thương mại biển',
-'B. Săn bắt – hái lượm',
-'C. Văn hóa du mục',
-'D. Trồng lúa nước'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  16. Một trong những cơ sở tự nhiên góp phần hình thành văn minh Đại Việt là gì?',
-options:[
-'A. Sa mạc khô hạn',
-'B. Khí hậu lạnh giá',
-'C. Đồng bằng màu mỡ, nhiều sông ngòi',
-'D. Núi cao hiểm trở'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  17. Trong quá trình phát triển, văn minh Đại Việt gắn liền với hoạt động kinh tế nào là chủ yếu?',
-options:[
-'A. Đánh bắt xa bờ',
-'B. Khai thác dầu mỏ',
-'C. Chăn nuôi du mục',
-'D. Trồng lúa nước'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  1   Một đặc điểm của văn minh Đại Việt trong thời kì phát triển là:',
-options:[
-'A. Có sự kết hợp giữa yếu tố truyền thống và tiếp thu bên ngoài',
-'B. Không có sự giao lưu văn hóa',
-'C. Chỉ phát triển quân sự',
-'D. Phát triển tách biệt hoàn toàn'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  1    Trong các yếu tố sau, yếu tố nào giúp văn minh Đại Việt duy trì và phát triển lâu dài?',
-options:[
-'A. Phụ thuộc hoàn toàn nước ngoài',
-'B. Chiến tranh liên tục',
-'C. Sự ổn định của nhà nước phong kiến',
-'D. Không có chính quyền'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  20. Quá trình phát triển của văn minh Đại Việt diễn ra chủ yếu trong giai đoạn nào?',
-options:[
-'A. Thời kì hiện đại',
-'B. Thời kì Bắc thuộc',
-'C. Thời nguyên thủy',
-'D. Thời kì các triều đại phong kiến độc lập'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  21. Nền kinh tế chủ yếu của cư dân Đại Việt thời trung đại là',
-options:[
-'A. luyện kim.',
-'B. thương nghiệp biển.',
-'C. chăn nuôi.',
-'D. nông nghiệp trồng lúa nước.'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  2    Nhà nước Đại Việt thời phong kiến được tổ chức theo mô hình',
-options:[
-'A. nhà nước liên bang.',
-'B. nhà nước quân chủ trung ương tập quyền.',
-'C. nhà nước dân chủ.',
-'D. nhà nước cộng hòa.'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  23. Triều đại nào sau đây ban hành Quốc triều hình luật (Luật Hồng Đức)?',
-options:[
-'A. Nhà Lý',
-'B. Nhà Lê sơ',
-'C. Nhà Nguyễn',
-'D. Nhà Trần'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  24. Tôn giáo có ảnh hưởng lớn nhất đến đời sống tinh thần của cư dân Đại Việt thời Lý – Trần là',
-options:[
-'A. Nho giáo.',
-'B. Thiên Chúa giáo.',
-'C. Phật giáo.',
-'D. Ấn Độ giáo.'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  25. Tư tưởng nào giữ vai trò quan trọng trong quản lí nhà nước Đại Việt thời phong kiến?',
-options:[
-'A. Đạo giáo',
-'B. Hồi giáo',
-'C. Nho giáo',
-'D. Phật giáo'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  26. Bài thơ “Nam quốc sơn hà” thường được xem là',
-options:[
-'A. tác phẩm văn học thời Nguyễn.',
-'B. bản tuyên ngôn độc lập đầu tiên của Việt Nam.',
-'C. bản tuyên ngôn độc lập thứ hai của Việt Nam.',
-'D. bài thơ chữ Nôm đầu tiên của Việt Nam.'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  27. Văn Miếu – Quốc Tử Giám được xây dựng dưới triều đại nào?',
-options:[
-'A. Nhà Lý',
-'B. Nhà Tiền Lê',
-'C. Nhà Đinh',
-'D. Nhà Nguyễn'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  2   Ai là tác giả của tác phẩm “Bình Ngô đại cáo”?',
-options:[
-'A. Lý Thường Kiệt',
-'B. Lê Thánh Tông',
-'C. Nguyễn Trãi',
-'D. Trần Quốc Tuấn'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  2    Tác phẩm “Đại Việt sử kí” do ai biên soạn?',
-options:[
-'A. Ngô Sĩ Liên',
-'B. Lê Văn Hưu',
-'C. Trần Quốc Tuấn',
-'D. Nguyễn Trãi'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  30. Thành tựu nào sau đây thuộc lĩnh vực nghệ thuật điêu khắc của văn minh Đại Việt?',
-options:[
-'A. Tượng rồng đá thời Lý',
-'B. Kim tự tháp Ai Cập',
-'C. Đền Parthenon',
-'D. Tượng Phật chùa Tây Phương'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  31. Đặc điểm về thành phần dân tộc ở Việt Nam hiện nay là',
-options:[
-'A. có sự đa dạng dân tộc, trong đó dân tộc Kinh chiếm đa số',
-'B. các dân tộc đều có quy mô dân số tương đương nhau',
-'C. các dân tộc thiểu số có xu hướng chiếm tỉ lệ ngày càng lớn',
-'D. có nhiều dân tộc với sự phát triển khá đồng đều'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  3    Đặc điểm phân bố dân cư của các dân tộc Việt Nam là',
-options:[
-'A. có sự phân bố không đều, gắn với điều kiện tự nhiên',
-'B. chủ yếu tập trung ở khu vực đồng bằng',
-'C. phân bố khá đồng đều giữa các vùng',
-'D. các dân tộc có xu hướng tập trung tại đô thị'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  33. Việc phân chia các dân tộc theo ngữ hệ cho thấy',
-options:[
-'A. sự phân bố theo lãnh thổ',
-'B. sự khác biệt về trình độ phát triển',
-'C. sự đa dạng về nguồn gốc ngôn ngữ',
-'D. sự khác nhau về đời sống vật chất'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  34. Trang phục truyền thống của các dân tộc có vai trò',
-options:[
-'A. góp phần phân biệt các vùng địa lí',
-'B. thể hiện xu hướng phát triển xã hội',
-'C. phản ánh bản sắc văn hóa riêng của mỗi dân tộc',
-'D. thể hiện điều kiện kinh tế của từng vùng'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  35. Nhận xét đúng về nền văn hóa các dân tộc Việt Nam là',
-options:[
-'A. có xu hướng tách biệt rõ rệt',
-'B. có sự phát triển theo hướng đồng nhất',
-'C. chịu ảnh hưởng chủ yếu từ bên ngoài',
-'D. vừa đa dạng vừa thống nhất'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:'  36. Nhận xét đúng về chữ viết của các dân tộc Việt Nam là',
-options:[
-'A. cho thấy sự khác biệt về chính trị',
-'B. góp phần lưu giữ và phát triển văn hóa dân tộc',
-'C. phản ánh sự phân bố dân cư',
-'D. thể hiện sự phát triển về kinh tế'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  37. Âm nhạc dân gian của các dân tộc Việt Nam',
-options:[
-'A. chỉ phản ánh hoạt động lao động',
-'B. phản ánh đời sống tinh thần phong phú',
-'C. chỉ dùng trong lễ hội',
-'D. không liên quan đến văn hóa'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  3   Ý nghĩa của khối đại đoàn kết các dân tộc là',
-options:[
-'A. thúc đẩy giao lưu văn hóa',
-'B. góp phần xây dựng và bảo vệ đất nước',
-'C. tăng cường sự phát triển xã hội',
-'D. tạo điều kiện phát triển kinh tế'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'  3    Việc bảo tồn văn hóa các dân tộc Việt Nam hiện nay nhằm',
-options:[
-'A. giữ gìn và phát huy bản sắc văn hóa dân tộc',
-'B. thúc đẩy hiện đại hóa xã hội',
-'C. phát triển du lịch và kinh tế',
-'D. tăng cường giao lưu quốc tế'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'  40. Vai trò của lễ hội trong đời sống các dân tộc là',
-options:[
-'A. thay thế lao động sản xuất',
-'B. chỉ để giải trí',
-'C. xây dựng kinh tế',
-'D. gắn kết cộng đồng và bảo tồn văn hóa'
-],
-answer:3
-},
-{
-type:'mcq',
-question:'  1. Nội dung nào sau đây là cơ sở kinh tế dẫn đến sự hình thành nền văn minh Văn Lang - Âu Lạc?',
-options:[
-'A. Bắt đầu xuất hiện sự phân hóa giữa các tầng lớp xã hội.',
-'B. Nông nghiệp trồng lúa nước đạt trình độ phát triển cao.',
-'C. Hoạt động thương nghiệp đường biển đặc biệt phát triển.',
-'D. Nhu cầu chống giặc ngoại xâm ngày càng trở nên bức thiết.'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'      Nội dung nào sau đây phản ánh đúng về tổ chức xã hội và Nhà nước Văn Lang – Âu Lạc?',
-options:[
-'A. Nhà nước quân chủ chuyên chế tập quyền cao.',
-'B. Nhà nước sơ khai do vua đứng đầu, dưới có Lạc hầu, Lạc tướng.',
-'C. Xã hội phân chia giai cấp sâu sắc, mâu thuẫn gay gắt.',
-'D. Bộ máy nhà nước hoàn chỉnh, có luật pháp chặt chẽ.'
-],
-answer:1
-},
-
-{
-type:'mcq',
-question:'Việc chia đất nước thành các bộ và cử Lạc tướng cai quản cho thấy Nhà nước Văn Lang – Âu Lạc',
-options:[
-'A. bước đầu tổ chức quản lí xã hội trên phạm vi lãnh thổ rộng.',
-'B. áp dụng mô hình nhà nước phương Tây cổ đại.',
-'C. hoàn toàn xóa bỏ vai trò của cộng đồng làng xã.',
-'D. đã có bộ máy nhà nước quan liêu phức tạp.'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'Bộ máy nhà nước Văn Lang – Âu Lạc được xem là tiến bộ vì',
-options:[
-'A. thể hiện sự phân công quản lí giữa trung ương và địa phương.',
-'B. quản lí xã hội chủ yếu bằng pháp luật thành văn.',
-'C. được tổ chức giống với nhà nước phong kiến Trung Quốc.',
-'D. có đầy đủ các cơ quan lập pháp, hành pháp và tư pháp.'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:' Nền văn minh Văn Lang - Âu Lạc được hình thành ở khu vực nào sau đây của Việt Nam?',
-options:[
-'A. Vùng duyên hải và cao nguyên miền Trung Việt Nam.',
-'B. Lưu vực sông Hồng, sông Thu Bồn và sông Cửu Long.',
-'C. Khu vực Bắc Bộ và Bắc Trung Bộ Việt Nam ngày nay.',
-'D. Vùng ven biển Nam Trung Bộ và Nam Bộ Việt Nam.'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:' Điều kiện tự nhiên nào sau đây tạo thuận lợi cho cư dân Văn Lang – Âu Lạc phát triển ngành nông nghiệp lúa nước?',
-options:[
-'A. Khí hậu khô hạn, lượng nhiệt lớn',
-'B. Tài nguyên khoáng sản phong phú',
-'C. Tiếp giáp với các nền văn minh lớn',
-'D. Hệ thống đất phù sa màu mỡ'
-],
-answer:3
-},
-
-{
-type:'mcq',
-question:' Trong bộ máy nhà nước Văn Lang – Âu Lạc, người đứng đầu là ai?',
-options:[
-'A. Lạc hầu',
-'B. Lạc tướng',
-'C. Vua (Hùng Vương/An Dương Vương)',
-'D. Quan lại'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'     Một trong những công trình kiến trúc tiêu biểu được xây dựng dưới thời kì nhà nước Âu Lạc là',
-options:[
-'A. thành Cổ Loa',
-'B. tháp Phổ Minh',
-'C. chùa Một Cột',
-'D. kinh thành Huế'
-],
-answer:0
-},
-
-{
-type:'mcq',
-question:'      Nội dung nào sau đây phản ánh sự phát triển kinh tế của cư dân Văn Lang - Âu Lạc?',
-options:[
-'A. Thương nghiệp đường biển phát triển vượt bậc.',
-'B. Làm chủ nhiều vùng rộng lớn ở Đông Nam Á.',
-'C. Kĩ thuật luyện kim, đúc đồng đạt trình độ cao.',
-'D. Kĩ thuật đóng gạch xây tháp đạt mức hoàn mĩ.'
-],
-answer:2
-},
-
-{
-type:'mcq',
-question:'  10. Ngành kinh tế nào sau đây phát triển mạnh dưới thời kì Văn Lang – Âu Lạc?',
-options:[
-'A. Chế tạo máy',
-'B. Làm giấy',
-'C. Đóng tàu biển',
-'D. Trồng lúa nước'
-],
-answer:3
-},
-
-{
-type:'tf',
-question:'  41. Đọc đoạn tư liệu sau đây:',
-context:'Trong thời Lý – Trần, Phật giáo phát triển mạnh mẽ và có ảnh hưởng sâu rộng trong đời sống xã hội Đại Việt.',
-statements:[
-{text:'a) Một số nhà sư có tham gia vào các hoạt động chính trị và văn hóa của đất nước.',answer:true},
-{text:'b) Thời Lý – Trần, Phật giáo có ảnh hưởng lớn đến đời sống xã hội Đại Việt.',answer:true},
-{text:'c) Thời Lý – Trần hoàn toàn không có sự tồn tại của Nho giáo.',answer:false},
-{text:'d) Phật giáo là tôn giáo duy nhất tồn tại ở Đại Việt thời Lý – Trần.',answer:false}
-]
-},
-{
-type:'tf',
-question:'  41. Đọc đoạn tư liệu sau đây:',
-context:'“Trong thời Lý – Trần, Phật giáo phát triển mạnh mẽ và có ảnh hưởng sâu rộng trong đời sống xã hội Đại Việt. Nhiều nhà sư tham gia vào các hoạt động chính trị, văn hóa và giáo dục. Các vua quan nhiều người sùng đạo Phật, cho xây dựng nhiều chùa tháp và khuyến khích việc tu hành. Tuy nhiên, bên cạnh Phật giáo, Nho giáo và Đạo giáo cũng tồn tại và có ảnh hưởng nhất định trong xã hội.”',
-statements:[
-{text:'a) Một số nhà sư có tham gia vào các hoạt động chính trị và văn hóa của đất nước.',answer:true},
-{text:'b) Thời Lý – Trần, Phật giáo có ảnh hưởng lớn đến đời sống xã hội Đại Việt.',answer:true},
-{text:'c) Thời Lý – Trần hoàn toàn không có sự tồn tại của Nho giáo.',answer:false},
-{text:'d) Phật giáo là tôn giáo duy nhất tồn tại ở Đại Việt thời Lý – Trần.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  4    Đọc đoạn tư liệu sau đây:',
-context:'“Văn minh Đại Việt được hình thành trên nền tảng kế thừa những giá trị của văn minh Văn Lang – Âu Lạc, đặc biệt là truyền thống nông nghiệp trồng lúa nước, tổ chức làng xã và đời sống văn hóa cộng đồng.”',
-statements:[
-{text:'a) Văn minh Đại Việt kế thừa hoàn toàn và không có sự biến đổi từ văn minh Văn Lang – Âu Lạc.',answer:false},
-{text:'b) Các yếu tố văn hóa bên ngoài được tiếp thu một cách chọn lọc để phù hợp với bản sắc dân tộc.',answer:true},
-{text:'c) Trong quá trình phát triển, cư dân Đại Việt có tiếp thu các yếu tố văn hóa bên ngoài.',answer:true},
-{text:'d) Truyền thống nông nghiệp trồng lúa nước là một trong những yếu tố được kế thừa từ thời Văn Lang – Âu Lạc.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'  43. Đọc đoạn tư liệu sau đây:',
-context:'“Sau chiến thắng Bạch Đằng năm 938, đất nước giành lại được độc lập, chấm dứt hơn một nghìn năm Bắc thuộc.”',
-statements:[
-{text:'a) Văn minh Đại Việt hình thành trước khi nước ta giành được độc lập.',answer:false},
-{text:'b) Nền độc lập tự chủ là cơ sở quan trọng cho sự phát triển của văn minh Đại Việt.',answer:true},
-{text:'c) Sau năm 938, nước ta vẫn chịu sự cai trị trực tiếp của phong kiến phương Bắc.',answer:false},
-{text:'d) Chiến thắng Bạch Đằng năm 938 đã mở ra thời kì độc lập lâu dài của dân tộc.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'  44. Đọc đoạn tư liệu sau đây:',
-context:'“Trong quá trình xây dựng và phát triển đất nước, các triều đại phong kiến Đại Việt đã tiếp thu nhiều yếu tố của văn hóa Trung Hoa như chữ Hán, Nho giáo và hệ thống tổ chức bộ máy nhà nước.”',
-statements:[
-{text:'a) Các yếu tố văn hóa tiếp thu từ Trung Hoa được điều chỉnh cho phù hợp với xã hội Đại Việt.',answer:true},
-{text:'b) Người Việt tiếp thu toàn bộ mô hình văn hóa Trung Hoa mà không có sự thay đổi.',answer:false},
-{text:'c) Chữ Hán và Nho giáo là những yếu tố văn hóa được tiếp thu từ Trung Hoa.',answer:true},
-{text:'d) Văn minh Đại Việt hoàn toàn tách biệt với các nền văn hóa bên ngoài.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  45. Đọc đoạn tư liệu sau đây:',
-context:'“Trong thời kì Lý – Trần, đất nước Đại Việt đạt được nhiều thành tựu quan trọng trên các lĩnh vực kinh tế, chính trị, quân sự và văn hóa.”',
-statements:[
-{text:'a) Nông nghiệp thời Lý – Trần không có sự phát triển đáng kể.',answer:false},
-{text:'b) Thời Lý – Trần là giai đoạn văn minh Đại Việt có bước phát triển mạnh.',answer:true},
-{text:'c) Thời Lý – Trần chỉ chú trọng phát triển quân sự.',answer:false},
-{text:'d) Giáo dục và khoa cử bắt đầu phát triển trong thời kì này.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'  46. Đọc đoạn tư liệu sau đây:',
-context:'“Những thành tựu của văn minh Đại Việt đã góp phần quan trọng vào việc củng cố nền độc lập dân tộc và phát triển đời sống văn hóa của người Việt.”',
-statements:[
-{text:'a) Những thành tựu của văn minh Đại Việt góp phần củng cố nền độc lập dân tộc.',answer:true},
-{text:'b) Văn minh Đại Việt trở thành nền tảng cho sự phát triển của dân tộc trong các giai đoạn lịch sử sau.',answer:true},
-{text:'c) Văn minh Đại Việt không có ảnh hưởng đến đời sống văn hóa của người Việt.',answer:false},
-{text:'d) Văn minh Đại Việt chỉ có ý nghĩa trong thời kì trung đại.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  47. Đọc đoạn tư liệu sau đây:',
-context:'“Trong tiến trình lịch sử, văn minh Đại Việt đã tạo ra nhiều giá trị có ý nghĩa sâu sắc đối với dân tộc.”',
-statements:[
-{text:'a) Văn minh Đại Việt chỉ có ý nghĩa trong lĩnh vực chính trị.',answer:false},
-{text:'b) Văn minh Đại Việt không còn ảnh hưởng đến xã hội Việt Nam hiện nay.',answer:false},
-{text:'c) Văn minh Đại Việt có ý nghĩa lâu dài trong lịch sử dân tộc Việt Nam.',answer:true},
-{text:'d) Những thành tựu của văn minh Đại Việt góp phần hình thành bản sắc văn hóa dân tộc.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'       Đọc đoạn tư liệu sau đây:',
-context:'“Quá trình tiếp thu văn hóa bên ngoài của cư dân Đại Việt không phải là sự sao chép nguyên vẹn mà là sự chọn lọc và biến đổi phù hợp.”',
-statements:[
-{text:'a) Quá trình tiếp thu văn hóa bên ngoài góp phần làm phong phú văn hóa dân tộc.',answer:true},
-{text:'b) Khả năng tiếp biến văn hóa là một đặc điểm quan trọng của văn minh Đại Việt.',answer:true},
-{text:'c) Văn minh Đại Việt bị hòa tan hoàn toàn trong các nền văn hóa khác.',answer:false},
-{text:'d) Văn minh Đại Việt tiếp thu văn hóa bên ngoài một cách nguyên vẹn, không thay đổi.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'        Đọc đoạn tư liệu sau đây:',
-context:'“Việc nghiên cứu văn minh Đại Việt không chỉ giúp hiểu rõ hơn về quá khứ mà còn có ý nghĩa thiết thực đối với hiện tại.”',
-statements:[
-{text:'a) Văn minh Đại Việt không có vai trò trong bối cảnh hội nhập hiện nay.',answer:false},
-{text:'b) Nghiên cứu văn minh Đại Việt chỉ giúp hiểu về quá khứ, không có ý nghĩa với hiện tại.',answer:false},
-{text:'c) Việc nghiên cứu văn minh Đại Việt giúp nâng cao lòng tự hào dân tộc.',answer:true},
-{text:'d) Văn minh Đại Việt có giá trị như một nguồn lực tinh thần cho sự phát triển đất nước.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'  50. Đọc đoạn tư liệu sau đây:',
-context:'“Độc lập, tự chủ là nhân tố quan trọng của việc hình thành và phát triển văn minh Đại Việt.”',
-statements:[
-{text:'a) Độc lập, tự chủ là điều kiện quan trọng giúp văn minh Đại Việt phát triển rực rỡ.',answer:true},
-{text:'b) Nền độc lập, tự chủ của Đại Việt chỉ được xác lập vững chắc từ thời Lê sơ.',answer:false},
-{text:'c) Ý thức độc lập về văn hóa của Đại Việt xuất phát từ vị thế độc lập về chính trị.',answer:true},
-{text:'d) Độc lập, tự chủ chỉ có ý nghĩa trong lĩnh vực chính trị, không liên quan đến văn hóa.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  51. Đọc đoạn tư liệu sau đây:',
-context:'“Việt Nam là quốc gia đa dân tộc với 5   tộc người cùng sinh sống.”',
-statements:[
-{text:'a) Sự đa dạng văn hóa làm suy yếu tinh thần đoàn kết dân tộc.',answer:false},
-{text:'b) Sự khác biệt về nhà ở và sản xuất của các dân tộc chủ yếu do điều kiện tự nhiên.',answer:true},
-{text:'c) Các dân tộc Việt Nam không có điểm chung về văn hóa.',answer:false},
-{text:'d) Đời sống tinh thần của các dân tộc Việt Nam hoàn toàn giống nhau.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  5    Đọc đoạn tư liệu sau đây:',
-context:'“Trong đời sống của các dân tộc Việt Nam, tín ngưỡng dân gian giữ vai trò quan trọng trong việc điều hòa các mối quan hệ xã hội và gắn kết cộng đồng.”',
-statements:[
-{text:'a) Tín ngưỡng dân gian góp phần gắn kết cộng đồng.',answer:true},
-{text:'b) Lễ hội chỉ mang ý nghĩa giải trí đơn thuần.',answer:false},
-{text:'c) Các giá trị văn hóa truyền thống không còn tồn tại trong xã hội hiện đại.',answer:false},
-{text:'d) Tín ngưỡng thờ cúng tổ tiên chỉ có ở một số ít dân tộc.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  53. Đọc đoạn tư liệu sau đây:',
-context:'“Đời sống vật chất của các dân tộc Việt Nam thể hiện rõ qua hình thức cư trú, phương thức sản xuất và các sản phẩm thủ công truyền thống.”',
-statements:[
-{text:'a) Nhà sàn là một hình thức thích nghi với điều kiện địa hình miền núi.',answer:true},
-{text:'b) Sự khác biệt về nhà ở không liên quan đến điều kiện sống.',answer:false},
-{text:'c) Đời sống vật chất của các dân tộc không chịu ảnh hưởng của môi trường tự nhiên.',answer:false},
-{text:'d) Các dân tộc đều có phương thức sản xuất giống nhau.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  54. Đọc đoạn tư liệu sau đây:',
-context:'“Trong lịch sử, sự giao lưu giữa các dân tộc ở Việt Nam diễn ra thường xuyên, tạo nên quá trình tiếp biến văn hóa.”',
-statements:[
-{text:'a) Giao lưu văn hóa làm mất bản sắc dân tộc.',answer:false},
-{text:'b) Các dân tộc không có sự tiếp biến văn hóa.',answer:false},
-{text:'c) Sự đa dạng văn hóa làm suy yếu sự thống nhất.',answer:false},
-{text:'d) Giao lưu văn hóa góp phần làm phong phú đời sống văn hóa.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'  55. Đọc đoạn tư liệu sau đây:',
-context:'“Âm nhạc dân gian của các dân tộc Việt Nam rất phong phú với nhiều loại hình khác nhau.”',
-statements:[
-{text:'a) Âm nhạc dân gian chỉ có chức năng giải trí.',answer:false},
-{text:'b) Âm nhạc phản ánh đời sống tinh thần của cộng đồng.',answer:true},
-{text:'c) Các dân tộc không có nhạc cụ riêng.',answer:false},
-{text:'d) Âm nhạc không liên quan đến lao động sản xuất.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  56. Đọc đoạn tư liệu sau đây:',
-context:'“Việt Nam là quốc gia đa dân tộc với 5   dân tộc anh em cùng sinh sống.”',
-statements:[
-{text:'a) Nhà ở của các dân tộc chịu ảnh hưởng của môi trường tự nhiên.',answer:true},
-{text:'b) Sự khác biệt về nhà ở phản ánh khả năng thích nghi với môi trường.',answer:true},
-{text:'c) Các dân tộc Việt Nam có đời sống vật chất hoàn toàn giống nhau.',answer:false},
-{text:'d) Nhà sàn chủ yếu xuất hiện ở vùng đồng bằng.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  57. Đọc đoạn tư liệu sau đây:',
-context:'“Trang phục truyền thống của các dân tộc Việt Nam rất đa dạng.”',
-statements:[
-{text:'a) Trang phục chỉ có chức năng bảo vệ cơ thể.',answer:false},
-{text:'b) Trang phục các dân tộc Việt Nam hoàn toàn giống nhau.',answer:false},
-{text:'c) Trang phục thể hiện bản sắc văn hóa của từng dân tộc.',answer:true},
-{text:'d) Trang phục có thể phản ánh vị trí xã hội của người mặc.',answer:true}
-]
-},
-
-{
-type:'tf',
-question:'  5   Đọc đoạn tư liệu sau đây:',
-context:'“Ẩm thực của các dân tộc Việt Nam phản ánh rõ nét môi trường sống và phương thức sản xuất.”',
-statements:[
-{text:'a) Ẩm thực phản ánh môi trường sống của các dân tộc.',answer:true},
-{text:'b) Ẩm thực chỉ nhằm đáp ứng nhu cầu ăn uống.',answer:false},
-{text:'c) Ẩm thực là một phần của đời sống văn hóa.',answer:true},
-{text:'d) Các dân tộc không có sự khác biệt về món ăn.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  5    Đọc đoạn tư liệu sau đây:',
-context:'“Đời sống tinh thần của các dân tộc Việt Nam rất phong phú với nhiều hình thức tín ngưỡng như thờ cúng tổ tiên, thờ thần tự nhiên.”',
-statements:[
-{text:'a) Tín ngưỡng không liên quan đến đời sống tinh thần.',answer:false},
-{text:'b) Thờ cúng tổ tiên là một tín ngưỡng phổ biến.',answer:true},
-{text:'c) Lễ hội góp phần gắn kết cộng đồng.',answer:true},
-{text:'d) Đời sống tinh thần của các dân tộc Việt Nam đơn điệu.',answer:false}
-]
-},
-
-{
-type:'tf',
-question:'  60. Đọc đoạn tư liệu sau đây:',
-context:'“Các dân tộc Việt Nam tuy có sự khác biệt về văn hóa, phong tục nhưng luôn có truyền thống đoàn kết, gắn bó trong quá trình dựng nước và giữ nước.”',
-statements:[
-{text:'a) Đoàn kết dân tộc không có vai trò trong lịch sử Việt Nam.',answer:false},
-{text:'b) Sự đa dạng văn hóa góp phần làm phong phú văn hóa Việt Nam.',answer:true},
-{text:'c) Các dân tộc Việt Nam có truyền thống đoàn kết.',answer:true},
-{text:'d) Sự khác biệt văn hóa làm suy yếu đoàn kết dân tộc.',answer:false}
-]
-}
-];
-
-let selectedMode='both';
-let questions=[];
-let current=0;
-let answers=[];
-let score=0;
-let timer;
-let timeLeft=3600;
-
-function go(id){
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-window.scrollTo(0,0);
-}
-
-function setFont(v){
-document.documentElement.style.setProperty('--fs',v+'px');
-}
-
-function toggleDark(){
-if(document.body.dataset.theme==='dark')
-document.body.dataset.theme='';
-else
-document.body.dataset.theme='dark';
-}
-
-function pickMode(el){
-document.querySelectorAll('.mode-card').forEach(x=>x.classList.remove('selected'));
-el.classList.add('selected');
-selectedMode=el.dataset.mode;
-}
-
-function shuffle(arr){
-for(let i=arr.length-1;i>0;i--){
-const j=Math.floor(Math.random()*(i+1));
-[arr[i],arr[j]]=[arr[j],arr[i]];
-}
-return arr;
-}
-
-function shuffleQuestion(q){
-if(q.type!=='mcq') return q;
-
-const data=q.options.map((x,i)=>({text:x,idx:i}));
-shuffle(data);
-q.options=data.map(x=>x.text);
-q.answer=data.findIndex(x=>x.idx===q.answer);
-return q;
-}
-
-function startQuiz(){
-
-questions=quizData.filter(q=>{
-if(selectedMode==='both') return true;
-return q.type===selectedMode;
-});
-
-const order=document.getElementById('order').value;
-
-if(order==='mcq'){
-questions.sort((a,b)=>a.type==='mcq'?-1:1);
-}
-
-if(order==='tf'){
-questions.sort((a,b)=>a.type==='tf'?-1:1);
-}
-
-questions=shuffle(questions).map(q=>shuffleQuestion(JSON.parse(JSON.stringify(q))));
-
-current=0;
-score=0;
-answers=new Array(questions.length).fill(null);
-
-timeLeft=3600;
-
-startTimer();
-
-go('quiz');
-render();
-}
-
-function startTimer(){
-clearInterval(timer);
-
-timer=setInterval(()=>{
-
-timeLeft--;
-
-const m=String(Math.floor(timeLeft/60)).padStart(2,'0');
-const s=String(timeLeft%60).padStart(2,'0');
-
-document.getElementById('timer').textContent=`⏰ ${m}:${s}`;
-
-if(timeLeft<=0){
-showResult();
-}
-
-},1000);
-}
-
-function render(){
-
-const q=questions[current];
-
-const pct=((current+1)/questions.length)*100;
-
-document.getElementById('bar').style.width=pct+'%';
-
-document.getElementById('progressText').textContent=`  ${current+1}/${questions.length}`;
-document.getElementById('scoreText').textContent=`${score} điểm`;
-
-document.getElementById('question').textContent=q.question;
-
-const context=document.getElementById('context');
-context.innerHTML='';
-
-if(q.context){
-context.innerHTML=`<div style="padding:14px;background:#f8fafc;border-left:4px solid #2563eb;border-radius:10px;margin-bottom:15px;line-height:1.7;">${q.context}</div>`;
-}
-
-const box=document.getElementById('options');
-box.innerHTML='';
-
-if(q.type==='mcq'){
-
-q.options.forEach((opt,i)=>{
-
-const btn=document.createElement('button');
-btn.className='option';
-btn.textContent=opt;
-
-if(answers[current]!==null){
-btn.disabled=true;
-
-if(i===q.answer)
-btn.classList.add('correct');
-
-if(i===answers[current]&&i!==q.answer)
-btn.classList.add('wrong');
-}
-
-btn.onclick=()=>answerMCQ(i);
-box.appendChild(btn);
-
-});
-
-}else{
-
-q.statements.forEach((s,i)=>{
-
-const wrap=document.createElement('div');
-wrap.className='option';
-
-wrap.innerHTML=`
-<div style="margin-bottom:10px;font-weight:600;line-height:1.6;">${s.text}</div>
-<div style="display:flex;gap:10px;">
-<button class="btn btn-success" onclick="answerTF(${i},true)">Đúng</button>
-<button class="btn" style="background:#dc2626;color:white;" onclick="answerTF(${i},false)">Sai</button>
-</div>
-`;
-
-box.appendChild(wrap);
-
-});
-}
-
-buildQuick();
-}
-
-function answerMCQ(i){
-
-if(answers[current]!==null) return;
-
-answers[current]=i;
-
-if(i===questions[current].answer)
-score++;
-
-save();
-render();
-}
-
-function answerTF(idx,val){
-
-if(!Array.isArray(answers[current]))
-answers[current]=[];
-
-answers[current][idx]=val;
-
-if(answers[current].length===questions[current].statements.length){
-
-let ok=true;
-
-questions[current].statements.forEach((s,i)=>{
-if(s.answer!==answers[current][i])
-ok=false;
-});
-
-if(ok)
-score++;
-}
-
-save();
-render();
-}
-
-function nextQuestion(){
-if(current<questions.length-1){
-current++;
-render();
-}else{
-showResult();
-}
-}
-
-function prevQuestion(){
-if(current>0){
-current--;
-render();
-}
-}
-
-function buildQuick(){
-
-const q=document.getElementById('quick');
-q.innerHTML='';
-
-questions.forEach((x,i)=>{
-
-const b=document.createElement('button');
-
-b.textContent=i+1;
-
-if(i===current)
-b.style.border='3px solid #2563eb';
-
-if(answers[i]!==null)
-b.style.background='#22c55e';
-
-b.onclick=()=>{
-current=i;
-render();
-};
-
-q.appendChild(b);
-});
-}
-
-function showResult(){
-
-clearInterval(timer);
-
-let correct=0;
-let wrong=0;
-let skip=0;
-
-questions.forEach((q,i)=>{
-
-if(answers[i]===null){
-skip++;
-return;
-}
-
-if(q.type==='mcq'){
-
-if(answers[i]===q.answer)
-correct++;
-else
-wrong++;
-
-}else{
-
-let ok=true;
-
-q.statements.forEach((s,si)=>{
-if(answers[i][si]!==s.answer)
-ok=false;
-});
-
-if(ok)
-correct++;
-else
-wrong++;
-}
-
-});
-
-const pct=Math.round(correct/questions.length*100);
-
-document.getElementById('finalScore').textContent=pct+'%';
-document.getElementById('correctCount').textContent=correct;
-document.getElementById('wrongCount').textContent=wrong;
-document.getElementById('skipCount').textContent=skip;
-document.getElementById('resultFill').style.width=pct+'%';
-
-let rank='';
-
-if(pct>=90)
-rank='🌟 Xuất sắc';
-else if(pct>=75)
-rank='🔥 Giỏi';
-else if(pct>=60)
-rank='👍 Khá';
-else if(pct>=40)
-rank='⚠️ Trung bình';
-else
-rank='❌ Cần ôn thêm';
-
-document.getElementById('rank').textContent=rank;
-
-go('result');
-}
-
-function buildReview(){
-
-const list=document.getElementById('reviewList');
-list.innerHTML='';
-
-questions.forEach((q,i)=>{
-
-const div=document.createElement('div');
-
-let ok=false;
-
-if(q.type==='mcq')
-ok=answers[i]===q.answer;
-
-if(q.type==='tf'&&answers[i]){
-ok=true;
-q.statements.forEach((s,si)=>{
-if(answers[i][si]!==s.answer)
-ok=false;
-});
-}
-
-div.className='review-item '+(ok?'correct':'wrong');
-
-let html=`<h3 style="margin-bottom:10px;">${q.question}</h3>`;
-
-if(q.type==='mcq'){
-
-html+=`
-<p><b>Bạn chọn:</b> ${answers[i]!=null?q.options[answers[i]]:'Chưa trả lời'}</p>
-<p><b>Đáp án đúng:</b> ${q.options[q.answer]}</p>
-`;
-
-}else{
-
-q.statements.forEach((s,si)=>{
-html+=`<p style="margin-top:8px;">${s.text} → <b>${s.answer?'Đúng':'Sai'}</b></p>`;
-});
-}
-
-div.innerHTML=html;
-list.appendChild(div);
-
-});
-}
-
-function restart(){
-go('mode');
-}
-
-function save(){
-localStorage.setItem('historyQuizSave',JSON.stringify({
-questions,
-current,
-answers,
-score,
-timeLeft
-}));
-}
-
-function restore(){
-
-const data=JSON.parse(localStorage.getItem('historyQuizSave')||'null');
-
-if(!data) return;
-
-if(confirm('Khôi phục bài làm trước?')){
-
-questions=data.questions;
-current=data.current;
-answers=data.answers;
-score=data.score;
-timeLeft=data.timeLeft;
-
-startTimer();
-go('quiz');
-render();
-}
-}
-
-restore();
-
-</script>
+  <!-- Loader -->
+  <div id="loader-wrapper">
+    <img src="https://hentaiorc.xyz/ORC.png" alt="Logo" class="loader-top-img" />
+    <div class="neon-loading-container">
+      <div class="neon-text-row">
+        <span>Loading..</span>
+        <span id="loader-pct">0%</span>
+      </div>
+      <div class="neon-bar-border">
+        <div class="neon-bar-fill" id="loader-bar"></div>
+      </div>
+    </div>
+    <p style="color:#99CCFF;margin-top:20px;font-weight:bold;">ĐANG TẢI...</p>
+  </div>
+
+  <!-- Header -->
+  <nav class="yt-header">
+    <!-- Left -->
+    <div class="header-left">
+      <button id="menu-btn" class="menu-toggle-btn" onclick="toggleMenu(event)">
+        <div class="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </button>
+      <a href="https://hentaiorc.xyz" class="header-logo-link">
+        <img src="https://hentaiorc.xyz/ORC.png" alt="Logo" class="header-logo-img" />
+      </a>
+    </div>
+
+    <!-- Center search -->
+    <div class="header-center">
+      <div class="search-container">
+        <input
+          id="search-input"
+          type="text"
+          class="search-input"
+          placeholder="Tìm kiếm hệ sinh thái Orichiin..."
+          autocomplete="off"
+          oninput="handleSearch(this.value)"
+        />
+        <button class="search-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
+          </svg>
+        </button>
+      </div>
+      <div id="suggestion-box" class="suggestion-box"></div>
+    </div>
+
+    <!-- Right -->
+    <div class="header-right">
+      <button id="settings-btn" class="settings-btn" title="Cài đặt hình nền" onclick="toggleSettings(event)">⚙</button>
+      <div class="avatar-circle">O</div>
+    </div>
+  </nav>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel" class="settings-panel">
+    <div class="settings-title">⚙ Cài đặt</div>
+
+    <div class="settings-section-label">🎨 Hình nền có sẵn</div>
+    <div class="bg-presets" id="bg-presets"></div>
+
+    <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
+    <div class="bg-url-row">
+      <input type="text" id="bg-url-input" class="bg-url-input" placeholder="https://example.com/image.jpg" />
+      <button class="bg-apply-btn" onclick="applyCustomUrl()">Áp dụng</button>
+    </div>
+
+    <div class="bg-overlay-toggle">
+      <span class="bg-overlay-label">Lớp phủ tối</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="overlay-toggle" checked onchange="handleOverlay(this.checked)" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="save-status" id="save-status"></div>
+
+    <button class="bg-reset-btn" onclick="resetBg()">↺ Đặt lại về mặc định</button>
+  </div>
+
+  <!-- Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay">
+    <nav class="nav-content">
+      <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
+      <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
+      <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
+      <a href="https://www.hentaiorc.xyz/caculate.html" class="nav-item">Calculate</a>
+    </nav>
+  </div>
+
+  <!-- Main container -->
+  <div class="container" id="main-container">
+    <!-- Content box -->
+    <div class="content-box">
+      Trang web này thuộc quyền sở hữu của ORCcop
+      <h1>ORICHIIN STUDIO</h1>
+      <p style="color:#99CCFF;font-weight:bold;">Chào mừng bạn đến với ORC-STUDIO</p>
+      <p style="color:#f900e0;font-weight:bold;">Trang web này thuộc quyền sở hữu của ORCcop</p>
+      <p style="color:#ff0000;font-weight:bold;">
+        Chúng tôi thông báo sẽ chuyển đổi tên miền từ hentaiorc.xyz dễ gây hiểu lầm là trang 18+
+      </p>
+      <p style="color:#99CCFF;font-weight:bold;">
+        Thành ORCcop.com hoặc ORCcop.edu — hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình,
+        chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.
+      </p>
+      <p style="color:#99CCFF;font-weight:bold;">Thời gian chuyển đổi dự kiến: [3/5/2027]</p>
+      <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue);">ORC-STUDIO</a></p>
+      <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" rel="noreferrer" style="color:var(--neon-blue);">Liên hệ nhà phát triển ORCcop</a></p>
+    </div>
+    <div class="content-box">
+      Giới thiệu thêm:
+      <h1>DỰ án orc-w là gì?</h1>
+      <p style="color:#99CCFF;font-weight:bold;">Dự án orc-w là dự án thuộc quyền sở hữu của ORCcop trực thuộc ORICHIIN studio</p>
+      <p style="color:#f900e0;font-weight:bold;">về các giấy phép hiện đang chưa có bản quyền thực sự trang này chỉ thuộc một phần dự án nhỏ tạm thời và không có dự tính phát triển thêm</p>
+      <p style="color:#ff0000;font-weight:bold;"></p>
+      <p style="color:#99CCFF;font-weight:bold;">
+       hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình,
+       chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.
+      </p>
+      <p style="color:#99CCFF;font-weight:bold;">Thời gian cập nhập: 30/6/2026</p>
+      <p>Dự án chính: <a href="https://hentaiorc.xyz/ORCcop-w/Bao_cao_ban_quyen_orccop-w.html" style="color:var(--neon-blue);">Bản quyền:Dự án</a></p>
+      <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" rel="noreferrer" style="color:var(--neon-blue);">Liên hệ nhà phát triển ORCcop</a></p>
+    </div>
+
+    <!-- Trending Section -->
+    <div class="trending-section">
+      <div class="trending-header">
+        <span class="trending-title">🔥 Danh sách</span>
+        <div class="trending-line"></div>
+      </div>
+      <div class="trending-scroll-wrapper">
+        <button class="scroll-btn left" onclick="scrollGrid(-300)">&#8249;</button>
+        <div class="trending-grid" id="trending-grid"></div>
+        <button class="scroll-btn right" onclick="scrollGrid(300)">&#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dust particles -->
+  <div class="ambient-dust" id="dust-layer"></div>
+
+  <script>
+    /* ── Data ────────────────────────────────────────── */
+
+    const trendingItems = [
+      {
+        rank: 1, title: "MINI GAME", subtitle: "Sand box",
+        url: "https://hentaiorc.xyz/mini-game.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#1a0a00,#8B2500)",
+      },
+      {
+        rank: 2, title: "List", subtitle: "danh sách app,tiện ích",
+        url: "https://hentaiorc.xyz/list.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#0a1a00,#2d6a00)",
+      },
+      {
+        rank: 3, title: "Chat Server", subtitle: "nơi mọi người có thể trò chuyện với nhau",
+        url: "https://hentaiorc.xyz/chat-server.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWU3LTgyODgwqVE.jpg",
+        gradient: "linear-gradient(135deg,#00103a,#0038a8)",
+      },
+      {
+        rank: 4, title: "Lịch vạn năng", subtitle: "công cụ xem lịch, hẹn giờ, đếm ngược v.v",
+        url: "https://hentaiorc.xyz/date.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BYzFhOTc0YzEtMGViNS00YjM5LWI4YTMtZjU0OWZhZWEwMGUxXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#1a001a,#6a0050)",
+      },
+      {
+        rank: 5, title: "Phòng thí nghiệm ORC", subtitle: "giúp bạn phân tích kết quả các bài trắc nghiệm",
+        url: "https://hentaiorc.xyz/beta/beta.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#001a1a,#006060)",
+      },
+    ];
+
+    const myWebsites = [
+      { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio orichiin trang chu" },
+      { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message nhan tin" },
+      { name: "List (Danh sách)", url: "https://hentaiorc.xyz/list.html", tags: "list danh sach app tien ich cong cu" },
+      { name: "Calculate (Máy tính)", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate may tinh toan so hoc" },
+      { name: "Mini Game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game sandbox choi game" },
+      { name: "Lịch vạn năng", url: "https://hentaiorc.xyz/date.html", tags: "lich van nang calendar ngay thang dem nguoc hen gio" },
+      { name: "Phòng thí nghiệm ORC", url: "https://hentaiorc.xyz/beta/beta.html", tags: "beta phong thi nghiem trac nghiem phan tich" },
+      { name: "Facebook ORCcop", url: "https://www.facebook.com/orichiin", tags: "facebook fb social mang xa hoi orichiin orc" },
+      { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social giang artist lang duc" },
+      { name: "Sắc Mưa (Garden of Words)", url: "#", tags: "anime project sac mua rain garden" },
+      { name: "Beta phân tích trắc nghiệm", url: "https://hentaiorc.xyz/beta/phantich_beta_2.html", tags: "beta phan tich trac nghiem ket qua" },
+      { name: "ORC – Đổi tên miền", url: "https://hentaiorc.xyz", tags: "doi ten mien orccop domain chuyen doi" },
+      { name: "tiện ích tính toán góc nâng", url: "https://hentaiorc.xyz/caculate.html", tags: "tinh toan goc nang" },
+    ];
+
+    const BG_PRESETS = [
+      { label: "Đen", bg: "none", style: "background:#0a0a0a;" },
+      { label: "Anime", bg: "https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg", style: "background-image:url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg);background-size:cover;background-position:center;" },
+      { label: "Vũ trụ", bg: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60);background-size:cover;" },
+      { label: "Núi", bg: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60);background-size:cover;" },
+      { label: "Thành phố", bg: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60);background-size:cover;" },
+      { label: "Gradient", bg: "gradient", style: "background:linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);" },
+    ];
+
+    const LS_BG_KEY  = 'orc_bg_url';
+    const LS_OVL_KEY = 'orc_overlay';
+
+    /* ── Init ────────────────────────────────────────── */
+
+    let activeBg    = 'none';
+    let overlayOn   = true;
+    let menuOpen    = false;
+    let settingsOpen = false;
+    let saveTimer   = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      buildBgPresets();
+      buildCards();
+      buildDust();
+      restoreSettings();
+      startLoader();
+
+      document.addEventListener('click', handleOutsideClick);
+    });
+
+    /* ── Loader ──────────────────────────────────────── */
+
+    function startLoader() {
+      let prog = 0;
+      const bar = document.getElementById('loader-bar');
+      const pct = document.getElementById('loader-pct');
+      const id = setInterval(() => {
+        prog += Math.random() * 15;
+        if (prog >= 100) {
+          prog = 100;
+          clearInterval(id);
+          setTimeout(() => {
+            document.getElementById('loader-wrapper').classList.add('loader-hidden');
+            document.getElementById('main-container').classList.add('show');
+          }, 500);
+        }
+        const v = Math.min(Math.floor(prog), 100);
+        bar.style.width = v + '%';
+        pct.textContent = v + '%';
+      }, 100);
+    }
+
+    /* ── Background ──────────────────────────────────── */
+
+    function buildBgPresets() {
+      const container = document.getElementById('bg-presets');
+      BG_PRESETS.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'bg-preset-btn' + (activeBg === p.bg ? ' active-bg' : '');
+        btn.setAttribute('style', p.style);
+        btn.dataset.bg = p.bg;
+        btn.innerHTML = `<span>${p.label}</span>`;
+        btn.addEventListener('click', () => {
+          document.getElementById('bg-url-input').value = '';
+          applyBg(p.bg, true);
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function applyBg(url, save) {
+      activeBg = url;
+      if (!url || url === 'none') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = '#0a0a0a';
+      } else if (url === 'gradient') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.background = 'linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628)';
+      } else {
+        document.body.style.background = '';
+        document.body.style.backgroundImage = `url(${url})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+      }
+      // Update active state on preset buttons
+      document.querySelectorAll('.bg-preset-btn').forEach(btn => {
+        btn.classList.toggle('active-bg', btn.dataset.bg === url);
+      });
+      if (save) {
+        try { localStorage.setItem(LS_BG_KEY, url); showSaveStatus('✔ Đã lưu hình nền vào bộ nhớ'); }
+        catch { showSaveStatus('⚠ Không thể lưu vui lòng thử lại'); }
+      }
+    }
+
+    function applyCustomUrl() {
+      const url = document.getElementById('bg-url-input').value.trim();
+      if (url) applyBg(url, true);
+    }
+
+    function resetBg() {
+      activeBg = 'none';
+      document.getElementById('bg-url-input').value = '';
+      document.body.style.backgroundImage = 'none';
+      document.body.style.backgroundColor = '#0a0a0a';
+      document.body.style.background = '#0a0a0a';
+      localStorage.removeItem(LS_BG_KEY);
+      document.querySelectorAll('.bg-preset-btn').forEach(btn => btn.classList.remove('active-bg'));
+      showSaveStatus('↺ Đã đặt lại hình nền');
+    }
+
+    function handleOverlay(val) {
+      overlayOn = val;
+      document.getElementById('main-container').style.background = val ? 'rgba(0,0,0,0.2)' : 'transparent';
+      try { localStorage.setItem(LS_OVL_KEY, String(val)); } catch {}
+    }
+
+    function showSaveStatus(msg) {
+      const el = document.getElementById('save-status');
+      el.textContent = msg;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { el.textContent = ''; }, 2200);
+    }
+
+    function restoreSettings() {
+      const savedBg  = localStorage.getItem(LS_BG_KEY);
+      const savedOvl = localStorage.getItem(LS_OVL_KEY);
+      if (savedBg)  applyBg(savedBg, false);
+      if (savedOvl !== null) {
+        overlayOn = savedOvl === 'true';
+        document.getElementById('overlay-toggle').checked = overlayOn;
+        handleOverlay(overlayOn);
+      }
+    }
+
+    /* ── Menu / Settings toggles ─────────────────────── */
+
+    function toggleMenu(e) {
+      e.stopPropagation();
+      menuOpen = !menuOpen;
+      const overlay = document.getElementById('menu-overlay');
+      const btn     = document.getElementById('menu-btn');
+      overlay.classList.toggle('active', menuOpen);
+      btn.classList.toggle('open', menuOpen);
+      if (menuOpen) { settingsOpen = false; document.getElementById('settings-panel').classList.remove('active'); }
+    }
+
+    function toggleSettings(e) {
+      e.stopPropagation();
+      settingsOpen = !settingsOpen;
+      document.getElementById('settings-panel').classList.toggle('active', settingsOpen);
+      if (settingsOpen) { menuOpen = false; document.getElementById('menu-overlay').classList.remove('active'); document.getElementById('menu-btn').classList.remove('open'); }
+    }
+
+    function handleOutsideClick(e) {
+      const panel  = document.getElementById('settings-panel');
+      const sBtn   = document.getElementById('settings-btn');
+      const overlay = document.getElementById('menu-overlay');
+      const mBtn   = document.getElementById('menu-btn');
+      const sugBox = document.getElementById('suggestion-box');
+      const searchInp = document.getElementById('search-input');
+
+      if (settingsOpen && !panel.contains(e.target) && !sBtn.contains(e.target)) {
+        settingsOpen = false; panel.classList.remove('active');
+      }
+      if (menuOpen && !overlay.contains(e.target) && !mBtn.contains(e.target)) {
+        menuOpen = false; overlay.classList.remove('active'); mBtn.classList.remove('open');
+      }
+      if (!searchInp.contains(e.target) && !sugBox.contains(e.target)) {
+        sugBox.style.display = 'none';
+      }
+    }
+
+    /* ── Search ──────────────────────────────────────── */
+
+    function handleSearch(val) {
+      const box = document.getElementById('suggestion-box');
+      if (!val.trim()) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      const q = val.toLowerCase();
+      const matches = myWebsites.filter(w => w.name.toLowerCase().includes(q) || w.tags.includes(q));
+      if (!matches.length) { box.style.display = 'none'; return; }
+      box.innerHTML = matches.map(w => `
+        <div class="suggestion-item" onclick="${w.url !== '#' ? `window.location.href='${w.url}'` : ''}">
+          <span class="web-name">${w.name}</span>
+          <span class="web-url">${w.url}</span>
+        </div>
+      `).join('');
+      box.style.display = 'block';
+    }
+
+    /* ── Trending cards ──────────────────────────────── */
+
+    function buildCards() {
+      const grid = document.getElementById('trending-grid');
+      trendingItems.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'trending-card';
+        card.style.animationDelay = (i * 0.07) + 's';
+        if (item.url !== '#') card.addEventListener('click', () => window.location.href = item.url);
+
+        const posterHtml = item.poster
+          ? `<img class="card-poster" src="${item.poster}" alt="${item.title}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+             <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
+          : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`;
+
+        const subtitleHtml = item.subtitle
+          ? `<br><span style="opacity:0.7;font-weight:normal;">${item.subtitle}</span>`
+          : '';
+
+        card.innerHTML = `
+          <span class="card-rank">${item.rank}</span>
+          ${posterHtml}
+          <div class="card-overlay">
+            <div class="card-title-hover">${item.title}${subtitleHtml}</div>
+          </div>
+          <div class="card-badge">ORC</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function scrollGrid(amount) {
+      document.getElementById('trending-grid').scrollBy({ left: amount, behavior: 'smooth' });
+    }
+
+    /* ── Dust particles ──────────────────────────────── */
+
+    function buildDust() {
+      const layer = document.getElementById('dust-layer');
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'dust-particle';
+        const size = (i % 3) + 1;
+        p.style.cssText = `
+          left:${(i * 5.3) % 100}vw;
+          width:${size}px; height:${size}px;
+          animation-duration:${(i % 8) + 5}s;
+          animation-delay:${(i * 0.7) % 8}s;
+        `;
+        layer.appendChild(p);
+      }
+    }
+  </script>
 </body>
 </html>
