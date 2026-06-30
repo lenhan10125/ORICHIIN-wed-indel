@@ -1,1139 +1,972 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORCcop</title>
-    <meta name="description" content="ORICHIIN STUDIO - Trang web học tập, trao đổi thông tin học tập chính quy và chia sẻ kiến thức lập trình tin học dành cho học sinh, sinh viên.">
-    <link rel="icon" type="image/x-icon" href="ORC.ico">
-    <style>
-        @font-face {
-            font-family: 'Lato';
-            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
-        }
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: 'Lato', sans-serif;
-            color: #FFFFFF !important;
-            background: #0a0a0a no-repeat center center fixed;
-            background-size: cover;
-            overflow-y: auto; 
-            overflow-x: hidden;
-            transition: background 0.6s ease;
-        }
-        :root {
-            --yt-bg: rgba(15, 15, 15, 0.85);
-            --yt-border: rgba(255, 255, 255, 0.1);
-            --neon-blue: #00f3ff;
-            --neon-flame: #00f3ff;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORICHIIN STUDIO – ORCcop</title>
+  <link rel="icon" href="https://hentaiorc.xyz/ORC.png" />
+  <style>
+    @font-face {
+      font-family: 'Lato';
+      src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+    }
 
-        @keyframes neon-burn {
-            0%, 100% {
-                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
-            }
-            50% {
-                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
-                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
-            }
-        }
+    *, *::before, *::after { box-sizing: border-box; }
 
-        @keyframes flame-glow {
-            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
-            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
-        }
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      font-family: 'Lato', sans-serif;
+      color: #fff;
+      background: #0a0a0a no-repeat center center fixed;
+      background-size: cover;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: background 0.6s ease;
+    }
 
-        .yt-header {
-            position: fixed; top: 0; width: 100%; height: 56px;
-            background: var(--yt-bg); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; z-index: 1000; box-sizing: border-box;
-        }
-        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
-        .menu-toggle-btn {
-            background: rgba(0,0,0,0.5); border: 2px solid #ffcc00; cursor: pointer;
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
-            position: relative; z-index: 2100;
-            flex-shrink: 0;
-        }
-        .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
-        .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
-        .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        .open .hamburger span:nth-child(2) { opacity: 0; }
-        .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+    :root {
+      --yt-bg: rgba(15,15,15,0.85);
+      --yt-border: rgba(255,255,255,0.1);
+      --neon-blue: #00f3ff;
+      --neon-flame: #00f3ff;
+    }
 
-        /* ====== FIX LOGO ====== */
-        .header-logo-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            flex-shrink: 0;
-        }
-        .header-logo-img {
-            height: 36px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
-        
-        .header-center { flex: 1 1 0; min-width: 0; margin: 0 10px; position: relative; }
-        .search-container {
-            display: flex; background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--yt-border); border-radius: 40px;
-            overflow: hidden; padding-left: 14px;
-        }
-        .search-input { flex: 1; min-width: 0; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
-        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; flex-shrink: 0; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; }
-        .search-btn svg { width: 18px; height: 18px; fill: white; }
+    /* ── Animations ─────────────────────────────────── */
 
-        .suggestion-box {
-            position: absolute; top: 110%; left: 0; width: 100%;
-            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
-            border: 1px solid var(--neon-blue); border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
-            display: none; z-index: 2000; max-height: 350px; overflow-y: auto;
-        }
-        .suggestion-item {
-            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s; display: flex; flex-direction: column;
-        }
-        .suggestion-item:hover { background: rgba(0, 243, 255, 0.15); padding-left: 25px; }
-        .suggestion-item .web-name { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
-        .suggestion-item .web-url { color: rgba(153, 204, 255, 0.6); font-size: 12px; margin-top: 4px; }
-        
-        /* ====== SETTINGS BUTTON ====== */
-        .settings-btn {
-            background: rgba(0,0,0,0.5);
-            border: 2px solid var(--neon-blue);
-            cursor: pointer;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 10px rgba(0,243,255,0.4);
-            transition: 0.4s;
-            position: relative; z-index: 2100;
-            color: var(--neon-blue);
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-        .settings-btn:hover {
-            box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
-            transform: rotate(45deg);
-        }
+    @keyframes neon-burn {
+      0%,100% {
+        text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0,243,255,0.2);
+      }
+      50% {
+        text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
+        box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0,243,255,0.5);
+      }
+    }
 
-        /* ====== SETTINGS PANEL ====== */
-        .settings-panel {
-            position: fixed;
-            top: 65px; right: 16px;
-            width: 320px;
-            background: rgba(10, 10, 10, 0.97);
-            backdrop-filter: blur(20px);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.2);
-            z-index: 1500;
-            padding: 24px;
-            transform-origin: top right;
-            transform: scale(0); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-        }
-        .settings-panel.active {
-            transform: scale(1); opacity: 1;
-            pointer-events: auto;
-        }
-        .settings-title {
-            color: var(--neon-blue);
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 18px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px var(--neon-blue);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .settings-section-label {
-            color: rgba(255,255,255,0.5);
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            margin-top: 16px;
-        }
-        .bg-presets {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .bg-preset-btn {
-            height: 52px;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-        }
-        .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
-        .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
-        .bg-preset-btn span {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.7);
-            font-size: 9px; text-align: center;
-            padding: 3px; color: #fff;
-        }
-        .bg-url-row {
-            display: flex; gap: 8px; margin-top: 8px;
-        }
-        .bg-url-input {
-            flex: 1; background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; padding: 8px 12px;
-            color: white; font-size: 12px; outline: none;
-            transition: 0.3s;
-        }
-        .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
-        .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
-        .bg-apply-btn {
-            background: var(--neon-blue); color: black;
-            border: none; border-radius: 10px;
-            padding: 8px 14px; font-size: 12px;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-            white-space: nowrap;
-        }
-        .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
-        .bg-overlay-toggle {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-top: 14px;
-        }
-        .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
-        .toggle-switch { position: relative; width: 40px; height: 22px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.15);
-            border-radius: 22px; transition: 0.3s;
-        }
-        .toggle-slider:before {
-            content: ''; position: absolute;
-            width: 16px; height: 16px;
-            left: 3px; bottom: 3px;
-            background: white; border-radius: 50%;
-            transition: 0.3s;
-        }
-        .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+    @keyframes flame-glow {
+      0%,100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
+      50%      { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
+    }
 
-        /* ====== SAVED BG INDICATOR ====== */
-        .save-status {
-            font-size: 11px;
-            color: rgba(0,243,255,0.7);
-            text-align: center;
-            margin-top: 8px;
-            min-height: 16px;
-            transition: opacity 0.5s;
-        }
-        
-        .menu-overlay {
-            position: fixed; top: 65px; left: 16px;
-            width: fit-content; height: auto;
-            min-width: 260px; padding: 25px;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-            z-index: 1500;
-            display: flex; flex-direction: column;
-            transform-origin: top left;
-            transform: scale(0); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-        }
-        .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-        .nav-content { display: flex; flex-direction: column; text-align: left; }
-        .nav-item {
-            font-size: 1.3rem; color: #99CCFF; text-decoration: none;
-            font-weight: bold; margin: 10px 0; transition: 0.3s;
-            padding: 5px 10px; border-radius: 10px;
-        }
-        .nav-item:hover { 
-            animation: neon-burn 0.8s infinite alternate ease-in-out;
-            color: var(--neon-blue); 
-            transform: translateX(8px); 
-        }
+    @keyframes floatDust {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      50%  { opacity: 0.5; }
+      100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+    }
 
-        .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
-        @keyframes floatDust {
-            0% { transform: translateY(0) translateX(0); opacity: 0; }
-            50% { opacity: 0.5; }
-            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-        }
-        .particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 10px var(--neon-blue); z-index: 2200; animation: particleFly 1s forwards; }
-        @keyframes particleFly {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
-        }
-        #loader-wrapper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2c8b8f; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
-        .neon-loading-container { width: 320px; margin: 10px 0; }
-        .neon-text-row { display: flex; justify-content: space-between; color: var(--neon-flame); font-weight: bold; font-size: 18px; text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px; }
-        .neon-bar-border { width: 100%; height: 22px; border: 2px solid var(--neon-flame); border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 10px var(--neon-flame); }
-        .neon-bar-fill { height: 100%; width: 0%; background: var(--neon-flame); border-radius: 10px; box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame); animation: flame-glow 0.5s infinite alternate; }
-        .loader-hidden { opacity: 0; visibility: hidden; }
-        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
-        .container.show { opacity: 1; }
-        @media (max-width: 600px) {
-            .container { padding-top: 80px; }
-        }
-        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
-        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
-        h1 { color: #d9b8ab; font-size: 2.5em; }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(30px) scale(0.9); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-        /* ============================
-           TRENDING SECTION (Netflix style)
-           ============================ */
-        .trending-section {
-            width: 92%;
-            max-width: 1200px;
-            margin: 0 auto 60px auto;
-            position: relative;
-            z-index: 10;
-        }
-        .trending-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 22px;
-        }
-        .trending-title {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
-        .trending-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent);
-        }
-        .trending-scroll-wrapper {
-            position: relative;
-        }
-        .trending-grid {
-            display: flex;
-            gap: 0;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding-bottom: 8px;
-            scrollbar-width: none;
-        }
-        .trending-grid::-webkit-scrollbar { display: none; }
+    @keyframes dot-blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0; }
+    }
 
-        /* Scroll buttons */
-        .scroll-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.8);
-            border: 1px solid rgba(0,243,255,0.4);
-            color: white;
-            width: 36px; height: 80px;
-            border-radius: 6px;
-            cursor: pointer;
-            z-index: 20;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-            transition: 0.3s;
-            backdrop-filter: blur(10px);
-        }
-        .scroll-btn:hover {
-            background: rgba(0,243,255,0.15);
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0,243,255,0.3);
-        }
-        .scroll-btn.left { left: -18px; }
-        .scroll-btn.right { right: -18px; }
+    /* ── Loader ─────────────────────────────────────── */
 
-        /* Individual card */
-        .trending-card {
-            position: relative;
-            flex: 0 0 auto;
-            width: 140px;
-            height: 210px;
-            cursor: pointer;
-            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            margin-right: -28px;
-        }
-        .trending-card:last-child { margin-right: 0; }
-        .trending-card:hover {
-            transform: scale(1.08) translateY(-6px);
-            z-index: 5;
-        }
+    #loader-wrapper {
+      position: fixed; inset: 0;
+      background: #2c8b8f;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .loader-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    .loader-top-img {
+      width: min(360px, 80vw);
+      height: auto; margin-bottom: 20px;
+    }
+    .neon-loading-container { width: min(320px, 80vw); margin: 10px 0; }
+    .neon-text-row {
+      display: flex; justify-content: space-between;
+      color: var(--neon-flame); font-weight: bold; font-size: 18px;
+      text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px;
+    }
+    .neon-bar-border {
+      width: 100%; height: 22px;
+      border: 2px solid var(--neon-flame); border-radius: 15px;
+      padding: 2px; box-shadow: 0 0 10px var(--neon-flame);
+    }
+    .neon-bar-fill {
+      height: 100%; width: 0; background: var(--neon-flame);
+      border-radius: 10px;
+      box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame);
+      animation: flame-glow 0.5s infinite alternate;
+      transition: width 0.1s linear;
+    }
 
-        /* Rank number */
-        .card-rank {
-            position: absolute;
-            bottom: -8px;
-            left: -4px;
-            font-size: 6.5rem;
-            font-weight: 900;
-            line-height: 1;
-            color: transparent;
-            -webkit-text-stroke: 3px rgba(255,255,255,0.85);
-            z-index: 2;
-            pointer-events: none;
-            font-family: 'Arial Black', 'Impact', sans-serif;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
-            user-select: none;
-        }
+    /* ── Header ─────────────────────────────────────── */
 
-        /* Poster image */
-        .card-poster {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-            object-fit: cover;
-            display: block;
-            position: relative;
-            z-index: 1;
-            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
-            transition: box-shadow 0.3s;
-        }
-        .trending-card:hover .card-poster {
-            box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
-        }
+    .yt-header {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      background: var(--yt-bg); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; z-index: 1000;
+      gap: 8px;
+    }
 
-        /* Hover overlay */
-        .card-overlay {
-            position: absolute;
-            inset: 0;
-            border-radius: 8px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
-            opacity: 0;
-            transition: 0.3s;
-            z-index: 3;
-            display: flex;
-            align-items: flex-end;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .trending-card:hover .card-overlay { opacity: 1; }
-        .card-title-hover {
-            font-size: 11px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            width: 100%;
-            line-height: 1.3;
-        }
+    .header-left {
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
 
-        /* Placeholder poster (gradient fallback) */
-        .card-poster-placeholder {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-            color: white;
-            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
-            transition: box-shadow 0.3s;
-        }
+    .header-right {
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
 
-        /* Netflix-style red N badge */
-        .card-badge {
-            position: absolute;
-            top: 7px;
-            left: 7px;
-            z-index: 4;
-            background: #e50914;
-            color: white;
-            font-size: 10px;
-            font-weight: 900;
-            width: 18px; height: 18px;
-            border-radius: 3px;
-            display: flex; align-items: center; justify-content: center;
-        }
+    .header-center {
+      flex: 1 1 0;
+      min-width: 0;
+      position: relative;
+    }
 
-        @keyframes cardEntrance {
-            from { opacity: 0; transform: translateY(30px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .trending-card {
-            animation: cardEntrance 0.5s ease backwards;
-        }
-        /* ── Neon Clock ── */
-        .neon-clock {
-            display: none;
-            text-align: center;
-            margin-bottom: 40px;
-            font-family: 'Lato', sans-serif;
-            position: relative;
-            z-index: 10;
-        }
-        .neon-clock.show { display: block; }
+    .header-logo-link { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+    .header-logo-img  { height: 32px; width: auto; object-fit: contain; display: block; }
 
-        .neon-clock-display {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+    /* Hamburger */
+    .menu-toggle-btn {
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #ffcc00;
+      cursor: pointer;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 10px #ffcc00;
+      transition: 0.4s;
+      position: relative; z-index: 2100;
+      flex-shrink: 0; padding: 0;
+    }
+    .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
+    .hamburger { width: 18px; height: 12px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+    .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
+    .menu-toggle-btn.open .hamburger span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+    .menu-toggle-btn.open .hamburger span:nth-child(2) { opacity: 0; }
+    .menu-toggle-btn.open .hamburger span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
-        .neon-digit-group { display: flex; gap: 4px; }
+    /* Search */
+    .search-container {
+      display: flex;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--yt-border);
+      border-radius: 40px;
+      overflow: hidden;
+      padding-left: 12px;
+    }
+    .search-input {
+      flex: 1; min-width: 0;
+      background: transparent; border: none;
+      color: white; outline: none;
+      font-size: 14px; height: 38px;
+      font-family: 'Lato', sans-serif;
+    }
+    .search-btn {
+      background: rgba(255,255,255,0.1); border: none;
+      width: 42px; flex-shrink: 0; height: 38px;
+      border-left: 1px solid var(--yt-border); cursor: pointer;
+    }
+    .search-btn svg { width: 16px; height: 16px; fill: white; }
 
-        .neon-digit {
-            width: 52px;
-            height: 76px;
-            border: 2px solid #00f3ff;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.6rem;
-            font-weight: 900;
-            color: #00f3ff;
-            background: rgba(0, 243, 255, 0.04);
-            box-shadow:
-                inset 0 0 12px rgba(0,243,255,0.15),
-                0 0 10px rgba(0,243,255,0.3);
-            animation: clock-pulse 2s ease-in-out infinite;
-            position: relative;
-        }
-        .neon-digit::after {
-            content: '';
-            position: absolute;
-            left: 6px; right: 6px;
-            top: 50%; height: 1px;
-            background: rgba(0,243,255,0.08);
-            transform: translateY(-50%);
-        }       
+    /* Suggestion box */
+    .suggestion-box {
+      position: absolute; top: 110%; left: 0; right: 0;
+      background: rgba(10,10,10,0.95); backdrop-filter: blur(15px);
+      border: 1px solid var(--neon-blue); border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,243,255,0.3);
+      z-index: 2000; max-height: 350px; overflow-y: auto;
+      display: none;
+    }
+    .suggestion-item {
+      padding: 12px 20px; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: 0.3s; display: flex; flex-direction: column;
+    }
+    .suggestion-item:hover { background: rgba(0,243,255,0.15); padding-left: 25px; }
+    .suggestion-item .web-name  { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
+    .suggestion-item .web-url   { color: rgba(153,204,255,0.6); font-size: 12px; margin-top: 4px; word-break: break-all; }
 
-        .neon-separator {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-bottom: 4px;
-        }
-        .neon-dot {
-            width: 7px; height: 7px;
-            background: #00f3ff;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00f3ff, 0 0 16px #00f3ff;
-            animation: dot-blink 1s step-end infinite;
-        }
+    /* Settings button */
+    .settings-btn {
+      background: rgba(0,0,0,0.5);
+      border: 2px solid var(--neon-blue);
+      cursor: pointer;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 10px rgba(0,243,255,0.4);
+      transition: 0.4s;
+      z-index: 2100;
+      color: var(--neon-blue); font-size: 18px;
+      flex-shrink: 0; padding: 0;
+    }
+    .settings-btn:hover {
+      box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
+      transform: rotate(45deg);
+    }
 
-        @keyframes clock-pulse {
-            0%, 100% {
-                box-shadow: inset 0 0 12px rgba(0,243,255,0.15), 0 0 10px rgba(0,243,255,0.2);
-                border-color: #00f3ff;
-            }
-            50% {
-                box-shadow: inset 0 0 24px rgba(0,243,255,0.3), 0 0 25px rgba(0,243,255,0.5), 0 0 50px rgba(0,243,255,0.15);
-                border-color: #66f9ff;
-            }
-        }
-        @keyframes dot-blink {
-        0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
+    /* Avatar */
+    .avatar-circle {
+      width: 32px; height: 32px;
+      background: var(--neon-blue); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: black; font-weight: bold; flex-shrink: 0;
+      font-size: 14px;
+    }
 
-        .neon-clock-label {
-            font-size: 0.7rem;
-            color: rgba(0,243,255,0.5);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-top: 12px;
-        }
+    /* ── Settings Panel ──────────────────────────────── */
 
-        /* ============================
-           RESPONSIVE — MOBILE
-           ============================ */
-        @media (max-width: 600px) {
-            /* Header */
-            .yt-header { padding: 0 8px; height: 52px; }
-            .header-left { gap: 8px; }
-            .header-right { gap: 8px; }
-            .header-center { margin: 0 6px; }
-            .search-input { font-size: 13px; }
-            .search-btn { width: 38px; }
-            /* Hide avatar circle on very small screens */
-            .header-right > div:last-child { display: none; }
+    .settings-panel {
+      position: fixed;
+      top: 65px; right: 16px;
+      width: 300px;
+      background: rgba(10,10,10,0.97); backdrop-filter: blur(20px);
+      border: 2px solid var(--neon-blue); border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,243,255,0.2);
+      z-index: 1500; padding: 20px;
+      transform-origin: top right;
+      transform: scale(0); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      pointer-events: none;
+    }
+    .settings-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
 
-            /* Suggestion box */
-            .suggestion-box { border-radius: 10px; }
-            .suggestion-item { padding: 10px 14px; }
-            .suggestion-item .web-name { font-size: 13px; }
+    .settings-title {
+      color: var(--neon-blue); font-size: 1rem; font-weight: bold;
+      margin-bottom: 14px; letter-spacing: 2px;
+      text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .settings-section-label {
+      color: rgba(255,255,255,0.5); font-size: 11px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 8px; margin-top: 14px;
+    }
 
-            /* Neon clock — compact on mobile */
-            .neon-clock-display { gap: 4px; flex-wrap: nowrap; }
-            .neon-digit {
-                width: 32px;
-                height: 48px;
-                font-size: 1.5rem;
-                border-radius: 5px;
-            }
-            .neon-digit-group { gap: 2px; }
-            .neon-separator { gap: 6px; }
-            .neon-dot { width: 5px; height: 5px; }
-            .neon-clock-label { font-size: 0.55rem; letter-spacing: 1.5px; margin-top: 8px; }
-            .neon-clock-label[style] { font-size: 0.6rem !important; }
+    .bg-presets {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 8px; margin-bottom: 10px;
+    }
+    .bg-preset-btn {
+      height: 48px; border-radius: 10px;
+      border: 2px solid transparent; cursor: pointer;
+      transition: 0.3s; position: relative; overflow: hidden;
+      background-size: cover; background-position: center;
+    }
+    .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
+    .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
+    .bg-preset-btn span {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.7); font-size: 9px;
+      text-align: center; padding: 3px; color: #fff;
+    }
 
-            /* Trending cards smaller */
-            .trending-card { width: 110px; height: 165px; }
-            .card-rank { font-size: 5rem; }
-            .scroll-btn { width: 28px; height: 60px; font-size: 14px; }
-            .scroll-btn.left { left: -14px; }
-            .scroll-btn.right { right: -14px; }
+    .bg-url-row { display: flex; gap: 8px; margin-top: 8px; }
+    .bg-url-input {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 8px 10px;
+      color: white; font-size: 12px; outline: none; transition: 0.3s;
+      font-family: 'Lato', sans-serif;
+    }
+    .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
+    .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
+    .bg-apply-btn {
+      background: var(--neon-blue); color: black;
+      border: none; border-radius: 10px;
+      padding: 8px 12px; font-size: 12px;
+      font-weight: bold; cursor: pointer; transition: 0.3s;
+      white-space: nowrap; flex-shrink: 0;
+      font-family: 'Lato', sans-serif;
+    }
+    .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
 
-            /* Content box */
-            .content-box { padding: 24px 16px; }
-            h1 { font-size: 1.8em; }
+    .bg-overlay-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px;
+    }
+    .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
 
-            /* Menu overlay */
-            .menu-overlay { left: 8px; top: 60px; min-width: 200px; padding: 18px; }
-            .nav-item { font-size: 1.1rem; }
+    .toggle-switch { position: relative; width: 40px; height: 22px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer;
+      inset: 0; background: rgba(255,255,255,0.15);
+      border-radius: 22px; transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; bottom: 3px;
+      background: white; border-radius: 50%; transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
-            /* Settings panel */
-            .settings-panel { right: 8px; top: 60px; width: calc(100vw - 16px); max-width: 320px; padding: 18px; }
-        }
+    .save-status {
+      font-size: 11px; color: rgba(0,243,255,0.7);
+      text-align: center; margin-top: 8px;
+      min-height: 16px; transition: opacity 0.5s;
+    }
 
-        @media (max-width: 380px) {
-            .neon-digit { width: 26px; height: 40px; font-size: 1.2rem; }
-            .neon-clock-label { font-size: 0.45rem; letter-spacing: 1px; }
-        }
-    </style>
+    .bg-reset-btn {
+      margin-top: 8px; width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      border-radius: 10px; padding: 8px;
+      cursor: pointer; font-size: 12px; transition: 0.3s;
+      font-family: 'Lato', sans-serif;
+    }
+    .bg-reset-btn:hover { border-color: var(--neon-blue); }
+
+    /* ── Menu Overlay ────────────────────────────────── */
+
+    .menu-overlay {
+      position: fixed; top: 65px; left: 16px;
+      width: fit-content; height: auto; min-width: 220px;
+      padding: 20px;
+      background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
+      border: 2px solid var(--neon-blue); border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,243,255,0.2);
+      z-index: 1500;
+      display: flex; flex-direction: column;
+      transform-origin: top left;
+      transform: scale(0); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      pointer-events: none;
+    }
+    .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+
+    .nav-content { display: flex; flex-direction: column; }
+    .nav-item {
+      font-size: 1.2rem; color: #99CCFF;
+      text-decoration: none; font-weight: bold;
+      margin: 8px 0; transition: 0.3s;
+      padding: 5px 10px; border-radius: 10px;
+    }
+    .nav-item:hover {
+      animation: neon-burn 0.8s infinite alternate ease-in-out;
+      color: var(--neon-blue); transform: translateX(8px);
+    }
+
+    /* ── Main container ──────────────────────────────── */
+
+    .container {
+      min-height: 100vh;
+      padding-top: 76px;
+      display: flex; flex-direction: column; align-items: center;
+      opacity: 0; transition: opacity 1s ease-in;
+    }
+    .container.show { opacity: 1; }
+
+    /* ── Content box ─────────────────────────────────── */
+
+    .content-box {
+      position: relative; z-index: 10;
+      width: 92%; max-width: 700px;
+      padding: 36px 32px;
+      border-radius: 25px;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: center; transition: 0.3s;
+      margin-bottom: 40px;
+    }
+    .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
+    .content-box h1 { color: #d9b8ab; font-size: 2.2em; margin: 12px 0; }
+    .content-box p  { margin: 8px 0; line-height: 1.5; }
+
+    /* ── Trending Section ────────────────────────────── */
+
+    .trending-section {
+      width: 92%; max-width: 1200px;
+      margin: 0 auto 60px auto;
+      position: relative; z-index: 10;
+    }
+
+    .trending-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .trending-title  { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; white-space: nowrap; }
+    .trending-line   { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent); }
+
+    .trending-scroll-wrapper { position: relative; }
+    .trending-grid {
+      display: flex; gap: 0;
+      overflow-x: auto; scroll-behavior: smooth;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .trending-grid::-webkit-scrollbar { display: none; }
+
+    .scroll-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.8);
+      border: 1px solid rgba(0,243,255,0.4);
+      color: white; width: 34px; height: 76px;
+      border-radius: 6px; cursor: pointer; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: 0.3s; backdrop-filter: blur(10px);
+    }
+    .scroll-btn:hover {
+      background: rgba(0,243,255,0.15);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0,243,255,0.3);
+    }
+    .scroll-btn.left  { left: -17px; }
+    .scroll-btn.right { right: -17px; }
+
+    /* Cards */
+    .trending-card {
+      position: relative; flex: 0 0 auto;
+      width: 140px; height: 210px;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      margin-right: -28px;
+      animation: cardEntrance 0.5s ease backwards;
+    }
+    .trending-card:last-child { margin-right: 0; }
+    .trending-card:hover { transform: scale(1.08) translateY(-6px); z-index: 5; }
+
+    .card-rank {
+      position: absolute; bottom: -8px; left: -4px;
+      font-size: 6.5rem; font-weight: 900; line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 3px rgba(255,255,255,0.85);
+      z-index: 2; pointer-events: none;
+      font-family: 'Arial Black','Impact',sans-serif;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+      user-select: none;
+    }
+
+    .card-poster {
+      width: 100%; height: 100%; border-radius: 8px;
+      object-fit: cover; display: block; position: relative; z-index: 1;
+      box-shadow: 4px 4px 20px rgba(0,0,0,0.7); transition: box-shadow 0.3s;
+    }
+    .trending-card:hover .card-poster {
+      box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
+    }
+
+    .card-overlay {
+      position: absolute; inset: 0; border-radius: 8px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+      opacity: 0; transition: 0.3s; z-index: 3;
+      display: flex; align-items: flex-end;
+      padding: 10px;
+    }
+    .trending-card:hover .card-overlay { opacity: 1; }
+    .card-title-hover {
+      font-size: 11px; font-weight: bold; color: white;
+      text-align: center; width: 100%; line-height: 1.3;
+    }
+
+    .card-poster-placeholder {
+      width: 100%; height: 100%; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; text-align: center; color: white;
+      box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
+    }
+
+    .card-badge {
+      position: absolute; top: 7px; left: 7px; z-index: 4;
+      background: #e50914; color: white;
+      font-size: 10px; font-weight: 900;
+      width: 18px; height: 18px; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Dust ────────────────────────────────────────── */
+
+    .ambient-dust { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+    .dust-particle {
+      position: absolute; background: white; border-radius: 50%;
+      opacity: 0.4; filter: blur(1px);
+      bottom: -10px;
+      animation: floatDust linear infinite;
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE — TABLET (≤ 900px)
+       ════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .trending-card { width: 125px; height: 188px; }
+      .card-rank { font-size: 5.8rem; }
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE — MOBILE (≤ 600px)
+       ════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .yt-header { height: 52px; padding: 0 8px; gap: 6px; }
+      .header-left  { gap: 6px; }
+      .header-right { gap: 6px; }
+      .menu-toggle-btn { width: 34px; height: 34px; }
+      .settings-btn    { width: 34px; height: 34px; font-size: 16px; }
+      .avatar-circle   { display: none; }
+      .header-logo-img { height: 26px; }
+      .header-center { margin: 0; }
+      .search-input  { font-size: 13px; height: 34px; }
+      .search-btn    { width: 36px; height: 34px; }
+      .search-btn svg { width: 14px; height: 14px; }
+      .suggestion-box { border-radius: 10px; }
+      .suggestion-item { padding: 10px 14px; }
+      .suggestion-item .web-name { font-size: 13px; }
+      .menu-overlay { left: 8px; top: 58px; min-width: 180px; padding: 16px; }
+      .nav-item { font-size: 1.05rem; margin: 6px 0; }
+      .settings-panel { right: 8px; top: 58px; width: calc(100vw - 16px); max-width: 300px; padding: 16px; }
+      .container { padding-top: 68px; }
+      .content-box { width: 95%; padding: 22px 16px; }
+      .content-box h1 { font-size: 1.6em; }
+      .trending-card  { width: 108px; height: 162px; }
+      .card-rank      { font-size: 5rem; }
+      .scroll-btn     { width: 26px; height: 58px; font-size: 14px; }
+      .scroll-btn.left  { left: -13px; }
+      .scroll-btn.right { right: -13px; }
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE — VERY SMALL (≤ 380px)
+       ════════════════════════════════════════════════ */
+    @media (max-width: 380px) {
+      .trending-card { width: 94px; height: 141px; }
+      .card-rank { font-size: 4.2rem; }
+      .content-box h1 { font-size: 1.35em; }
+      .menu-toggle-btn { width: 30px; height: 30px; }
+      .settings-btn    { width: 30px; height: 30px; font-size: 14px; }
+      .header-logo-img { height: 22px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="ambient-dust" id="dustContainer"></div>
-    
-    <div id="loader-wrapper">
-        <img src="ORC.png" alt="Logo" class="loader-top-img">
-        <div class="neon-loading-container">
-            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
-            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
+
+  <!-- Loader -->
+  <div id="loader-wrapper">
+    <img src="https://hentaiorc.xyz/ORC.png" alt="Logo" class="loader-top-img" />
+    <div class="neon-loading-container">
+      <div class="neon-text-row">
+        <span>Loading..</span>
+        <span id="loader-pct">0%</span>
+      </div>
+      <div class="neon-bar-border">
+        <div class="neon-bar-fill" id="loader-bar"></div>
+      </div>
+    </div>
+    <p style="color:#99CCFF;margin-top:20px;font-weight:bold;">ĐANG TẢI...</p>
+  </div>
+
+  <!-- Header -->
+  <nav class="yt-header">
+    <!-- Left -->
+    <div class="header-left">
+      <button id="menu-btn" class="menu-toggle-btn" onclick="toggleMenu(event)">
+        <div class="hamburger">
+          <span></span><span></span><span></span>
         </div>
-        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
+      </button>
+      <a href="https://hentaiorc.xyz" class="header-logo-link">
+        <img src="https://hentaiorc.xyz/ORC.png" alt="Logo" class="header-logo-img" />
+      </a>
     </div>
 
-    <nav class="yt-header">
-        <div class="header-left">
-            <button class="menu-toggle-btn" id="menuBtn">
-                <div class="hamburger"><span></span><span></span><span></span></div>
-            </button>
-            <!-- FIX: Logo với kích thước phù hợp cho header -->
-            <a href="https://hentaiorc.xyz" class="header-logo-link">
-                <img src="ORC.png" alt="Logo" class="header-logo-img">
-            </a>
-        </div>
-        <div class="header-center">
-            <div class="search-container">
-                <input type="text" id="mainSearch" placeholder="Tìm kiếm hệ sinh thái Orichiin..." class="search-input" autocomplete="off">
-                <button class="search-btn" id="searchTrigger">
-                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
-                </button>
-            </div>
-            <div id="suggestionBox" class="suggestion-box"></div>
-        </div>
-        <div class="header-right">
-            <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
-            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; flex-shrink:0;">O</div>
-        </div>
-    </nav>
-
-    <!-- Settings Panel -->
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-title">⚙ Cài đặt</div>
-
-        <div class="settings-section-label">🎨 Hình nền có sẵn</div>
-        <div class="bg-presets" id="bgPresets">
-            <button class="bg-preset-btn active-bg" data-bg="none" style="background:#0a0a0a;">
-                <span>Đen</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
-                style="background-image: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg); background-size: cover; background-position: center;">
-                <span>Anime</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
-                style="background-image: url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60); background-size: cover;">
-                <span>Vũ trụ</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
-                style="background-image: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60); background-size: cover;">
-                <span>Núi</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80"
-                style="background-image: url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60); background-size: cover;">
-                <span>Thành phố</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80"
-                style="background: linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);">
-                <span>Gradient</span>
-            </button>
-        </div>
-
-        <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
-        <div class="bg-url-row">
-            <input type="text" id="bgUrlInput" class="bg-url-input" placeholder="https://example.com/image.jpg">
-            <button class="bg-apply-btn" id="bgApplyBtn">Áp dụng</button>
-        </div>
-
-        <div class="bg-overlay-toggle" style="margin-top: 14px;">
-            <span class="bg-overlay-label">Lớp phủ tối</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="overlayToggle" checked>
-                <span class="toggle-slider"></span>
-            </label>
-        </div>
-
-        <!-- Save status message -->
-        <div class="save-status" id="saveStatus"></div>
-
-        <button id="bgResetBtn" style="margin-top: 8px; width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px; cursor:pointer; font-size:12px; transition:0.3s;"
-            onmouseover="this.style.borderColor='var(--neon-blue)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
-            ↺ Đặt lại về mặc định
+    <!-- Center search -->
+    <div class="header-center">
+      <div class="search-container">
+        <input
+          id="search-input"
+          type="text"
+          class="search-input"
+          placeholder="Tìm kiếm hệ sinh thái Orichiin..."
+          autocomplete="off"
+          oninput="handleSearch(this.value)"
+        />
+        <button class="search-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
+          </svg>
         </button>
+      </div>
+      <div id="suggestion-box" class="suggestion-box"></div>
     </div>
 
-    <div class="menu-overlay" id="menuOverlay">
-        <nav class="nav-content">
-            <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
-            <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
-            <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
-            <a href="https://www.hentaiorc.xyz/caculate.html" class="nav-item">Calculate</a>
-        </nav>
+    <!-- Right -->
+    <div class="header-right">
+      <button id="settings-btn" class="settings-btn" title="Cài đặt hình nền" onclick="toggleSettings(event)">⚙</button>
+      <div class="avatar-circle">O</div>
+    </div>
+  </nav>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel" class="settings-panel">
+    <div class="settings-title">⚙ Cài đặt</div>
+
+    <div class="settings-section-label">🎨 Hình nền có sẵn</div>
+    <div class="bg-presets" id="bg-presets"></div>
+
+    <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
+    <div class="bg-url-row">
+      <input type="text" id="bg-url-input" class="bg-url-input" placeholder="https://example.com/image.jpg" />
+      <button class="bg-apply-btn" onclick="applyCustomUrl()">Áp dụng</button>
     </div>
 
-    <div class="container" id="main-content">
-        <div class="content-box">Trang wed này thuộc quyền sở hữu của ORCcop
-            <h1>ORICHIIN STUDIO</h1>
-            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Chào mừng bạn đến với ORC-STUDIO</p>
-            <p id="live-notice" style="color: #f900e0; font-weight: bold;">Trang wed này thuộc quyền sở hữu của ORCcop</p>
-            <p id="live-notice" style="color: #ff0000; font-weight: bold;">Chúng tôi thông báo sẽ chuyển đổi tên miền từ hentaiorc.xyz dễ gây hiểu lầm là trang 18+</p>
-            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Thành ORCcop.com hoặc ORCcop.edu hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.</p>
-            <p id="live-notice" style="color: #99CCFF; font-weight: bold;">Thời gian chuyển đổi dự kiến: [3/5/2027]</p>
-            <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue)">ORC-STUDIO</a></p>
-            <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" style="color:var(--neon-blue)">Liên hệ nhà phát triển ORCcop</a></p>
-        </div>
-<div class="neon-clock" id="neonClock">
-    <div class="neon-clock-display">
-        <!-- Ngày -->
-        <div class="neon-digit-group">
-            <div class="neon-digit" id="d1">0</div>
-            <div class="neon-digit" id="d2">0</div>
-            <div class="neon-digit" id="d3">0</div>
-        </div>
-        <div class="neon-clock-label" style="margin: 0 5px; align-self: center;">Ngày</div>
-
-        <!-- Giờ -->
-        <div class="neon-digit-group">
-            <div class="neon-digit" id="ch">0</div>
-            <div class="neon-digit" id="cm">0</div>
-        </div>
-        <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
-
-        <!-- Phút -->
-        <div class="neon-digit-group">
-            <div class="neon-digit" id="mh">0</div>
-            <div class="neon-digit" id="mm">0</div>
-        </div>
-        <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
-
-        <!-- Giây -->
-        <div class="neon-digit-group">
-            <div class="neon-digit" id="sh">0</div>
-            <div class="neon-digit" id="sm">0</div>
-        </div>
-    </div>
-    <div class="neon-clock-label">⟢ Thời gian còn lại đến khi chuyển đổi tên miền ⟣</div>
-</div>
-        <!-- ====== TRENDING SECTION ====== -->
-        <div class="trending-section">
-            <div class="trending-header">
-                <span class="trending-title">🔥 Dang sách</span>
-                <div class="trending-line"></div>
-            </div>
-            <div class="trending-scroll-wrapper">
-                <button class="scroll-btn left" id="scrollLeft">‹</button>
-                <div class="trending-grid" id="trendingGrid">
-                    <!-- Cards injected by JS -->
-                </div>
-                <button class="scroll-btn right" id="scrollRight">›</button>
-            </div>
-        </div>
-        <!-- ====== END TRENDING SECTION ====== -->
+    <div class="bg-overlay-toggle">
+      <span class="bg-overlay-label">Lớp phủ tối</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="overlay-toggle" checked onchange="handleOverlay(this.checked)" />
+        <span class="toggle-slider"></span>
+      </label>
     </div>
 
-    <script>
-        // ==========================================
-        // TRENDING DATA
-        // ==========================================
-        const trendingItems = [
-            {
-                rank: 1,
-                title: "MINI GAME",
-                subtitle: "Sand box",
-                url: "https://hentaiorc.xyz/mini-game.html",
-                poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #1a0a00, #8B2500)"
-            },
-            {
-                rank: 2,
-                title: "List",
-                subtitle: "danh sách app,tiện ích",
-                url: "https://hentaiorc.xyz/list.html",
-                poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #0a1a00, #2d6a00)"
-            },
-            {
-                rank: 3,
-                title: "chat server",
-                subtitle: "nơi mọi người có thể trò chuyện với nhau",
-                url: "https://hentaiorc.xyz/chat-server.html",
-                poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a@@._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #00103a, #0038a8)"
-            },
-            {
-                rank: 4,
-                title: "Lịch vạn năng",
-                subtitle: "công cụ xem lịch, hẹn giờ, đếm ngược v.v",
-                url: "https://hentaiorc.xyz/date.html",
-                poster: "https://m.media-amazon.com/images/M/MV5BYzFhOTc0YzEtMGViNS00YjM5LWI4YTMtZjU0OWZhZWEwMGUxXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #1a001a, #6a0050)"
-            },
-            {
-                rank: 5,
-                title: "Phòng thí nghiệm ORC",
-                subtitle: "giúp bạn phân tích kết quả các bài trắc nghiệm một cách trực quan và dễ hiểu",
-                url: "https://hentaiorc.xyz/beta/beta.html",
-                poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
-                gradient: "linear-gradient(135deg, #001a1a, #006060)"
-            },
-        ];
+    <div class="save-status" id="save-status"></div>
 
-        // ==========================================
-        // COUNTDOWN LOGIC
-        // ==========================================
-        let countdownTarget = null;
+    <button class="bg-reset-btn" onclick="resetBg()">↺ Đặt lại về mặc định</button>
+  </div>
 
-        function updateCountdown() {
-            if (!countdownTarget) return;
-            const now = new Date().getTime();
-            const distance = countdownTarget - now;
-            if (distance < 0) {
-                document.getElementById('neonClock').innerHTML = "<h2 style='color:var(--neon-blue)'>DỰ ÁN ĐÃ BẮT ĐẦU CHUYỂN ĐỔI!</h2>";
-                return;
-            }
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            const dStr = String(days).padStart(3, '0');
-            const hStr = String(hours).padStart(2, '0');
-            const mStr = String(minutes).padStart(2, '0');
-            const sStr = String(seconds).padStart(2, '0');
-            document.getElementById('d1').textContent = dStr[0];
-            document.getElementById('d2').textContent = dStr[1];
-            document.getElementById('d3').textContent = dStr[2];
-            document.getElementById('ch').textContent = hStr[0];
-            document.getElementById('cm').textContent = hStr[1];
-            document.getElementById('mh').textContent = mStr[0];
-            document.getElementById('mm').textContent = mStr[1];
-            document.getElementById('sh').textContent = sStr[0];
-            document.getElementById('sm').textContent = sStr[1];
+  <!-- Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay">
+    <nav class="nav-content">
+      <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
+      <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
+      <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
+      <a href="https://www.hentaiorc.xyz/caculate.html" class="nav-item">Calculate</a>
+    </nav>
+  </div>
+
+  <!-- Main container -->
+  <div class="container" id="main-container">
+    <!-- Content box -->
+    <div class="content-box">
+      Trang web này thuộc quyền sở hữu của ORCcop
+      <h1>ORICHIIN STUDIO</h1>
+      <p style="color:#99CCFF;font-weight:bold;">Chào mừng bạn đến với ORC-STUDIO</p>
+      <p style="color:#f900e0;font-weight:bold;">Trang web này thuộc quyền sở hữu của ORCcop</p>
+      <p style="color:#ff0000;font-weight:bold;">
+        Chúng tôi thông báo sẽ chuyển đổi tên miền từ hentaiorc.xyz dễ gây hiểu lầm là trang 18+
+      </p>
+      <p style="color:#99CCFF;font-weight:bold;">
+        Thành ORCcop.com hoặc ORCcop.edu — hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình,
+        chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.
+      </p>
+      <p style="color:#99CCFF;font-weight:bold;">Thời gian chuyển đổi dự kiến: [3/5/2027]</p>
+      <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue);">ORC-STUDIO</a></p>
+      <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" rel="noreferrer" style="color:var(--neon-blue);">Liên hệ nhà phát triển ORCcop</a></p>
+    </div>
+
+    <!-- Trending Section -->
+    <div class="trending-section">
+      <div class="trending-header">
+        <span class="trending-title">🔥 Danh sách</span>
+        <div class="trending-line"></div>
+      </div>
+      <div class="trending-scroll-wrapper">
+        <button class="scroll-btn left" onclick="scrollGrid(-300)">&#8249;</button>
+        <div class="trending-grid" id="trending-grid"></div>
+        <button class="scroll-btn right" onclick="scrollGrid(300)">&#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dust particles -->
+  <div class="ambient-dust" id="dust-layer"></div>
+
+  <script>
+    /* ── Data ────────────────────────────────────────── */
+
+    const trendingItems = [
+      {
+        rank: 1, title: "MINI GAME", subtitle: "Sand box",
+        url: "https://hentaiorc.xyz/mini-game.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#1a0a00,#8B2500)",
+      },
+      {
+        rank: 2, title: "List", subtitle: "danh sách app,tiện ích",
+        url: "https://hentaiorc.xyz/list.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#0a1a00,#2d6a00)",
+      },
+      {
+        rank: 3, title: "Chat Server", subtitle: "nơi mọi người có thể trò chuyện với nhau",
+        url: "https://hentaiorc.xyz/chat-server.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWU3LTgyODgwqVE.jpg",
+        gradient: "linear-gradient(135deg,#00103a,#0038a8)",
+      },
+      {
+        rank: 4, title: "Lịch vạn năng", subtitle: "công cụ xem lịch, hẹn giờ, đếm ngược v.v",
+        url: "https://hentaiorc.xyz/date.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BYzFhOTc0YzEtMGViNS00YjM5LWI4YTMtZjU0OWZhZWEwMGUxXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#1a001a,#6a0050)",
+      },
+      {
+        rank: 5, title: "Phòng thí nghiệm ORC", subtitle: "giúp bạn phân tích kết quả các bài trắc nghiệm",
+        url: "https://hentaiorc.xyz/beta/beta.html",
+        poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
+        gradient: "linear-gradient(135deg,#001a1a,#006060)",
+      },
+    ];
+
+    const myWebsites = [
+      { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio orichiin trang chu" },
+      { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message nhan tin" },
+      { name: "List (Danh sách)", url: "https://hentaiorc.xyz/list.html", tags: "list danh sach app tien ich cong cu" },
+      { name: "Calculate (Máy tính)", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate may tinh toan so hoc" },
+      { name: "Mini Game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game sandbox choi game" },
+      { name: "Lịch vạn năng", url: "https://hentaiorc.xyz/date.html", tags: "lich van nang calendar ngay thang dem nguoc hen gio" },
+      { name: "Phòng thí nghiệm ORC", url: "https://hentaiorc.xyz/beta/beta.html", tags: "beta phong thi nghiem trac nghiem phan tich" },
+      { name: "Facebook ORCcop", url: "https://www.facebook.com/orichiin", tags: "facebook fb social mang xa hoi orichiin orc" },
+      { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social giang artist lang duc" },
+      { name: "Sắc Mưa (Garden of Words)", url: "#", tags: "anime project sac mua rain garden" },
+      { name: "Beta phân tích trắc nghiệm", url: "https://hentaiorc.xyz/beta/phantich_beta_2.html", tags: "beta phan tich trac nghiem ket qua" },
+      { name: "ORC – Đổi tên miền", url: "https://hentaiorc.xyz", tags: "doi ten mien orccop domain chuyen doi" },
+      { name: "tiện ích tính toán góc nâng", url: "https://hentaiorc.xyz/caculate.html", tags: "tinh toan goc nang" },
+    ];
+
+    const BG_PRESETS = [
+      { label: "Đen", bg: "none", style: "background:#0a0a0a;" },
+      { label: "Anime", bg: "https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg", style: "background-image:url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg);background-size:cover;background-position:center;" },
+      { label: "Vũ trụ", bg: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60);background-size:cover;" },
+      { label: "Núi", bg: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60);background-size:cover;" },
+      { label: "Thành phố", bg: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60);background-size:cover;" },
+      { label: "Gradient", bg: "gradient", style: "background:linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);" },
+    ];
+
+    const LS_BG_KEY  = 'orc_bg_url';
+    const LS_OVL_KEY = 'orc_overlay';
+
+    /* ── Init ────────────────────────────────────────── */
+
+    let activeBg    = 'none';
+    let overlayOn   = true;
+    let menuOpen    = false;
+    let settingsOpen = false;
+    let saveTimer   = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      buildBgPresets();
+      buildCards();
+      buildDust();
+      restoreSettings();
+      startLoader();
+
+      document.addEventListener('click', handleOutsideClick);
+    });
+
+    /* ── Loader ──────────────────────────────────────── */
+
+    function startLoader() {
+      let prog = 0;
+      const bar = document.getElementById('loader-bar');
+      const pct = document.getElementById('loader-pct');
+      const id = setInterval(() => {
+        prog += Math.random() * 15;
+        if (prog >= 100) {
+          prog = 100;
+          clearInterval(id);
+          setTimeout(() => {
+            document.getElementById('loader-wrapper').classList.add('loader-hidden');
+            document.getElementById('main-container').classList.add('show');
+          }, 500);
         }
+        const v = Math.min(Math.floor(prog), 100);
+        bar.style.width = v + '%';
+        pct.textContent = v + '%';
+      }, 100);
+    }
 
-        async function fetchUpdate() {
-            try {
-                const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
-                if (!res.ok) throw new Error();
-                const text = await res.text();
-                const timeValue = text.trim();
-                if (timeValue) {
-                    countdownTarget = new Date(timeValue).getTime();
-                    if (!isNaN(countdownTarget)) {
-                        document.getElementById('neonClock').classList.add('show');
-                        updateCountdown();
-                        setInterval(updateCountdown, 1000);
-                    }
-                }
-            } catch (err) {
-                console.error("Không thể tải thời gian đếm ngược:", err);
-            }
-        }
+    /* ── Background ──────────────────────────────────── */
 
-        document.addEventListener('DOMContentLoaded', fetchUpdate);
-
-        // ==========================================
-        // TRENDING CARDS RENDER
-        // ==========================================
-        const grid = document.getElementById('trendingGrid');
-        trendingItems.forEach((item, i) => {
-            const card = document.createElement('div');
-            card.className = 'trending-card';
-            card.style.animationDelay = `${i * 0.07}s`;
-            card.onclick = () => { if(item.url !== '#') window.location.href = item.url; };
-            card.innerHTML = `
-                <span class="card-rank">${item.rank}</span>
-                ${item.poster 
-                    ? `<img class="card-poster" src="${item.poster}" alt="${item.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                       <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
-                    : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`
-                }
-                <div class="card-overlay">
-                    <div class="card-title-hover">${item.title}${item.subtitle ? '<br><span style="opacity:0.7;font-weight:normal">' + item.subtitle + '</span>' : ''}</div>
-                </div>
-                <div class="card-badge">ORC</div>
-            `;
-            grid.appendChild(card);
+    function buildBgPresets() {
+      const container = document.getElementById('bg-presets');
+      BG_PRESETS.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'bg-preset-btn' + (activeBg === p.bg ? ' active-bg' : '');
+        btn.setAttribute('style', p.style);
+        btn.dataset.bg = p.bg;
+        btn.innerHTML = `<span>${p.label}</span>`;
+        btn.addEventListener('click', () => {
+          document.getElementById('bg-url-input').value = '';
+          applyBg(p.bg, true);
         });
+        container.appendChild(btn);
+      });
+    }
 
-        // Scroll buttons
-        document.getElementById('scrollLeft').addEventListener('click', () => grid.scrollBy({ left: -300, behavior: 'smooth' }));
-        document.getElementById('scrollRight').addEventListener('click', () => grid.scrollBy({ left: 300, behavior: 'smooth' }));
+    function applyBg(url, save) {
+      activeBg = url;
+      if (!url || url === 'none') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = '#0a0a0a';
+      } else if (url === 'gradient') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.background = 'linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628)';
+      } else {
+        document.body.style.background = '';
+        document.body.style.backgroundImage = `url(${url})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+      }
+      // Update active state on preset buttons
+      document.querySelectorAll('.bg-preset-btn').forEach(btn => {
+        btn.classList.toggle('active-bg', btn.dataset.bg === url);
+      });
+      if (save) {
+        try { localStorage.setItem(LS_BG_KEY, url); showSaveStatus('✔ Đã lưu hình nền vào bộ nhớ'); }
+        catch { showSaveStatus('⚠ Không thể lưu'); }
+      }
+    }
 
-        // ==========================================
-        // BACKGROUND — localStorage PERSISTENCE
-        // ==========================================
-        const LS_BG_KEY   = 'orc_bg_url';
-        const LS_OVL_KEY  = 'orc_overlay';
+    function applyCustomUrl() {
+      const url = document.getElementById('bg-url-input').value.trim();
+      if (url) applyBg(url, true);
+    }
 
-        const settingsBtn   = document.getElementById('settingsBtn');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const bgPresets     = document.getElementById('bgPresets');
-        const bgUrlInput    = document.getElementById('bgUrlInput');
-        const bgApplyBtn    = document.getElementById('bgApplyBtn');
-        const bgResetBtn    = document.getElementById('bgResetBtn');
-        const overlayToggle = document.getElementById('overlayToggle');
-        const mainContent   = document.getElementById('main-content');
-        const saveStatus    = document.getElementById('saveStatus');
+    function resetBg() {
+      activeBg = 'none';
+      document.getElementById('bg-url-input').value = '';
+      document.body.style.backgroundImage = 'none';
+      document.body.style.backgroundColor = '#0a0a0a';
+      document.body.style.background = '#0a0a0a';
+      localStorage.removeItem(LS_BG_KEY);
+      document.querySelectorAll('.bg-preset-btn').forEach(btn => btn.classList.remove('active-bg'));
+      showSaveStatus('↺ Đã đặt lại hình nền');
+    }
 
-        let settingsOpen = false;
+    function handleOverlay(val) {
+      overlayOn = val;
+      document.getElementById('main-container').style.background = val ? 'rgba(0,0,0,0.2)' : 'transparent';
+      try { localStorage.setItem(LS_OVL_KEY, String(val)); } catch {}
+    }
 
-        function showSaveStatus(msg, color) {
-            saveStatus.style.color = color || 'rgba(0,243,255,0.8)';
-            saveStatus.style.opacity = '1';
-            saveStatus.textContent = msg;
-            setTimeout(() => { saveStatus.style.opacity = '0'; }, 2000);
-        }
+    function showSaveStatus(msg) {
+      const el = document.getElementById('save-status');
+      el.textContent = msg;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { el.textContent = ''; }, 2200);
+    }
 
-        function applyBackground(url, save) {
-            if (!url || url === 'none') {
-                document.body.style.backgroundImage = 'none';
-                document.body.style.backgroundColor = '#0a0a0a';
-            } else {
-                document.body.style.backgroundImage = `url(${url})`;
-                document.body.style.backgroundColor = '';
-            }
-            if (save) {
-                try {
-                    localStorage.setItem(LS_BG_KEY, url || 'none');
-                    showSaveStatus('✔ Đã lưu hình nền vào bộ nhớ');
-                } catch(e) {
-                    showSaveStatus('⚠ Không thể lưu', '#ff6b6b');
-                }
-            }
-        }
+    function restoreSettings() {
+      const savedBg  = localStorage.getItem(LS_BG_KEY);
+      const savedOvl = localStorage.getItem(LS_OVL_KEY);
+      if (savedBg)  applyBg(savedBg, false);
+      if (savedOvl !== null) {
+        overlayOn = savedOvl === 'true';
+        document.getElementById('overlay-toggle').checked = overlayOn;
+        handleOverlay(overlayOn);
+      }
+    }
 
-        function syncPresetActive(bgValue) {
-            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => {
-                b.classList.toggle('active-bg', b.dataset.bg === bgValue);
-            });
-        }
+    /* ── Menu / Settings toggles ─────────────────────── */
 
-        // Restore saved background on page load
-        (function restoreSavedBg() {
-            const savedBg  = localStorage.getItem(LS_BG_KEY);
-            const savedOvl = localStorage.getItem(LS_OVL_KEY);
+    function toggleMenu(e) {
+      e.stopPropagation();
+      menuOpen = !menuOpen;
+      const overlay = document.getElementById('menu-overlay');
+      const btn     = document.getElementById('menu-btn');
+      overlay.classList.toggle('active', menuOpen);
+      btn.classList.toggle('open', menuOpen);
+      if (menuOpen) { settingsOpen = false; document.getElementById('settings-panel').classList.remove('active'); }
+    }
 
-            if (savedBg) {
-                applyBackground(savedBg, false);
-                syncPresetActive(savedBg);
-                // Fill URL input if it's a custom URL (not a preset)
-                const isPreset = Array.from(bgPresets.querySelectorAll('.bg-preset-btn'))
-                    .some(b => b.dataset.bg === savedBg);
-                if (!isPreset && savedBg !== 'none') {
-                    bgUrlInput.value = savedBg;
-                }
-            }
-            if (savedOvl !== null) {
-                const isOn = savedOvl === 'true';
-                overlayToggle.checked = isOn;
-                mainContent.style.background = isOn ? 'rgba(0,0,0,0.2)' : 'transparent';
-            }
-        })();
+    function toggleSettings(e) {
+      e.stopPropagation();
+      settingsOpen = !settingsOpen;
+      document.getElementById('settings-panel').classList.toggle('active', settingsOpen);
+      if (settingsOpen) { menuOpen = false; document.getElementById('menu-overlay').classList.remove('active'); document.getElementById('menu-btn').classList.remove('open'); }
+    }
 
-        // Settings panel toggle
-        function toggleSettings(e) {
-            e.stopPropagation();
-            settingsOpen = !settingsOpen;
-            settingsPanel.classList.toggle('active', settingsOpen);
-        }
-        settingsBtn.addEventListener('click', toggleSettings);
-        window.addEventListener('click', (e) => {
-            if (settingsOpen && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
-                settingsOpen = false;
-                settingsPanel.classList.remove('active');
-            }
-        });
+    function handleOutsideClick(e) {
+      const panel  = document.getElementById('settings-panel');
+      const sBtn   = document.getElementById('settings-btn');
+      const overlay = document.getElementById('menu-overlay');
+      const mBtn   = document.getElementById('menu-btn');
+      const sugBox = document.getElementById('suggestion-box');
+      const searchInp = document.getElementById('search-input');
 
-        // Preset buttons — save on click
-        bgPresets.querySelectorAll('.bg-preset-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                syncPresetActive(btn.dataset.bg);
-                applyBackground(btn.dataset.bg, true);
-                bgUrlInput.value = '';
-            });
-        });
+      if (settingsOpen && !panel.contains(e.target) && !sBtn.contains(e.target)) {
+        settingsOpen = false; panel.classList.remove('active');
+      }
+      if (menuOpen && !overlay.contains(e.target) && !mBtn.contains(e.target)) {
+        menuOpen = false; overlay.classList.remove('active'); mBtn.classList.remove('open');
+      }
+      if (!searchInp.contains(e.target) && !sugBox.contains(e.target)) {
+        sugBox.style.display = 'none';
+      }
+    }
 
-        // Custom URL — save on apply
-        bgApplyBtn.addEventListener('click', () => {
-            const url = bgUrlInput.value.trim();
-            if (url) {
-                syncPresetActive('__custom__');
-                applyBackground(url, true);
-            }
-        });
+    /* ── Search ──────────────────────────────────────── */
 
-        // Reset — clear localStorage
-        bgResetBtn.addEventListener('click', () => {
-            syncPresetActive('none');
-            bgUrlInput.value = '';
-            applyBackground('none', true);
-            localStorage.removeItem(LS_BG_KEY);
-            showSaveStatus('↺ Đã đặt lại hình nền');
-        });
+    function handleSearch(val) {
+      const box = document.getElementById('suggestion-box');
+      if (!val.trim()) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      const q = val.toLowerCase();
+      const matches = myWebsites.filter(w => w.name.toLowerCase().includes(q) || w.tags.includes(q));
+      if (!matches.length) { box.style.display = 'none'; return; }
+      box.innerHTML = matches.map(w => `
+        <div class="suggestion-item" onclick="${w.url !== '#' ? `window.location.href='${w.url}'` : ''}">
+          <span class="web-name">${w.name}</span>
+          <span class="web-url">${w.url}</span>
+        </div>
+      `).join('');
+      box.style.display = 'block';
+    }
 
-        // Overlay toggle — save state
-        overlayToggle.addEventListener('change', function() {
-            const isOn = this.checked;
-            mainContent.style.background = isOn ? 'rgba(0,0,0,0.2)' : 'transparent';
-            try { localStorage.setItem(LS_OVL_KEY, String(isOn)); } catch(e) {}
-        });
+    /* ── Trending cards ──────────────────────────────── */
 
-        // ==========================================
-        // DUST PARTICLES
-        // ==========================================
-        const dustContainer = document.getElementById('dustContainer');
-        function createDust() {
-            const dust = document.createElement('div');
-            dust.className = 'dust-particle';
-            const size = Math.random() * 3 + 1;
-            dust.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}vw;top:110vh;animation-duration:${Math.random()*8+5}s`;
-            dustContainer.appendChild(dust);
-            setTimeout(() => dust.remove(), 10000);
-        }
-        setInterval(createDust, 300);
+    function buildCards() {
+      const grid = document.getElementById('trending-grid');
+      trendingItems.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'trending-card';
+        card.style.animationDelay = (i * 0.07) + 's';
+        if (item.url !== '#') card.addEventListener('click', () => window.location.href = item.url);
 
-        // ==========================================
-        // MENU LOGIC
-        // ==========================================
-        const menuBtn     = document.getElementById('menuBtn');
-        const menuOverlay = document.getElementById('menuOverlay');
-        function toggleMenu() {
-            menuBtn.classList.toggle('open');
-            menuOverlay.classList.toggle('active');
-        }
-        menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-        window.addEventListener('click', (e) => {
-            if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
-        });
+        const posterHtml = item.poster
+          ? `<img class="card-poster" src="${item.poster}" alt="${item.title}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+             <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
+          : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`;
 
-        // ==========================================
-        // LOADER
-        // ==========================================
-        window.addEventListener("load", function() {
-            const loader  = document.getElementById("loader-wrapper");
-            const content = document.getElementById("main-content");
-            const fill    = document.getElementById("load-fill");
-            const val     = document.getElementById("load-val");
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        loader.classList.add("loader-hidden");
-                        content.classList.add("show");
-                    }, 500);
-                }
-                if (fill) fill.style.width = progress + "%";
-                if (val)  val.innerText = Math.floor(progress) + "%";
-            }, 100);
-        });
+        const subtitleHtml = item.subtitle
+          ? `<br><span style="opacity:0.7;font-weight:normal;">${item.subtitle}</span>`
+          : '';
 
-        // ==========================================
-        // SEARCH LOGIC — danh sách mở rộng
-        // ==========================================
-        const searchInput   = document.getElementById('mainSearch');
-        const suggestionBox = document.getElementById('suggestionBox');
+        card.innerHTML = `
+          <span class="card-rank">${item.rank}</span>
+          ${posterHtml}
+          <div class="card-overlay">
+            <div class="card-title-hover">${item.title}${subtitleHtml}</div>
+          </div>
+          <div class="card-badge">ORC</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
 
-        const myWebsites = [
-            // ── Trang chính ──
-            { name: "Trang chủ ORC",          url: "https://hentaiorc.xyz",                           tags: "home main studio orichiin trang chu" },
-            { name: "Chat Server",             url: "https://hentaiorc.xyz/chat-server.html",           tags: "chat talk message nhan tin" },
-            { name: "List (Danh sách)",        url: "https://hentaiorc.xyz/list.html",                  tags: "list danh sach app tien ich cong cu" },
-            { name: "Calculate (Máy tính)",    url: "https://www.hentaiorc.xyz/caculate.html",          tags: "calculate may tinh toan so hoc" },
-            { name: "Mini Game",               url: "https://hentaiorc.xyz/mini-game.html",             tags: "mini game sandbox choi game" },
-            { name: "Lịch vạn năng",           url: "https://hentaiorc.xyz/date.html",                  tags: "lich van nang calendar ngay thang dem nguoc hen gio" },
-            { name: "Phòng thí nghiệm ORC",    url: "https://hentaiorc.xyz/beta/beta.html",             tags: "beta phong thi nghiem trac nghiem phan tich" },
-            // ── Mạng xã hội ──
-            { name: "Facebook ORCcop",         url: "https://www.facebook.com/orichiin",                tags: "facebook fb social mang xa hoi orichiin orc" },
-            { name: "Facebook Giang-artist",   url: "https://www.facebook.com/langducabpt",             tags: "fb social giang artist lang duc" },
-            // ── Dự án / Beta ──
-            { name: "Sắc Mưa (Garden of Words)", url: "#",                                             tags: "anime project sac mua rain garden the garden of words" },
-            { name: "Beta phân tích trắc nghiệm", url: "https://hentaiorc.xyz/beta/phantich_beta_2.html", tags: "beta phan tich trac nghiem ket qua" },
-            // ── Tiện ích nhanh ──
-            { name: "ORC – Đổi tên miền",      url: "https://hentaiorc.xyz",                           tags: "doi ten mien orccop domain chuyen doi" },
-        ];
+    function scrollGrid(amount) {
+      document.getElementById('trending-grid').scrollBy({ left: amount, behavior: 'smooth' });
+    }
 
-        searchInput.addEventListener('input', function() {
-            const val = this.value.toLowerCase().trim();
-            suggestionBox.innerHTML = "";
-            if (val.length > 0) {
-                const matches = myWebsites.filter(web =>
-                    web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val)
-                );
-                if (matches.length > 0) {
-                    matches.forEach(web => {
-                        const item = document.createElement('div');
-                        item.className = 'suggestion-item';
-                        item.innerHTML = `<span class="web-name">${web.name}</span><span class="web-url">${web.url}</span>`;
-                        item.onclick = () => { if (web.url !== '#') window.location.href = web.url; };
-                        suggestionBox.appendChild(item);
-                    });
-                    suggestionBox.style.display = "block";
-                } else {
-                    suggestionBox.style.display = "none";
-                }
-            } else {
-                suggestionBox.style.display = "none";
-            }
-        });
+    /* ── Dust particles ──────────────────────────────── */
 
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
-                suggestionBox.style.display = "none";
-            }
-        });
-    </script>
+    function buildDust() {
+      const layer = document.getElementById('dust-layer');
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'dust-particle';
+        const size = (i % 3) + 1;
+        p.style.cssText = `
+          left:${(i * 5.3) % 100}vw;
+          width:${size}px; height:${size}px;
+          animation-duration:${(i % 8) + 5}s;
+          animation-delay:${(i * 0.7) % 8}s;
+        `;
+        layer.appendChild(p);
+      }
+    }
+  </script>
 </body>
 </html>
