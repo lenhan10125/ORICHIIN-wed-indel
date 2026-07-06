@@ -1,984 +1,480 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ORICHIIN STUDIO – ORCcop</title>
-  <link rel="icon" href="https://hentaiorc.xyz/ORC.png" />
-  <style>
-    @font-face {
-      font-family: 'Lato';
-      src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ORCcop — Blog công nghệ &amp; giáo dục lập trình</title>
+<link rel="icon" href="https://hentaiorc.xyz/ORC.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#142027;
+    --ink-soft:#425160;
+    --paper:#F1F4F4;
+    --surface:#FFFFFF;
+    --line:#DCE3E2;
+    --teal:#1F6F5C;
+    --teal-deep:#154B3E;
+    --amber:#C77A2E;
+    --radius:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.6;
+  }
+  h1,h2,h3,.font-display{font-family:'Fraunces',serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
 
-    *, *::before, *::after { box-sizing: border-box; }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
 
-    body, html {
-      margin: 0; padding: 0;
-      height: 100%; width: 100%;
-      font-family: 'Lato', sans-serif;
-      color: #fff;
-      background: #0a0a0a no-repeat center center fixed;
-      background-size: cover;
-      overflow-y: auto;
-      overflow-x: hidden;
-      transition: background 0.6s ease;
-    }
+  /* ── Header ─────────────────────────────── */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(241,244,244,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    max-width:1120px;margin:0 auto;padding:16px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:9px;
+    background:var(--ink);color:#EFEAE0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px;
+    flex-shrink:0;
+  }
+  .brand-name{font-weight:700;font-size:1.05rem;letter-spacing:-0.01em;}
+  .brand-name span{color:var(--teal);}
 
-    :root {
-      --yt-bg: rgba(15,15,15,0.85);
-      --yt-border: rgba(255,255,255,0.1);
-      --neon-blue: #00f3ff;
-      --neon-flame: #00f3ff;
-    }
+  nav.main-nav{display:flex;gap:28px;}
+  nav.main-nav a{
+    font-size:14px;font-weight:500;color:var(--ink-soft);text-decoration:none;
+    padding:6px 0;border-bottom:2px solid transparent;transition:.2s;
+  }
+  nav.main-nav a:hover{color:var(--ink);border-color:var(--teal);}
 
-    /* ── Animations ─────────────────────────────────── */
+  .header-actions{display:flex;align-items:center;gap:14px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+    padding:10px 18px;border-radius:999px;
+    text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:.2s;white-space:nowrap;
+  }
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-primary:hover{background:var(--teal-deep);}
+  .btn-ghost{border-color:var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--ink);}
 
-    @keyframes neon-burn {
-      0%,100% {
-        text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-        box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0,243,255,0.2);
-      }
-      50% {
-        text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
-        box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0,243,255,0.5);
-      }
-    }
+  .menu-btn{
+    display:none;background:none;border:1px solid var(--line);
+    width:38px;height:38px;border-radius:9px;cursor:pointer;
+    align-items:center;justify-content:center;
+  }
+  .menu-btn span, .menu-btn span::before, .menu-btn span::after{
+    content:'';display:block;width:16px;height:2px;background:var(--ink);position:relative;
+  }
+  .menu-btn span::before{position:absolute;top:-5px;}
+  .menu-btn span::after{position:absolute;top:5px;}
 
-    @keyframes flame-glow {
-      0%,100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
-      50%      { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
-    }
+  /* ── Hero ───────────────────────────────── */
+  .hero{padding:72px 0 88px;}
+  .hero-grid{
+    display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:500;
+    letter-spacing:.06em;color:var(--teal);text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;margin-bottom:18px;
+  }
+  .eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--amber);}
+  .hero h1{
+    font-size:clamp(2.1rem,4.4vw,3.4rem);font-weight:600;line-height:1.08;
+    letter-spacing:-0.01em;margin:0 0 22px;
+  }
+  .hero h1 em{font-style:italic;color:var(--teal);}
+  .hero p.lead{font-size:1.08rem;color:var(--ink-soft);max-width:52ch;margin:0 0 30px;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
 
-    @keyframes floatDust {
-      0%   { transform: translateY(0) translateX(0); opacity: 0; }
-      50%  { opacity: 0.5; }
-      100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-    }
+  /* Signature: terminal card */
+  .terminal{
+    background:var(--ink);border-radius:16px;overflow:hidden;
+    box-shadow:0 20px 50px -20px rgba(20,32,39,0.45);
+    border:1px solid #1f2c34;
+  }
+  .terminal-bar{
+    display:flex;align-items:center;gap:8px;padding:12px 16px;
+    background:#1b262d;border-bottom:1px solid #263239;
+  }
+  .terminal-bar span{width:10px;height:10px;border-radius:50%;}
+  .terminal-bar .r{background:#e5645a;}
+  .terminal-bar .y{background:#e5b25a;}
+  .terminal-bar .g{background:#5ac490;}
+  .terminal-title{
+    margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#8fa0a8;
+  }
+  .terminal-body{
+    padding:22px 22px 26px;font-family:'JetBrains Mono',monospace;
+    font-size:13.5px;color:#cfe8de;min-height:220px;
+  }
+  .terminal-line{margin:0 0 10px;white-space:pre-wrap;}
+  .terminal-line .prompt{color:#5ac490;}
+  .terminal-line .comment{color:#6b7d84;}
+  .cursor{display:inline-block;width:7px;height:14px;background:#5ac490;vertical-align:-2px;animation:blink 1s step-end infinite;}
+  @keyframes blink{50%{opacity:0;}}
 
-    @keyframes cardEntrance {
-      from { opacity: 0; transform: translateY(30px) scale(0.9); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
+  /* ── Announcement ───────────────────────── */
+  .announce{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 28px;display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;
+  }
+  .announce-icon{
+    width:44px;height:44px;border-radius:11px;background:#FBEEDF;color:var(--amber);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .announce h3{margin:0 0 6px;font-size:1.05rem;}
+  .announce p{margin:0;color:var(--ink-soft);font-size:14.5px;}
+  .announce .date{
+    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink);
+    background:var(--paper);border:1px solid var(--line);border-radius:999px;
+    padding:8px 14px;white-space:nowrap;
+  }
 
-    @keyframes dot-blink {
-      0%,100% { opacity: 1; }
-      50%      { opacity: 0; }
-    }
+  section{padding:64px 0;}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:36px;flex-wrap:wrap;}
+  .section-head h2{font-size:1.9rem;margin:0 0 8px;font-weight:600;}
+  .section-head p{margin:0;color:var(--ink-soft);max-width:50ch;}
 
-    /* ── Loader ─────────────────────────────────────── */
+  /* ── Blog / tools grid ──────────────────── */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px;text-decoration:none;color:var(--ink);
+    display:flex;flex-direction:column;gap:14px;transition:.25s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--teal);box-shadow:0 16px 30px -18px rgba(31,111,92,0.35);}
+  .card-icon{
+    width:42px;height:42px;border-radius:10px;background:var(--paper);
+    display:flex;align-items:center;justify-content:center;color:var(--teal);
+  }
+  .card-tag{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-soft);
+    letter-spacing:.03em;text-transform:uppercase;
+  }
+  .card h3{margin:0;font-size:1.15rem;font-weight:600;}
+  .card p{margin:0;color:var(--ink-soft);font-size:14.5px;flex:1;}
+  .card-link{font-size:13.5px;font-weight:600;color:var(--teal);display:flex;align-items:center;gap:6px;}
 
-    #loader-wrapper {
-      position: fixed; inset: 0;
-      background: #2c8b8f;
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center;
-      z-index: 9999;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
-    .loader-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
-    .loader-top-img {
-      width: min(360px, 80vw);
-      height: auto; margin-bottom: 20px;
-    }
-    .neon-loading-container { width: min(320px, 80vw); margin: 10px 0; }
-    .neon-text-row {
-      display: flex; justify-content: space-between;
-      color: var(--neon-flame); font-weight: bold; font-size: 18px;
-      text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px;
-    }
-    .neon-bar-border {
-      width: 100%; height: 22px;
-      border: 2px solid var(--neon-flame); border-radius: 15px;
-      padding: 2px; box-shadow: 0 0 10px var(--neon-flame);
-    }
-    .neon-bar-fill {
-      height: 100%; width: 0; background: var(--neon-flame);
-      border-radius: 10px;
-      box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame);
-      animation: flame-glow 0.5s infinite alternate;
-      transition: width 0.1s linear;
-    }
+  /* ── Mission / about ────────────────────── */
+  .about{
+    background:var(--surface);border:1px solid var(--line);border-radius:20px;
+    padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:48px;
+  }
+  .about h2{font-size:1.8rem;margin:0 0 16px;font-weight:600;}
+  .about p{color:var(--ink-soft);margin:0 0 16px;}
+  .milestones{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px;}
+  .milestone{display:grid;grid-template-columns:34px 1fr;gap:14px;}
+  .milestone .num{
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--teal);
+    width:34px;height:34px;border-radius:9px;background:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .milestone h4{margin:0 0 4px;font-size:0.98rem;}
+  .milestone p{margin:0;font-size:13.5px;color:var(--ink-soft);}
 
-    /* ── Header ─────────────────────────────────────── */
+  /* ── Newsletter / contact ───────────────── */
+  .contact{
+    background:var(--ink);color:#EDF2F1;border-radius:20px;
+    padding:52px 48px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;
+  }
+  .contact h2{margin:0 0 12px;font-size:1.7rem;color:#fff;font-weight:600;}
+  .contact p{margin:0;color:#B7C4C2;max-width:46ch;}
+  .contact-actions{display:flex;gap:14px;justify-content:flex-end;flex-wrap:wrap;}
+  .btn-light{background:#fff;color:var(--ink);}
+  .btn-light:hover{background:#EDF2F1;}
+  .btn-outline-light{border-color:#3a4b52;color:#EDF2F1;}
+  .btn-outline-light:hover{border-color:#EDF2F1;}
 
-    .yt-header {
-      position: fixed; top: 0; left: 0; right: 0; height: 56px;
-      background: var(--yt-bg); backdrop-filter: blur(10px);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; z-index: 1000;
-      gap: 8px;
-    }
+  /* ── Footer ─────────────────────────────── */
+  footer{border-top:1px solid var(--line);padding:40px 0;}
+  .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .footer-inner p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+  .footer-links{display:flex;gap:20px;}
+  .footer-links a{font-size:13.5px;color:var(--ink-soft);text-decoration:none;}
+  .footer-links a:hover{color:var(--teal);}
 
-    .header-left {
-      display: flex; align-items: center; gap: 10px;
-      flex-shrink: 0;
-    }
-
-    .header-right {
-      display: flex; align-items: center; gap: 10px;
-      flex-shrink: 0;
-    }
-
-    .header-center {
-      flex: 1 1 0;
-      min-width: 0;
-      position: relative;
-    }
-
-    .header-logo-link { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-    .header-logo-img  { height: 32px; width: auto; object-fit: contain; display: block; }
-
-    /* Hamburger */
-    .menu-toggle-btn {
-      background: rgba(0,0,0,0.5);
-      border: 2px solid #ffcc00;
-      cursor: pointer;
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 10px #ffcc00;
-      transition: 0.4s;
-      position: relative; z-index: 2100;
-      flex-shrink: 0; padding: 0;
-    }
-    .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
-    .hamburger { width: 18px; height: 12px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-    .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
-    .menu-toggle-btn.open .hamburger span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
-    .menu-toggle-btn.open .hamburger span:nth-child(2) { opacity: 0; }
-    .menu-toggle-btn.open .hamburger span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
-
-    /* Search */
-    .search-container {
-      display: flex;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid var(--yt-border);
-      border-radius: 40px;
-      overflow: hidden;
-      padding-left: 12px;
-    }
-    .search-input {
-      flex: 1; min-width: 0;
-      background: transparent; border: none;
-      color: white; outline: none;
-      font-size: 14px; height: 38px;
-      font-family: 'Lato', sans-serif;
-    }
-    .search-btn {
-      background: rgba(255,255,255,0.1); border: none;
-      width: 42px; flex-shrink: 0; height: 38px;
-      border-left: 1px solid var(--yt-border); cursor: pointer;
-    }
-    .search-btn svg { width: 16px; height: 16px; fill: white; }
-
-    /* Suggestion box */
-    .suggestion-box {
-      position: absolute; top: 110%; left: 0; right: 0;
-      background: rgba(10,10,10,0.95); backdrop-filter: blur(15px);
-      border: 1px solid var(--neon-blue); border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,243,255,0.3);
-      z-index: 2000; max-height: 350px; overflow-y: auto;
-      display: none;
-    }
-    .suggestion-item {
-      padding: 12px 20px; cursor: pointer;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      transition: 0.3s; display: flex; flex-direction: column;
-    }
-    .suggestion-item:hover { background: rgba(0,243,255,0.15); padding-left: 25px; }
-    .suggestion-item .web-name  { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
-    .suggestion-item .web-url   { color: rgba(153,204,255,0.6); font-size: 12px; margin-top: 4px; word-break: break-all; }
-
-    /* Settings button */
-    .settings-btn {
-      background: rgba(0,0,0,0.5);
-      border: 2px solid var(--neon-blue);
-      cursor: pointer;
-      width: 38px; height: 38px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 10px rgba(0,243,255,0.4);
-      transition: 0.4s;
-      z-index: 2100;
-      color: var(--neon-blue); font-size: 18px;
-      flex-shrink: 0; padding: 0;
-    }
-    .settings-btn:hover {
-      box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
-      transform: rotate(45deg);
-    }
-
-    /* Avatar */
-    .avatar-circle {
-      width: 32px; height: 32px;
-      background: var(--neon-blue); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: black; font-weight: bold; flex-shrink: 0;
-      font-size: 14px;
-    }
-
-    /* ── Settings Panel ──────────────────────────────── */
-
-    .settings-panel {
-      position: fixed;
-      top: 65px; right: 16px;
-      width: 300px;
-      background: rgba(10,10,10,0.97); backdrop-filter: blur(20px);
-      border: 2px solid var(--neon-blue); border-radius: 20px;
-      box-shadow: 0 0 40px rgba(0,243,255,0.2);
-      z-index: 1500; padding: 20px;
-      transform-origin: top right;
-      transform: scale(0); opacity: 0;
-      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-      pointer-events: none;
-    }
-    .settings-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-
-    .settings-title {
-      color: var(--neon-blue); font-size: 1rem; font-weight: bold;
-      margin-bottom: 14px; letter-spacing: 2px;
-      text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .settings-section-label {
-      color: rgba(255,255,255,0.5); font-size: 11px;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      margin-bottom: 8px; margin-top: 14px;
-    }
-
-    .bg-presets {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 8px; margin-bottom: 10px;
-    }
-    .bg-preset-btn {
-      height: 48px; border-radius: 10px;
-      border: 2px solid transparent; cursor: pointer;
-      transition: 0.3s; position: relative; overflow: hidden;
-      background-size: cover; background-position: center;
-    }
-    .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
-    .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
-    .bg-preset-btn span {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.7); font-size: 9px;
-      text-align: center; padding: 3px; color: #fff;
-    }
-
-    .bg-url-row { display: flex; gap: 8px; margin-top: 8px; }
-    .bg-url-input {
-      flex: 1; min-width: 0;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px; padding: 8px 10px;
-      color: white; font-size: 12px; outline: none; transition: 0.3s;
-      font-family: 'Lato', sans-serif;
-    }
-    .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
-    .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
-    .bg-apply-btn {
-      background: var(--neon-blue); color: black;
-      border: none; border-radius: 10px;
-      padding: 8px 12px; font-size: 12px;
-      font-weight: bold; cursor: pointer; transition: 0.3s;
-      white-space: nowrap; flex-shrink: 0;
-      font-family: 'Lato', sans-serif;
-    }
-    .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
-
-    .bg-overlay-toggle {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: 12px;
-    }
-    .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
-
-    .toggle-switch { position: relative; width: 40px; height: 22px; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; cursor: pointer;
-      inset: 0; background: rgba(255,255,255,0.15);
-      border-radius: 22px; transition: 0.3s;
-    }
-    .toggle-slider::before {
-      content: ''; position: absolute;
-      width: 16px; height: 16px;
-      left: 3px; bottom: 3px;
-      background: white; border-radius: 50%; transition: 0.3s;
-    }
-    .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
-    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
-
-    .save-status {
-      font-size: 11px; color: rgba(0,243,255,0.7);
-      text-align: center; margin-top: 8px;
-      min-height: 16px; transition: opacity 0.5s;
-    }
-
-    .bg-reset-btn {
-      margin-top: 8px; width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.6);
-      border-radius: 10px; padding: 8px;
-      cursor: pointer; font-size: 12px; transition: 0.3s;
-      font-family: 'Lato', sans-serif;
-    }
-    .bg-reset-btn:hover { border-color: var(--neon-blue); }
-
-    /* ── Menu Overlay ────────────────────────────────── */
-
-    .menu-overlay {
-      position: fixed; top: 65px; left: 16px;
-      width: fit-content; height: auto; min-width: 220px;
-      padding: 20px;
-      background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
-      border: 2px solid var(--neon-blue); border-radius: 20px;
-      box-shadow: 0 0 30px rgba(0,243,255,0.2);
-      z-index: 1500;
-      display: flex; flex-direction: column;
-      transform-origin: top left;
-      transform: scale(0); opacity: 0;
-      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-      pointer-events: none;
-    }
-    .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-
-    .nav-content { display: flex; flex-direction: column; }
-    .nav-item {
-      font-size: 1.2rem; color: #99CCFF;
-      text-decoration: none; font-weight: bold;
-      margin: 8px 0; transition: 0.3s;
-      padding: 5px 10px; border-radius: 10px;
-    }
-    .nav-item:hover {
-      animation: neon-burn 0.8s infinite alternate ease-in-out;
-      color: var(--neon-blue); transform: translateX(8px);
-    }
-
-    /* ── Main container ──────────────────────────────── */
-
-    .container {
-      min-height: 100vh;
-      padding-top: 76px;
-      display: flex; flex-direction: column; align-items: center;
-      opacity: 0; transition: opacity 1s ease-in;
-    }
-    .container.show { opacity: 1; }
-
-    /* ── Content box ─────────────────────────────────── */
-
-    .content-box {
-      position: relative; z-index: 10;
-      width: 92%; max-width: 700px;
-      padding: 36px 32px;
-      border-radius: 25px;
-      background: rgba(0,0,0,0.75); backdrop-filter: blur(15px);
-      border: 1px solid rgba(255,255,255,0.1);
-      text-align: center; transition: 0.3s;
-      margin-bottom: 40px;
-    }
-    .content-box h1 { color: #d9b8ab; font-size: 2.2em; margin: 12px 0; }
-    .content-box p  { margin: 8px 0; line-height: 1.5; }
-
-    /* ── Trending Section ────────────────────────────── */
-
-    .trending-section {
-      width: 92%; max-width: 1200px;
-      margin: 0 auto 60px auto;
-      position: relative; z-index: 10;
-    }
-
-    .trending-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-    .trending-title  { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; white-space: nowrap; }
-    .trending-line   { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent); }
-
-    .trending-scroll-wrapper { position: relative; }
-    .trending-grid {
-      display: flex; gap: 0;
-      overflow-x: auto; scroll-behavior: smooth;
-      padding-bottom: 8px;
-      scrollbar-width: none;
-    }
-    .trending-grid::-webkit-scrollbar { display: none; }
-
-    .scroll-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      background: rgba(0,0,0,0.8);
-      border: 1px solid rgba(0,243,255,0.4);
-      color: white; width: 34px; height: 76px;
-      border-radius: 6px; cursor: pointer; z-index: 20;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; transition: 0.3s; backdrop-filter: blur(10px);
-    }
-    .scroll-btn:hover {
-      background: rgba(0,243,255,0.15);
-      border-color: var(--neon-blue);
-      box-shadow: 0 0 15px rgba(0,243,255,0.3);
-    }
-    .scroll-btn.left  { left: -17px; }
-    .scroll-btn.right { right: -17px; }
-
-    /* Cards */
-    .trending-card {
-      position: relative; flex: 0 0 auto;
-      width: 140px; height: 210px;
-      cursor: pointer;
-      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
-      margin-right: -28px;
-      animation: cardEntrance 0.5s ease backwards;
-    }
-    .trending-card:last-child { margin-right: 0; }
-    .trending-card:hover { transform: scale(1.08) translateY(-6px); z-index: 5; }
-
-    .card-rank {
-      position: absolute; bottom: -8px; left: -4px;
-      font-size: 6.5rem; font-weight: 900; line-height: 1;
-      color: transparent;
-      -webkit-text-stroke: 3px rgba(255,255,255,0.85);
-      z-index: 2; pointer-events: none;
-      font-family: 'Arial Black','Impact',sans-serif;
-      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
-      user-select: none;
-    }
-
-    .card-poster {
-      width: 100%; height: 100%; border-radius: 8px;
-      object-fit: cover; display: block; position: relative; z-index: 1;
-      box-shadow: 4px 4px 20px rgba(0,0,0,0.7); transition: box-shadow 0.3s;
-    }
-    .trending-card:hover .card-poster {
-      box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
-    }
-
-    .card-overlay {
-      position: absolute; inset: 0; border-radius: 8px;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
-      opacity: 0; transition: 0.3s; z-index: 3;
-      display: flex; align-items: flex-end;
-      padding: 10px;
-    }
-    .trending-card:hover .card-overlay { opacity: 1; }
-    .card-title-hover {
-      font-size: 11px; font-weight: bold; color: white;
-      text-align: center; width: 100%; line-height: 1.3;
-    }
-
-    .card-poster-placeholder {
-      width: 100%; height: 100%; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: bold; text-align: center; color: white;
-      box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
-    }
-
-    .card-badge {
-      position: absolute; top: 7px; left: 7px; z-index: 4;
-      background: #e50914; color: white;
-      font-size: 10px; font-weight: 900;
-      width: 18px; height: 18px; border-radius: 3px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ── Dust ────────────────────────────────────────── */
-
-    .ambient-dust { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
-    .dust-particle {
-      position: absolute; background: white; border-radius: 50%;
-      opacity: 0.4; filter: blur(1px);
-      bottom: -10px;
-      animation: floatDust linear infinite;
-    }
-
-    /* ════════════════════════════════════════════════
-       RESPONSIVE — TABLET (≤ 900px)
-       ════════════════════════════════════════════════ */
-    @media (max-width: 900px) {
-      .trending-card { width: 125px; height: 188px; }
-      .card-rank { font-size: 5.8rem; }
-    }
-
-    /* ════════════════════════════════════════════════
-       RESPONSIVE — MOBILE (≤ 600px)
-       ════════════════════════════════════════════════ */
-    @media (max-width: 600px) {
-      .yt-header { height: 52px; padding: 0 8px; gap: 6px; }
-      .header-left  { gap: 6px; }
-      .header-right { gap: 6px; }
-      .menu-toggle-btn { width: 34px; height: 34px; }
-      .settings-btn    { width: 34px; height: 34px; font-size: 16px; }
-      .avatar-circle   { display: none; }
-      .header-logo-img { height: 26px; }
-      .header-center { margin: 0; }
-      .search-input  { font-size: 13px; height: 34px; }
-      .search-btn    { width: 36px; height: 34px; }
-      .search-btn svg { width: 14px; height: 14px; }
-      .suggestion-box { border-radius: 10px; }
-      .suggestion-item { padding: 10px 14px; }
-      .suggestion-item .web-name { font-size: 13px; }
-      .menu-overlay { left: 8px; top: 58px; min-width: 180px; padding: 16px; }
-      .nav-item { font-size: 1.05rem; margin: 6px 0; }
-      .settings-panel { right: 8px; top: 58px; width: calc(100vw - 16px); max-width: 300px; padding: 16px; }
-      .container { padding-top: 68px; }
-      .content-box { width: 95%; padding: 22px 16px; }
-      .content-box h1 { font-size: 1.6em; }
-      .trending-card  { width: 108px; height: 162px; }
-      .card-rank      { font-size: 5rem; }
-      .scroll-btn     { width: 26px; height: 58px; font-size: 14px; }
-      .scroll-btn.left  { left: -13px; }
-      .scroll-btn.right { right: -13px; }
-    }
-
-    /* ════════════════════════════════════════════════
-       RESPONSIVE — VERY SMALL (≤ 380px)
-       ════════════════════════════════════════════════ */
-    @media (max-width: 380px) {
-      .trending-card { width: 94px; height: 141px; }
-      .card-rank { font-size: 4.2rem; }
-      .content-box h1 { font-size: 1.35em; }
-      .menu-toggle-btn { width: 30px; height: 30px; }
-      .settings-btn    { width: 30px; height: 30px; font-size: 14px; }
-      .header-logo-img { height: 22px; }
-    }
-  </style>
+  /* ── Responsive ─────────────────────────── */
+  @media (max-width:900px){
+    nav.main-nav{display:none;}
+    .menu-btn{display:flex;}
+    .hero-grid{grid-template-columns:1fr;}
+    .grid{grid-template-columns:repeat(2,1fr);}
+    .about{grid-template-columns:1fr;padding:32px;}
+    .contact{grid-template-columns:1fr;padding:36px;}
+    .contact-actions{justify-content:flex-start;}
+  }
+  @media (max-width:600px){
+    .grid{grid-template-columns:1fr;}
+    .announce{grid-template-columns:auto 1fr;}
+    .announce .date{grid-column:1 / -1;justify-self:start;}
+    .header-actions .btn-ghost{display:none;}
+  }
+</style>
 </head>
 <body>
 
-  <!-- Loader -->
-  <div id="loader-wrapper">
-    <img src="https://hentaiorc.xyz/ORC.png" alt="Logo" class="loader-top-img" />
-    <div class="neon-loading-container">
-      <div class="neon-text-row">
-        <span>Loading..</span>
-        <span id="loader-pct">0%</span>
-      </div>
-      <div class="neon-bar-border">
-        <div class="neon-bar-fill" id="loader-bar"></div>
-      </div>
-    </div>
-    <p style="color:#99CCFF;margin-top:20px;font-weight:bold;">ĐANG TẢI...</p>
-  </div>
-
-  <!-- Header -->
-  <nav class="yt-header">
-    <!-- Left -->
-    <div class="header-left">
-      <button id="menu-btn" class="menu-toggle-btn" onclick="toggleMenu(event)">
-        <div class="hamburger">
-          <span></span><span></span><span></span>
-        </div>
-      </button>
-      <a href="https://hentaiorc.xyz" class="header-logo-link">
-        <img src="https://hentaiorc.xyz/ORC.png" alt="Logo" class="header-logo-img" />
-      </a>
-    </div>
-
-    <!-- Center search -->
-    <div class="header-center">
-      <div class="search-container">
-        <input
-          id="search-input"
-          type="text"
-          class="search-input"
-          placeholder="Tìm kiếm hệ sinh thái Orichiin..."
-          autocomplete="off"
-          oninput="handleSearch(this.value)"
-        />
-        <button class="search-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
-          </svg>
-        </button>
-      </div>
-      <div id="suggestion-box" class="suggestion-box"></div>
-    </div>
-
-    <!-- Right -->
-    <div class="header-right">
-      <button id="settings-btn" class="settings-btn" title="Cài đặt hình nền" onclick="toggleSettings(event)">⚙</button>
-      <div class="avatar-circle">O</div>
-    </div>
-  </nav>
-
-  <!-- Settings Panel -->
-  <div id="settings-panel" class="settings-panel">
-    <div class="settings-title">⚙ Cài đặt</div>
-
-    <div class="settings-section-label">🎨 Hình nền có sẵn</div>
-    <div class="bg-presets" id="bg-presets"></div>
-
-    <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
-    <div class="bg-url-row">
-      <input type="text" id="bg-url-input" class="bg-url-input" placeholder="https://example.com/image.jpg" />
-      <button class="bg-apply-btn" onclick="applyCustomUrl()">Áp dụng</button>
-    </div>
-
-    <div class="bg-overlay-toggle">
-      <span class="bg-overlay-label">Lớp phủ tối</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="overlay-toggle" checked onchange="handleOverlay(this.checked)" />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-
-    <div class="save-status" id="save-status"></div>
-
-    <button class="bg-reset-btn" onclick="resetBg()">↺ Đặt lại về mặc định</button>
-  </div>
-
-  <!-- Menu Overlay -->
-  <div id="menu-overlay" class="menu-overlay">
-    <nav class="nav-content">
-      <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
-      <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
-      <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
-      <a href="https://www.hentaiorc.xyz/caculate.html" class="nav-item">Calculate</a>
+<header>
+  <div class="header-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">{ }</span>
+      <span class="brand-name">ORC<span>cop</span></span>
+    </a>
+    <nav class="main-nav">
+      <a href="#bai-viet">Bài viết &amp; công cụ</a>
+      <a href="#gioi-thieu">Giới thiệu</a>
+      <a href="#chuyen-doi">Chuyển đổi</a>
+      <a href="#lien-he">Liên hệ</a>
     </nav>
-  </div>
-
-  <!-- Main container -->
-  <div class="container" id="main-container">
-    <!-- Content box -->
-    <div class="content-box">
-      Trang web này thuộc quyền sở hữu của ORCcop
-      <h1>ORICHIIN STUDIO</h1>
-      <p style="color:#99CCFF;font-weight:bold;">Chào mừng bạn đến với ORC-STUDIO</p>
-      <p style="color:#f900e0;font-weight:bold;">Trang web này thuộc quyền sở hữu của ORCcop</p>
-      <p style="color:#ff0000;font-weight:bold;">
-        Chúng tôi thông báo sẽ chuyển đổi tên miền từ hentaiorc.xyz dễ gây hiểu lầm là trang 18+
-      </p>
-      <p style="color:#99CCFF;font-weight:bold;">
-        Thành ORCcop.com hoặc ORCcop.edu — hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình,
-        chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.
-      </p>
-      <p style="color:#99CCFF;font-weight:bold;">Thời gian chuyển đổi dự kiến: [3/5/2027]</p>
-      <p>Dự án chính: <a href="https://hentaiorc.xyz" style="color:var(--neon-blue);">ORC-STUDIO</a></p>
-      <p>Facebook: <a href="https://www.facebook.com/orichiin" target="_blank" rel="noreferrer" style="color:var(--neon-blue);">Liên hệ nhà phát triển ORCcop</a></p>
-    </div>
-    <div class="content-box">
-      Giới thiệu thêm:
-      <h1>DỰ án orc-w là gì?</h1>
-      <p style="color:#99CCFF;font-weight:bold;">Dự án orc-w là dự án thuộc quyền sở hữu của ORCcop trực thuộc ORICHIIN studio</p>
-      <p style="color:#f900e0;font-weight:bold;">về các giấy phép hiện đang chưa có bản quyền thực sự trang này chỉ thuộc một phần dự án nhỏ tạm thời và không có dự tính phát triển thêm</p>
-      <p style="color:#ff0000;font-weight:bold;"></p>
-      <p style="color:#99CCFF;font-weight:bold;">
-       hiện nay orichiin studio không có hoạt động nào bên hoạt họa hay truyền hình,
-       chúng tôi đang hướng tới trang web trao đổi thông tin học tập chính quy chủ yếu về code tin học.
-      </p>
-      <p style="color:#99CCFF;font-weight:bold;">Thời gian cập nhập: 30/6/2026</p>
-      <p>Tìm hiểu thêm<a href="https://hentaiorc.xyz/ORCcop-w/Bao_cao_ban_quyen_orccop-w.pdf" style="color:var(--neon-blue);">Bản quyền:Dự án</a></p>
-    </div>
-
-    <!-- Trending Section -->
-    <div class="trending-section">
-      <div class="trending-header">
-        <span class="trending-title">🔥 Danh sách</span>
-        <div class="trending-line"></div>
-      </div>
-      <div class="trending-scroll-wrapper">
-        <button class="scroll-btn left" onclick="scrollGrid(-300)">&#8249;</button>
-        <div class="trending-grid" id="trending-grid"></div>
-        <button class="scroll-btn right" onclick="scrollGrid(300)">&#8250;</button>
-      </div>
+    <div class="header-actions">
+      <a href="#chuyen-doi" class="btn btn-ghost">Thông báo tên miền</a>
+      <a href="#lien-he" class="btn btn-primary">Liên hệ</a>
+      <button class="menu-btn" aria-label="Mở menu"><span></span></button>
     </div>
   </div>
+</header>
 
-  <!-- Dust particles -->
-  <div class="ambient-dust" id="dust-layer"></div>
+<main class="wrap" id="top">
 
-  <script>
-    /* ── Data ────────────────────────────────────────── */
-
-    const trendingItems = [
-      {
-        rank: 1, title: "MINI GAME", subtitle: "Sand box",
-        url: "https://hentaiorc.xyz/mini-game.html",
-        poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
-        gradient: "linear-gradient(135deg,#1a0a00,#8B2500)",
-      },
-      {
-        rank: 2, title: "List", subtitle: "danh sách app,tiện ích",
-        url: "https://hentaiorc.xyz/list.html",
-        poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
-        gradient: "linear-gradient(135deg,#0a1a00,#2d6a00)",
-      },
-      {
-        rank: 3, title: "Chat Server", subtitle: "nơi mọi người có thể trò chuyện với nhau",
-        url: "https://hentaiorc.xyz/chat-server.html",
-        poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWU3LTgyODgwqVE.jpg",
-        gradient: "linear-gradient(135deg,#00103a,#0038a8)",
-      },
-      {
-        rank: 4, title: "Lịch vạn năng", subtitle: "công cụ xem lịch, hẹn giờ, đếm ngược v.v",
-        url: "https://hentaiorc.xyz/date.html",
-        poster: "https://m.media-amazon.com/images/M/MV5BYzFhOTc0YzEtMGViNS00YjM5LWI4YTMtZjU0OWZhZWEwMGUxXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX400_.jpg",
-        gradient: "linear-gradient(135deg,#1a001a,#6a0050)",
-      },
-      {
-        rank: 5, title: "Phòng thí nghiệm ORC", subtitle: "giúp bạn phân tích kết quả các bài trắc nghiệm",
-        url: "https://hentaiorc.xyz/beta/beta.html",
-        poster: "https://m.media-amazon.com/images/M/MV5BODgwMDczNjMtMGU4ZS00ZjM0LTk0MzMtY2JlZGJiYmU4NDU4XkEyXkFqcGdeQXVyNDgyODgxNjE@._V1_FMjpg_UX400_.jpg",
-        gradient: "linear-gradient(135deg,#001a1a,#006060)",
-      },
-    ];
-
-    const myWebsites = [
-      { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio orichiin trang chu" },
-      { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message nhan tin" },
-      { name: "List (Danh sách)", url: "https://hentaiorc.xyz/list.html", tags: "list danh sach app tien ich cong cu" },
-      { name: "Calculate (Máy tính)", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate may tinh toan so hoc" },
-      { name: "Mini Game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game sandbox choi game" },
-      { name: "Lịch vạn năng", url: "https://hentaiorc.xyz/date.html", tags: "lich van nang calendar ngay thang dem nguoc hen gio" },
-      { name: "Phòng thí nghiệm ORC", url: "https://hentaiorc.xyz/beta/beta.html", tags: "beta phong thi nghiem trac nghiem phan tich" },
-      { name: "Facebook ORCcop", url: "https://www.facebook.com/orichiin", tags: "facebook fb social mang xa hoi orichiin orc" },
-      { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social giang artist lang duc" },
-      { name: "Sắc Mưa (Garden of Words)", url: "#", tags: "anime project sac mua rain garden" },
-      { name: "Beta phân tích trắc nghiệm", url: "https://hentaiorc.xyz/beta/phantich_beta_2.html", tags: "beta phan tich trac nghiem ket qua" },
-      { name: "ORC – Đổi tên miền", url: "https://hentaiorc.xyz", tags: "doi ten mien orccop domain chuyen doi" },
-      { name: "tiện ích tính toán góc nâng", url: "https://hentaiorc.xyz/caculate.html", tags: "tinh toan goc nang" },
-    ];
-
-    const BG_PRESETS = [
-      { label: "Đen", bg: "none", style: "background:#0a0a0a;" },
-      { label: "Anime", bg: "https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg", style: "background-image:url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg);background-size:cover;background-position:center;" },
-      { label: "Vũ trụ", bg: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60);background-size:cover;" },
-      { label: "Núi", bg: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60);background-size:cover;" },
-      { label: "Thành phố", bg: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80", style: "background-image:url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60);background-size:cover;" },
-      { label: "Gradient", bg: "gradient", style: "background:linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);" },
-    ];
-
-    const LS_BG_KEY  = 'orc_bg_url';
-    const LS_OVL_KEY = 'orc_overlay';
-
-    /* ── Init ────────────────────────────────────────── */
-
-    let activeBg    = 'none';
-    let overlayOn   = true;
-    let menuOpen    = false;
-    let settingsOpen = false;
-    let saveTimer   = null;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      buildBgPresets();
-      buildCards();
-      buildDust();
-      restoreSettings();
-      startLoader();
-
-      document.addEventListener('click', handleOutsideClick);
-    });
-
-    /* ── Loader ──────────────────────────────────────── */
-
-    function startLoader() {
-      let prog = 0;
-      const bar = document.getElementById('loader-bar');
-      const pct = document.getElementById('loader-pct');
-      const id = setInterval(() => {
-        prog += Math.random() * 15;
-        if (prog >= 100) {
-          prog = 100;
-          clearInterval(id);
-          setTimeout(() => {
-            document.getElementById('loader-wrapper').classList.add('loader-hidden');
-            document.getElementById('main-container').classList.add('show');
-          }, 500);
-        }
-        const v = Math.min(Math.floor(prog), 100);
-        bar.style.width = v + '%';
-        pct.textContent = v + '%';
-      }, 100);
-    }
-
-    /* ── Background ──────────────────────────────────── */
-
-    function buildBgPresets() {
-      const container = document.getElementById('bg-presets');
-      BG_PRESETS.forEach(p => {
-        const btn = document.createElement('button');
-        btn.className = 'bg-preset-btn' + (activeBg === p.bg ? ' active-bg' : '');
-        btn.setAttribute('style', p.style);
-        btn.dataset.bg = p.bg;
-        btn.innerHTML = `<span>${p.label}</span>`;
-        btn.addEventListener('click', () => {
-          document.getElementById('bg-url-input').value = '';
-          applyBg(p.bg, true);
-        });
-        container.appendChild(btn);
-      });
-    }
-
-    function applyBg(url, save) {
-      activeBg = url;
-      if (!url || url === 'none') {
-        document.body.style.backgroundImage = 'none';
-        document.body.style.backgroundColor = '#0a0a0a';
-      } else if (url === 'gradient') {
-        document.body.style.backgroundImage = 'none';
-        document.body.style.background = 'linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628)';
-      } else {
-        document.body.style.background = '';
-        document.body.style.backgroundImage = `url(${url})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundRepeat = 'no-repeat';
-        document.body.style.backgroundAttachment = 'fixed';
-      }
-      // Update active state on preset buttons
-      document.querySelectorAll('.bg-preset-btn').forEach(btn => {
-        btn.classList.toggle('active-bg', btn.dataset.bg === url);
-      });
-      if (save) {
-        try { localStorage.setItem(LS_BG_KEY, url); showSaveStatus('✔ Đã lưu hình nền vào bộ nhớ'); }
-        catch { showSaveStatus('⚠ Không thể lưu vui lòng thử lại'); }
-      }
-    }
-
-    function applyCustomUrl() {
-      const url = document.getElementById('bg-url-input').value.trim();
-      if (url) applyBg(url, true);
-    }
-
-    function resetBg() {
-      activeBg = 'none';
-      document.getElementById('bg-url-input').value = '';
-      document.body.style.backgroundImage = 'none';
-      document.body.style.backgroundColor = '#0a0a0a';
-      document.body.style.background = '#0a0a0a';
-      localStorage.removeItem(LS_BG_KEY);
-      document.querySelectorAll('.bg-preset-btn').forEach(btn => btn.classList.remove('active-bg'));
-      showSaveStatus('↺ Đã đặt lại hình nền');
-    }
-
-    function handleOverlay(val) {
-      overlayOn = val;
-      document.getElementById('main-container').style.background = val ? 'rgba(0,0,0,0.2)' : 'transparent';
-      try { localStorage.setItem(LS_OVL_KEY, String(val)); } catch {}
-    }
-
-    function showSaveStatus(msg) {
-      const el = document.getElementById('save-status');
-      el.textContent = msg;
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => { el.textContent = ''; }, 2200);
-    }
-
-    function restoreSettings() {
-      const savedBg  = localStorage.getItem(LS_BG_KEY);
-      const savedOvl = localStorage.getItem(LS_OVL_KEY);
-      if (savedBg)  applyBg(savedBg, false);
-      if (savedOvl !== null) {
-        overlayOn = savedOvl === 'true';
-        document.getElementById('overlay-toggle').checked = overlayOn;
-        handleOverlay(overlayOn);
-      }
-    }
-
-    /* ── Menu / Settings toggles ─────────────────────── */
-
-    function toggleMenu(e) {
-      e.stopPropagation();
-      menuOpen = !menuOpen;
-      const overlay = document.getElementById('menu-overlay');
-      const btn     = document.getElementById('menu-btn');
-      overlay.classList.toggle('active', menuOpen);
-      btn.classList.toggle('open', menuOpen);
-      if (menuOpen) { settingsOpen = false; document.getElementById('settings-panel').classList.remove('active'); }
-    }
-
-    function toggleSettings(e) {
-      e.stopPropagation();
-      settingsOpen = !settingsOpen;
-      document.getElementById('settings-panel').classList.toggle('active', settingsOpen);
-      if (settingsOpen) { menuOpen = false; document.getElementById('menu-overlay').classList.remove('active'); document.getElementById('menu-btn').classList.remove('open'); }
-    }
-
-    function handleOutsideClick(e) {
-      const panel  = document.getElementById('settings-panel');
-      const sBtn   = document.getElementById('settings-btn');
-      const overlay = document.getElementById('menu-overlay');
-      const mBtn   = document.getElementById('menu-btn');
-      const sugBox = document.getElementById('suggestion-box');
-      const searchInp = document.getElementById('search-input');
-
-      if (settingsOpen && !panel.contains(e.target) && !sBtn.contains(e.target)) {
-        settingsOpen = false; panel.classList.remove('active');
-      }
-      if (menuOpen && !overlay.contains(e.target) && !mBtn.contains(e.target)) {
-        menuOpen = false; overlay.classList.remove('active'); mBtn.classList.remove('open');
-      }
-      if (!searchInp.contains(e.target) && !sugBox.contains(e.target)) {
-        sugBox.style.display = 'none';
-      }
-    }
-
-    /* ── Search ──────────────────────────────────────── */
-
-    function handleSearch(val) {
-      const box = document.getElementById('suggestion-box');
-      if (!val.trim()) { box.style.display = 'none'; box.innerHTML = ''; return; }
-      const q = val.toLowerCase();
-      const matches = myWebsites.filter(w => w.name.toLowerCase().includes(q) || w.tags.includes(q));
-      if (!matches.length) { box.style.display = 'none'; return; }
-      box.innerHTML = matches.map(w => `
-        <div class="suggestion-item" onclick="${w.url !== '#' ? `window.location.href='${w.url}'` : ''}">
-          <span class="web-name">${w.name}</span>
-          <span class="web-url">${w.url}</span>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Blog công nghệ · ORCcop</div>
+        <h1>Kiến thức lập trình,<br><em>viết cho người thực hành.</em></h1>
+        <p class="lead">ORCcop là không gian chia sẻ tài liệu, công cụ và bài viết kỹ thuật của ORICHIIN Studio — nơi chúng tôi tổng hợp các dự án nội bộ thành nội dung học tập chính quy, dễ tiếp cận cho cộng đồng.</p>
+        <div class="hero-ctas">
+          <a href="#bai-viet" class="btn btn-primary">Xem bài viết mới nhất</a>
+          <a href="#gioi-thieu" class="btn btn-ghost">Về ORCcop</a>
         </div>
-      `).join('');
-      box.style.display = 'block';
-    }
+      </div>
+      <div class="terminal" aria-hidden="true">
+        <div class="terminal-bar">
+          <span class="r"></span><span class="y"></span><span class="g"></span>
+          <span class="terminal-title">orccop — mission.sh</span>
+        </div>
+        <div class="terminal-body" id="terminal-body"></div>
+      </div>
+    </div>
+  </section>
 
-    /* ── Trending cards ──────────────────────────────── */
+  <!-- Announcement -->
+  <section id="chuyen-doi" style="padding-top:0;">
+    <div class="announce">
+      <div class="announce-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 15-4M20 12a8 8 0 0 1-15 4"/><path d="M4 4v4h4M20 20v-4h-4"/></svg>
+      </div>
+      <div>
+        <h3>Chuyển đổi tên miền chính thức</h3>
+        <p>Chúng tôi đang chuyển từ <strong>hentaiorc.xyz</strong> — tên gọi dễ gây hiểu lầm — sang <strong>ORCcop.com</strong> / <strong>ORCcop.edu</strong>. ORICHIIN Studio hiện không còn hoạt động trong lĩnh vực hoạt họa hay truyền hình, mà tập trung vào nội dung học thuật và công nghệ thông tin.</p>
+      </div>
+      <span class="date mono">Dự kiến: 03/05/2027</span>
+    </div>
+  </section>
 
-    function buildCards() {
-      const grid = document.getElementById('trending-grid');
-      trendingItems.forEach((item, i) => {
-        const card = document.createElement('div');
-        card.className = 'trending-card';
-        card.style.animationDelay = (i * 0.07) + 's';
-        if (item.url !== '#') card.addEventListener('click', () => window.location.href = item.url);
+  <!-- Bài viết / công cụ -->
+  <section id="bai-viet">
+    <div class="section-head">
+      <div>
+        <h2>Bài viết &amp; công cụ nổi bật</h2>
+        <p>Các dự án và tài nguyên đang được ORCcop duy trì, tổng hợp lại thành nội dung dễ theo dõi.</p>
+      </div>
+    </div>
+    <div class="grid">
 
-        const posterHtml = item.poster
-          ? `<img class="card-poster" src="${item.poster}" alt="${item.title}"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-             <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
-          : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`;
+      <a class="card" href="https://hentaiorc.xyz/chat-server.html">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.4 8.4 0 0 1 8.4-8.4 8.5 8.5 0 0 1 8.5 8.4z"/></svg>
+        </div>
+        <span class="card-tag">Cộng đồng</span>
+        <h3>Chat Server</h3>
+        <p>Không gian trò chuyện dành cho cộng đồng ORCcop trao đổi, thảo luận và kết nối trực tiếp.</p>
+        <span class="card-link">Truy cập →</span>
+      </a>
 
-        const subtitleHtml = item.subtitle
-          ? `<br><span style="opacity:0.7;font-weight:normal;">${item.subtitle}</span>`
-          : '';
+      <a class="card" href="https://hentaiorc.xyz/list.html">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </div>
+        <span class="card-tag">Tổng hợp</span>
+        <h3>List — Danh sách tiện ích</h3>
+        <p>Tổng hợp toàn bộ ứng dụng và công cụ nhỏ do ORCcop phát triển, cập nhật thường xuyên.</p>
+        <span class="card-link">Xem danh sách →</span>
+      </a>
 
-        card.innerHTML = `
-          <span class="card-rank">${item.rank}</span>
-          ${posterHtml}
-          <div class="card-overlay">
-            <div class="card-title-hover">${item.title}${subtitleHtml}</div>
+      <a class="card" href="https://www.hentaiorc.xyz/caculate.html">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+        </div>
+        <span class="card-tag">Công cụ</span>
+        <h3>Calculate</h3>
+        <p>Công cụ tính toán số học và các tiện ích liên quan, bao gồm tính góc nâng chuyên biệt.</p>
+        <span class="card-link">Mở công cụ →</span>
+      </a>
+
+      <a class="card" href="https://hentaiorc.xyz/date.html">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <span class="card-tag">Sản xuất</span>
+        <h3>Lịch vạn năng</h3>
+        <p>Xem lịch, đặt hẹn giờ và đếm ngược — một tiện ích gọn nhẹ cho công việc hằng ngày.</p>
+        <span class="card-link">Sử dụng →</span>
+      </a>
+
+      <a class="card" href="https://hentaiorc.xyz/beta/beta.html">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v5.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V3"/></svg>
+        </div>
+        <span class="card-tag">Nghiên cứu</span>
+        <h3>Phòng thí nghiệm ORC</h3>
+        <p>Công cụ phân tích kết quả bài trắc nghiệm, hỗ trợ đánh giá và cải thiện học tập.</p>
+        <span class="card-link">Phân tích →</span>
+      </a>
+
+      <a class="card" href="https://hentaiorc.xyz/mini-game.html">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M7 10v4M5 12h4M15.5 11h.01M18.5 13h.01"/></svg>
+        </div>
+        <span class="card-tag">Thử nghiệm</span>
+        <h3>Mini Game — Sandbox</h3>
+        <p>Không gian thử nghiệm nhỏ dùng để minh họa các khái niệm lập trình qua tương tác trực quan.</p>
+        <span class="card-link">Trải nghiệm →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Giới thiệu / mission -->
+  <section id="gioi-thieu">
+    <div class="about">
+      <div>
+        <span class="eyebrow" style="margin-bottom:14px;">Về chúng tôi</span>
+        <h2>Từ studio sáng tạo đến nền tảng học thuật.</h2>
+        <p>ORCcop là đơn vị vận hành trực thuộc <strong>ORICHIIN Studio</strong>. Trang trước đây được biết đến qua tên miền hentaiorc.xyz, dễ gây hiểu lầm về nội dung. Trên thực tế, studio hiện không sản xuất nội dung hoạt họa hay truyền hình.</p>
+        <p>Định hướng hiện tại của chúng tôi là xây dựng một không gian trao đổi thông tin học tập chính quy, tập trung vào lập trình, công cụ kỹ thuật và tài nguyên phục vụ cộng đồng người học công nghệ thông tin.</p>
+      </div>
+      <ul class="milestones">
+        <li class="milestone">
+          <span class="num mono">01</span>
+          <div>
+            <h4>Thông báo chuyển đổi</h4>
+            <p>Công bố định hướng mới và kế hoạch đổi tên miền tới cộng đồng.</p>
           </div>
-          <div class="card-badge">ORC</div>
-        `;
-        grid.appendChild(card);
-      });
-    }
+        </li>
+        <li class="milestone">
+          <span class="num mono">02</span>
+          <div>
+            <h4>Tái cấu trúc nội dung</h4>
+            <p>Chuyển các công cụ và bài viết hiện có sang định dạng blog học thuật.</p>
+          </div>
+        </li>
+        <li class="milestone">
+          <span class="num mono">03</span>
+          <div>
+            <h4>Ra mắt ORCcop.com / .edu</h4>
+            <p>Hoàn tất chuyển đổi tên miền, dự kiến ngày 03/05/2027.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
 
-    function scrollGrid(amount) {
-      document.getElementById('trending-grid').scrollBy({ left: amount, behavior: 'smooth' });
-    }
+  <!-- Contact -->
+  <section id="lien-he">
+    <div class="contact">
+      <div>
+        <h2>Theo dõi &amp; liên hệ với ORCcop</h2>
+        <p>Cập nhật mới nhất: 30/06/2026. Mọi thắc mắc về dự án hoặc bản quyền, vui lòng liên hệ qua Facebook chính thức.</p>
+      </div>
+      <div class="contact-actions">
+        <a href="https://www.facebook.com/orichiin" target="_blank" rel="noreferrer" class="btn btn-light">Facebook ORCcop</a>
+        <a href="https://hentaiorc.xyz/ORCcop-w/Bao_cao_ban_quyen_orccop-w.pdf" target="_blank" rel="noreferrer" class="btn btn-outline-light">Báo cáo bản quyền</a>
+      </div>
+    </div>
+  </section>
 
-    /* ── Dust particles ──────────────────────────────── */
+</main>
 
-    function buildDust() {
-      const layer = document.getElementById('dust-layer');
-      for (let i = 0; i < 20; i++) {
-        const p = document.createElement('div');
-        p.className = 'dust-particle';
-        const size = (i % 3) + 1;
-        p.style.cssText = `
-          left:${(i * 5.3) % 100}vw;
-          width:${size}px; height:${size}px;
-          animation-duration:${(i % 8) + 5}s;
-          animation-delay:${(i * 0.7) % 8}s;
-        `;
-        layer.appendChild(p);
-      }
+<footer>
+  <div class="wrap footer-inner">
+    <p>© 2026 ORCcop · trực thuộc ORICHIIN Studio. Bản quyền được bảo lưu.</p>
+    <div class="footer-links">
+      <a href="#top">Trang chủ</a>
+      <a href="#bai-viet">Bài viết</a>
+      <a href="#gioi-thieu">Giới thiệu</a>
+      <a href="#lien-he">Liên hệ</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Terminal typing signature
+  const lines = [
+    { prompt: '$ ', text: 'whoami', color: null },
+    { prompt: '', text: 'orccop — dự án học thuật của ORICHIIN Studio', comment: true },
+    { prompt: '$ ', text: 'cat mission.md', color: null },
+    { prompt: '', text: 'Chia sẻ tri thức lập trình, công cụ và tài liệu kỹ thuật.', comment: true },
+    { prompt: '$ ', text: 'domain --migrate', color: null },
+    { prompt: '', text: 'hentaiorc.xyz  →  ORCcop.com / ORCcop.edu', comment: true },
+    { prompt: '$ ', text: 'status', color: null },
+    { prompt: '', text: 'Đang chuyển đổi… dự kiến 03/05/2027', comment: true },
+  ];
+
+  const body = document.getElementById('terminal-body');
+  let li = 0, ci = 0;
+
+  function typeNext() {
+    if (li >= lines.length) {
+      // restart after a pause
+      setTimeout(() => { body.innerHTML = ''; li = 0; ci = 0; typeNext(); }, 2200);
+      return;
     }
-  </script>
+    const line = lines[li];
+    const full = line.prompt + line.text;
+    if (ci === 0) {
+      const p = document.createElement('p');
+      p.className = 'terminal-line';
+      p.innerHTML = (line.prompt ? `<span class="prompt">${line.prompt}</span>` : '');
+      body.appendChild(p);
+    }
+    const p = body.lastChild;
+    ci++;
+    const shown = full.slice(0, ci);
+    const promptPart = line.prompt;
+    const textPart = shown.slice(promptPart.length);
+    p.innerHTML = (promptPart ? `<span class="prompt">${promptPart}</span>` : '') +
+                  (line.comment ? `<span class="comment">${textPart}</span>` : textPart) +
+                  '<span class="cursor"></span>';
+    if (ci < full.length) {
+      setTimeout(typeNext, 18 + Math.random() * 22);
+    } else {
+      li++; ci = 0;
+      setTimeout(typeNext, 420);
+    }
+  }
+  typeNext();
+</script>
+
 </body>
 </html>
