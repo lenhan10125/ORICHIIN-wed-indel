@@ -3,521 +3,429 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hệ Thống Thiết Kế Và Tạo Mã QR Chuyên Nghiệp Nâng Cao - Studio ME-QR Clone Premium</title>
+<title>Hệ Thống Thiết Kế Và Tạo Mã QR Chuyên Nghiệp Nâng Cao - Studio QR Premium</title>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
 :root {
---primary: #2563eb;
---primary-dark: #1d4ed8;
---primary-light: #eff6ff;
---body-bg: #f1f5f9;
---card-bg: #ffffff;
---border: #cbd5e1;
---text-dark: #0f172a;
---text-gray: #475569;
---text-light: #94a3b8;
---radius-lg: 14px;
---radius-md: 8px;
---shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
+  --body-bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --border: #cbd5e1;
+  --text-dark: #0f172a;
+  --text-gray: #475569;
+  --text-light: #94a3b8;
+  --success: #16a34a;
+  --radius-lg: 14px;
+  --radius-md: 8px;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }
 
 * {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
-background-color: var(--body-bg);
-color: var(--text-dark);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-line-height: 1.5;
+  background-color: var(--body-bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
 }
 
 header {
-background-color: var(--card-bg);
-border-bottom: 1px solid var(--border);
-padding: 16px 32px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 header .brand-title {
-font-size: 22px;
-font-weight: 800;
-color: var(--primary);
-display: flex;
-align-items: center;
-gap: 12px;
-letter-spacing: -0.5px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.5px;
 }
 
+header .brand-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-header {
+  background-color: #f1f5f9;
+  border: 1px solid var(--border);
+  color: var(--text-dark);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-header:hover { background-color: #e2e8f0; }
+
 .workspace-container {
-display: flex;
-max-width: 1500px;
-width: 100%;
-margin: 0 auto;
-padding: 32px;
-gap: 32px;
-flex: 1;
+  display: flex;
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px;
+  gap: 32px;
+  flex: 1;
 }
 
 .panel-settings {
-flex: 1.6;
-display: flex;
-flex-direction: column;
-gap: 24px;
-min-width: 0;
+  flex: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
 }
 
 .panel-preview {
-flex: 1;
-position: sticky;
-top: 32px;
-height: fit-content;
-display: flex;
-flex-direction: column;
-gap: 24px;
+  flex: 1;
+  position: sticky;
+  top: 32px;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .studio-card {
-background-color: var(--card-bg);
-border: 1px solid var(--border);
-border-radius: var(--radius-lg);
-padding: 24px;
-box-shadow: var(--shadow);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
 }
 
 .studio-card-header {
-display: flex;
-align-items: center;
-gap: 10px;
-font-size: 16px;
-font-weight: 700;
-color: var(--text-dark);
-margin-bottom: 20px;
-padding-bottom: 12px;
-border-bottom: 2px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
 }
 
-.studio-card-header svg {
-color: var(--primary);
-flex-shrink: 0;
-}
+.studio-card-header svg { color: var(--primary); flex-shrink: 0; }
 
-/* Tabs điều hướng loại dữ liệu đầu vào */
 .data-tabs-list {
-display: flex;
-gap: 6px;
-margin-bottom: 20px;
-overflow-x: auto;
-padding-bottom: 6px;
-border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .data-tab-item {
-background-color: #f8fafc;
-border: 1px solid var(--border);
-padding: 10px 16px;
-border-radius: var(--radius-md);
-cursor: pointer;
-font-size: 13px;
-font-weight: 600;
-color: var(--text-gray);
-white-space: nowrap;
-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #f8fafc;
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-gray);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-.data-tab-item:hover {
-background-color: #f1f5f9;
-color: var(--text-dark);
-}
-
+.data-tab-item:hover { background-color: #f1f5f9; color: var(--text-dark); }
 .data-tab-item.active {
-background-color: var(--primary);
-color: #ffffff;
-border-color: var(--primary);
-box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-.tab-panel-content {
-display: none;
-}
-
-.tab-panel-content.active {
-display: block;
-animation: fadeInLayout 0.3s ease-in-out;
-}
+.tab-panel-content { display: none; }
+.tab-panel-content.active { display: block; animation: fadeInLayout 0.3s ease-in-out; }
 
 @keyframes fadeInLayout {
-from { opacity: 0; transform: translateY(4px); }
-to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Biểu mẫu Form Controls cấu hình */
-.input-block {
-margin-bottom: 18px;
-}
-
-.input-block:last-child {
-margin-bottom: 0;
-}
+.input-block { margin-bottom: 18px; }
+.input-block:last-child { margin-bottom: 0; }
 
 .input-block label {
-display: block;
-font-size: 13px;
-font-weight: 700;
-margin-bottom: 8px;
-color: var(--text-dark);
-text-transform: uppercase;
-letter-spacing: 0.5px;
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .field-input, .field-select, .field-textarea {
-width: 100%;
-padding: 11px 14px;
-border: 1px solid var(--border);
-border-radius: var(--radius-md);
-font-size: 14px;
-color: var(--text-dark);
-background-color: #ffffff;
-outline: none;
-transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--text-dark);
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-
 .field-input:focus, .field-select:focus, .field-textarea:focus {
-border-color: var(--primary);
-box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
+.field-textarea { resize: vertical; min-height: 90px; }
 
-.field-textarea {
-resize: vertical;
-min-height: 90px;
-}
+.layout-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.layout-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
-.layout-grid-2 {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 16px;
-}
-
-.layout-grid-3 {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap: 12px;
-}
-
-/* Khối quản trị chế độ màu nâng cao */
 .color-manager-box {
-background-color: #f8fafc;
-border: 1px solid #e2e8f0;
-border-radius: var(--radius-md);
-padding: 16px;
-margin-top: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 12px;
 }
 
 .toggle-mode-group {
-display: flex;
-background-color: #e2e8f0;
-padding: 3px;
-border-radius: 6px;
-margin-bottom: 14px;
+  display: flex;
+  background-color: #e2e8f0;
+  padding: 3px;
+  border-radius: 6px;
+  margin-bottom: 14px;
 }
-
 .toggle-mode-btn {
-flex: 1;
-border: none;
-background: none;
-padding: 6px;
-font-size: 12px;
-font-weight: 700;
-color: var(--text-gray);
-cursor: pointer;
-border-radius: 4px;
-transition: all 0.15s ease;
-text-align: center;
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-gray);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  text-align: center;
 }
+.toggle-mode-btn.active { background-color: #ffffff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-.toggle-mode-btn.active {
-background-color: #ffffff;
-color: var(--primary);
-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.gradient-subpanel {
-display: none;
-}
-
-.gradient-subpanel.active {
-display: block;
-}
+.gradient-subpanel { display: none; }
+.gradient-subpanel.active { display: block; }
 
 .color-input-container {
-display: flex;
-align-items: center;
-gap: 10px;
-background-color: #ffffff;
-border: 1px solid var(--border);
-padding: 6px 12px;
-border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
 }
-
 .color-input-container input[type="color"] {
--webkit-appearance: none;
-border: none;
-width: 28px;
-height: 28px;
-border-radius: 6px;
-cursor: pointer;
-background: none;
+  -webkit-appearance: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
 }
-
-.color-input-container input[type="color"]::-webkit-color-swatch-wrapper {
-padding: 0;
-}
-
-.color-input-container input[type="color"]::-webkit-color-swatch {
-border: 1px solid #cbd5e1;
-border-radius: 6px;
-}
+.color-input-container input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-input-container input[type="color"]::-webkit-color-swatch { border: 1px solid #cbd5e1; border-radius: 6px; }
 
 .color-string-text {
-font-family: "Courier New", Courier, monospace;
-font-size: 13px;
-font-weight: 600;
-text-transform: uppercase;
-border: none;
-outline: none;
-width: 100%;
-color: var(--text-dark);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: none;
+  outline: none;
+  width: 100%;
+  color: var(--text-dark);
 }
 
-.range-slider-block {
-margin-top: 12px;
-}
-
+.range-slider-block { margin-top: 12px; }
 .range-slider-header {
-display: flex;
-justify-content: space-between;
-font-size: 12px;
-font-weight: 600;
-color: var(--text-gray);
-margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-gray);
+  margin-bottom: 4px;
 }
+.range-slider-input { width: 100%; accent-color: var(--primary); cursor: pointer; }
 
-.range-slider-input {
-width: 100%;
-accent-color: var(--primary);
-cursor: pointer;
-}
-
-/* Giao diện khung thiết kế mẫu logo tích hợp sẵn */
-.preset-logos-grid {
-display: grid;
-grid-template-columns: repeat(6, 1fr);
-gap: 8px;
-margin-top: 12px;
-}
-
+.preset-logos-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 12px; }
 .preset-logo-item {
-border: 1px solid var(--border);
-background-color: #ffffff;
-border-radius: 6px;
-padding: 6px;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-aspect-ratio: 1;
-transition: all 0.2s ease;
+  border: 1px solid var(--border);
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  transition: all 0.2s ease;
 }
-
-.preset-logo-item:hover {
-border-color: var(--primary);
-transform: scale(1.05);
-}
-
-.preset-logo-item img {
-width: 100%;
-height: 100%;
-object-fit: contain;
-}
+.preset-logo-item:hover { border-color: var(--primary); transform: scale(1.05); }
+.preset-logo-item img { width: 100%; height: 100%; object-fit: contain; }
 
 .uploader-dashed-frame {
-border: 2px dashed var(--border);
-background-color: #f8fafc;
-padding: 16px;
-text-align: center;
-border-radius: var(--radius-md);
-cursor: pointer;
-position: relative;
-transition: background-color 0.2s, border-color 0.2s;
+  border: 2px dashed var(--border);
+  background-color: #f8fafc;
+  padding: 16px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
 }
-
-.uploader-dashed-frame:hover {
-border-color: var(--primary);
-background-color: #f0fdf4;
-}
-
+.uploader-dashed-frame:hover { border-color: var(--primary); background-color: #f0fdf4; }
+.uploader-dashed-frame.drag-over { border-color: var(--primary); background-color: var(--primary-light); }
 .uploader-dashed-frame input[type="file"] {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-opacity: 0;
-cursor: pointer;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
 }
+.upload-guide-text { font-size: 13px; color: var(--text-gray); }
+.upload-guide-text span { color: var(--primary); font-weight: 700; text-decoration: underline; }
 
-.logo-status-bar {
-display: flex;
-align-items: center;
-gap: 12px;
-margin-top: 12px;
-}
-
+.logo-status-bar { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .logo-thumb-view {
-width: 40px;
-height: 40px;
-border: 1px solid var(--border);
-border-radius: 4px;
-object-fit: contain;
-background-color: #ffffff;
-display: none;
+  width: 40px; height: 40px; border: 1px solid var(--border);
+  border-radius: 4px; object-fit: contain; background-color: #ffffff; display: none;
 }
-
 .btn-action-danger {
-padding: 6px 12px;
-font-size: 12px;
-font-weight: 600;
-background-color: #ef4444;
-color: #ffffff;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-display: none;
+  padding: 6px 12px; font-size: 12px; font-weight: 600;
+  background-color: #ef4444; color: #ffffff; border: none;
+  border-radius: 4px; cursor: pointer; display: none;
 }
 
-/* Khu vực hiển thị kết quả giả lập Khung viền ME-QR */
 .live-preview-box {
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-background-color: #ffffff;
-border: 1px solid var(--border);
-border-radius: var(--radius-lg);
-padding: 24px;
-min-height: 420px;
-box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  min-height: 420px;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
 }
 
-/* Khung viền giả lập ME-QR bao bọc quanh QR Code thực tế */
 .me-qr-simulated-frame {
-background-color: #ffffff;
-padding: 16px;
-border-radius: 12px;
-border: 0px solid #000000;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-transition: all 0.2s ease;
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 0px solid #000000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.me-qr-simulated-text {
-font-size: 18px;
-font-weight: 800;
-text-transform: uppercase;
-letter-spacing: 1px;
-margin-top: 12px;
-color: #000000;
-display: none;
-text-align: center;
-width: 100%;
+.me-qr-simulated-text, .me-qr-simulated-text-top {
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 12px;
+  color: #000000;
+  display: none;
+  text-align: center;
+  width: 100%;
 }
+.me-qr-simulated-text-top { margin-top: 0; margin-bottom: 12px; }
 
-.me-qr-simulated-text-top {
-font-size: 18px;
-font-weight: 800;
-text-transform: uppercase;
-letter-spacing: 1px;
-margin-bottom: 12px;
-color: #000000;
-display: none;
-text-align: center;
-width: 100%;
-}
-
-/* Khung nút bấm tương tác tải tệp tin */
-.download-action-grid {
-display: flex;
-flex-direction: column;
-gap: 12px;
-width: 100%;
-margin-top: 16px;
-}
+.download-action-grid { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 16px; }
 
 .btn-studio {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-padding: 14px 24px;
-font-size: 15px;
-font-weight: 700;
-border-radius: var(--radius-md);
-cursor: pointer;
-transition: all 0.2s ease;
-border: none;
-width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 24px; font-size: 15px; font-weight: 700; border-radius: var(--radius-md);
+  cursor: pointer; transition: all 0.2s ease; border: none; width: 100%;
 }
+.btn-studio-primary { background-color: var(--primary); color: #ffffff; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+.btn-studio-primary:hover { background-color: var(--primary-dark); }
+.btn-studio-secondary { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid var(--border); }
+.btn-studio-secondary:hover { background-color: #e2e8f0; }
+.btn-studio-outline { background-color: #ffffff; color: var(--primary); border: 1px solid var(--primary); }
+.btn-studio-outline:hover { background-color: var(--primary-light); }
 
-.btn-studio-primary {
-background-color: var(--primary);
-color: #ffffff;
-box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+.status-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: var(--text-dark);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.25s ease;
+  pointer-events: none;
+  z-index: 999;
 }
+.status-toast.show { opacity: 1; transform: translateY(0); }
 
-.btn-studio-primary:hover {
-background-color: var(--primary-dark);
+.history-strip { display: flex; gap: 10px; overflow-x: auto; margin-top: 14px; padding-bottom: 4px; }
+.history-thumb {
+  width: 52px; height: 52px; border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; flex-shrink: 0; object-fit: contain; background: #fff; padding: 4px;
+  transition: border-color .15s ease, transform .15s ease;
 }
+.history-thumb:hover { border-color: var(--primary); transform: scale(1.06); }
+.history-empty-note { font-size: 12px; color: var(--text-light); }
 
-.btn-studio-secondary {
-background-color: #f1f5f9;
-color: var(--text-dark);
-border: 1px solid var(--border);
-}
-
-.btn-studio-secondary:hover {
-background-color: #e2e8f0;
-}
+.batch-textarea-note { font-size: 12px; color: var(--text-gray); margin-top: 6px; }
 
 @media (max-width: 1024px) {
-.workspace-container {
-flex-direction: column;
-padding: 16px;
-}
-.panel-preview {
-position: static;
-}
+  .workspace-container { flex-direction: column; padding: 16px; }
+  .panel-preview { position: static; }
 }
 </style>
 </head>
 <body>
 
 <header>
-<div class="brand-title">
-<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M21 16H16V21"/><path d="M9 9H9.01"/><path d="M9 15H9.01"/><path d="M15 9H9V15H15V9Z"/><path d="M15 15H19"/></svg>
-ME-QR Premium Studio Engine
-</div>
+  <div class="brand-title">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M21 16H16V21"/><path d="M9 9H9.01"/><path d="M9 15H9.01"/><path d="M15 9H9V15H15V9Z"/><path d="M15 15H19"/></svg>
+    QR Premium Studio Engine
+  </div>
+  <div class="brand-actions">
+    <button class="btn-header" onclick="exportCurrentConfig()">Xuất cấu hình (.json)</button>
+    <label class="btn-header" style="position:relative; overflow:hidden;">
+      Nhập cấu hình
+      <input type="file" accept="application/json" onchange="importConfigFromFile(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer;">
+    </label>
+  </div>
 </header>
 
 <div class="workspace-container">
@@ -525,992 +433,1303 @@ ME-QR Premium Studio Engine
 <div class="panel-settings">
 
 <div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-Bước 1: Nhập dữ liệu mã hóa QR Code
-</div>
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Bước 1: Nhập dữ liệu mã hóa QR Code
+  </div>
 
-<div class="data-tabs-list">
-<div class="data-tab-item active" onclick="executeTabSwitch('url')">Trang Web</div>
-<div class="data-tab-item" onclick="executeTabSwitch('text')">Văn Bản</div>
-<div class="data-tab-item" onclick="executeTabSwitch('wifi')">Mạng Wi-Fi</div>
-<div class="data-tab-item" onclick="executeTabSwitch('vcard')">Danh Bạ</div>
-<div class="data-tab-item" onclick="executeTabSwitch('email')">Gửi Email</div>
-</div>
+  <div class="data-tabs-list">
+    <div class="data-tab-item active" data-tab="url" onclick="executeTabSwitch('url')">Trang Web</div>
+    <div class="data-tab-item" data-tab="text" onclick="executeTabSwitch('text')">Văn Bản</div>
+    <div class="data-tab-item" data-tab="wifi" onclick="executeTabSwitch('wifi')">Mạng Wi-Fi</div>
+    <div class="data-tab-item" data-tab="vcard" onclick="executeTabSwitch('vcard')">Danh Bạ</div>
+    <div class="data-tab-item" data-tab="email" onclick="executeTabSwitch('email')">Gửi Email</div>
+    <div class="data-tab-item" data-tab="sms" onclick="executeTabSwitch('sms')">Tin Nhắn SMS</div>
+    <div class="data-tab-item" data-tab="tel" onclick="executeTabSwitch('tel')">Gọi Điện</div>
+    <div class="data-tab-item" data-tab="geo" onclick="executeTabSwitch('geo')">Vị Trí Bản Đồ</div>
+    <div class="data-tab-item" data-tab="event" onclick="executeTabSwitch('event')">Sự Kiện</div>
+    <div class="data-tab-item" data-tab="batch" onclick="executeTabSwitch('batch')">Tạo Hàng Loạt</div>
+  </div>
 
-<div id="tabpanel-url" class="tab-panel-content active">
-<div class="input-block">
-<label for="field-url-data">Đường dẫn đích (URL)</label>
-<input type="text" id="field-url-data" class="field-input" placeholder="https://ten-mien-cua-ban.com" value="https://example.com" oninput="compileAllFormInputs()">
-</div>
-</div>
+  <div id="tabpanel-url" class="tab-panel-content active">
+    <div class="input-block">
+      <label for="field-url-data">Đường dẫn đích (URL)</label>
+      <input type="text" id="field-url-data" class="field-input" placeholder="https://ten-mien-cua-ban.com" value="https://example.com" oninput="compileAllFormInputs()">
+    </div>
+  </div>
 
-<div id="tabpanel-text" class="tab-panel-content">
-<div class="input-block">
-<label for="field-text-data">Nội dung chuỗi ký tự tự do</label>
-<textarea id="field-text-data" class="field-textarea" placeholder="Nhập bất kỳ thông tin văn bản hoặc ghi chú nào..." oninput="compileAllFormInputs()"></textarea>
-</div>
-</div>
+  <div id="tabpanel-text" class="tab-panel-content">
+    <div class="input-block">
+      <label for="field-text-data">Nội dung chuỗi ký tự tự do</label>
+      <textarea id="field-text-data" class="field-textarea" placeholder="Nhập bất kỳ thông tin văn bản hoặc ghi chú nào..." oninput="compileAllFormInputs()"></textarea>
+    </div>
+  </div>
 
-<div id="tabpanel-wifi" class="tab-panel-content">
-<div class="input-block">
-<label for="field-wifi-ssid">Tên mạng định danh (SSID)</label>
-<input type="text" id="field-wifi-ssid" class="field-input" placeholder="Tên cục Wi-Fi phát sóng" oninput="compileAllFormInputs()">
-</div>
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-wifi-pass">Mật khẩu truy cập</label>
-<input type="password" id="field-wifi-pass" class="field-input" placeholder="Mật khẩu bảo vệ Wi-Fi" oninput="compileAllFormInputs()">
-</div>
-<div class="input-block">
-<label for="field-wifi-encrypt">Phương thức bảo mật</label>
-<select id="field-wifi-encrypt" class="field-select" onchange="compileAllFormInputs()">
-<option value="WPA">Mã hóa WPA/WPA2</option>
-<option value="WEP">Mã hóa WEP</option>
-<option value="nopass">Mạng không bảo mật (Mở)</option>
-</select>
-</div>
-</div>
-</div>
+  <div id="tabpanel-wifi" class="tab-panel-content">
+    <div class="input-block">
+      <label for="field-wifi-ssid">Tên mạng định danh (SSID)</label>
+      <input type="text" id="field-wifi-ssid" class="field-input" placeholder="Tên cục Wi-Fi phát sóng" oninput="compileAllFormInputs()">
+    </div>
+    <div class="layout-grid-2">
+      <div class="input-block">
+        <label for="field-wifi-pass">Mật khẩu truy cập</label>
+        <input type="text" id="field-wifi-pass" class="field-input" placeholder="Mật khẩu bảo vệ Wi-Fi" oninput="compileAllFormInputs()">
+      </div>
+      <div class="input-block">
+        <label for="field-wifi-encrypt">Phương thức bảo mật</label>
+        <select id="field-wifi-encrypt" class="field-select" onchange="compileAllFormInputs()">
+          <option value="WPA">Mã hóa WPA/WPA2</option>
+          <option value="WEP">Mã hóa WEP</option>
+          <option value="nopass">Mạng không bảo mật (Mở)</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-<div id="tabpanel-vcard" class="tab-panel-content">
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-vcard-fn">Họ và tên</label>
-<input type="text" id="field-vcard-fn" class="field-input" placeholder="Ví dụ: Nguyễn Văn Khách" oninput="compileAllFormInputs()">
-</div>
-<div class="input-block">
-<label for="field-vcard-tel">Số điện thoại di động</label>
-<input type="text" id="field-vcard-tel" class="field-input" placeholder="+84 900 000 000" oninput="compileAllFormInputs()">
-</div>
-</div>
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-vcard-email">Hòm thư điện tử</label>
-<input type="email" id="field-vcard-email" class="field-input" placeholder="nguyen@abc.com" oninput="compileAllFormInputs()">
-</div>
-<div class="input-block">
-<label for="field-vcard-org">Tổ chức / Công ty</label>
-<input type="text" id="field-vcard-org" class="field-input" placeholder="Tên cơ quan làm việc" oninput="compileAllFormInputs()">
-</div>
-</div>
-</div>
+  <div id="tabpanel-vcard" class="tab-panel-content">
+    <div class="layout-grid-2">
+      <div class="input-block">
+        <label for="field-vcard-fn">Họ và tên</label>
+        <input type="text" id="field-vcard-fn" class="field-input" placeholder="Ví dụ: Nguyễn Văn Khách" oninput="compileAllFormInputs()">
+      </div>
+      <div class="input-block">
+        <label for="field-vcard-tel">Số điện thoại di động</label>
+        <input type="text" id="field-vcard-tel" class="field-input" placeholder="+84 900 000 000" oninput="compileAllFormInputs()">
+      </div>
+    </div>
+    <div class="layout-grid-2">
+      <div class="input-block">
+        <label for="field-vcard-email">Hòm thư điện tử</label>
+        <input type="email" id="field-vcard-email" class="field-input" placeholder="nguyen@abc.com" oninput="compileAllFormInputs()">
+      </div>
+      <div class="input-block">
+        <label for="field-vcard-org">Tổ chức / Công ty</label>
+        <input type="text" id="field-vcard-org" class="field-input" placeholder="Tên cơ quan làm việc" oninput="compileAllFormInputs()">
+      </div>
+    </div>
+  </div>
 
-<div id="tabpanel-email" class="tab-panel-content">
-<div class="input-block">
-<label for="field-email-recipient">Gửi đến hòm thư (To)</label>
-<input type="email" id="field-email-recipient" class="field-input" placeholder="lienhe@congty.com" oninput="compileAllFormInputs()">
-</div>
-<div class="input-block">
-<label for="field-email-subject">Tiêu đề thư mẫu (Subject)</label>
-<input type="text" id="field-email-subject" class="field-input" placeholder="Yêu cầu thông tin báo giá sản phẩm" oninput="compileAllFormInputs()">
-</div>
-<div class="input-block">
-<label for="field-email-body">Nội dung thư thô (Body)</label>
-<textarea id="field-email-body" class="field-textarea" placeholder="Nội dung soạn sẵn viết tại đây..." oninput="compileAllFormInputs()"></textarea>
-</div>
-</div>
-</div>
+  <div id="tabpanel-email" class="tab-panel-content">
+    <div class="input-block">
+      <label for="field-email-recipient">Gửi đến hòm thư (To)</label>
+      <input type="email" id="field-email-recipient" class="field-input" placeholder="lienhe@congty.com" oninput="compileAllFormInputs()">
+    </div>
+    <div class="input-block">
+      <label for="field-email-subject">Tiêu đề thư mẫu (Subject)</label>
+      <input type="text" id="field-email-subject" class="field-input" placeholder="Yêu cầu thông tin báo giá sản phẩm" oninput="compileAllFormInputs()">
+    </div>
+    <div class="input-block">
+      <label for="field-email-body">Nội dung thư thô (Body)</label>
+      <textarea id="field-email-body" class="field-textarea" placeholder="Nội dung soạn sẵn viết tại đây..." oninput="compileAllFormInputs()"></textarea>
+    </div>
+  </div>
 
-<div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-Bước 2: Cấu hình Khung Viền Chứa Chữ (ME-QR Style)
-</div>
+  <div id="tabpanel-sms" class="tab-panel-content">
+    <div class="layout-grid-2">
+      <div class="input-block">
+        <label for="field-sms-tel">Số điện thoại nhận</label>
+        <input type="text" id="field-sms-tel" class="field-input" placeholder="+84 900 000 000" oninput="compileAllFormInputs()">
+      </div>
+      <div class="input-block">
+        <label for="field-sms-msg">Nội dung tin nhắn</label>
+        <input type="text" id="field-sms-msg" class="field-input" placeholder="Nội dung SMS soạn sẵn" oninput="compileAllFormInputs()">
+      </div>
+    </div>
+  </div>
 
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-frame-template">Chọn phong cách mẫu khung</label>
-<select id="field-frame-template" class="field-select" onchange="recalculateFrameDisplay()">
-<option value="none" selected>Không áp dụng khung viền</option>
-<option value="bottom-banner">Khung có nhãn chữ bên dưới</option>
-<option value="top-banner">Khung có nhãn chữ bên trên</option>
-<option value="full-box">Khung hộp bao kín toàn bộ</option>
-</select>
-</div>
-<div class="input-block">
-<label for="field-frame-text">Nội dung chữ hiển thị</label>
-<input type="text" id="field-frame-text" class="field-input" value="SCAN ME" oninput="recalculateFrameDisplay()">
-</div>
-</div>
+  <div id="tabpanel-tel" class="tab-panel-content">
+    <div class="input-block">
+      <label for="field-tel-number">Số điện thoại gọi trực tiếp</label>
+      <input type="text" id="field-tel-number" class="field-input" placeholder="+84 900 000 000" oninput="compileAllFormInputs()">
+    </div>
+  </div>
 
-<div class="layout-grid-3" style="margin-top: 12px;">
-<div class="input-block">
-<label>Màu nền khung</label>
-<div class="color-input-container">
-<input type="color" id="picker-frame-bg" value="#000000" oninput="syncColorValues('picker-frame-bg', 'text-frame-bg'); recalculateFrameDisplay();">
-<input type="text" id="text-frame-bg" value="#000000" class="color-string-text" onchange="syncColorValues('text-frame-bg', 'picker-frame-bg'); recalculateFrameDisplay();">
-</div>
-</div>
-<div class="input-block">
-<label>Màu chữ khung</label>
-<div class="color-input-container">
-<input type="color" id="picker-frame-txtcolor" value="#ffffff" oninput="syncColorValues('picker-frame-txtcolor', 'text-frame-txtcolor'); recalculateFrameDisplay();">
-<input type="text" id="text-frame-txtcolor" value="#FFFFFF" class="color-string-text" onchange="syncColorValues('text-frame-txtcolor', 'picker-frame-txtcolor'); recalculateFrameDisplay();">
-</div>
-</div>
-<div class="input-block">
-<label for="field-frame-thickness">Độ dày viền (px)</label>
-<input type="number" id="field-frame-thickness" class="field-input" value="4" min="0" max="20" oninput="recalculateFrameDisplay()">
-</div>
-</div>
-</div>
+  <div id="tabpanel-geo" class="tab-panel-content">
+    <div class="layout-grid-2">
+      <div class="input-block">
+        <label for="field-geo-lat">Vĩ độ (Latitude)</label>
+        <input type="text" id="field-geo-lat" class="field-input" placeholder="21.0278" oninput="compileAllFormInputs()">
+      </div>
+      <div class="input-block">
+        <label for="field-geo-lng">Kinh độ (Longitude)</label>
+        <input type="text" id="field-geo-lng" class="field-input" placeholder="105.8342" oninput="compileAllFormInputs()">
+      </div>
+    </div>
+  </div>
 
-<div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
-Bước 3: Tùy chỉnh Điểm Chấm Thân QR (Body Dots)
-</div>
+  <div id="tabpanel-event" class="tab-panel-content">
+    <div class="input-block">
+      <label for="field-event-title">Tiêu đề sự kiện</label>
+      <input type="text" id="field-event-title" class="field-input" placeholder="Họp khởi động dự án" oninput="compileAllFormInputs()">
+    </div>
+    <div class="input-block">
+      <label for="field-event-location">Địa điểm</label>
+      <input type="text" id="field-event-location" class="field-input" placeholder="Phòng họp A, Tòa nhà B" oninput="compileAllFormInputs()">
+    </div>
+    <div class="layout-grid-2">
+      <div class="input-block">
+        <label for="field-event-start">Thời gian bắt đầu</label>
+        <input type="datetime-local" id="field-event-start" class="field-input" oninput="compileAllFormInputs()">
+      </div>
+      <div class="input-block">
+        <label for="field-event-end">Thời gian kết thúc</label>
+        <input type="datetime-local" id="field-event-end" class="field-input" oninput="compileAllFormInputs()">
+      </div>
+    </div>
+  </div>
 
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-dots-shape">Kiểu dáng hình dạng điểm chấm</label>
-<select id="field-dots-shape" class="field-select" onchange="triggerEngineRebuild()">
-<option value="square" selected>Square - Hình vuông truyền thống</option>
-<option value="dots">Dots - Các nút chấm tròn rời rạc</option>
-<option value="rounded">Rounded - Bo góc biên cạnh nhẹ</option>
-<option value="extra-rounded">Extra Rounded - Bo cạnh vòng cung lớn</option>
-<option value="classy">Classy - Góc chéo nhọn nghệ thuật</option>
-<option value="classy-rounded">Classy Rounded - Góc chéo kết hợp bo tròn</option>
-</select>
-</div>
-<div class="input-block">
-<label>Phương thức phối màu điểm</label>
-<div class="toggle-mode-group">
-<button class="toggle-mode-btn active" id="btn-dots-single" onclick="executeColorModeSwitch('dots', 'single')">Màu Đơn Sắc</button>
-<button class="toggle-mode-btn" id="btn-dots-gradient" onclick="executeColorModeSwitch('dots', 'gradient')">Chuyển Sắc Gradient</button>
-</div>
-</div>
-</div>
-
-<div class="color-manager-box">
-<div class="layout-grid-2" id="block-dots-single">
-<div class="input-block">
-<label>Chọn màu đơn</label>
-<div class="color-input-container">
-<input type="color" id="picker-dots-single" value="#000000" oninput="syncColorValues('picker-dots-single', 'text-dots-single')">
-<input type="text" id="text-dots-single" value="#000000" class="color-string-text" onchange="syncColorValues('text-dots-single', 'picker-dots-single')">
-</div>
-</div>
-</div>
-
-<div class="gradient-subpanel" id="block-dots-gradient">
-<div class="layout-grid-2">
-<div class="input-block">
-<label>Màu bắt đầu (Color 1)</label>
-<div class="color-input-container">
-<input type="color" id="picker-dots-g1" value="#1e3a8a" oninput="syncColorValues('picker-dots-g1', 'text-dots-g1')">
-<input type="text" id="text-dots-g1" value="#1E3A8A" class="color-string-text" onchange="syncColorValues('text-dots-g1', 'picker-dots-g1')">
-</div>
-</div>
-<div class="input-block">
-<label>Màu kết thúc (Color 2)</label>
-<div class="color-input-container">
-<input type="color" id="picker-dots-g2" value="#3b82f6" oninput="syncColorValues('picker-dots-g2', 'text-dots-g2')">
-<input type="text" id="text-dots-g2" value="#3B82F6" class="color-string-text" onchange="syncColorValues('text-dots-g2', 'picker-dots-g2')">
-</div>
-</div>
-</div>
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-dots-gtype">Dạng phân bố sắc độ</label>
-<select id="field-dots-gtype" class="field-select" onchange="triggerEngineRebuild()">
-<option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
-<option value="radial">Vòng tròn lan tỏa (Radial)</option>
-</select>
-</div>
-<div class="input-block range-slider-block" id="row-dots-angle">
-<div class="range-slider-header">
-<label for="slider-dots-angle">Góc quay hướng màu Gradient</label>
-<span id="label-dots-angle-value">0°</span>
-</div>
-<input type="range" id="slider-dots-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-dots-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
-</div>
-</div>
-</div>
-</div>
+  <div id="tabpanel-batch" class="tab-panel-content">
+    <div class="input-block">
+      <label for="field-batch-list">Danh sách dữ liệu (mỗi dòng một mã QR)</label>
+      <textarea id="field-batch-list" class="field-textarea" style="min-height:140px;" placeholder="https://example.com/1&#10;https://example.com/2&#10;Ma khach hang 00123"></textarea>
+      <div class="batch-textarea-note">Bản xem trước bên phải sẽ hiển thị mã QR của dòng đầu tiên. Bấm nút "Tải Toàn Bộ Hàng Loạt (.zip)" để xuất tất cả cùng lúc, mỗi mã dùng chung phong cách thiết kế hiện tại.</div>
+    </div>
+    <button class="btn-studio btn-studio-outline" onclick="downloadBatchAsZip()">Tải Toàn Bộ Hàng Loạt (.zip)</button>
+  </div>
 </div>
 
 <div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="4"/><rect width="8" height="8" x="8" y="8" rx="1"/></svg>
-Bước 4: Tùy chỉnh Kiểu Dáng & Màu Sắc Khung Mắt Nhận Diện
-</div>
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+    Bước 2: Cấu hình Khung Viền Chứa Chữ
+  </div>
 
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-frame-shape">Hình dạng khung ngoài mắt nhận</label>
-<select id="field-frame-shape" class="field-select" onchange="triggerEngineRebuild()">
-<option value="square" selected>Square - Hình vuông sắc cạnh</option>
-<option value="dot">Dot - Khung vuông bo tròn góc mềm</option>
-<option value="extra-rounded">Extra Rounded - Khung bo giọt nước sâu</option>
-<option value="outward-rounded">Outward Rounded - Bo lồi góc ngoài</option>
-<option value="inward-rounded">Inward Rounded - Bo lõm góc trong</option>
-</select>
-</div>
-<div class="input-block">
-<label>Phối màu khung mắt nhận</label>
-<div class="toggle-mode-group">
-<button class="toggle-mode-btn active" id="btn-frame-single" onclick="executeColorModeSwitch('frame', 'single')">Màu Đơn Sắc</button>
-<button class="toggle-mode-btn" id="btn-frame-gradient" onclick="executeColorModeSwitch('frame', 'gradient')">Chuyển Sắc Gradient</button>
-</div>
-</div>
-</div>
+  <div class="layout-grid-2">
+    <div class="input-block">
+      <label for="field-frame-template">Chọn phong cách mẫu khung</label>
+      <select id="field-frame-template" class="field-select" onchange="recalculateFrameDisplay()">
+        <option value="none" selected>Không áp dụng khung viền</option>
+        <option value="bottom-banner">Khung có nhãn chữ bên dưới</option>
+        <option value="top-banner">Khung có nhãn chữ bên trên</option>
+        <option value="full-box">Khung hộp bao kín toàn bộ</option>
+      </select>
+    </div>
+    <div class="input-block">
+      <label for="field-frame-text">Nội dung chữ hiển thị</label>
+      <input type="text" id="field-frame-text" class="field-input" value="SCAN ME" oninput="recalculateFrameDisplay()">
+    </div>
+  </div>
 
-<div class="color-manager-box">
-<div class="layout-grid-2" id="block-frame-single">
-<div class="input-block">
-<label>Chọn màu khung đơn</label>
-<div class="color-input-container">
-<input type="color" id="picker-frame-single" value="#000000" oninput="syncColorValues('picker-frame-single', 'text-frame-single')">
-<input type="text" id="text-frame-single" value="#000000" class="color-string-text" onchange="syncColorValues('text-frame-single', 'picker-frame-single')">
-</div>
-</div>
-</div>
-
-<div class="gradient-subpanel" id="block-frame-gradient">
-<div class="layout-grid-2">
-<div class="input-block">
-<label>Màu bắt đầu (Color 1)</label>
-<div class="color-input-container">
-<input type="color" id="picker-frame-g1" value="#dc2626" oninput="syncColorValues('picker-frame-g1', 'text-frame-g1')">
-<input type="text" id="text-frame-g1" value="#DC2626" class="color-string-text" onchange="syncColorValues('text-frame-g1', 'picker-frame-g1')">
-</div>
-</div>
-<div class="input-block">
-<label>Màu kết thúc (Color 2)</label>
-<div class="color-input-container">
-<input type="color" id="picker-frame-g2" value="#f59e0b" oninput="syncColorValues('picker-frame-g2', 'text-frame-g2')">
-<input type="text" id="text-frame-g2" value="#F59E0B" class="color-string-text" onchange="syncColorValues('text-frame-g2', 'picker-frame-g2')">
-</div>
-</div>
-</div>
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-frame-gtype">Dạng phân bố sắc độ</label>
-<select id="field-frame-gtype" class="field-select" onchange="triggerEngineRebuild()">
-<option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
-<option value="radial">Vòng tròn lan tỏa (Radial)</option>
-</select>
-</div>
-<div class="input-block range-slider-block" id="row-frame-angle">
-<div class="range-slider-header">
-<label for="slider-frame-angle">Góc quay hướng màu Gradient</label>
-<span id="label-frame-angle-value">0°</span>
-</div>
-<input type="range" id="slider-frame-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-frame-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
-</div>
-</div>
-</div>
-</div>
+  <div class="layout-grid-3" style="margin-top: 12px;">
+    <div class="input-block">
+      <label>Màu nền khung</label>
+      <div class="color-input-container">
+        <input type="color" id="picker-frame-bg" value="#000000" oninput="syncColorValues('picker-frame-bg', 'text-frame-bg'); recalculateFrameDisplay();">
+        <input type="text" id="text-frame-bg" value="#000000" class="color-string-text" onchange="syncColorValues('text-frame-bg', 'picker-frame-bg'); recalculateFrameDisplay();">
+      </div>
+    </div>
+    <div class="input-block">
+      <label>Màu chữ khung</label>
+      <div class="color-input-container">
+        <input type="color" id="picker-frame-txtcolor" value="#ffffff" oninput="syncColorValues('picker-frame-txtcolor', 'text-frame-txtcolor'); recalculateFrameDisplay();">
+        <input type="text" id="text-frame-txtcolor" value="#FFFFFF" class="color-string-text" onchange="syncColorValues('text-frame-txtcolor', 'picker-frame-txtcolor'); recalculateFrameDisplay();">
+      </div>
+    </div>
+    <div class="input-block">
+      <label for="field-frame-thickness">Độ dày viền (px)</label>
+      <input type="number" id="field-frame-thickness" class="field-input" value="4" min="0" max="20" oninput="recalculateFrameDisplay()">
+    </div>
+  </div>
 </div>
 
 <div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
-Bước 5: Tùy chỉnh Kiểu Dáng & Màu Sắc Chấm Mắt Trong (Eye Ball)
-</div>
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+    Bước 3: Tùy chỉnh Điểm Chấm Thân QR
+  </div>
 
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-ball-shape">Hình dạng nhân tố tâm tròn mắt trong</label>
-<select id="field-ball-shape" class="field-select" onchange="triggerEngineRebuild()">
-<option value="square" selected>Square - Chấm tâm vuông sắc cạnh</option>
-<option value="dot">Dot - Chấm tâm tròn xoe đều</option>
-<option value="heart">Heart - Kiểu tâm hình trái tim</option>
-</select>
-</div>
-<div class="input-block">
-<label>Phối màu nhân mắt nhận</label>
-<div class="toggle-mode-group">
-<button class="toggle-mode-btn active" id="btn-ball-single" onclick="executeColorModeSwitch('ball', 'single')">Màu Đơn Sắc</button>
-<button class="toggle-mode-btn" id="btn-ball-gradient" onclick="executeColorModeSwitch('ball', 'gradient')">Chuyển Sắc Gradient</button>
-</div>
-</div>
-</div>
+  <div class="layout-grid-2">
+    <div class="input-block">
+      <label for="field-dots-shape">Kiểu dáng hình dạng điểm chấm</label>
+      <select id="field-dots-shape" class="field-select" onchange="triggerEngineRebuild()">
+        <option value="square" selected>Square - Hình vuông truyền thống</option>
+        <option value="dots">Dots - Các nút chấm tròn rời rạc</option>
+        <option value="rounded">Rounded - Bo góc biên cạnh nhẹ</option>
+        <option value="extra-rounded">Extra Rounded - Bo cạnh vòng cung lớn</option>
+        <option value="classy">Classy - Góc chéo nhọn nghệ thuật</option>
+        <option value="classy-rounded">Classy Rounded - Góc chéo kết hợp bo tròn</option>
+      </select>
+    </div>
+    <div class="input-block">
+      <label>Phương thức phối màu điểm</label>
+      <div class="toggle-mode-group">
+        <button class="toggle-mode-btn active" id="btn-dots-single" onclick="executeColorModeSwitch('dots', 'single')">Màu Đơn Sắc</button>
+        <button class="toggle-mode-btn" id="btn-dots-gradient" onclick="executeColorModeSwitch('dots', 'gradient')">Chuyển Sắc Gradient</button>
+      </div>
+    </div>
+  </div>
 
-<div class="color-manager-box">
-<div class="layout-grid-2" id="block-ball-single">
-<div class="input-block">
-<label>Chọn màu nhân đơn</label>
-<div class="color-input-container">
-<input type="color" id="picker-ball-single" value="#000000" oninput="syncColorValues('picker-ball-single', 'text-ball-single')">
-<input type="text" id="text-ball-single" value="#000000" class="color-string-text" onchange="syncColorValues('text-ball-single', 'picker-ball-single')">
-</div>
-</div>
-</div>
+  <div class="color-manager-box">
+    <div class="layout-grid-2" id="block-dots-single">
+      <div class="input-block">
+        <label>Chọn màu đơn</label>
+        <div class="color-input-container">
+          <input type="color" id="picker-dots-single" value="#000000" oninput="syncColorValues('picker-dots-single', 'text-dots-single')">
+          <input type="text" id="text-dots-single" value="#000000" class="color-string-text" onchange="syncColorValues('text-dots-single', 'picker-dots-single')">
+        </div>
+      </div>
+    </div>
 
-<div class="gradient-subpanel" id="block-ball-gradient">
-<div class="layout-grid-2">
-<div class="input-block">
-<label>Màu bắt đầu (Color 1)</label>
-<div class="color-input-container">
-<input type="color" id="picker-ball-g1" value="#059669" oninput="syncColorValues('picker-ball-g1', 'text-ball-g1')">
-<input type="text" id="text-ball-g1" value="#059669" class="color-string-text" onchange="syncColorValues('text-dots-g1', 'picker-ball-g1')">
-</div>
-</div>
-<div class="input-block">
-<label>Màu kết thúc (Color 2)</label>
-<div class="color-input-container">
-<input type="color" id="picker-ball-g2" value="#10b981" oninput="syncColorValues('picker-ball-g2', 'text-ball-g2')">
-<input type="text" id="text-ball-g2" value="#10B981" class="color-string-text" onchange="syncColorValues('text-ball-g2', 'picker-ball-g2')">
-</div>
-</div>
-</div>
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-ball-gtype">Dạng phân bố sắc độ</label>
-<select id="field-ball-gtype" class="field-select" onchange="triggerEngineRebuild()">
-<option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
-<option value="radial">Vòng tròn lan tỏa (Radial)</option>
-</select>
-</div>
-<div class="input-block range-slider-block" id="row-ball-angle">
-<div class="range-slider-header">
-<label for="slider-ball-angle">Góc quay hướng màu Gradient</label>
-<span id="label-ball-angle-value">0°</span>
-</div>
-<input type="range" id="slider-ball-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-ball-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-Bước 6: Chèn Logo / Biểu Tượng Trung Tâm Mã QR
-</div>
-
-<div class="layout-grid-2">
-<div class="input-block">
-<label>Tải tệp tin Logo tự chọn</label>
-<div class="uploader-dashed-frame">
-<div class="upload-guide-text">Thả ảnh vào đây hoặc <span>Duyệt File</span></div>
-<input type="file" id="field-uploaded-logo-file" accept="image/*" onchange="processLocalLogoUpload(this)">
-</div>
-<div class="logo-status-bar">
-<img id="view-logo-thumbnail" class="logo-thumb-view" alt="Logo preview icon">
-<button class="btn-action-danger" id="btn-delete-logo" onclick="wipeSelectedLogoData()">Gỡ bỏ logo</button>
-</div>
-</div>
-
-<div class="input-block">
-<label>Hoặc chọn Logo nhanh từ kho ứng dụng</label>
-<div class="preset-logos-grid">
-<div class="preset-logo-item" onclick="applyPresetSocialLogo('fb')">
-<img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook Icon">
-</div>
-<div class="preset-logo-item" onclick="applyPresetSocialLogo('yt')">
-<img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube Icon">
-</div>
-<div class="preset-logo-item" onclick="applyPresetSocialLogo('ins')">
-<img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram Icon">
-</div>
-<div class="preset-logo-item" onclick="applyPresetSocialLogo('twt')">
-<img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg" alt="X Icon">
-</div>
-<div class="preset-logo-item" onclick="applyPresetSocialLogo('wf')">
-<img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/WiFi_Logo.svg" alt="WiFi Icon">
-</div>
-<div class="preset-logo-item" onclick="applyPresetSocialLogo('mail')">
-<img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail Icon">
-</div>
-</div>
-</div>
-</div>
-
-<div class="layout-grid-2" style="margin-top: 14px;">
-<div class="input-block range-slider-block">
-<div class="range-slider-header">
-<label for="slider-logo-scale">Tỷ lệ bao phủ kích thước Logo</label>
-<span id="label-logo-scale-val">0.3</span>
-</div>
-<input type="range" id="slider-logo-scale" class="range-slider-input" min="0.1" max="0.45" step="0.05" value="0.3" oninput="document.getElementById('label-logo-scale-val').innerText = this.value; triggerEngineRebuild();">
-</div>
-<div class="input-block range-slider-block">
-<div class="range-slider-header">
-<label for="slider-logo-space">Khoảng lề biên đệm dọn vùng xung quanh</label>
-<span id="label-logo-space-val">3</span>
-</div>
-<input type="range" id="slider-logo-space" class="range-slider-input" min="0" max="15" step="1" value="3" oninput="document.getElementById('label-logo-space-val').innerText = this.value; triggerEngineRebuild();">
-</div>
-</div>
+    <div class="gradient-subpanel" id="block-dots-gradient">
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label>Màu bắt đầu (Color 1)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-dots-g1" value="#1e3a8a" oninput="syncColorValues('picker-dots-g1', 'text-dots-g1')">
+            <input type="text" id="text-dots-g1" value="#1E3A8A" class="color-string-text" onchange="syncColorValues('text-dots-g1', 'picker-dots-g1')">
+          </div>
+        </div>
+        <div class="input-block">
+          <label>Màu kết thúc (Color 2)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-dots-g2" value="#3b82f6" oninput="syncColorValues('picker-dots-g2', 'text-dots-g2')">
+            <input type="text" id="text-dots-g2" value="#3B82F6" class="color-string-text" onchange="syncColorValues('text-dots-g2', 'picker-dots-g2')">
+          </div>
+        </div>
+      </div>
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label for="field-dots-gtype">Dạng phân bố sắc độ</label>
+          <select id="field-dots-gtype" class="field-select" onchange="triggerEngineRebuild()">
+            <option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
+            <option value="radial">Vòng tròn lan tỏa (Radial)</option>
+          </select>
+        </div>
+        <div class="input-block range-slider-block" id="row-dots-angle">
+          <div class="range-slider-header">
+            <label for="slider-dots-angle">Góc quay hướng màu Gradient</label>
+            <span id="label-dots-angle-value">0°</span>
+          </div>
+          <input type="range" id="slider-dots-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-dots-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9Z"/></svg>
-Bước 7: Thiết lập Phông Nền Phía Sau Mã QR (Background)
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="4"/><rect width="8" height="8" x="8" y="8" rx="1"/></svg>
+    Bước 4: Tùy chỉnh Khung Mắt Nhận Diện
+  </div>
+
+  <div class="layout-grid-2">
+    <div class="input-block">
+      <label for="field-frame-shape">Hình dạng khung ngoài mắt nhận</label>
+      <select id="field-frame-shape" class="field-select" onchange="triggerEngineRebuild()">
+        <option value="square" selected>Square - Hình vuông sắc cạnh</option>
+        <option value="dot">Dot - Khung vuông bo tròn góc mềm</option>
+        <option value="extra-rounded">Extra Rounded - Khung bo giọt nước sâu</option>
+      </select>
+    </div>
+    <div class="input-block">
+      <label>Phối màu khung mắt nhận</label>
+      <div class="toggle-mode-group">
+        <button class="toggle-mode-btn active" id="btn-frame-single" onclick="executeColorModeSwitch('frame', 'single')">Màu Đơn Sắc</button>
+        <button class="toggle-mode-btn" id="btn-frame-gradient" onclick="executeColorModeSwitch('frame', 'gradient')">Chuyển Sắc Gradient</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-manager-box">
+    <div class="layout-grid-2" id="block-frame-single">
+      <div class="input-block">
+        <label>Chọn màu khung đơn</label>
+        <div class="color-input-container">
+          <input type="color" id="picker-frame-single" value="#000000" oninput="syncColorValues('picker-frame-single', 'text-frame-single')">
+          <input type="text" id="text-frame-single" value="#000000" class="color-string-text" onchange="syncColorValues('text-frame-single', 'picker-frame-single')">
+        </div>
+      </div>
+    </div>
+
+    <div class="gradient-subpanel" id="block-frame-gradient">
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label>Màu bắt đầu (Color 1)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-frame-g1" value="#dc2626" oninput="syncColorValues('picker-frame-g1', 'text-frame-g1')">
+            <input type="text" id="text-frame-g1" value="#DC2626" class="color-string-text" onchange="syncColorValues('text-frame-g1', 'picker-frame-g1')">
+          </div>
+        </div>
+        <div class="input-block">
+          <label>Màu kết thúc (Color 2)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-frame-g2" value="#f59e0b" oninput="syncColorValues('picker-frame-g2', 'text-frame-g2')">
+            <input type="text" id="text-frame-g2" value="#F59E0B" class="color-string-text" onchange="syncColorValues('text-frame-g2', 'picker-frame-g2')">
+          </div>
+        </div>
+      </div>
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label for="field-frame-gtype">Dạng phân bố sắc độ</label>
+          <select id="field-frame-gtype" class="field-select" onchange="triggerEngineRebuild()">
+            <option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
+            <option value="radial">Vòng tròn lan tỏa (Radial)</option>
+          </select>
+        </div>
+        <div class="input-block range-slider-block" id="row-frame-angle">
+          <div class="range-slider-header">
+            <label for="slider-frame-angle">Góc quay hướng màu Gradient</label>
+            <span id="label-frame-angle-value">0°</span>
+          </div>
+          <input type="range" id="slider-frame-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-frame-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="layout-grid-2">
-<div class="input-block">
-<label>Chế độ tô màu phông nền</label>
-<div class="toggle-mode-group">
-<button class="toggle-mode-btn active" id="btn-bg-single" onclick="executeColorModeSwitch('bg', 'single')">Màu Đơn Sắc</button>
-<button class="toggle-mode-btn" id="btn-bg-gradient" onclick="executeColorModeSwitch('bg', 'gradient')">Chuyển Sắc Gradient</button>
-</div>
-</div>
-<div class="input-block range-slider-block">
-<div class="range-slider-header">
-<label for="slider-qr-padding">Kích thước vùng đệm bao quanh mã QR</label>
-<span id="label-qr-padding-value">12px</span>
-</div>
-<input type="range" id="slider-qr-padding" class="range-slider-input" min="0" max="40" step="4" value="12" oninput="document.getElementById('label-qr-padding-value').innerText = this.value + 'px'; triggerEngineRebuild();">
-</div>
+<div class="studio-card">
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
+    Bước 5: Tùy chỉnh Chấm Mắt Trong
+  </div>
+
+  <div class="layout-grid-2">
+    <div class="input-block">
+      <label for="field-ball-shape">Hình dạng nhân tố tâm tròn mắt trong</label>
+      <select id="field-ball-shape" class="field-select" onchange="triggerEngineRebuild()">
+        <option value="square" selected>Square - Chấm tâm vuông sắc cạnh</option>
+        <option value="dot">Dot - Chấm tâm tròn xoe đều</option>
+      </select>
+    </div>
+    <div class="input-block">
+      <label>Phối màu nhân mắt nhận</label>
+      <div class="toggle-mode-group">
+        <button class="toggle-mode-btn active" id="btn-ball-single" onclick="executeColorModeSwitch('ball', 'single')">Màu Đơn Sắc</button>
+        <button class="toggle-mode-btn" id="btn-ball-gradient" onclick="executeColorModeSwitch('ball', 'gradient')">Chuyển Sắc Gradient</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-manager-box">
+    <div class="layout-grid-2" id="block-ball-single">
+      <div class="input-block">
+        <label>Chọn màu nhân đơn</label>
+        <div class="color-input-container">
+          <input type="color" id="picker-ball-single" value="#000000" oninput="syncColorValues('picker-ball-single', 'text-ball-single')">
+          <input type="text" id="text-ball-single" value="#000000" class="color-string-text" onchange="syncColorValues('text-ball-single', 'picker-ball-single')">
+        </div>
+      </div>
+    </div>
+
+    <div class="gradient-subpanel" id="block-ball-gradient">
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label>Màu bắt đầu (Color 1)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-ball-g1" value="#059669" oninput="syncColorValues('picker-ball-g1', 'text-ball-g1')">
+            <input type="text" id="text-ball-g1" value="#059669" class="color-string-text" onchange="syncColorValues('text-ball-g1', 'picker-ball-g1')">
+          </div>
+        </div>
+        <div class="input-block">
+          <label>Màu kết thúc (Color 2)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-ball-g2" value="#10b981" oninput="syncColorValues('picker-ball-g2', 'text-ball-g2')">
+            <input type="text" id="text-ball-g2" value="#10B981" class="color-string-text" onchange="syncColorValues('text-ball-g2', 'picker-ball-g2')">
+          </div>
+        </div>
+      </div>
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label for="field-ball-gtype">Dạng phân bố sắc độ</label>
+          <select id="field-ball-gtype" class="field-select" onchange="triggerEngineRebuild()">
+            <option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
+            <option value="radial">Vòng tròn lan tỏa (Radial)</option>
+          </select>
+        </div>
+        <div class="input-block range-slider-block" id="row-ball-angle">
+          <div class="range-slider-header">
+            <label for="slider-ball-angle">Góc quay hướng màu Gradient</label>
+            <span id="label-ball-angle-value">0°</span>
+          </div>
+          <input type="range" id="slider-ball-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-ball-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="color-manager-box">
-<div class="layout-grid-2" id="block-bg-single">
-<div class="input-block">
-<label>Chọn màu nền đơn</label>
-<div class="color-input-container">
-<input type="color" id="picker-bg-single" value="#ffffff" oninput="syncColorValues('picker-bg-single', 'text-bg-single')">
-<input type="text" id="text-bg-single" value="#FFFFFF" class="color-hex-text color-string-text" onchange="syncColorValues('text-bg-single', 'picker-bg-single')">
-</div>
-</div>
+<div class="studio-card">
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+    Bước 6: Chèn Logo / Biểu Tượng Trung Tâm
+  </div>
+
+  <div class="layout-grid-2">
+    <div class="input-block">
+      <label>Tải tệp tin Logo tự chọn</label>
+      <div class="uploader-dashed-frame" id="logo-drop-zone">
+        <div class="upload-guide-text">Thả ảnh vào đây hoặc <span>Duyệt File</span></div>
+        <input type="file" id="field-uploaded-logo-file" accept="image/*" onchange="processLocalLogoUpload(this)">
+      </div>
+      <div class="logo-status-bar">
+        <img id="view-logo-thumbnail" class="logo-thumb-view" alt="Logo preview icon">
+        <button class="btn-action-danger" id="btn-delete-logo" onclick="wipeSelectedLogoData()">Gỡ bỏ logo</button>
+      </div>
+    </div>
+
+    <div class="input-block">
+      <label>Hoặc chọn Logo nhanh từ kho ứng dụng</label>
+      <div class="preset-logos-grid">
+        <div class="preset-logo-item" onclick="applyPresetSocialLogo('fb')"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook Icon"></div>
+        <div class="preset-logo-item" onclick="applyPresetSocialLogo('yt')"><img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube Icon"></div>
+        <div class="preset-logo-item" onclick="applyPresetSocialLogo('ins')"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram Icon"></div>
+        <div class="preset-logo-item" onclick="applyPresetSocialLogo('twt')"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg" alt="X Icon"></div>
+        <div class="preset-logo-item" onclick="applyPresetSocialLogo('wf')"><img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/WiFi_Logo.svg" alt="WiFi Icon"></div>
+        <div class="preset-logo-item" onclick="applyPresetSocialLogo('mail')"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail Icon"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-grid-2" style="margin-top: 14px;">
+    <div class="input-block range-slider-block">
+      <div class="range-slider-header">
+        <label for="slider-logo-scale">Tỷ lệ bao phủ kích thước Logo</label>
+        <span id="label-logo-scale-val">0.3</span>
+      </div>
+      <input type="range" id="slider-logo-scale" class="range-slider-input" min="0.1" max="0.45" step="0.05" value="0.3" oninput="document.getElementById('label-logo-scale-val').innerText = this.value; triggerEngineRebuild();">
+    </div>
+    <div class="input-block range-slider-block">
+      <div class="range-slider-header">
+        <label for="slider-logo-space">Khoảng lề biên đệm quanh logo</label>
+        <span id="label-logo-space-val">3</span>
+      </div>
+      <input type="range" id="slider-logo-space" class="range-slider-input" min="0" max="15" step="1" value="3" oninput="document.getElementById('label-logo-space-val').innerText = this.value; triggerEngineRebuild();">
+    </div>
+  </div>
 </div>
 
-<div class="gradient-subpanel" id="block-bg-gradient">
-<div class="layout-grid-2">
-<div class="input-block">
-<label>Màu nền bắt đầu (Color 1)</label>
-<div class="color-input-container">
-<input type="color" id="picker-bg-g1" value="#ffffff" oninput="syncColorValues('picker-bg-g1', 'text-bg-g1')">
-<input type="text" id="text-bg-g1" value="#FFFFFF" class="color-string-text" onchange="syncColorValues('text-bg-g1', 'picker-bg-g1')">
-</div>
-</div>
-<div class="input-block">
-<label>Màu nền kết thúc (Color 2)</label>
-<div class="color-input-container">
-<input type="color" id="picker-bg-g2" value="#f8fafc" oninput="syncColorValues('picker-bg-g2', 'text-bg-g2')">
-<input type="text" id="text-bg-g2" value="#F8FAFC" class="color-string-text" onchange="syncColorValues('text-bg-g2', 'picker-bg-g2')">
-</div>
-</div>
-</div>
-<div class="layout-grid-2">
-<div class="input-block">
-<label for="field-bg-gtype">Dạng phối màu nền</label>
-<select id="field-bg-gtype" class="field-select" onchange="triggerEngineRebuild()">
-<option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
-<option value="radial">Vòng tròn lan tỏa (Radial)</option>
-</select>
-</div>
-<div class="input-block range-slider-block" id="row-bg-angle">
-<div class="range-slider-header">
-<label for="slider-bg-angle">Góc xoay hướng màu nền</label>
-<span id="label-bg-angle-value">0°</span>
-</div>
-<input type="range" id="slider-bg-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-bg-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
-</div>
-</div>
-</div>
-</div>
+<div class="studio-card">
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9Z"/></svg>
+    Bước 7: Thiết lập Phông Nền Phía Sau Mã QR
+  </div>
+
+  <div class="layout-grid-2">
+    <div class="input-block">
+      <label>Chế độ tô màu phông nền</label>
+      <div class="toggle-mode-group">
+        <button class="toggle-mode-btn active" id="btn-bg-single" onclick="executeColorModeSwitch('bg', 'single')">Màu Đơn Sắc</button>
+        <button class="toggle-mode-btn" id="btn-bg-gradient" onclick="executeColorModeSwitch('bg', 'gradient')">Chuyển Sắc Gradient</button>
+      </div>
+    </div>
+    <div class="input-block range-slider-block">
+      <div class="range-slider-header">
+        <label for="slider-qr-padding">Kích thước vùng đệm bao quanh mã QR</label>
+        <span id="label-qr-padding-value">12px</span>
+      </div>
+      <input type="range" id="slider-qr-padding" class="range-slider-input" min="0" max="40" step="4" value="12" oninput="document.getElementById('label-qr-padding-value').innerText = this.value + 'px'; triggerEngineRebuild();">
+    </div>
+  </div>
+
+  <div class="color-manager-box">
+    <div class="layout-grid-2" id="block-bg-single">
+      <div class="input-block">
+        <label>Chọn màu nền đơn</label>
+        <div class="color-input-container">
+          <input type="color" id="picker-bg-single" value="#ffffff" oninput="syncColorValues('picker-bg-single', 'text-bg-single')">
+          <input type="text" id="text-bg-single" value="#FFFFFF" class="color-string-text" onchange="syncColorValues('text-bg-single', 'picker-bg-single')">
+        </div>
+      </div>
+    </div>
+
+    <div class="gradient-subpanel" id="block-bg-gradient">
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label>Màu nền bắt đầu (Color 1)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-bg-g1" value="#ffffff" oninput="syncColorValues('picker-bg-g1', 'text-bg-g1')">
+            <input type="text" id="text-bg-g1" value="#FFFFFF" class="color-string-text" onchange="syncColorValues('text-bg-g1', 'picker-bg-g1')">
+          </div>
+        </div>
+        <div class="input-block">
+          <label>Màu nền kết thúc (Color 2)</label>
+          <div class="color-input-container">
+            <input type="color" id="picker-bg-g2" value="#f8fafc" oninput="syncColorValues('picker-bg-g2', 'text-bg-g2')">
+            <input type="text" id="text-bg-g2" value="#F8FAFC" class="color-string-text" onchange="syncColorValues('text-bg-g2', 'picker-bg-g2')">
+          </div>
+        </div>
+      </div>
+      <div class="layout-grid-2">
+        <div class="input-block">
+          <label for="field-bg-gtype">Dạng phối màu nền</label>
+          <select id="field-bg-gtype" class="field-select" onchange="triggerEngineRebuild()">
+            <option value="linear" selected>Tuyến tính kéo dài (Linear)</option>
+            <option value="radial">Vòng tròn lan tỏa (Radial)</option>
+          </select>
+        </div>
+        <div class="input-block range-slider-block" id="row-bg-angle">
+          <div class="range-slider-header">
+            <label for="slider-bg-angle">Góc xoay hướng màu nền</label>
+            <span id="label-bg-angle-value">0°</span>
+          </div>
+          <input type="range" id="slider-bg-angle" class="range-slider-input" min="0" max="360" value="0" oninput="document.getElementById('label-bg-angle-value').innerText = this.value + '°'; triggerEngineRebuild();">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 </div>
 
 <div class="panel-preview">
 <div class="studio-card">
-<div class="studio-card-header">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-Bảng Giả Lập Trực Quan Realtime
+  <div class="studio-card-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+    Bảng Giả Lập Trực Quan Realtime
+  </div>
+
+  <div class="live-preview-box">
+    <div id="me-qr-frame-wrapper" class="me-qr-simulated-frame">
+      <div id="me-qr-text-top" class="me-qr-simulated-text-top">SCAN ME</div>
+      <div id="qr-canvas-holder"></div>
+      <div id="me-qr-text-bottom" class="me-qr-simulated-text">SCAN ME</div>
+    </div>
+  </div>
+
+  <div class="input-block" style="margin-top: 20px;">
+    <label for="field-export-filename">Tên tệp khi tải xuống</label>
+    <input type="text" id="field-export-filename" class="field-input" value="qr-studio-output">
+  </div>
+
+  <div class="input-block">
+    <label for="field-export-extension">Định dạng file xuất bản</label>
+    <select id="field-export-extension" class="field-select">
+      <option value="png" selected>Định dạng ảnh vạn năng PNG (.png)</option>
+      <option value="jpeg">Định dạng ảnh nén quang học JPEG (.jpeg)</option>
+      <option value="webp">Định dạng ảnh hiện đại WEBP (.webp)</option>
+      <option value="svg">Định dạng Vector vô hạn SVG (.svg)</option>
+    </select>
+  </div>
+
+  <div class="download-action-grid">
+    <button class="btn-studio btn-studio-primary" onclick="initiateFileDownloadSequence()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      Tải Xuống Mã QR Đã Tạo
+    </button>
+    <button class="btn-studio btn-studio-outline" onclick="copyQrImageToClipboard()">Sao Chép Ảnh Vào Clipboard</button>
+    <button class="btn-studio btn-studio-outline" onclick="printQrCode()">In Mã QR</button>
+    <button class="btn-studio btn-studio-secondary" onclick="restoreStudioDefaults()">Khôi Phục Thiết Lập Gốc</button>
+  </div>
+
+  <div class="input-block" style="margin-top:18px;">
+    <label>Lịch sử thiết kế gần đây</label>
+    <div class="history-strip" id="history-strip-holder">
+      <span class="history-empty-note">Chưa có mã QR nào được lưu trong phiên này.</span>
+    </div>
+  </div>
+</div>
 </div>
 
-<div class="live-preview-box">
-<div id="me-qr-frame-wrapper" class="me-qr-simulated-frame">
-<div id="me-qr-text-top" class="me-qr-simulated-text-top">SCAN ME</div>
-
-<div id="qr-canvas-holder"></div>
-
-<div id="me-qr-text-bottom" class="me-qr-simulated-text-bottom">SCAN ME</div>
-</div>
 </div>
 
-<div class="input-block" style="margin-top: 20px;">
-<label for="field-export-extension">Định dạng file xuất bản</label>
-<select id="field-export-extension" class="field-select">
-<option value="png" selected>Định dạng ảnh vạn năng PNG (.png)</option>
-<option value="jpeg">Định dạng ảnh nén quang học JPEG (.jpeg)</option>
-<option value="svg">Định dạng Vector vô hạn SVG (.svg)</option>
-</select>
-</div>
-
-<div class="download-action-grid">
-<button class="btn-studio btn-studio-primary" onclick="initiateFileDownloadSequence()">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-Tải Xuống Mã QR Đã Tạo
-</button>
-<button class="btn-studio btn-studio-secondary" onclick="restoreStudioDefaults()">
-Khôi Phục Thiết Lập Gốc
-</button>
-</div>
-</div>
-</div>
-
-</div>
+<div class="status-toast" id="status-toast">Đã lưu</div>
 
 <script type="text/javascript">
-// Quản lý biến trạng thái hoạt động của hệ thống
+// ==================== TRẠNG THÁI HOẠT ĐỘNG CỦA HỆ THỐNG ====================
 let activeDataTabKey = 'url';
 let customLogoBase64String = "";
+let activeEncodedString = "https://example.com";
+let historyEntries = [];
 
 let componentColorModes = {
-dots: 'single',
-frame: 'single',
-ball: 'single',
-bg: 'single'
+  dots: 'single',
+  frame: 'single',
+  ball: 'single',
+  bg: 'single'
 };
 
-let activeEncodedString = "https://example.com";
-
-// Khởi tạo thực thể QRCodeStyling cốt lõi với cấu hình Canvas tiêu chuẩn
+// Khởi tạo thực thể QRCodeStyling cốt lõi
 const qrCodeEngineInstance = new QRCodeStyling({
-width: 300,
-height: 300,
-type: "canvas", // Sử dụng canvas để tương thích 100% việc tải file không bị lỗi trắng ảnh
-data: "https://example.com",
-margin: 12,
-qrOptions: {
-typeNumber: 0,
-mode: "Byte",
-errorCorrectionLevel: "H" // Cấp độ cao nhất chống mất mát dữ liệu khi chèn ép logo lớn
-},
-dotsOptions: {
-type: "square",
-color: "#000000"
-},
-backgroundOptions: {
-color: "#ffffff"
-},
-cornersSquareOptions: {
-type: "square",
-color: "#000000"
-},
-cornersDotOptions: {
-type: "square",
-color: "#000000"
-},
-imageOptions: {
-hideBackgroundDots: true,
-imageSize: 0.3,
-margin: 3,
-crossOrigin: "anonymous"
-}
+  width: 300,
+  height: 300,
+  type: "canvas",
+  data: "https://example.com",
+  margin: 12,
+  qrOptions: {
+    typeNumber: 0,
+    mode: "Byte",
+    errorCorrectionLevel: "H"
+  },
+  dotsOptions: { type: "square", color: "#000000" },
+  backgroundOptions: { color: "#ffffff" },
+  cornersSquareOptions: { type: "square", color: "#000000" },
+  cornersDotOptions: { type: "square", color: "#000000" },
+  imageOptions: {
+    hideBackgroundDots: true,
+    imageSize: 0.3,
+    margin: 3,
+    crossOrigin: "anonymous"
+  }
 });
 
-// Đợi toàn bộ cây tài liệu DOM sẵn sàng mới thực hiện gắn luồng Canvas vẽ đồ họa
-document.addEventListener("DOMContentLoaded", function() {
-const domHolder = document.getElementById("qr-canvas-holder");
-if (domHolder) {
-qrCodeEngineInstance.append(domHolder);
-}
-// Khởi chạy quét đồng bộ dữ liệu biểu mẫu ban đầu
-compileAllFormInputs();
-recalculateFrameDisplay();
+document.addEventListener("DOMContentLoaded", function () {
+  const domHolder = document.getElementById("qr-canvas-holder");
+  if (domHolder) {
+    qrCodeEngineInstance.append(domHolder);
+  }
+  compileAllFormInputs();
+  recalculateFrameDisplay();
+  setupLogoDragAndDrop();
 });
 
-// Điều phối chuyển đổi Tab dữ liệu đầu vào
+// ==================== TIỆN ÍCH THÔNG BÁO ====================
+function showStatusToast(message) {
+  const toast = document.getElementById('status-toast');
+  if (!toast) return;
+  toast.innerText = message;
+  toast.classList.add('show');
+  clearTimeout(showStatusToast._timer);
+  showStatusToast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ==================== ĐIỀU HƯỚNG TAB DỮ LIỆU ====================
 function executeTabSwitch(tabIdentifier) {
-activeDataTabKey = tabIdentifier;
+  activeDataTabKey = tabIdentifier;
 
-// Xử lý loại bỏ và gán lớp CSS active cho các nút bấm tab
-const tabNodes = document.querySelectorAll('.data-tab-item');
-tabNodes.forEach(node => {
-node.classList.remove('active');
-if(node.getAttribute('onclick').includes('${tabIdentifier}'`)) {
-node.classList.add('active');
-}
-});
+  document.querySelectorAll('.data-tab-item').forEach(node => {
+    node.classList.toggle('active', node.getAttribute('data-tab') === tabIdentifier);
+  });
 
-// Ẩn toàn bộ các khối nội dung biểu mẫu cũ
-const contentPanels = document.querySelectorAll('.tab-panel-content');
-contentPanels.forEach(panel => panel.classList.remove('active'));
+  document.querySelectorAll('.tab-panel-content').forEach(panel => panel.classList.remove('active'));
 
-// Kích hoạt panel tương ứng được chọn hiển thị công khai
-const targetPanel = document.getElementById(tabpanel-${tabIdentifier}`);
-if (targetPanel) {
-targetPanel.classList.add('active');
+  const targetPanel = document.getElementById('tabpanel-' + tabIdentifier);
+  if (targetPanel) {
+    targetPanel.classList.add('active');
+  }
+
+  compileAllFormInputs();
 }
 
-// Biên dịch lại chuỗi dữ liệu thực tế
-compileAllFormInputs();
-}
-
-// Đồng bộ hóa liên tục giá trị giữa ô chọn màu Color Picker và ô text nhập mã màu Hex công khai
+// ==================== ĐỒNG BỘ MÀU SẮC ====================
 function syncColorValues(sourceId, destinationId) {
-const srcObj = document.getElementById(sourceId);
-const destObj = document.getElementById(destinationId);
+  const srcObj = document.getElementById(sourceId);
+  const destObj = document.getElementById(destinationId);
 
-if (srcObj && destObj) {
-let currentVal = srcObj.value.trim();
+  if (srcObj && destObj) {
+    let currentVal = srcObj.value.trim();
 
-if (srcObj.type === "color") {
-destObj.value = currentVal.toUpperCase();
-} else {
-if (!currentVal.startsWith('#')) {
-currentVal = '#' + currentVal;
-}
-const validHexRegex = /^#[0-9A-F]{6}$`/i;
-if (validHexRegex.test(currentVal)) {
-destObj.value = currentVal;
-srcObj.value = currentVal;
-}
-}
-}
-// Kích hoạt cơ chế render lại mã QR
-triggerEngineRebuild();
+    if (srcObj.type === "color") {
+      destObj.value = currentVal.toUpperCase();
+    } else {
+      if (!currentVal.startsWith('#')) {
+        currentVal = '#' + currentVal;
+      }
+      const validHexRegex = /^#[0-9A-F]{6}$/i;
+      if (validHexRegex.test(currentVal)) {
+        destObj.value = currentVal;
+        srcObj.value = currentVal;
+      }
+    }
+  }
+  triggerEngineRebuild();
 }
 
-// Chuyển đổi qua lại giữa chế độ Màu Đơn Sắc và Gradient cho các cấu phần
+// ==================== CHUYỂN ĐỔI CHẾ ĐỘ MÀU ====================
 function executeColorModeSwitch(componentName, modeValue) {
-componentColorModes[componentName] = modeValue;
+  componentColorModes[componentName] = modeValue;
 
-const btnSingleElement = document.getElementById(btn-${componentName}-single); const btnGradientElement = document.getElementById(btn-{componentName}-single); const blockGradientElement = document.getElementById(block-${componentName}-gradient);
+  const btnSingleElement = document.getElementById('btn-' + componentName + '-single');
+  const btnGradientElement = document.getElementById('btn-' + componentName + '-gradient');
+  const blockSingleElement = document.getElementById('block-' + componentName + '-single');
+  const blockGradientElement = document.getElementById('block-' + componentName + '-gradient');
 
-if (modeValue === 'single') {
-if(btnSingleElement) btnSingleElement.classList.add('active');
-if(btnGradientElement) btnGradientElement.classList.remove('active');
-if(blockSingleElement) blockSingleElement.style.display = 'grid';
-if(blockGradientElement) blockGradientElement.classList.remove('active');
-} else {
-if(btnSingleElement) btnSingleElement.classList.remove('active');
-if(btnGradientElement) btnGradientElement.classList.add('active');
-if(blockSingleElement) blockSingleElement.style.display = 'none';
-if(blockGradientElement) blockGradientElement.classList.add('active');
+  if (modeValue === 'single') {
+    if (btnSingleElement) btnSingleElement.classList.add('active');
+    if (btnGradientElement) btnGradientElement.classList.remove('active');
+    if (blockSingleElement) blockSingleElement.style.display = 'grid';
+    if (blockGradientElement) blockGradientElement.classList.remove('active');
+  } else {
+    if (btnSingleElement) btnSingleElement.classList.remove('active');
+    if (btnGradientElement) btnGradientElement.classList.add('active');
+    if (blockSingleElement) blockSingleElement.style.display = 'none';
+    if (blockGradientElement) blockGradientElement.classList.add('active');
+  }
+
+  triggerEngineRebuild();
 }
 
-triggerEngineRebuild();
-}
-
-// Trích xuất thu thập thông tin để tạo cấu trúc Gradient thích ứng thư viện cấu trúc vẽ hình
+// ==================== CẤU HÌNH GRADIENT ====================
 function constructGradientConfiguration(prefixKey) {
-const gradType = document.getElementById(field-${prefixKey}-gtype).value; const hexColor1 = document.getElementById(picker-{prefixKey}-g2`).value;
+  const gradType = document.getElementById('field-' + prefixKey + '-gtype').value;
+  const hexColor1 = document.getElementById('picker-' + prefixKey + '-g1').value;
+  const hexColor2 = document.getElementById('picker-' + prefixKey + '-g2').value;
 
-let finalRadianAngle = 0;
-const sliderAngleObj = document.getElementById(slider-${prefixKey}-angle`);
-if (sliderAngleObj) {
-// Biến đổi đơn vị góc hình học phẳng (Degree) sang đơn vị Radian dùng cho trục SVG/Canvas
-finalRadianAngle = (parseFloat(sliderAngleObj.value) * Math.PI) / 180;
+  let finalRadianAngle = 0;
+  const sliderAngleObj = document.getElementById('slider-' + prefixKey + '-angle');
+  if (sliderAngleObj) {
+    finalRadianAngle = (parseFloat(sliderAngleObj.value) * Math.PI) / 180;
+  }
+
+  return {
+    type: gradType,
+    rotation: finalRadianAngle,
+    colorStops: [
+      { offset: 0, color: hexColor1 },
+      { offset: 1, color: hexColor2 }
+    ]
+  };
 }
 
-return {
-type: gradType,
-rotation: finalRadianAngle,
-colorStops: [
-{ offset: 0, color: hexColor1 },
-{ offset: 1, color: hexColor2 }
- ]
-};
+// ==================== BIÊN DỊCH DỮ LIỆU MÃ HÓA ====================
+function escapeWifiField(value) {
+  return String(value || '').replace(/([\\;,:"])/g, '\\$1');
 }
 
-// Xử lý chuỗi thông tin thô từ tất cả các tab nhập dữ liệu để đóng gói thành chuỗi quy chuẩn mã hóa
+function buildBatchLinesFromTextarea() {
+  const raw = document.getElementById('field-batch-list').value;
+  return raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+}
+
 function compileAllFormInputs() {
-let processedString = "";
+  let processedString = "";
 
-if (activeDataTabKey === 'url') {
-const textUrl = document.getElementById('field-url-data').value.trim();
-processedString = textUrl || "https://example.com";
-}
-else if (activeDataTabKey === 'text') {
-const textRaw = document.getElementById('field-text-data').value;
-processedString = textRaw || " ";
-}
-else if (activeDataTabKey === 'wifi') {
-const ssidStr = document.getElementById('field-wifi-ssid').value.trim();
-const passStr = document.getElementById('field-wifi-pass').value;
-const securityType = document.getElementById('field-wifi-encrypt').value;
+  if (activeDataTabKey === 'url') {
+    const textUrl = document.getElementById('field-url-data').value.trim();
+    processedString = textUrl || "https://example.com";
+  }
+  else if (activeDataTabKey === 'text') {
+    const textRaw = document.getElementById('field-text-data').value;
+    processedString = textRaw || " ";
+  }
+  else if (activeDataTabKey === 'wifi') {
+    const ssidStr = escapeWifiField(document.getElementById('field-wifi-ssid').value.trim());
+    const passStr = escapeWifiField(document.getElementById('field-wifi-pass').value);
+    const securityType = document.getElementById('field-wifi-encrypt').value;
 
-// Quy chuẩn quốc tế cấu hình chuỗi WiFi: WIFI:S:SSID;T:WPA;P:PASSWORD;;
-if(securityType === 'nopass') {
-processedString = WIFI:S:${ssidStr};T:nopass;P:;;; } else { processedString =WIFI:S:{securityType};P:${passStr};;;
-}
-}
-else if (activeDataTabKey === 'vcard') {
-const fullName = document.getElementById('field-vcard-fn').value.trim();
-const telephone = document.getElementById('field-vcard-tel').value.trim();
-const emailAddress = document.getElementById('field-vcard-email').value.trim();
-const companyName = document.getElementById('field-vcard-org').value.trim();
+    if (securityType === 'nopass') {
+      processedString = 'WIFI:S:' + ssidStr + ';T:nopass;P:;;';
+    } else {
+      processedString = 'WIFI:S:' + ssidStr + ';T:' + securityType + ';P:' + passStr + ';;';
+    }
+  }
+  else if (activeDataTabKey === 'vcard') {
+    const fullName = document.getElementById('field-vcard-fn').value.trim();
+    const telephone = document.getElementById('field-vcard-tel').value.trim();
+    const emailAddress = document.getElementById('field-vcard-email').value.trim();
+    const companyName = document.getElementById('field-vcard-org').value.trim();
 
-// Cấu trúc chuỗi định dạng Thẻ Danh Bạ Điện Tử vCard chuẩn 3.0 cứu hộ đầu đọc danh bạ điện thoại
-processedString = BEGIN:VCARD\nVERSION:3.0\nN:${fullName};;;\nFN:latex
-{fullName}\nTEL;TYPE=CELL:
+    processedString = "BEGIN:VCARD\nVERSION:3.0\nN:" + fullName + ";;;\nFN:" + fullName +
+      "\nTEL;TYPE=CELL:" + telephone + "\nEMAIL:" + emailAddress +
+      "\nORG:" + companyName + "\nEND:VCARD";
+  }
+  else if (activeDataTabKey === 'email') {
+    const recipientEmail = document.getElementById('field-email-recipient').value.trim();
+    const mailSubject = encodeURIComponent(document.getElementById('field-email-subject').value);
+    const mailBody = encodeURIComponent(document.getElementById('field-email-body').value);
 
-{telephone}\nEMAIL:latex
-{emailAddress}\nORG:
+    processedString = 'mailto:' + recipientEmail + '?subject=' + mailSubject + '&body=' + mailBody;
+  }
+  else if (activeDataTabKey === 'sms') {
+    const smsTel = document.getElementById('field-sms-tel').value.trim();
+    const smsMsg = encodeURIComponent(document.getElementById('field-sms-msg').value);
+    processedString = 'SMSTO:' + smsTel + ':' + decodeURIComponent(smsMsg);
+  }
+  else if (activeDataTabKey === 'tel') {
+    const telNumber = document.getElementById('field-tel-number').value.trim();
+    processedString = 'tel:' + telNumber;
+  }
+  else if (activeDataTabKey === 'geo') {
+    const lat = document.getElementById('field-geo-lat').value.trim();
+    const lng = document.getElementById('field-geo-lng').value.trim();
+    processedString = 'geo:' + (lat || '0') + ',' + (lng || '0');
+  }
+  else if (activeDataTabKey === 'event') {
+    const title = document.getElementById('field-event-title').value.trim();
+    const location = document.getElementById('field-event-location').value.trim();
+    const startVal = document.getElementById('field-event-start').value;
+    const endVal = document.getElementById('field-event-end').value;
 
-{companyName}\nEND:VCARD`;
+    const toIcsDate = v => v ? v.replace(/[-:]/g, '').replace(/(\d{8})T(\d{4})/, '$1T$200') : '';
+
+    processedString = "BEGIN:VEVENT\nSUMMARY:" + title +
+      "\nLOCATION:" + location +
+      "\nDTSTART:" + toIcsDate(startVal) +
+      "\nDTEND:" + toIcsDate(endVal) +
+      "\nEND:VEVENT";
+  }
+  else if (activeDataTabKey === 'batch') {
+    const lines = buildBatchLinesFromTextarea();
+    processedString = lines.length > 0 ? lines[0] : "https://example.com";
+  }
+
+  activeEncodedString = processedString;
+  triggerEngineRebuild();
 }
-else if (activeDataTabKey === 'email') {
-const recipientEmail = document.getElementById('field-email-recipient').value.trim();
-const mailSubject = encodeURIComponent(document.getElementById('field-email-subject').value);
-const mailBody = encodeURIComponent(document.getElementById('field-email-body').value);
 
-processedString = mailto:${recipientEmail}?subject=${mailSubject}&body=${mailBody};
-}
-
-activeEncodedString = processedString;
-triggerEngineRebuild();
-}
-// Đọc dữ liệu nhị phân từ tệp tin Logo nội bộ do người dùng tải lên và chuyển đổi sang dạng chuỗi Base64
+// ==================== TẢI LOGO CỤC BỘ ====================
 function processLocalLogoUpload(fileInputNode) {
-if (fileInputNode.files && fileInputNode.files[0]) {
-const fileReaderEngine = new FileReader();
-
-fileReaderEngine.onload = function(eventResult) {
-customLogoBase64String = eventResult.target.result;
-
-const thumbElement = document.getElementById('view-logo-thumbnail');
-const btnDelete = document.getElementById('btn-delete-logo');
-
-if (thumbElement && btnDelete) {
-thumbElement.src = customLogoBase64String;
-thumbElement.style.display = 'block';
-btnDelete.style.display = 'inline-block';
+  if (fileInputNode.files && fileInputNode.files[0]) {
+    readLogoFile(fileInputNode.files[0]);
+  }
 }
 
-triggerEngineRebuild();
-};
+function readLogoFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const fileReaderEngine = new FileReader();
 
-fileReaderEngine.readAsDataURL(fileInputNode.files[0]);
-}
+  fileReaderEngine.onload = function (eventResult) {
+    customLogoBase64String = eventResult.target.result;
+
+    const thumbElement = document.getElementById('view-logo-thumbnail');
+    const btnDelete = document.getElementById('btn-delete-logo');
+
+    if (thumbElement && btnDelete) {
+      thumbElement.src = customLogoBase64String;
+      thumbElement.style.display = 'block';
+      btnDelete.style.display = 'inline-block';
+    }
+
+    triggerEngineRebuild();
+  };
+
+  fileReaderEngine.readAsDataURL(file);
 }
 
-// Ứng dụng tức thì logo từ danh sách mạng xã hội tích hợp sẵn
+function setupLogoDragAndDrop() {
+  const zone = document.getElementById('logo-drop-zone');
+  if (!zone) return;
+  ['dragenter', 'dragover'].forEach(evt => {
+    zone.addEventListener(evt, e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+  });
+  ['dragleave', 'drop'].forEach(evt => {
+    zone.addEventListener(evt, e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+    });
+  });
+  zone.addEventListener('drop', e => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) readLogoFile(file);
+  });
+}
+
 function applyPresetSocialLogo(socialKey) {
-const socialLogosMapping = {
-fb: "https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg",
-yt: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
-ins: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-twt: "https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg",
-wf: "https://upload.wikimedia.org/wikipedia/commons/a/ae/WiFi_Logo.svg",
-mail: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
-};
+  const socialLogosMapping = {
+    fb: "https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg",
+    yt: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
+    ins: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+    twt: "https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg",
+    wf: "https://upload.wikimedia.org/wikipedia/commons/a/ae/WiFi_Logo.svg",
+    mail: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+  };
 
-customLogoBase64String = socialLogosMapping[socialKey] || "";
+  customLogoBase64String = socialLogosMapping[socialKey] || "";
 
-const thumbElement = document.getElementById('view-logo-thumbnail');
-const btnDelete = document.getElementById('btn-delete-logo');
+  const thumbElement = document.getElementById('view-logo-thumbnail');
+  const btnDelete = document.getElementById('btn-delete-logo');
 
-if (thumbElement && btnDelete && customLogoBase64String) {
-thumbElement.src = customLogoBase64String;
-thumbElement.style.display = 'block';
-btnDelete.style.display = 'inline-block';
+  if (thumbElement && btnDelete && customLogoBase64String) {
+    thumbElement.src = customLogoBase64String;
+    thumbElement.style.display = 'block';
+    btnDelete.style.display = 'inline-block';
+  }
+
+  triggerEngineRebuild();
 }
 
-triggerEngineRebuild();
-}
-
-// Gỡ bỏ hoàn toàn trạng thái dữ liệu Logo đã tải lên
 function wipeSelectedLogoData() {
-customLogoBase64String = "";
-const fileInput = document.getElementById('field-uploaded-logo-file');
-if(fileInput) fileInput.value = "";
+  customLogoBase64String = "";
+  const fileInput = document.getElementById('field-uploaded-logo-file');
+  if (fileInput) fileInput.value = "";
 
-document.getElementById('view-logo-thumbnail').style.display = 'none';
-document.getElementById('btn-delete-logo').style.display = 'none';
+  document.getElementById('view-logo-thumbnail').style.display = 'none';
+  document.getElementById('btn-delete-logo').style.display = 'none';
 
-triggerEngineRebuild();
+  triggerEngineRebuild();
 }
 
-// Tính toán phân bổ giả lập hiển thị Khung chứa chữ phong cách ME-QR bên ngoài lõi vẽ Canvas
+// ==================== KHUNG VIỀN CHỨA CHỮ ====================
 function recalculateFrameDisplay() {
-const templateStyle = document.getElementById('field-frame-template').value;
-const frameTxt = document.getElementById('field-frame-text').value;
-const bgFrameColor = document.getElementById('picker-frame-bg').value;
-const textFrameColor = document.getElementById('picker-frame-txtcolor').value;
-const borderThickness = document.getElementById('field-frame-thickness').value;
+  const templateStyle = document.getElementById('field-frame-template').value;
+  const frameTxt = document.getElementById('field-frame-text').value;
+  const bgFrameColor = document.getElementById('picker-frame-bg').value;
+  const textFrameColor = document.getElementById('picker-frame-txtcolor').value;
+  const borderThickness = document.getElementById('field-frame-thickness').value;
 
-const wrapperDiv = document.getElementById('me-qr-frame-wrapper');
-const textTopDiv = document.getElementById('me-qr-text-top');
-const textBottomDiv = document.getElementById('me-qr-text-bottom');
+  const wrapperDiv = document.getElementById('me-qr-frame-wrapper');
+  const textTopDiv = document.getElementById('me-qr-text-top');
+  const textBottomDiv = document.getElementById('me-qr-text-bottom');
 
-if (!wrapperDiv || !textTopDiv || !textBottomDiv) return;
+  if (!wrapperDiv || !textTopDiv || !textBottomDiv) return;
 
-// Thiết lập giá trị mặc định ẩn
-textTopDiv.style.display = 'none';
-textBottomDiv.style.display = 'none';
-wrapperDiv.style.border = '0px solid transparent';
-wrapperDiv.style.backgroundColor = 'transparent';
+  textTopDiv.style.display = 'none';
+  textBottomDiv.style.display = 'none';
+  wrapperDiv.style.border = '0px solid transparent';
+  wrapperDiv.style.backgroundColor = 'transparent';
 
-if (templateStyle === 'none') {
-return;
+  if (templateStyle === 'none') {
+    return;
+  }
+
+  wrapperDiv.style.backgroundColor = bgFrameColor;
+  wrapperDiv.style.border = borderThickness + 'px solid ' + bgFrameColor;
+
+  if (templateStyle === 'bottom-banner') {
+    textBottomDiv.innerText = frameTxt;
+    textBottomDiv.style.color = textFrameColor;
+    textBottomDiv.style.display = 'block';
+  } else if (templateStyle === 'top-banner') {
+    textTopDiv.innerText = frameTxt;
+    textTopDiv.style.color = textFrameColor;
+    textTopDiv.style.display = 'block';
+  } else if (templateStyle === 'full-box') {
+    textTopDiv.innerText = frameTxt;
+    textTopDiv.style.color = textFrameColor;
+    textTopDiv.style.display = 'block';
+
+    textBottomDiv.innerText = frameTxt;
+    textBottomDiv.style.color = textFrameColor;
+    textBottomDiv.style.display = 'block';
+  }
 }
 
-wrapperDiv.style.backgroundColor = bgFrameColor;
-wrapperDiv.style.border = ${borderThickness}px solid ${bgFrameColor};
+// ==================== TỔNG HỢP CẤU HÌNH THIẾT KẾ HIỆN TẠI ====================
+function collectStyleOptionsPayload() {
+  let compiledDotsOptions = { type: document.getElementById('field-dots-shape').value };
+  if (componentColorModes.dots === 'single') {
+    compiledDotsOptions.color = document.getElementById('picker-dots-single').value;
+    compiledDotsOptions.gradient = null;
+  } else {
+    compiledDotsOptions.color = undefined;
+    compiledDotsOptions.gradient = constructGradientConfiguration('dots');
+  }
 
-if (templateStyle === 'bottom-banner') {
-textBottomDiv.innerText = frameTxt;
-textBottomDiv.style.color = textFrameColor;
-textBottomDiv.style.display = 'block';
-}
-else if (templateStyle === 'top-banner') {
-textTopDiv.innerText = frameTxt;
-textTopDiv.style.color = textFrameColor;
-textTopDiv.style.display = 'block';
-}
-else if (templateStyle === 'full-box') {
-textTopDiv.innerText = frameTxt;
-textTopDiv.style.color = textFrameColor;
-textTopDiv.style.display = 'block';
+  const dotsGType = document.getElementById('field-dots-gtype').value;
+  const rowDotsAngle = document.getElementById('row-dots-angle');
+  if (rowDotsAngle) rowDotsAngle.style.visibility = (dotsGType === 'linear') ? 'visible' : 'hidden';
 
-textBottomDiv.innerText = frameTxt;
-textBottomDiv.style.color = textFrameColor;
-textBottomDiv.style.display = 'block';
-}
+  let compiledFrameOptions = { type: document.getElementById('field-frame-shape').value };
+  if (componentColorModes.frame === 'single') {
+    compiledFrameOptions.color = document.getElementById('picker-frame-single').value;
+    compiledFrameOptions.gradient = null;
+  } else {
+    compiledFrameOptions.color = undefined;
+    compiledFrameOptions.gradient = constructGradientConfiguration('frame');
+  }
+
+  const frameGType = document.getElementById('field-frame-gtype').value;
+  const rowFrameAngle = document.getElementById('row-frame-angle');
+  if (rowFrameAngle) rowFrameAngle.style.visibility = (frameGType === 'linear') ? 'visible' : 'hidden';
+
+  let compiledBallOptions = { type: document.getElementById('field-ball-shape').value };
+  if (componentColorModes.ball === 'single') {
+    compiledBallOptions.color = document.getElementById('picker-ball-single').value;
+    compiledBallOptions.gradient = null;
+  } else {
+    compiledBallOptions.color = undefined;
+    compiledBallOptions.gradient = constructGradientConfiguration('ball');
+  }
+
+  const ballGType = document.getElementById('field-ball-gtype').value;
+  const rowBallAngle = document.getElementById('row-ball-angle');
+  if (rowBallAngle) rowBallAngle.style.visibility = (ballGType === 'linear') ? 'visible' : 'hidden';
+
+  let compiledBgOptions = {};
+  if (componentColorModes.bg === 'single') {
+    compiledBgOptions.color = document.getElementById('picker-bg-single').value;
+    compiledBgOptions.gradient = null;
+  } else {
+    compiledBgOptions.color = undefined;
+    compiledBgOptions.gradient = constructGradientConfiguration('bg');
+  }
+
+  const bgGType = document.getElementById('field-bg-gtype').value;
+  const rowBgAngle = document.getElementById('row-bg-angle');
+  if (rowBgAngle) rowBgAngle.style.visibility = (bgGType === 'linear') ? 'visible' : 'hidden';
+
+  const calculatedMarginValue = parseInt(document.getElementById('slider-qr-padding').value);
+  const calculatedLogoScale = parseFloat(document.getElementById('slider-logo-scale').value);
+  const calculatedLogoSpace = parseInt(document.getElementById('slider-logo-space').value);
+
+  return {
+    margin: calculatedMarginValue,
+    dotsOptions: compiledDotsOptions,
+    cornersSquareOptions: compiledFrameOptions,
+    cornersDotOptions: compiledBallOptions,
+    backgroundOptions: compiledBgOptions,
+    imageOptions: {
+      hideBackgroundDots: true,
+      imageSize: calculatedLogoScale,
+      margin: calculatedLogoSpace,
+      crossOrigin: "anonymous"
+    }
+  };
 }
 
-// TOÀN BỘ LOGIC CỐT LÕI - Thu thập mọi dữ liệu trên DOM để đẩy vào thực thể Engine vẽ ảnh
+// ==================== VẼ LẠI ENGINE QR ====================
+let rebuildDebounceTimer = null;
 function triggerEngineRebuild() {
-// 1. Phân tích cấu hình thiết lập Điểm chấm dữ liệu thân QR
-let compiledDotsOptions = {
-type: document.getElementById('field-dots-shape').value
-};
-if (componentColorModes.dots === 'single') {
-compiledDotsOptions.color = document.getElementById('picker-dots-single').value;
-compiledDotsOptions.gradient = null;
-} else {
-compiledDotsOptions.color = null;
-compiledDotsOptions.gradient = constructGradientConfiguration('dots');
+  const stylePayload = collectStyleOptionsPayload();
+
+  qrCodeEngineInstance.update({
+    data: activeEncodedString,
+    margin: stylePayload.margin,
+    dotsOptions: stylePayload.dotsOptions,
+    cornersSquareOptions: stylePayload.cornersSquareOptions,
+    cornersDotOptions: stylePayload.cornersDotOptions,
+    backgroundOptions: stylePayload.backgroundOptions,
+    image: customLogoBase64String || null,
+    imageOptions: stylePayload.imageOptions
+  });
+
+  clearTimeout(rebuildDebounceTimer);
+  rebuildDebounceTimer = setTimeout(pushCurrentDesignToHistory, 900);
 }
 
-const dotsGType = document.getElementById('field-dots-gtype').value;
-const rowDotsAngle = document.getElementById('row-dots-angle');
-if(rowDotsAngle) rowDotsAngle.style.visibility = (dotsGType === 'linear') ? 'visible' : 'hidden';
-
-// 2. Phân tích cấu hình thiết lập Khung Mắt Ngoài
-let compiledFrameOptions = {
-type: document.getElementById('field-frame-shape').value
-};
-if (componentColorModes.frame === 'single') {
-compiledFrameOptions.color = document.getElementById('picker-frame-single').value;
-compiledFrameOptions.gradient = null;
-} else {
-compiledFrameOptions.color = null;
-compiledFrameOptions.gradient = constructGradientConfiguration('frame');
+// ==================== LỊCH SỬ THIẾT KẾ (PHIÊN LÀM VIỆC) ====================
+function pushCurrentDesignToHistory() {
+  if (!activeEncodedString) return;
+  qrCodeEngineInstance.getRawData('png').then(blob => {
+    if (!blob) return;
+    const reader = new FileReader();
+    reader.onload = function () {
+      const dataUrl = reader.result;
+      historyEntries = historyEntries.filter(e => e.data !== activeEncodedString);
+      historyEntries.unshift({ data: activeEncodedString, thumb: dataUrl, tab: activeDataTabKey });
+      if (historyEntries.length > 8) historyEntries.pop();
+      renderHistoryStrip();
+    };
+    reader.readAsDataURL(blob);
+  }).catch(() => {});
 }
 
-const frameGType = document.getElementById('field-frame-gtype').value;
-const rowFrameAngle = document.getElementById('row-frame-angle');
-if(rowFrameAngle) rowFrameAngle.style.visibility = (frameGType === 'linear') ? 'visible' : 'hidden';
-
-// 3. Phân tích cấu hình thiết lập Chấm Mắt Trong (Nhân mắt)
-let compiledBallOptions = {
-type: document.getElementById('field-ball-shape').value
-};
-if (componentColorModes.ball === 'single') {
-compiledBallOptions.color = document.getElementById('picker-ball-single').value;
-compiledBallOptions.gradient = null;
-} else {
-compiledBallOptions.color = null;
-compiledBallOptions.gradient = constructGradientConfiguration('ball');
+function renderHistoryStrip() {
+  const holder = document.getElementById('history-strip-holder');
+  if (!holder) return;
+  if (historyEntries.length === 0) {
+    holder.innerHTML = '<span class="history-empty-note">Chưa có mã QR nào được lưu trong phiên này.</span>';
+    return;
+  }
+  holder.innerHTML = "";
+  historyEntries.forEach((entry, idx) => {
+    const img = document.createElement('img');
+    img.src = entry.thumb;
+    img.className = 'history-thumb';
+    img.title = entry.data;
+    img.onclick = () => {
+      executeTabSwitch(entry.tab);
+      activeEncodedString = entry.data;
+      triggerEngineRebuild();
+      showStatusToast('Đã khôi phục thiết kế từ lịch sử');
+    };
+    holder.appendChild(img);
+  });
 }
 
-const ballGType = document.getElementById('field-ball-gtype').value;
-const rowBallAngle = document.getElementById('row-ball-angle');
-if(rowBallAngle) rowBallAngle.style.visibility = (ballGType === 'linear') ? 'visible' : 'hidden';
-
-// 4. Phân tích cấu hình phông nền Background mã QR
-let compiledBgOptions = {};
-if (componentColorModes.bg === 'single') {
-compiledBgOptions.color = document.getElementById('picker-bg-single').value;
-compiledBgOptions.gradient = null;
-} else {
-compiledBgOptions.color = null;
-compiledBgOptions.gradient = constructGradientConfiguration('bg');
-}
-
-const bgGType = document.getElementById('field-bg-gtype').value;
-const rowBgAngle = document.getElementById('row-bg-angle');
-if(rowBgAngle) rowBgAngle.style.visibility = (bgGType === 'linear') ? 'visible' : 'hidden';
-
-// 5. Tính toán các thanh trượt tỷ lệ lề và Logo thương hiệu
-const calculatedMarginValue = parseInt(document.getElementById('slider-qr-padding').value);
-const calculatedLogoScale = parseFloat(document.getElementById('slider-logo-scale').value);
-const calculatedLogoSpace = parseInt(document.getElementById('slider-logo-space').value);
-
-// Đẩy toàn bộ thuộc tính cấu hình tổng hợp vào bên trong luồng update của thư viện
-qrCodeEngineInstance.update({
-data: activeEncodedString,
-margin: calculatedMarginValue,
-dotsOptions: compiledDotsOptions,
-cornersSquareOptions: compiledFrameOptions,
-cornersDotOptions: compiledBallOptions,
-backgroundOptions: compiledBgOptions,
-image: customLogoBase64String || null,
-imageOptions: {
-hideBackgroundDots: true,
-imageSize: calculatedLogoScale,
-margin: calculatedLogoSpace
-}
-});
-}
-
-// Rút trích định dạng đuôi tệp tin và thực hiện chuỗi lệnh download từ thư viện vẽ đồ họa
+// ==================== TẢI XUỐNG / SAO CHÉP / IN ====================
 function initiateFileDownloadSequence() {
-const formatSelector = document.getElementById('field-export-extension');
-const chosenExtension = formatSelector ? formatSelector.value : 'png';
+  const formatSelector = document.getElementById('field-export-extension');
+  const chosenExtension = formatSelector ? formatSelector.value : 'png';
+  const nameField = document.getElementById('field-export-filename');
+  const chosenName = (nameField && nameField.value.trim()) ? nameField.value.trim() : 'qr-studio-output';
 
-qrCodeEngineInstance.download({
-name: "me-qr-studio-output",
-extension: chosenExtension
-});
+  qrCodeEngineInstance.download({ name: chosenName, extension: chosenExtension });
+  showStatusToast('Đã bắt đầu tải xuống ' + chosenName + '.' + chosenExtension);
 }
 
-// Hoàn nguyên trạng thái hệ thống và form điều khiển về cấu hình rỗng nguyên bản sạch sẽ ban đầu
+function copyQrImageToClipboard() {
+  if (!navigator.clipboard || !window.ClipboardItem) {
+    showStatusToast('Trình duyệt không hỗ trợ sao chép ảnh');
+    return;
+  }
+  qrCodeEngineInstance.getRawData('png').then(blob => {
+    if (!blob) return;
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      .then(() => showStatusToast('Đã sao chép ảnh QR vào Clipboard'))
+      .catch(() => showStatusToast('Không thể sao chép - hãy thử tải xuống'));
+  });
+}
+
+function printQrCode() {
+  qrCodeEngineInstance.getRawData('png').then(blob => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(
+      '<html><head><title>In Mã QR</title></head><body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">' +
+      '<img src="' + url + '" style="max-width:80%;" onload="window.print();"></body></html>'
+    );
+    printWindow.document.close();
+  });
+}
+
+// ==================== TẠO HÀNG LOẠT (BATCH) ====================
+function downloadBatchAsZip() {
+  const lines = buildBatchLinesFromTextarea();
+  if (lines.length === 0) {
+    showStatusToast('Vui lòng nhập ít nhất một dòng dữ liệu');
+    return;
+  }
+  if (typeof JSZip === 'undefined') {
+    showStatusToast('Không tải được thư viện nén ZIP');
+    return;
+  }
+
+  showStatusToast('Đang tạo ' + lines.length + ' mã QR, vui lòng chờ...');
+  const stylePayload = collectStyleOptionsPayload();
+  const zip = new JSZip();
+  let completedCount = 0;
+
+  const processNext = (index) => {
+    if (index >= lines.length) {
+      zip.generateAsync({ type: 'blob' }).then(content => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = 'qr-batch-export.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showStatusToast('Đã hoàn tất xuất ' + lines.length + ' mã QR (.zip)');
+      });
+      return;
+    }
+
+    const tempEngine = new QRCodeStyling({
+      width: 300,
+      height: 300,
+      type: "canvas",
+      data: lines[index],
+      margin: stylePayload.margin,
+      qrOptions: { typeNumber: 0, mode: "Byte", errorCorrectionLevel: "H" },
+      dotsOptions: stylePayload.dotsOptions,
+      backgroundOptions: stylePayload.backgroundOptions,
+      cornersSquareOptions: stylePayload.cornersSquareOptions,
+      cornersDotOptions: stylePayload.cornersDotOptions,
+      image: customLogoBase64String || null,
+      imageOptions: stylePayload.imageOptions
+    });
+
+    tempEngine.getRawData('png').then(blob => {
+      const safeName = (index + 1) + '-' + lines[index].replace(/[^a-z0-9]/gi, '_').slice(0, 30);
+      zip.file(safeName + '.png', blob);
+      completedCount++;
+      processNext(index + 1);
+    }).catch(() => processNext(index + 1));
+  };
+
+  processNext(0);
+}
+
+// ==================== XUẤT / NHẬP CẤU HÌNH JSON ====================
+function exportCurrentConfig() {
+  const config = {
+    activeDataTabKey,
+    activeEncodedString,
+    componentColorModes,
+    formValues: {}
+  };
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.id) config.formValues[el.id] = el.value;
+  });
+
+  const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'qr-studio-config.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showStatusToast('Đã xuất tệp cấu hình JSON');
+}
+
+function importConfigFromFile(inputNode) {
+  const file = inputNode.files && inputNode.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const config = JSON.parse(e.target.result);
+      if (config.formValues) {
+        Object.keys(config.formValues).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = config.formValues[id];
+        });
+      }
+      if (config.componentColorModes) {
+        componentColorModes = config.componentColorModes;
+        Object.keys(componentColorModes).forEach(key => executeColorModeSwitch(key, componentColorModes[key]));
+      }
+      if (config.activeDataTabKey) {
+        executeTabSwitch(config.activeDataTabKey);
+      }
+      recalculateFrameDisplay();
+      triggerEngineRebuild();
+      showStatusToast('Đã nhập cấu hình thành công');
+    } catch (err) {
+      showStatusToast('Tệp cấu hình không hợp lệ');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==================== KHÔI PHỤC MẶC ĐỊNH ====================
 function restoreStudioDefaults() {
-document.getElementById('field-url-data').value = "https://example.com";
-document.getElementById('field-text-data').value = "";
-document.getElementById('field-wifi-ssid').value = "";
-document.getElementById('field-wifi-pass').value = "";
-document.getElementById('field-wifi-encrypt').value = "WPA";
-document.getElementById('field-vcard-fn').value = "";
-document.getElementById('field-vcard-tel').value = "";
-document.getElementById('field-vcard-email').value = "";
-document.getElementById('field-vcard-org').value = "";
-document.getElementById('field-email-recipient').value = "";
-document.getElementById('field-email-subject').value = "";
-document.getElementById('field-email-body').value = "";
+  document.getElementById('field-url-data').value = "https://example.com";
+  document.getElementById('field-text-data').value = "";
+  document.getElementById('field-wifi-ssid').value = "";
+  document.getElementById('field-wifi-pass').value = "";
+  document.getElementById('field-wifi-encrypt').value = "WPA";
+  document.getElementById('field-vcard-fn').value = "";
+  document.getElementById('field-vcard-tel').value = "";
+  document.getElementById('field-vcard-email').value = "";
+  document.getElementById('field-vcard-org').value = "";
+  document.getElementById('field-email-recipient').value = "";
+  document.getElementById('field-email-subject').value = "";
+  document.getElementById('field-email-body').value = "";
+  document.getElementById('field-sms-tel').value = "";
+  document.getElementById('field-sms-msg').value = "";
+  document.getElementById('field-tel-number').value = "";
+  document.getElementById('field-geo-lat').value = "";
+  document.getElementById('field-geo-lng').value = "";
+  document.getElementById('field-event-title').value = "";
+  document.getElementById('field-event-location').value = "";
+  document.getElementById('field-event-start').value = "";
+  document.getElementById('field-event-end').value = "";
+  document.getElementById('field-batch-list').value = "";
 
-document.getElementById('field-dots-shape').value = "square";
-document.getElementById('field-frame-shape').value = "square";
-document.getElementById('field-ball-shape').value = "square";
-document.getElementById('field-frame-template').value = "none";
-document.getElementById('field-frame-text').value = "SCAN ME";
-document.getElementById('field-frame-thickness').value = "4";
+  document.getElementById('field-dots-shape').value = "square";
+  document.getElementById('field-frame-shape').value = "square";
+  document.getElementById('field-ball-shape').value = "square";
+  document.getElementById('field-frame-template').value = "none";
+  document.getElementById('field-frame-text').value = "SCAN ME";
+  document.getElementById('field-frame-thickness').value = "4";
+  document.getElementById('field-export-filename').value = "qr-studio-output";
 
-document.getElementById('picker-dots-single').value = "#000000";
-document.getElementById('text-dots-single').value = "#000000";
-document.getElementById('picker-frame-single').value = "#000000";
-document.getElementById('text-frame-single').value = "#000000";
-document.getElementById('picker-ball-single').value = "#000000";
-document.getElementById('text-ball-single').value = "#000000";
-document.getElementById('picker-bg-single').value = "#ffffff";
-document.getElementById('text-bg-single').value = "#FFFFFF";
-document.getElementById('picker-frame-bg').value = "#000000";
-document.getElementById('text-frame-bg').value = "#000000";
-document.getElementById('picker-frame-txtcolor').value = "#ffffff";
-document.getElementById('text-frame-txtcolor').value = "#FFFFFF";
+  document.getElementById('picker-dots-single').value = "#000000";
+  document.getElementById('text-dots-single').value = "#000000";
+  document.getElementById('picker-frame-single').value = "#000000";
+  document.getElementById('text-frame-single').value = "#000000";
+  document.getElementById('picker-ball-single').value = "#000000";
+  document.getElementById('text-ball-single').value = "#000000";
+  document.getElementById('picker-bg-single').value = "#ffffff";
+  document.getElementById('text-bg-single').value = "#FFFFFF";
+  document.getElementById('picker-frame-bg').value = "#000000";
+  document.getElementById('text-frame-bg').value = "#000000";
+  document.getElementById('picker-frame-txtcolor').value = "#ffffff";
+  document.getElementById('text-frame-txtcolor').value = "#FFFFFF";
 
-wipeSelectedLogoData();
+  wipeSelectedLogoData();
 
-document.getElementById('slider-qr-padding').value = 12;
-document.getElementById('label-qr-padding-value').innerText = "12px";
-document.getElementById('slider-logo-scale').value = 0.3;
-document.getElementById('label-logo-scale-val').innerText = "0.3";
-document.getElementById('slider-logo-space').value = 3;
-document.getElementById('label-logo-space-val').innerText = "3";
+  document.getElementById('slider-qr-padding').value = 12;
+  document.getElementById('label-qr-padding-value').innerText = "12px";
+  document.getElementById('slider-logo-scale').value = 0.3;
+  document.getElementById('label-logo-scale-val').innerText = "0.3";
+  document.getElementById('slider-logo-space').value = 3;
+  document.getElementById('label-logo-space-val').innerText = "3";
 
-executeColorModeSwitch('dots', 'single');
-executeColorModeSwitch('frame', 'single');
-executeColorModeSwitch('ball', 'single');
-executeColorModeSwitch('bg', 'single');
+  executeColorModeSwitch('dots', 'single');
+  executeColorModeSwitch('frame', 'single');
+  executeColorModeSwitch('ball', 'single');
+  executeColorModeSwitch('bg', 'single');
 
-executeTabSwitch('url');
-recalculateFrameDisplay();
+  executeTabSwitch('url');
+  recalculateFrameDisplay();
+  showStatusToast('Đã khôi phục thiết lập gốc');
 }
 </script>
 </body>
