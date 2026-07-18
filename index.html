@@ -81,12 +81,17 @@
     display:none;background:none;border:1px solid var(--line);
     width:38px;height:38px;border-radius:9px;cursor:pointer;
     align-items:center;justify-content:center;
+    flex-shrink:0;
   }
   .menu-btn span, .menu-btn span::before, .menu-btn span::after{
     content:'';display:block;width:16px;height:2px;background:var(--ink);position:relative;
+    transition:transform .2s ease, opacity .2s ease, top .2s ease;
   }
   .menu-btn span::before{position:absolute;top:-5px;}
   .menu-btn span::after{position:absolute;top:5px;}
+  .menu-btn.is-active span{background:transparent;}
+  .menu-btn.is-active span::before{top:0;transform:rotate(45deg);background:var(--ink);}
+  .menu-btn.is-active span::after{top:0;transform:rotate(-45deg);background:var(--ink);}
 
   /* ── Hero ───────────────────────────────── */
   .hero{padding:72px 0 88px;}
@@ -216,7 +221,17 @@
 
   /* ── Responsive ─────────────────────────── */
   @media (max-width:900px){
-    nav.main-nav{display:none;}
+    nav.main-nav{
+      display:none;
+      position:absolute;top:100%;left:0;right:0;
+      flex-direction:column;gap:2px;
+      background:var(--surface);border-bottom:1px solid var(--line);
+      padding:10px 24px 16px;
+      box-shadow:0 16px 30px -18px rgba(20,32,39,0.25);
+    }
+    nav.main-nav.is-open{display:flex;}
+    nav.main-nav a{padding:12px 0;border-bottom:1px solid var(--line);}
+    nav.main-nav a:last-child{border-bottom:none;}
     .menu-btn{display:flex;}
     .hero-grid{grid-template-columns:1fr;}
     .grid{grid-template-columns:repeat(2,1fr);}
@@ -255,11 +270,6 @@
 </header>
 
 <main class="wrap" id="top">
-  <section class="hero">
-    <div class="hero-grid">
-    <img scr="https://hentaiorc.xyz/file_img/anhblog.png" class="guide-img">
-    </div>
-  </section>
   <!-- Hero -->
   <section class="hero">
     <div class="hero-grid">
@@ -433,6 +443,44 @@
 </footer>
 
 <script>
+  // Mobile menu toggle
+  const menuBtn = document.querySelector('.menu-btn');
+  const mainNav = document.querySelector('nav.main-nav');
+
+  function closeMenu(){
+    mainNav.classList.remove('is-open');
+    menuBtn.classList.remove('is-active');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+  function openMenu(){
+    mainNav.classList.add('is-open');
+    menuBtn.classList.add('is-active');
+    menuBtn.setAttribute('aria-expanded', 'true');
+  }
+
+  menuBtn.setAttribute('aria-expanded', 'false');
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (mainNav.classList.contains('is-open')) closeMenu();
+    else openMenu();
+  });
+
+  // Close after picking a link
+  mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+  // Close on outside tap
+  document.addEventListener('click', (e) => {
+    if (mainNav.classList.contains('is-open') &&
+        !mainNav.contains(e.target) && e.target !== menuBtn) {
+      closeMenu();
+    }
+  });
+
+  // Close if resized back to desktop width
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) closeMenu();
+  });
+
   // Terminal typing signature
   const lines = [
     { prompt: '$ ', text: 'whoami', color: null },
