@@ -12,21 +12,40 @@
     --ink:#142027;
     --ink-soft:#425160;
     --paper:#F1F4F4;
+    --paper-rgb:241,244,244;
     --surface:#FFFFFF;
+    --surface-dark:#142027;
     --line:#DCE3E2;
     --teal:#1F6F5C;
     --teal-deep:#154B3E;
     --amber:#C77A2E;
+    --mark-bg:#FBEEDF;
+    --mark-fg:#C77A2E;
     --radius:14px;
+  }
+  :root[data-theme="dark"]{
+    --ink:#E7EEEC;
+    --ink-soft:#93A6A9;
+    --paper:#12181B;
+    --paper-rgb:18,24,27;
+    --surface:#1A2226;
+    --line:#2A3439;
+    --teal:#3FB593;
+    --teal-deep:#2E8E70;
+    --amber:#E7A15C;
+    --mark-bg:#3A2A16;
+    --mark-fg:#E7A15C;
   }
   *,*::before,*::after{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
+  html.has-wallpaper body{background:transparent;}
   body{
     margin:0;
     font-family:'Inter',sans-serif;
     color:var(--ink);
     background:var(--paper);
     line-height:1.6;
+    transition:background-color .3s ease,color .3s ease;
   }
   h1,h2,h3,.font-display{font-family:'Fraunces',serif;}
   .mono{font-family:'JetBrains Mono',monospace;}
@@ -35,12 +54,27 @@
 
   .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
 
+  /* ── Wallpaper layer ────────────────────── */
+  #wallpaperLayer{
+    position:fixed;inset:0;z-index:-2;
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+    opacity:0;transition:opacity .35s ease;pointer-events:none;
+  }
+  #wallpaperLayer.is-active{opacity:1;}
+  #wallpaperScrim{
+    position:fixed;inset:0;z-index:-1;
+    background:rgba(var(--paper-rgb),0.66);
+    opacity:0;transition:opacity .35s ease,background-color .3s ease;pointer-events:none;
+  }
+  #wallpaperScrim.is-active{opacity:1;}
+
   /* ── Header ─────────────────────────────── */
   header{
     position:sticky;top:0;z-index:100;
-    background:rgba(241,244,244,0.88);
+    background:rgba(var(--paper-rgb),0.88);
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
+    transition:background-color .3s ease,border-color .3s ease;
   }
   .header-inner{
     max-width:1120px;margin:0 auto;padding:16px 24px;
@@ -49,7 +83,7 @@
   .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
   .brand-mark{
     width:36px;height:36px;border-radius:9px;
-    background:var(--ink);color:#EFEAE0;
+    background:var(--surface-dark);color:#EFEAE0;
     display:flex;align-items:center;justify-content:center;
     font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px;
     flex-shrink:0;
@@ -93,6 +127,120 @@
   .menu-btn.is-active span::before{top:0;transform:rotate(45deg);background:var(--ink);}
   .menu-btn.is-active span::after{top:0;transform:rotate(-45deg);background:var(--ink);}
 
+  /* ── Search / Settings trigger buttons ─── */
+  .search-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:none;border:1px solid var(--line);border-radius:999px;
+    padding:9px 12px;cursor:pointer;color:var(--ink-soft);
+    transition:.2s;flex-shrink:0;
+  }
+  .search-btn:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .search-kbd-hint{
+    font-size:11px;color:var(--ink-soft);border:1px solid var(--line);
+    border-radius:5px;padding:1px 6px;line-height:1.5;background:var(--paper);
+  }
+
+  /* ── Search / Settings overlay shell (shared) ─ */
+  .search-overlay{
+    position:fixed;inset:0;z-index:200;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:12vh 20px 40px;
+  }
+  .search-overlay[hidden]{display:none;}
+  .search-backdrop{
+    position:absolute;inset:0;background:rgba(20,32,39,0.5);backdrop-filter:blur(2px);
+  }
+  .search-panel{
+    position:relative;z-index:1;width:100%;max-width:560px;
+    background:var(--surface);border-radius:16px;border:1px solid var(--line);
+    box-shadow:0 30px 60px -20px rgba(20,32,39,0.5);
+    overflow:hidden;display:flex;flex-direction:column;max-height:70vh;
+    transition:background-color .3s ease,border-color .3s ease;
+  }
+  .search-input-wrap{
+    display:flex;align-items:center;gap:12px;padding:16px 18px;
+    border-bottom:1px solid var(--line);flex-shrink:0;
+  }
+  .search-input-icon{color:var(--ink-soft);flex-shrink:0;}
+  .search-input{
+    flex:1;min-width:0;border:none;outline:none;background:none;
+    font-family:'Inter',sans-serif;font-size:16px;color:var(--ink);
+  }
+  .search-input::placeholder{color:var(--ink-soft);}
+  .search-close{
+    background:none;border:none;cursor:pointer;color:var(--ink-soft);
+    width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+    border-radius:8px;flex-shrink:0;
+  }
+  .search-close:hover{background:var(--paper);color:var(--ink);}
+
+  .search-results{overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;}
+  .search-result{
+    display:flex;flex-direction:column;gap:4px;
+    padding:12px 14px;border-radius:10px;text-decoration:none;color:var(--ink);
+  }
+  .search-result:hover,.search-result.is-active{background:var(--paper);}
+  .search-result-tag{font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.03em;}
+  .search-result-title{font-weight:600;font-size:14.5px;}
+  .search-result-title mark,.search-result-desc mark{
+    background:var(--mark-bg);color:var(--mark-fg);border-radius:3px;padding:0 1px;
+  }
+  .search-result-desc{font-size:13px;color:var(--ink-soft);}
+  .search-empty,.search-hint{padding:32px 18px;text-align:center;color:var(--ink-soft);font-size:14px;}
+
+  /* ── Settings panel content ─────────────── */
+  .settings-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;border-bottom:1px solid var(--line);flex-shrink:0;
+  }
+  .settings-header h3{margin:0;font-size:1.05rem;font-weight:600;}
+  .settings-body{
+    overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:24px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .settings-group{display:flex;flex-direction:column;gap:10px;}
+  .settings-group-label{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--teal);
+  }
+  .settings-hint{margin:0;font-size:13px;color:var(--ink-soft);}
+  .settings-options{display:flex;gap:8px;flex-wrap:wrap;}
+  .settings-option{
+    font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
+    padding:9px 14px;border-radius:999px;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink-soft);cursor:pointer;transition:.2s;
+  }
+  .settings-option:hover{border-color:var(--teal);color:var(--ink);}
+  .settings-option.is-active{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+  .wallpaper-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .wallpaper-preview{
+    width:64px;height:64px;border-radius:10px;flex-shrink:0;
+    background:var(--paper) center/cover no-repeat;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;color:var(--ink-soft);text-align:center;overflow:hidden;
+  }
+  .wallpaper-actions{display:flex;flex-wrap:wrap;gap:8px;}
+  .settings-upload-btn{cursor:pointer;}
+  .settings-note{margin:0;font-size:12px;color:var(--ink-soft);}
+
+  .settings-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;cursor:pointer;}
+  .settings-toggle-row .settings-hint{margin-top:4px;}
+  .switch{position:relative;flex-shrink:0;width:42px;height:24px;display:inline-block;}
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .switch-track{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:.2s;}
+  .switch-thumb{
+    position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
+    background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+  .switch input:checked + .switch-track{background:var(--teal);}
+  .switch input:checked + .switch-track .switch-thumb{transform:translateX(18px);}
+  .switch input:focus-visible + .switch-track{outline:2px solid var(--teal);outline-offset:2px;}
+
+  .settings-group-actions{flex-direction:row;flex-wrap:wrap;gap:10px;padding-top:8px;border-top:1px solid var(--line);}
+  .settings-status{margin:0;font-size:12.5px;color:var(--teal);min-height:16px;}
+  .settings-status.is-error{color:#C0503F;}
+
   /* ── Hero ───────────────────────────────── */
   .hero{padding:72px 0 88px;}
   .hero-grid{
@@ -114,7 +262,7 @@
 
   /* Signature: terminal card */
   .terminal{
-    background:var(--ink);border-radius:16px;overflow:hidden;
+    background:var(--surface-dark);border-radius:16px;overflow:hidden;
     box-shadow:0 20px 50px -20px rgba(20,32,39,0.45);
     border:1px solid #1f2c34;
   }
@@ -141,11 +289,12 @@
 
   /* ── Announcement ───────────────────────── */
   .announce{
-    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
     padding:26px 28px;display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;
+    transition:background-color .3s ease,border-color .3s ease;
   }
   .announce-icon{
-    width:44px;height:44px;border-radius:11px;background:#FBEEDF;color:var(--amber);
+    width:44px;height:44px;border-radius:11px;background:var(--mark-bg);color:var(--amber);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
   .announce h3{margin:0 0 6px;font-size:1.05rem;}
@@ -185,6 +334,7 @@
   .about{
     background:var(--surface);border:1px solid var(--line);border-radius:20px;
     padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:48px;
+    transition:background-color .3s ease,border-color .3s ease;
   }
   .about h2{font-size:1.8rem;margin:0 0 16px;font-weight:600;}
   .about p{color:var(--ink-soft);margin:0 0 16px;}
@@ -200,7 +350,7 @@
 
   /* ── Newsletter / contact ───────────────── */
   .contact{
-    background:var(--ink);color:#EDF2F1;border-radius:20px;
+    background:var(--surface-dark);color:#EDF2F1;border-radius:20px;
     padding:52px 48px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;
   }
   .contact h2{margin:0 0 12px;font-size:1.7rem;color:#fff;font-weight:600;}
@@ -221,6 +371,7 @@
 
   /* ── Responsive ─────────────────────────── */
   @media (max-width:900px){
+    .search-kbd-hint{display:none;}
     nav.main-nav{
       display:none;
       position:absolute;top:100%;left:0;right:0;
@@ -244,10 +395,14 @@
     .announce{grid-template-columns:auto 1fr;}
     .announce .date{grid-column:1 / -1;justify-self:start;}
     .header-actions .btn-ghost{display:none;}
+    .search-overlay{padding:0;}
+    .search-panel{max-width:none;width:100%;height:100%;max-height:100%;border-radius:0;border:none;}
   }
 </style>
 </head>
 <body>
+<div id="wallpaperLayer" aria-hidden="true"></div>
+<div id="wallpaperScrim" aria-hidden="true"></div>
 
 <header>
   <div class="header-inner">
@@ -264,10 +419,89 @@
     <div class="header-actions">
       <a href="#chuyen-doi" class="btn btn-ghost">Thông báo tên miền</a>
       <a href="#lien-he" class="btn btn-primary">Liên hệ</a>
+      <button class="search-btn" id="settingsBtn" type="button" aria-label="Cài đặt hiển thị" aria-haspopup="dialog" aria-expanded="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="search-btn" id="searchBtn" type="button" aria-label="Tìm kiếm" aria-haspopup="dialog" aria-expanded="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.8-3.8"/></svg>
+        <span class="search-kbd-hint mono">/</span>
+      </button>
       <button class="menu-btn" aria-label="Mở menu"><span></span></button>
     </div>
   </div>
 </header>
+
+<div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Tìm kiếm nội bộ ORCcop" hidden>
+  <div class="search-backdrop" data-search-close></div>
+  <div class="search-panel">
+    <div class="search-input-wrap">
+      <svg class="search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.8-3.8"/></svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="Tìm bài viết, công cụ, trang trong ORCcop…" autocomplete="off" spellcheck="false" />
+      <button class="search-close" id="searchClose" type="button" aria-label="Đóng tìm kiếm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="search-overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-label="Cài đặt hiển thị ORCcop" hidden>
+  <div class="search-backdrop" data-settings-close></div>
+  <div class="search-panel settings-panel">
+    <div class="settings-header">
+      <h3 class="font-display">Cài đặt hiển thị</h3>
+      <button class="search-close" id="settingsClose" type="button" aria-label="Đóng cài đặt">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="settings-body">
+
+      <div class="settings-group">
+        <span class="settings-group-label">Giao diện</span>
+        <div class="settings-options" role="radiogroup" aria-label="Chọn giao diện" id="themeOptions">
+          <button class="settings-option" type="button" data-theme-choice="light">Sáng</button>
+          <button class="settings-option" type="button" data-theme-choice="dark">Tối</button>
+          <button class="settings-option" type="button" data-theme-choice="system">Theo hệ thống</button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <span class="settings-group-label">Hình nền trang</span>
+        <p class="settings-hint">Tải một hình ảnh để áp dụng làm hình nền cho toàn bộ trang.</p>
+        <div class="wallpaper-row">
+          <div class="wallpaper-preview" id="wallpaperPreview">Chưa có</div>
+          <div class="wallpaper-actions">
+            <label class="btn btn-ghost settings-upload-btn">
+              Tải hình nền
+              <input type="file" accept="image/*" id="wallpaperInput" hidden />
+            </label>
+            <button class="btn btn-ghost" id="wallpaperRemoveBtn" type="button">Xóa hình nền</button>
+          </div>
+        </div>
+        <p class="settings-note">Hình nền đã chọn sẽ tự động được lưu vào bộ nhớ đệm (cache) của trình duyệt, trừ khi chế độ riêng tư đang bật.</p>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-toggle-row" for="privacyToggle">
+          <span>
+            <span class="settings-group-label">Quyền riêng tư</span>
+            <p class="settings-hint">Chặn thu thập dữ liệu: cài đặt chỉ được giữ trong phiên truy cập hiện tại, không ghi vào cache lâu dài.</p>
+          </span>
+          <span class="switch">
+            <input type="checkbox" id="privacyToggle" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </span>
+        </label>
+      </div>
+
+      <div class="settings-group settings-group-actions">
+        <button class="btn btn-primary" id="settingsSaveBtn" type="button">Lưu vào bộ nhớ đệm</button>
+        <button class="btn btn-ghost" id="settingsClearBtn" type="button">Xóa toàn bộ cache</button>
+      </div>
+      <p class="settings-status" id="settingsStatus" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
 
 <main class="wrap" id="top">
   <!-- Hero -->
@@ -443,6 +677,331 @@
 </footer>
 
 <script>
+  // Internal search — indexes the existing link lists already on the page
+  (function(){
+    const searchBtn = document.getElementById('searchBtn');
+    const overlay = document.getElementById('searchOverlay');
+    const input = document.getElementById('searchInput');
+    const resultsEl = document.getElementById('searchResults');
+    const closeBtn = document.getElementById('searchClose');
+
+    function buildIndex(){
+      const items = [];
+      document.querySelectorAll('.grid .card').forEach(card => {
+        items.push({
+          title: card.querySelector('h3')?.textContent.trim() || '',
+          desc: card.querySelector('p')?.textContent.trim() || '',
+          tag: card.querySelector('.card-tag')?.textContent.trim() || '',
+          url: card.getAttribute('href')
+        });
+      });
+      document.querySelectorAll('nav.main-nav a').forEach(a => {
+        const label = a.textContent.trim();
+        items.push({
+          title: label,
+          desc: 'Chuyển tới mục "' + label + '" trên trang.',
+          tag: 'Trang',
+          url: a.getAttribute('href')
+        });
+      });
+      return items;
+    }
+    const index = buildIndex();
+
+    function normalize(str){
+      return str.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd');
+    }
+    function escapeHtml(str){
+      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function highlight(text, query){
+      const safe = escapeHtml(text);
+      if(!query) return safe;
+      const nText = normalize(text), nQuery = normalize(query);
+      const i = nText.indexOf(nQuery);
+      if(i === -1) return safe;
+      return escapeHtml(text.slice(0,i)) + '<mark>' + escapeHtml(text.slice(i, i+query.length)) + '</mark>' + escapeHtml(text.slice(i+query.length));
+    }
+
+    let activeIndex = -1;
+
+    function render(query){
+      const q = query.trim();
+      if(!q){
+        resultsEl.innerHTML = '<div class="search-hint">Gõ để tìm bài viết, công cụ hoặc trang trong ORCcop…</div>';
+        activeIndex = -1;
+        return;
+      }
+      const nq = normalize(q);
+      const matches = index.filter(item =>
+        normalize(item.title).includes(nq) ||
+        normalize(item.desc).includes(nq) ||
+        normalize(item.tag).includes(nq)
+      );
+      if(matches.length === 0){
+        resultsEl.innerHTML = '<div class="search-empty">Không tìm thấy kết quả cho "' + escapeHtml(q) + '".</div>';
+        activeIndex = -1;
+        return;
+      }
+      resultsEl.innerHTML = matches.map(item => (
+        '<a class="search-result" href="' + item.url + '">' +
+          '<span class="search-result-tag mono">' + escapeHtml(item.tag) + '</span>' +
+          '<span class="search-result-title">' + highlight(item.title, q) + '</span>' +
+          '<span class="search-result-desc">' + highlight(item.desc, q) + '</span>' +
+        '</a>'
+      )).join('');
+      activeIndex = -1;
+    }
+
+    function setActive(i){
+      const items = resultsEl.querySelectorAll('.search-result');
+      items.forEach(el => el.classList.remove('is-active'));
+      if(items[i]){
+        items[i].classList.add('is-active');
+        items[i].scrollIntoView({block:'nearest'});
+      }
+      activeIndex = i;
+    }
+
+    function openSearch(){
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      searchBtn.setAttribute('aria-expanded', 'true');
+      input.value = '';
+      render('');
+      setTimeout(() => input.focus(), 10);
+    }
+    function closeSearch(){
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+      searchBtn.setAttribute('aria-expanded', 'false');
+      searchBtn.focus();
+    }
+
+    searchBtn.addEventListener('click', openSearch);
+    closeBtn.addEventListener('click', closeSearch);
+    overlay.querySelectorAll('[data-search-close]').forEach(el => el.addEventListener('click', closeSearch));
+
+    input.addEventListener('input', () => render(input.value));
+
+    input.addEventListener('keydown', (e) => {
+      const items = resultsEl.querySelectorAll('.search-result');
+      if(e.key === 'ArrowDown'){
+        e.preventDefault();
+        if(items.length) setActive((activeIndex + 1) % items.length);
+      } else if(e.key === 'ArrowUp'){
+        e.preventDefault();
+        if(items.length) setActive((activeIndex - 1 + items.length) % items.length);
+      } else if(e.key === 'Enter'){
+        const target = activeIndex >= 0 ? items[activeIndex] : items[0];
+        if(target){ e.preventDefault(); target.click(); }
+      }
+    });
+
+    resultsEl.addEventListener('click', (e) => {
+      if(e.target.closest('.search-result')) closeSearch();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if(!overlay.hidden && e.key === 'Escape'){ closeSearch(); return; }
+      const tag = (e.target.tagName || '').toLowerCase();
+      const isTyping = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+      if(overlay.hidden && !isTyping && (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'))){
+        e.preventDefault();
+        openSearch();
+      }
+    });
+  })();
+
+  // Display settings — theme (light/dark/system), custom wallpaper, cache, privacy
+  (function(){
+    const STORAGE_KEY = 'orccop:settings';
+    const root = document.documentElement;
+    const wallpaperLayer = document.getElementById('wallpaperLayer');
+    const wallpaperScrim = document.getElementById('wallpaperScrim');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const overlay = document.getElementById('settingsOverlay');
+    const closeBtn = document.getElementById('settingsClose');
+    const themeOptions = document.querySelectorAll('#themeOptions .settings-option');
+    const wallpaperInput = document.getElementById('wallpaperInput');
+    const wallpaperPreview = document.getElementById('wallpaperPreview');
+    const wallpaperRemoveBtn = document.getElementById('wallpaperRemoveBtn');
+    const privacyToggle = document.getElementById('privacyToggle');
+    const saveBtn = document.getElementById('settingsSaveBtn');
+    const clearBtn = document.getElementById('settingsClearBtn');
+    const statusEl = document.getElementById('settingsStatus');
+
+    const defaults = { theme: 'system', wallpaper: null, privacy: false };
+    let state = Object.assign({}, defaults);
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function readStorage(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      }catch(e){ return null; }
+    }
+
+    function writeStorage(target){
+      try{
+        const payload = JSON.stringify(state);
+        if(target === 'local'){
+          localStorage.setItem(STORAGE_KEY, payload);
+          sessionStorage.removeItem(STORAGE_KEY);
+        } else {
+          sessionStorage.setItem(STORAGE_KEY, payload);
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }catch(e){ /* storage unavailable or full */ }
+    }
+
+    function persist(showStatus){
+      if(state.privacy){
+        writeStorage('session');
+        if(showStatus) setStatus('Chế độ riêng tư đang bật — cài đặt chỉ lưu tạm cho phiên này, không ghi vào cache lâu dài.');
+      } else {
+        writeStorage('local');
+        if(showStatus) setStatus('Đã lưu cài đặt vào bộ nhớ đệm.');
+      }
+    }
+
+    function setStatus(msg, isError){
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('is-error', !!isError);
+    }
+
+    function applyTheme(){
+      let effective = state.theme;
+      if(effective === 'system'){
+        effective = mediaQuery.matches ? 'dark' : 'light';
+      }
+      if(effective === 'dark'){
+        root.setAttribute('data-theme', 'dark');
+      } else {
+        root.removeAttribute('data-theme');
+      }
+      themeOptions.forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.themeChoice === state.theme);
+      });
+    }
+
+    function applyWallpaper(){
+      if(state.wallpaper){
+        wallpaperLayer.style.backgroundImage = 'url(' + state.wallpaper + ')';
+        wallpaperLayer.classList.add('is-active');
+        wallpaperScrim.classList.add('is-active');
+        root.classList.add('has-wallpaper');
+        wallpaperPreview.style.backgroundImage = 'url(' + state.wallpaper + ')';
+        wallpaperPreview.textContent = '';
+      } else {
+        wallpaperLayer.style.backgroundImage = '';
+        wallpaperLayer.classList.remove('is-active');
+        wallpaperScrim.classList.remove('is-active');
+        root.classList.remove('has-wallpaper');
+        wallpaperPreview.style.backgroundImage = '';
+        wallpaperPreview.textContent = 'Chưa có';
+      }
+    }
+
+    function applyAll(){
+      applyTheme();
+      applyWallpaper();
+      privacyToggle.checked = !!state.privacy;
+    }
+
+    // Init from cache (or session, if privacy mode was on)
+    const saved = readStorage();
+    if(saved) state = Object.assign({}, defaults, saved);
+    applyAll();
+
+    mediaQuery.addEventListener('change', () => {
+      if(state.theme === 'system') applyTheme();
+    });
+
+    themeOptions.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.theme = btn.dataset.themeChoice;
+        applyTheme();
+        persist(false);
+        setStatus('Đã áp dụng giao diện: ' + btn.textContent.trim() + '.');
+      });
+    });
+
+    wallpaperInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')){
+        setStatus('Vui lòng chọn một tệp hình ảnh hợp lệ.', true);
+        return;
+      }
+      if(file.size > 4 * 1024 * 1024){
+        setStatus('Hình ảnh quá lớn (tối đa 4MB) để lưu vào cache.', true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.wallpaper = reader.result;
+        applyWallpaper();
+        persist(true);
+      };
+      reader.onerror = () => setStatus('Không thể đọc tệp hình ảnh này.', true);
+      reader.readAsDataURL(file);
+    });
+
+    wallpaperRemoveBtn.addEventListener('click', () => {
+      state.wallpaper = null;
+      wallpaperInput.value = '';
+      applyWallpaper();
+      persist(true);
+    });
+
+    privacyToggle.addEventListener('change', () => {
+      state.privacy = privacyToggle.checked;
+      if(state.privacy){
+        try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+        persist(false);
+        setStatus('Đã bật quyền riêng tư — dữ liệu cache trước đó (nếu có) đã được xóa.');
+      } else {
+        persist(false);
+        setStatus('Đã tắt quyền riêng tư — cài đặt sẽ được lưu vào cache như bình thường.');
+      }
+    });
+
+    saveBtn.addEventListener('click', () => persist(true));
+
+    clearBtn.addEventListener('click', () => {
+      try{
+        localStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_KEY);
+      }catch(e){}
+      state = Object.assign({}, defaults, { privacy: state.privacy });
+      applyAll();
+      setStatus('Đã xóa toàn bộ dữ liệu đã lưu trong cache.');
+    });
+
+    function openSettings(){
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      settingsBtn.setAttribute('aria-expanded', 'true');
+      setStatus('');
+    }
+    function closeSettings(){
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+      settingsBtn.setAttribute('aria-expanded', 'false');
+      settingsBtn.focus();
+    }
+
+    settingsBtn.addEventListener('click', openSettings);
+    closeBtn.addEventListener('click', closeSettings);
+    overlay.querySelectorAll('[data-settings-close]').forEach(el => el.addEventListener('click', closeSettings));
+    document.addEventListener('keydown', (e) => {
+      if(!overlay.hidden && e.key === 'Escape') closeSettings();
+    });
+  })();
+
   // Mobile menu toggle
   const menuBtn = document.querySelector('.menu-btn');
   const mainNav = document.querySelector('nav.main-nav');
