@@ -25,6 +25,7 @@
             --mono: 'JetBrains Mono', monospace;
             --radius: 16px;
             --radius-sm: 10px;
+            --orc-blue-lock:#d1e0ea;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -458,6 +459,19 @@
             opacity: 0.88;
             transform: scale(0.98);
         }
+         .btn-download-lock {
+            flex: 1;
+            padding: 11px 10px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: var(--font);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
         /* ── VIP Section ── */
         .vip-section { margin-top: 72px; }
@@ -719,7 +733,7 @@
 
 <!-- Navbar -->
 <nav class="navbar">
-    <div class="navbar-logo">ORICHIIN <span>STUDIO</span> 🦈</div>
+    <div class="navbar-logo">ORIIN<span>-<span>STY</span></div>
     <ul class="navbar-links">
         <li><a href="https://www.hentaiorc.xyz/list.html">Trang chủ</a></li>
         <li><a href="#free-section">Miễn phí</a></li>
@@ -741,7 +755,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
         </svg>
-        Quay lại trang chủ
+        Quay lại
     </a>
 
     <!-- Stats row -->
@@ -884,7 +898,7 @@
                 <span class="tag-pill tag-free">Miễn phí</span>
                 <span class="tag-pill tag-svg">SVG</span>
                 <span class="tag-pill tag-new">Mới</span>
-                <span class="tag-pill tag-beta" >beta</span>
+                <span class="tag-pill tag-beta" >locked</span>
             </div>
             <img src="https://www.hentaiorc.xyz/image-video/nam-image.jpg" class="app-thumb" id="mushroomThumb" alt="Mushroom Vector">
             <div class="app-name">Mushroom Vector Pack 🍄</div>
@@ -923,7 +937,7 @@
 
             <div class="app-btns">
                 <button class="btn-preview" id="mushroomView" data-preview="https://www.hentaiorc.xyz/image-video/nam-image.jpg">Xem trước</button>
-                <button class="btn-download" id="mushroomDl" data-zip="https://hentaiorc.xyz/caynam-basic.zip">Tải ZIP</button>
+                <button class="btn-download-lock" id="mushroomDl" data-zip="none">Locket</button>
             </div>
         </div>
 
@@ -1004,13 +1018,15 @@
                 <p>Các file VIP được vẽ tỉ mỉ hơn, đảm bảo giống 100% yêu cầu đề thi. Không cần giải nén — mở và dùng ngay.</p>
             </div>
         </div>
-
         <div class="app-grid">
             <div class="app-card vip-card fade-up">
                 <div class="card-tags">
                     <span class="tag-pill tag-vip">VIP</span>
                     <span class="tag-pill tag-svg">SVG</span>
                     <span class="tag-pill tag-new">Đảm bảo 100%</span>
+                <div class="card-tags">
+                    <span class="tag-pill tag-free">Miễn phí</span>
+                </div>
                 </div>
                 <img src="https://hentaiorc.xyz/image-video/tincuoikivip.png" class="app-thumb" alt="Tin Học cuối kì VIP"
                      onerror="this.src='https://cdn-icons-png.flaticon.com/512/1055/1055683.png'">
@@ -1113,20 +1129,7 @@
 
 </div>
 
-<!-- Wave decoration -->
-<div class="wave-container">
-    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
-        <defs>
-            <path id="wave" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/>
-        </defs>
-        <g class="parallax">
-            <use href="#wave" x="48" y="0" fill="rgba(0,114,255,0.08)"/>
-            <use href="#wave" x="48" y="3" fill="rgba(0,200,255,0.1)"/>
-            <use href="#wave" x="48" y="5" fill="rgba(0,114,255,0.06)"/>
-            <use href="#wave" x="48" y="7" fill="rgba(0,200,255,0.15)"/>
-        </g>
-    </svg>
-</div>
+
 
 <!-- Footer -->
 <footer>
