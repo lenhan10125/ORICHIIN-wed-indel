@@ -1,1438 +1,1175 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <link rel="icon" type="image/x-icon" href="ORC.ico">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ORCcop</title>
-    <style>
-        @font-face {
-            font-family: 'Lato';
-            src: url(https://img1.wsimg.com/gfonts/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
-        }
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: 'Lato', sans-serif;
-            color: #FFFFFF !important;
-            background: #0a0a0a no-repeat center center fixed;
-            background-size: cover;
-            overflow-y: auto; 
-            overflow-x: hidden;
-            transition: background 0.6s ease;
-        }
-        :root {
-            --yt-bg: rgba(15, 15, 15, 0.85);
-            --yt-border: rgba(255, 255, 255, 0.1);
-            --neon-blue: #00f3ff;
-            --neon-flame: #00f3ff;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ORCcop — Trung tâm dữ liệu &amp; lịch sự kiện</title>
+<link rel="icon" href="https://hentaiorc.xyz/ORC.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#142027;
+    --ink-soft:#425160;
+    --paper:#F1F4F4;
+    --paper-rgb:241,244,244;
+    --surface:#FFFFFF;
+    --surface-dark:#142027;
+    --line:#DCE3E2;
+    --teal:#1F6F5C;
+    --teal-deep:#154B3E;
+    --amber:#C77A2E;
+    --mark-bg:#FBEEDF;
+    --mark-fg:#C77A2E;
+    --red:#C0503F;
+    --radius:14px;
+  }
+  :root[data-theme="dark"]{
+    --ink:#E7EEEC;
+    --ink-soft:#93A6A9;
+    --paper:#12181B;
+    --paper-rgb:18,24,27;
+    --surface:#1A2226;
+    --line:#2A3439;
+    --teal:#3FB593;
+    --teal-deep:#2E8E70;
+    --amber:#E7A15C;
+    --mark-bg:#3A2A16;
+    --mark-fg:#E7A15C;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html.has-wallpaper body{background:transparent;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.6;
+    transition:background-color .3s ease,color .3s ease;
+  }
+  h1,h2,h3,.font-display{font-family:'Fraunces',serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  button{font:inherit;}
 
-        @keyframes neon-burn {
-            0%, 100% {
-                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-                box-shadow: inset 0 0 15px var(--neon-blue), 0 0 10px rgba(0, 243, 255, 0.2);
-            }
-            50% {
-                text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px var(--neon-blue);
-                box-shadow: inset 0 0 45px var(--neon-blue), 0 0 25px rgba(0, 243, 255, 0.5);
-            }
-        }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
 
-        @keyframes flame-glow {
-            0%, 100% { box-shadow: 0 0 10px var(--neon-flame), 0 0 20px var(--neon-flame); transform: scale(1); }
-            50% { box-shadow: 0 0 25px var(--neon-flame), 0 0 40px var(--neon-flame); transform: scale(1.02); }
-        }
+  /* ── Wallpaper layer ────────────────────── */
+  #wallpaperLayer{
+    position:fixed;inset:0;z-index:-2;
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+    opacity:0;transition:opacity .35s ease;pointer-events:none;
+  }
+  #wallpaperLayer.is-active{opacity:1;}
+  #wallpaperScrim{
+    position:fixed;inset:0;z-index:-1;
+    background:rgba(var(--paper-rgb),0.72);
+    opacity:0;transition:opacity .35s ease,background-color .3s ease;pointer-events:none;
+  }
+  #wallpaperScrim.is-active{opacity:1;}
 
-        .yt-header {
-            position: fixed; top: 0; width: 100%; height: 56px;
-            background: var(--yt-bg); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; z-index: 1000; box-sizing: border-box;
-        }
-        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
-        .menu-toggle-btn {
-            background: rgba(0,0,0,0.5); border: 2px solid #ffcc00; cursor: pointer;
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 10px #ffcc00; transition: 0.4s;
-            position: relative; z-index: 2100;
-        }
-        .menu-toggle-btn:hover { animation: flame-glow 0.3s infinite alternate; }
-        .hamburger { width: 20px; height: 14px; position: relative; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .hamburger span { display: block; width: 100%; height: 2px; background: white; transition: 0.4s; }
-        .open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        .open .hamburger span:nth-child(2) { opacity: 0; }
-        .open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-        
-        .header-center { flex: 0 1 720px; margin: 0 15px; position: relative; }
-        .search-container {
-            display: flex; background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--yt-border); border-radius: 40px;
-            overflow: hidden; padding-left: 20px;
-        }
-        .search-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; height: 40px; }
-        .search-btn { background: rgba(255,255,255,0.1); border: none; width: 64px; height: 40px; border-left: 1px solid var(--yt-border); cursor: pointer; transition: 0.3s; }
-        .search-btn:hover { background: rgba(0, 243, 255, 0.2); }
-        .search-btn svg { width: 20px; height: 20px; fill: white; }
+  /* ── Header ─────────────────────────────── */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(var(--paper-rgb),0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    transition:background-color .3s ease,border-color .3s ease;
+  }
+  .header-inner{
+    max-width:1120px;margin:0 auto;padding:16px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:9px;
+    background:var(--surface-dark);color:#EFEAE0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px;
+    flex-shrink:0;overflow:hidden;
+  }
+  .brand-mark img{width:100%;height:100%;object-fit:cover;}
+  .brand-name{font-weight:700;font-size:1.05rem;letter-spacing:-0.01em;}
+  .brand-name span{color:var(--teal);}
 
-        .suggestion-box {
-            position: absolute; top: 110%; left: 0; width: 100%;
-            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
-            border: 1px solid var(--neon-blue); border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
-            display: none; z-index: 2000; max-height: 350px; overflow-y: auto;
-        }
-        .suggestion-item {
-            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s; display: flex; flex-direction: column;
-        }
-        .suggestion-item:hover { background: rgba(0, 243, 255, 0.15); padding-left: 25px; }
-        .suggestion-item .web-name { color: var(--neon-blue); font-weight: bold; font-size: 15px; }
-        .suggestion-item .web-url { color: rgba(153, 204, 255, 0.6); font-size: 12px; margin-top: 4px; }
-        
-        .settings-btn {
-            background: rgba(0,0,0,0.5);
-            border: 2px solid var(--neon-blue);
-            cursor: pointer;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 10px rgba(0,243,255,0.4);
-            transition: 0.4s;
-            position: relative; z-index: 2100;
-            color: var(--neon-blue);
-            font-size: 18px;
-        }
-        .settings-btn:hover {
-            box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.3);
-            transform: rotate(45deg);
-        }
+  nav.main-nav{display:flex;gap:28px;}
+  nav.main-nav a{
+    font-size:14px;font-weight:500;color:var(--ink-soft);text-decoration:none;
+    padding:6px 0;border-bottom:2px solid transparent;transition:.2s;
+  }
+  nav.main-nav a:hover{color:var(--ink);border-color:var(--teal);}
 
-        .settings-panel {
-            position: fixed;
-            top: 65px; right: 16px;
-            width: 320px;
-            background: rgba(10, 10, 10, 0.97);
-            backdrop-filter: blur(20px);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.2);
-            z-index: 1500;
-            padding: 24px;
-            transform-origin: top right;
-            transform: scale(0); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-        }
-        .settings-panel.active {
-            transform: scale(1); opacity: 1;
-            pointer-events: auto;
-        }
-        .settings-title {
-            color: var(--neon-blue);
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 18px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px var(--neon-blue);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .settings-section-label {
-            color: rgba(255,255,255,0.5);
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            margin-top: 16px;
-        }
-        .bg-presets {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .bg-preset-btn {
-            height: 52px;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-        }
-        .bg-preset-btn:hover { transform: scale(1.05); border-color: var(--neon-blue); }
-        .bg-preset-btn.active-bg { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
-        .bg-preset-btn span {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.7);
-            font-size: 9px; text-align: center;
-            padding: 3px; color: #fff;
-        }
-        .bg-url-row {
-            display: flex; gap: 8px; margin-top: 8px;
-        }
-        .bg-url-input {
-            flex: 1; background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; padding: 8px 12px;
-            color: white; font-size: 12px; outline: none;
-            transition: 0.3s;
-        }
-        .bg-url-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.3); }
-        .bg-url-input::placeholder { color: rgba(255,255,255,0.3); }
-        .bg-apply-btn {
-            background: var(--neon-blue); color: black;
-            border: none; border-radius: 10px;
-            padding: 8px 14px; font-size: 12px;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-            white-space: nowrap;
-        }
-        /* FIX: Removed extra ) from box-shadow */
-        .bg-apply-btn:hover { box-shadow: 0 0 12px var(--neon-blue); transform: scale(1.05); }
-        .bg-overlay-toggle {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-top: 14px;
-        }
-        .bg-overlay-label { font-size: 12px; color: rgba(255,255,255,0.6); }
-        .toggle-switch { position: relative; width: 40px; height: 22px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.15);
-            border-radius: 22px; transition: 0.3s;
-        }
-        .toggle-slider:before {
-            content: ''; position: absolute;
-            width: 16px; height: 16px;
-            left: 3px; bottom: 3px;
-            background: white; border-radius: 50%;
-            transition: 0.3s;
-        }
-        .toggle-switch input:checked + .toggle-slider { background: var(--neon-blue); }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
-        
-        .menu-overlay {
-            position: fixed; top: 65px; left: 16px;
-            width: fit-content; height: auto;
-            min-width: 260px; padding: 25px;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-            z-index: 1500;
-            display: flex; flex-direction: column;
-            transform-origin: top left;
-            transform: scale(0); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-        }
-        .menu-overlay.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-        .nav-content { display: flex; flex-direction: column; text-align: left; }
-        .nav-item {
-            font-size: 1.3rem; color: #99CCFF; text-decoration: none;
-            font-weight: bold; margin: 10px 0; transition: 0.3s;
-            padding: 5px 10px; border-radius: 10px;
-        }
-        .nav-item:hover { 
-            animation: neon-burn 0.8s infinite alternate ease-in-out;
-            color: var(--neon-blue); 
-            transform: translateX(8px); 
-        }
+  .header-actions{display:flex;align-items:center;gap:14px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+    padding:10px 18px;border-radius:999px;
+    text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:.2s;white-space:nowrap;
+  }
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-primary:hover{background:var(--teal-deep);}
+  .btn-ghost{border-color:var(--line);color:var(--ink);background:none;}
+  .btn-ghost:hover{border-color:var(--ink);}
 
-        .ambient-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .dust-particle { position: absolute; background: white; border-radius: 50%; opacity: 0.4; filter: blur(1px); animation: floatDust linear infinite; }
-        @keyframes floatDust {
-            0% { transform: translateY(0) translateX(0); opacity: 0; }
-            50% { opacity: 0.5; }
-            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-        }
+  .menu-btn{
+    display:none;background:none;border:1px solid var(--line);
+    width:38px;height:38px;border-radius:9px;cursor:pointer;
+    align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .menu-btn span, .menu-btn span::before, .menu-btn span::after{
+    content:'';display:block;width:16px;height:2px;background:var(--ink);position:relative;
+    transition:transform .2s ease, opacity .2s ease, top .2s ease;
+  }
+  .menu-btn span::before{position:absolute;top:-5px;}
+  .menu-btn span::after{position:absolute;top:5px;}
+  .menu-btn.is-active span{background:transparent;}
+  .menu-btn.is-active span::before{top:0;transform:rotate(45deg);background:var(--ink);}
+  .menu-btn.is-active span::after{top:0;transform:rotate(-45deg);background:var(--ink);}
 
-        /* PARTICLE — mouse click effect */
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            width: 4px; height: 4px;
-            background: var(--neon-blue);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--neon-blue);
-            z-index: 2200;
-            animation: particleFly 1s forwards;
-        }
-        @keyframes particleFly {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
-        }
+  .search-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:none;border:1px solid var(--line);border-radius:999px;
+    padding:9px 12px;cursor:pointer;color:var(--ink-soft);
+    transition:.2s;flex-shrink:0;
+  }
+  .search-btn:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .search-kbd-hint{
+    font-size:11px;color:var(--ink-soft);border:1px solid var(--line);
+    border-radius:5px;padding:1px 6px;line-height:1.5;background:var(--paper);
+  }
 
-        #loader-wrapper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2c8b8f; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .loader-top-img { width: 360px; height: auto; margin-bottom: 20px; }
-        .neon-loading-container { width: 320px; margin: 10px 0; }
-        .neon-text-row { display: flex; justify-content: space-between; color: var(--neon-flame); font-weight: bold; font-size: 18px; text-shadow: 0 0 10px var(--neon-flame); margin-bottom: 8px; }
-        .neon-bar-border { width: 100%; height: 22px; border: 2px solid var(--neon-flame); border-radius: 15px; padding: 2px; box-sizing: border-box; box-shadow: 0 0 10px var(--neon-flame); }
-        .neon-bar-fill { height: 100%; width: 0%; background: var(--neon-flame); border-radius: 10px; box-shadow: 0 0 20px var(--neon-flame), 0 0 40px var(--neon-flame); animation: flame-glow 0.5s infinite alternate; }
-        .loader-hidden { opacity: 0; visibility: hidden; }
-        .container { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 1s ease-in; }
-        .container.show { opacity: 1; }
-        .content-box { position: relative; z-index: 10; width: 90%; max-width: 600px; padding: 40px; border-radius: 25px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; transition: 0.3s; margin-bottom: 50px; }
-        .content-box:hover { animation: neon-burn 1.5s infinite alternate ease-in-out; }
-        h1 { color: #d9b8ab; font-size: 2.5em; }
+  /* ── Overlay shell (search + settings) ─── */
+  .search-overlay{
+    position:fixed;inset:0;z-index:200;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:12vh 20px 40px;
+  }
+  .search-overlay[hidden]{display:none;}
+  .search-backdrop{
+    position:absolute;inset:0;background:rgba(20,32,39,0.5);backdrop-filter:blur(2px);
+  }
+  .search-panel{
+    position:relative;z-index:1;width:100%;max-width:560px;
+    background:var(--surface);border-radius:16px;border:1px solid var(--line);
+    box-shadow:0 30px 60px -20px rgba(20,32,39,0.5);
+    overflow:hidden;display:flex;flex-direction:column;max-height:76vh;
+    transition:background-color .3s ease,border-color .3s ease;
+  }
+  .search-input-wrap{
+    display:flex;align-items:center;gap:12px;padding:16px 18px;
+    border-bottom:1px solid var(--line);flex-shrink:0;
+  }
+  .search-input-icon{color:var(--ink-soft);flex-shrink:0;}
+  .search-input{
+    flex:1;min-width:0;border:none;outline:none;background:none;
+    font-family:'Inter',sans-serif;font-size:16px;color:var(--ink);
+  }
+  .search-input::placeholder{color:var(--ink-soft);}
+  .search-close{
+    background:none;border:none;cursor:pointer;color:var(--ink-soft);
+    width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+    border-radius:8px;flex-shrink:0;
+  }
+  .search-close:hover{background:var(--paper);color:var(--ink);}
 
-        /* ====== TRENDING SECTION ====== */
-        .trending-section {
-            width: 92%;
-            max-width: 1200px;
-            margin: 0 auto 60px auto;
-            position: relative;
-            z-index: 10;
-        }
-        .trending-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 22px;
-        }
-        .trending-title {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
-        .trending-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(0,243,255,0.4), transparent);
-        }
-        .trending-scroll-wrapper {
-            position: relative;
-        }
-        .trending-grid {
-            display: flex;
-            gap: 0;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding-bottom: 8px;
-            scrollbar-width: none;
-        }
-        .trending-grid::-webkit-scrollbar { display: none; }
+  .search-results{overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;}
+  .search-result{
+    display:flex;flex-direction:column;gap:4px;
+    padding:12px 14px;border-radius:10px;text-decoration:none;color:var(--ink);
+  }
+  .search-result:hover,.search-result.is-active{background:var(--paper);}
+  .search-result-tag{font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.03em;}
+  .search-result-title{font-weight:600;font-size:14.5px;}
+  .search-result-title mark,.search-result-desc mark{
+    background:var(--mark-bg);color:var(--mark-fg);border-radius:3px;padding:0 1px;
+  }
+  .search-result-desc{font-size:13px;color:var(--ink-soft);}
+  .search-empty,.search-hint{padding:32px 18px;text-align:center;color:var(--ink-soft);font-size:14px;}
 
-        .scroll-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.8);
-            border: 1px solid rgba(0,243,255,0.4);
-            color: white;
-            width: 36px; height: 80px;
-            border-radius: 6px;
-            cursor: pointer;
-            z-index: 20;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-            transition: 0.3s;
-            backdrop-filter: blur(10px);
-        }
-        .scroll-btn:hover {
-            background: rgba(0,243,255,0.15);
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0,243,255,0.3);
-        }
-        .scroll-btn.left { left: -18px; }
-        .scroll-btn.right { right: -18px; }
+  /* ── Settings panel content ─────────────── */
+  .settings-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;border-bottom:1px solid var(--line);flex-shrink:0;
+  }
+  .settings-header h3{margin:0;font-size:1.05rem;font-weight:600;}
+  .settings-body{
+    overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:24px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .settings-group{display:flex;flex-direction:column;gap:10px;}
+  .settings-group-label{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--teal);
+  }
+  .settings-hint{margin:0;font-size:13px;color:var(--ink-soft);}
+  .settings-options{display:flex;gap:8px;flex-wrap:wrap;}
+  .settings-option{
+    font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
+    padding:9px 14px;border-radius:999px;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink-soft);cursor:pointer;transition:.2s;
+  }
+  .settings-option:hover{border-color:var(--teal);color:var(--ink);}
+  .settings-option.is-active{background:var(--teal);border-color:var(--teal);color:#fff;}
 
-        .trending-card {
-            position: relative;
-            flex: 0 0 auto;
-            width: 140px;
-            height: 210px;
-            cursor: pointer;
-            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            margin-right: -28px;
-        }
-        .trending-card:last-child { margin-right: 0; }
-        .trending-card:hover {
-            transform: scale(1.08) translateY(-6px);
-            z-index: 5;
-        }
-        .card-rank {
-            position: absolute;
-            bottom: -8px;
-            left: -4px;
-            font-size: 6.5rem;
-            font-weight: 900;
-            line-height: 1;
-            color: transparent;
-            -webkit-text-stroke: 3px rgba(255,255,255,0.85);
-            z-index: 2;
-            pointer-events: none;
-            font-family: 'Arial Black', 'Impact', sans-serif;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
-            user-select: none;
-        }
-        .card-poster {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-            object-fit: cover;
-            display: block;
-            position: relative;
-            z-index: 1;
-            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
-            transition: box-shadow 0.3s;
-        }
-        .trending-card:hover .card-poster {
-            box-shadow: 6px 6px 30px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.2);
-        }
-        .card-overlay {
-            position: absolute;
-            inset: 0;
-            border-radius: 8px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
-            opacity: 0;
-            transition: 0.3s;
-            z-index: 3;
-            display: flex;
-            align-items: flex-end;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .trending-card:hover .card-overlay { opacity: 1; }
-        .card-title-hover {
-            font-size: 11px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            width: 100%;
-            line-height: 1.3;
-        }
-        .card-poster-placeholder {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-            color: white;
-            box-shadow: 4px 4px 20px rgba(0,0,0,0.7);
-            transition: box-shadow 0.3s;
-        }
-        .card-badge {
-            position: absolute;
-            top: 7px;
-            left: 7px;
-            z-index: 4;
-            background: #e50914;
-            color: white;
-            font-size: 10px;
-            font-weight: 900;
-            width: 18px; height: 18px;
-            border-radius: 3px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        @keyframes cardEntrance {
-            from { opacity: 0; transform: translateY(30px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .trending-card {
-            animation: cardEntrance 0.5s ease backwards;
-        }
+  .wallpaper-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .wallpaper-swatch{
+    height:48px;border-radius:9px;border:2px solid var(--line);cursor:pointer;
+    background-size:cover;background-position:center;position:relative;transition:.2s;
+  }
+  .wallpaper-swatch:hover{border-color:var(--teal);}
+  .wallpaper-swatch.is-active{border-color:var(--teal);box-shadow:0 0 0 3px var(--mark-bg);}
+  .wallpaper-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:4px;}
+  .wallpaper-preview{
+    width:64px;height:64px;border-radius:10px;flex-shrink:0;
+    background:var(--paper) center/cover no-repeat;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;color:var(--ink-soft);text-align:center;overflow:hidden;
+  }
+  .wallpaper-actions{display:flex;flex-wrap:wrap;gap:8px;}
+  .settings-upload-btn{cursor:pointer;}
+  .settings-note{margin:0;font-size:12px;color:var(--ink-soft);}
 
-        /* ============================
-           NEON CLOCK (domain switch)
-           ============================ */
-        .neon-clock {
-            display: none;
-            text-align: center;
-            margin-bottom: 40px;
-            font-family: 'Lato', sans-serif;
-            position: relative;
-            z-index: 10;
-        }
-        .neon-clock.show { display: block; }
-        .neon-clock-display {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .neon-digit-group { display: flex; gap: 4px; }
-        .neon-digit {
-            width: 52px; height: 76px;
-            border: 2px solid #00f3ff;
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.6rem; font-weight: 900;
-            color: #00f3ff;
-            background: rgba(0, 243, 255, 0.04);
-            box-shadow: inset 0 0 12px rgba(0,243,255,0.15), 0 0 10px rgba(0,243,255,0.3);
-            animation: clock-pulse 2s ease-in-out infinite;
-            position: relative;
-        }
-        .neon-digit::after {
-            content: ''; position: absolute;
-            left: 6px; right: 6px; top: 50%; height: 1px;
-            background: rgba(0,243,255,0.08);
-            transform: translateY(-50%);
-        }       
-        .neon-separator { display: flex; flex-direction: column; gap: 10px; padding-bottom: 4px; }
-        .neon-dot {
-            width: 7px; height: 7px;
-            background: #00f3ff; border-radius: 50%;
-            box-shadow: 0 0 8px #00f3ff, 0 0 16px #00f3ff;
-            animation: dot-blink 1s step-end infinite;
-        }
-        @keyframes clock-pulse {
-            0%, 100% { box-shadow: inset 0 0 12px rgba(0,243,255,0.15), 0 0 10px rgba(0,243,255,0.2); border-color: #00f3ff; }
-            50% { box-shadow: inset 0 0 24px rgba(0,243,255,0.3), 0 0 25px rgba(0,243,255,0.5), 0 0 50px rgba(0,243,255,0.15); border-color: #66f9ff; }
-        }
-        @keyframes dot-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        .neon-clock-label {
-            font-size: 0.7rem; color: rgba(0,243,255,0.5);
-            letter-spacing: 3px; text-transform: uppercase; margin-top: 12px;
-        }
+  .settings-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;cursor:pointer;}
+  .settings-toggle-row .settings-hint{margin-top:4px;}
+  .switch{position:relative;flex-shrink:0;width:42px;height:24px;display:inline-block;}
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .switch-track{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:.2s;}
+  .switch-thumb{
+    position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
+    background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+  .switch input:checked + .switch-track{background:var(--teal);}
+  .switch input:checked + .switch-track .switch-thumb{transform:translateX(18px);}
 
-        /* ============================
-           HOLIDAY COUNTDOWN SECTION
-           ============================ */
-        .holiday-section {
-            width: 92%;
-            max-width: 1200px;
-            margin: 0 auto 60px auto;
-            position: relative;
-            z-index: 10;
-        }
-        .holiday-header {
-            display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
-        }
-        .holiday-title {
-            font-size: 1.4rem; font-weight: 900; color: #ffffff; letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        .holiday-line {
-            flex: 1; height: 1px;
-            background: linear-gradient(90deg, rgba(255,200,0,0.5), transparent);
-        }
+  .settings-group-actions{flex-direction:row;flex-wrap:wrap;gap:10px;padding-top:8px;border-top:1px solid var(--line);}
+  .settings-status{margin:0;font-size:12.5px;color:var(--teal);min-height:16px;}
+  .settings-status.is-error{color:var(--red);}
 
-        /* Filter tabs */
-        .holiday-filter-bar {
-            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;
-        }
-        .filter-tab {
-            padding: 7px 18px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.6);
-            font-size: 12px; font-weight: bold;
-            cursor: pointer; transition: 0.3s; letter-spacing: 1px;
-        }
-        .filter-tab:hover, .filter-tab.active {
-            background: rgba(255,200,0,0.15);
-            border-color: #ffcc00;
-            color: #ffcc00;
-            box-shadow: 0 0 12px rgba(255,200,0,0.2);
-        }
+  /* ── Hero ───────────────────────────────── */
+  .hero{padding:64px 0 40px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:500;
+    letter-spacing:.06em;color:var(--teal);text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;margin-bottom:18px;
+  }
+  .eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--amber);}
+  .hero h1{
+    font-size:clamp(2rem,4.2vw,3.1rem);font-weight:600;line-height:1.1;
+    letter-spacing:-0.01em;margin:0 0 16px;max-width:20ch;
+  }
+  .hero h1 em{font-style:italic;color:var(--teal);}
+  .hero p.lead{font-size:1.05rem;color:var(--ink-soft);max-width:58ch;margin:0 0 8px;}
 
-        /* Grid of holiday cards */
-        .holiday-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 18px;
-        }
+  /* ── Domain countdown clock ─────────────── */
+  .clock-card{
+    margin-top:32px;background:var(--surface-dark);border-radius:18px;
+    padding:28px 26px;box-shadow:0 20px 50px -20px rgba(20,32,39,0.45);
+    border:1px solid #1f2c34;
+  }
+  .clock-label{
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:#8fa0a8;
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;
+  }
+  .clock-display{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .clock-group{display:flex;gap:6px;}
+  .clock-digit{
+    width:44px;height:60px;border-radius:8px;border:1px solid #263239;
+    background:#1b262d;display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-size:1.7rem;font-weight:600;color:#5ac490;
+  }
+  .clock-sep{color:#5ac490;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.4rem;align-self:center;opacity:.6;}
+  .clock-unit-label{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#8fa0a8;margin-top:8px;text-align:center;}
+  .clock-groups-wrap{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;}
 
-        .holiday-card {
-            position: relative;
-            border-radius: 18px;
-            padding: 22px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.08);
-            transition: all 0.35s ease;
-            overflow: hidden;
-            cursor: default;
-            animation: cardEntrance 0.5s ease backwards;
-        }
-        .holiday-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 3px;
-            border-radius: 18px 18px 0 0;
-            background: var(--card-accent, #00f3ff);
-            box-shadow: 0 0 14px var(--card-accent, #00f3ff);
-        }
-        .holiday-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--card-accent, rgba(0,243,255,0.3));
-            box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,243,255,0.08);
-        }
-        .holiday-card.passed {
-            opacity: 0.5;
-            filter: grayscale(0.6);
-        }
-        .holiday-card.today {
-            border-color: gold;
-            box-shadow: 0 0 30px rgba(255,215,0,0.3), inset 0 0 20px rgba(255,215,0,0.05);
-        }
-        .holiday-card.today::before {
-            background: gold;
-            box-shadow: 0 0 20px gold;
-            animation: pulse-top 1.5s ease infinite;
-        }
-        @keyframes pulse-top {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
+  /* ── Announcement ───────────────────────── */
+  .announce{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;
+    margin-top:24px;transition:background-color .3s ease,border-color .3s ease;
+  }
+  .announce-icon{
+    width:40px;height:40px;border-radius:10px;background:var(--mark-bg);color:var(--amber);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .announce h3{margin:0 0 4px;font-size:1rem;}
+  .announce p{margin:0;color:var(--ink-soft);font-size:14px;}
 
-        .hcard-emoji { font-size: 2.2rem; margin-bottom: 10px; display: block; }
-        .hcard-name {
-            font-size: 1rem; font-weight: 900; color: #fff;
-            margin-bottom: 4px; letter-spacing: 0.5px;
-        }
-        .hcard-date {
-            font-size: 0.75rem; color: rgba(255,255,255,0.4);
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
-        }
+  section{padding:56px 0;}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
+  .section-head h2{font-size:1.7rem;margin:0 0 6px;font-weight:600;}
+  .section-head p{margin:0;color:var(--ink-soft);max-width:50ch;font-size:14.5px;}
+  .refresh-btn{
+    display:inline-flex;align-items:center;gap:8px;background:var(--surface);
+    border:1px solid var(--line);border-radius:999px;padding:9px 16px;
+    font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:.2s;flex-shrink:0;
+  }
+  .refresh-btn:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .refresh-btn svg{transition:transform .5s ease;}
+  .refresh-btn.is-spinning svg{transform:rotate(360deg);}
 
-        /* Mini countdown inside card */
-        .hcard-countdown {
-            display: flex; gap: 8px; align-items: center;
-        }
-        .hcd-unit {
-            flex: 1;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 8px 4px;
-            text-align: center;
-        }
-        .hcd-number {
-            font-size: 1.5rem; font-weight: 900;
-            color: var(--card-accent, #00f3ff);
-            display: block; line-height: 1;
-            text-shadow: 0 0 10px var(--card-accent, #00f3ff);
-        }
-        .hcd-label {
-            font-size: 9px; color: rgba(255,255,255,0.3);
-            letter-spacing: 1px; text-transform: uppercase;
-            margin-top: 3px; display: block;
-        }
+  /* ── Filter tabs ─────────────────────────── */
+  .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+  .filter-tab{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    padding:8px 16px;border-radius:999px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink-soft);cursor:pointer;transition:.2s;
+  }
+  .filter-tab:hover{border-color:var(--teal);color:var(--ink);}
+  .filter-tab.is-active{background:var(--teal);border-color:var(--teal);color:#fff;}
 
-        /* Status badge */
-        .hcard-status {
-            position: absolute; top: 18px; right: 18px;
-            font-size: 10px; font-weight: bold; letter-spacing: 1px;
-            padding: 4px 10px; border-radius: 20px;
-        }
-        .hcard-status.upcoming {
-            background: rgba(0,243,255,0.1);
-            color: var(--neon-blue);
-            border: 1px solid rgba(0,243,255,0.3);
-        }
-        .hcard-status.today-badge {
-            background: rgba(255,215,0,0.2);
-            color: gold;
-            border: 1px solid rgba(255,215,0,0.5);
-            animation: pulse-top 1s ease infinite;
-        }
-        .hcard-status.passed-badge {
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.25);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+  /* ── Holiday grid ────────────────────────── */
+  .holiday-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .holiday-card{
+    position:relative;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:22px;overflow:hidden;transition:.25s;
+  }
+  .holiday-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--card-accent,var(--teal));
+  }
+  .holiday-card:hover{transform:translateY(-3px);border-color:var(--card-accent,var(--teal));box-shadow:0 16px 30px -18px rgba(20,32,39,0.25);}
+  .holiday-card.passed{opacity:.55;}
+  .holiday-card.today{border-color:var(--amber);}
+  .holiday-card.today::before{background:var(--amber);}
+  .hcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  .hcard-emoji{font-size:1.7rem;line-height:1;}
+  .hcard-status{
+    font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;white-space:nowrap;
+  }
+  .hcard-status.upcoming{background:var(--mark-bg);color:var(--card-accent,var(--amber));}
+  .hcard-status.today-badge{background:var(--amber);color:#fff;}
+  .hcard-status.passed-badge{background:var(--paper);color:var(--ink-soft);}
+  .hcard-name{margin:0 0 4px;font-size:1.02rem;font-weight:600;}
+  .hcard-date{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;}
+  .hcard-countdown{display:flex;gap:6px;}
+  .hcd-unit{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:8px 4px;text-align:center;}
+  .hcd-number{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:600;color:var(--card-accent,var(--teal));display:block;}
+  .hcd-label{font-size:9px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;margin-top:2px;display:block;}
+  .hcard-passed-msg{margin:0;font-size:13px;color:var(--ink-soft);font-style:italic;}
+  .hcard-today-msg{margin:0;font-size:14px;font-weight:600;color:var(--amber);}
+  .hcard-progress-wrap{margin-top:14px;height:3px;background:var(--paper);border-radius:3px;overflow:hidden;}
+  .hcard-progress-bar{height:100%;background:var(--card-accent,var(--teal));border-radius:3px;transition:width 1s linear;}
 
-        .hcard-passed-msg {
-            color: rgba(255,255,255,0.25);
-            font-size: 0.8rem;
-            font-style: italic;
-            margin-top: 8px;
-        }
+  /* ── Trending / tools list ──────────────── */
+  .trending-scroll-wrapper{position:relative;}
+  .trending-grid{display:flex;gap:16px;overflow-x:auto;scroll-behavior:smooth;padding-bottom:8px;scrollbar-width:none;}
+  .trending-grid::-webkit-scrollbar{display:none;}
+  .trending-card{
+    flex:0 0 auto;width:230px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:20px;text-decoration:none;color:var(--ink);
+    display:flex;flex-direction:column;gap:12px;transition:.25s;
+  }
+  .trending-card:hover{transform:translateY(-4px);border-color:var(--teal);box-shadow:0 16px 30px -18px rgba(31,111,92,0.35);}
+  .trending-rank{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--teal);
+    background:var(--mark-bg);color:var(--mark-fg);width:26px;height:26px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .trending-card h3{margin:0;font-size:1.05rem;font-weight:600;}
+  .trending-card p{margin:0;color:var(--ink-soft);font-size:13.5px;flex:1;}
+  .trending-card .card-link{font-size:13px;font-weight:600;color:var(--teal);}
+  .scroll-btn{
+    position:absolute;top:50%;transform:translateY(-50%);
+    background:var(--surface);border:1px solid var(--line);color:var(--ink);
+    width:34px;height:34px;border-radius:50%;cursor:pointer;z-index:5;
+    display:flex;align-items:center;justify-content:center;font-size:16px;transition:.2s;
+    box-shadow:0 10px 20px -12px rgba(20,32,39,0.3);
+  }
+  .scroll-btn:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .scroll-btn.left{left:-16px;}
+  .scroll-btn.right{right:-16px;}
 
-        /* Progress bar inside card */
-        .hcard-progress-wrap {
-            margin-top: 14px;
-            height: 3px;
-            background: rgba(255,255,255,0.07);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .hcard-progress-bar {
-            height: 100%;
-            background: var(--card-accent, #00f3ff);
-            border-radius: 3px;
-            transition: width 1s linear;
-            box-shadow: 0 0 6px var(--card-accent, #00f3ff);
-        }
+  /* ── Footer ─────────────────────────────── */
+  footer{border-top:1px solid var(--line);padding:40px 0;}
+  .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .footer-inner p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+  .footer-links{display:flex;gap:20px;}
+  .footer-links a{font-size:13.5px;color:var(--ink-soft);text-decoration:none;}
+  .footer-links a:hover{color:var(--teal);}
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .holiday-grid { grid-template-columns: 1fr; }
-            .header-center { display: none; }
-            .neon-clock-display { flex-wrap: wrap; justify-content: center; }
-        }
+  /* ── Toast ──────────────────────────────── */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);
+    background:var(--surface-dark);color:#EDF2F1;border:1px solid #263239;
+    padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;
+    box-shadow:0 14px 30px -10px rgba(20,32,39,0.5);z-index:400;
+    opacity:0;transition:opacity .3s ease,transform .3s ease;white-space:nowrap;
+  }
+  .toast.is-visible{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.is-error{border-color:var(--red);}
 
-        /* ====== CUSTOM CURSOR ====== */
-        body { cursor: crosshair; }
-    </style>
+  /* ── Responsive ─────────────────────────── */
+  @media (max-width:900px){
+    .search-kbd-hint{display:none;}
+    nav.main-nav{
+      display:none;
+      position:absolute;top:100%;left:0;right:0;
+      flex-direction:column;gap:2px;
+      background:var(--surface);border-bottom:1px solid var(--line);
+      padding:10px 24px 16px;
+      box-shadow:0 16px 30px -18px rgba(20,32,39,0.25);
+    }
+    nav.main-nav.is-open{display:flex;}
+    nav.main-nav a{padding:12px 0;border-bottom:1px solid var(--line);}
+    nav.main-nav a:last-child{border-bottom:none;}
+    .menu-btn{display:flex;}
+    .holiday-grid{grid-template-columns:repeat(2,1fr);}
+    .scroll-btn{display:none;}
+  }
+  @media (max-width:600px){
+    .holiday-grid{grid-template-columns:1fr;}
+    .header-actions .btn-ghost{display:none;}
+    .search-overlay{padding:0;}
+    .search-panel{max-width:none;width:100%;height:100%;max-height:100%;border-radius:0;border:none;}
+    .clock-digit{width:36px;height:50px;font-size:1.3rem;}
+    .clock-groups-wrap{gap:10px;}
+    .announce{grid-template-columns:auto 1fr;}
+    .filter-bar{gap:6px;}
+  }
+</style>
 </head>
 <body>
-    <div class="ambient-dust" id="dustContainer"></div>
-    
-    <div id="loader-wrapper">
-        <img src="ORC.png" alt="Logo" class="loader-top-img">
-        <div class="neon-loading-container">
-            <div class="neon-text-row"><span>Loading..</span><span id="load-val">0%</span></div>
-            <div class="neon-bar-border"><div class="neon-bar-fill" id="load-fill"></div></div>
-        </div>
-        <p style="color: #99CCFF; margin-top: 20px; font-weight: bold;">ĐANG TẢI...</p>
-    </div>
+<div id="wallpaperLayer" aria-hidden="true"></div>
+<div id="wallpaperScrim" aria-hidden="true"></div>
 
-    <nav class="yt-header">
-        <div class="header-left">
-            <button class="menu-toggle-btn" id="menuBtn">
-                <div class="hamburger"><span></span><span></span><span></span></div>
-            </button>
-            <div class="logo">
-                <a href="https://hentaiorc.xyz" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="ORC.png" alt="Logo" class="loader-top-img">                
-                </a>
-            </div>
-        </div>
-        <div class="header-center">
-            <div class="search-container">
-                <input type="text" id="mainSearch" placeholder="Tìm kiếm hệ sinh thái Orichiin..." class="search-input" autocomplete="off">
-                <button class="search-btn" id="searchTrigger">
-                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
-                </button>
-            </div>
-            <div id="suggestionBox" class="suggestion-box"></div>
-        </div>
-        <div class="header-right">
-            <button class="settings-btn" id="settingsBtn" title="Cài đặt hình nền">⚙</button>
-            <div style="width: 35px; height: 35px; background: var(--neon-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">O</div>
-        </div>
+<header>
+  <div class="header-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark"><img src="https://hentaiorc.xyz/ORC.png" alt="" onerror="this.parentElement.textContent='{ }'"></span>
+      <span class="brand-name">ORC<span>cop</span></span>
+    </a>
+    <nav class="main-nav">
+      <a href="#lich">Lịch ngày lễ</a>
+      <a href="#cong-cu">Công cụ</a>
+      <a href="https://hentaiorc.xyz/chat-server.html">Chat Server</a>
+      <a href="#chuyen-doi">Chuyển đổi tên miền</a>
     </nav>
+    <div class="header-actions">
+      <a href="#chuyen-doi" class="btn btn-ghost">Thông báo</a>
+      <button class="search-btn" id="settingsBtn" type="button" aria-label="Cài đặt hiển thị" aria-haspopup="dialog" aria-expanded="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="search-btn" id="searchBtn" type="button" aria-label="Tìm kiếm" aria-haspopup="dialog" aria-expanded="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.8-3.8"/></svg>
+        <span class="search-kbd-hint mono">/</span>
+      </button>
+      <button class="menu-btn" aria-label="Mở menu"><span></span></button>
+    </div>
+  </div>
+</header>
 
-    <!-- Settings Panel -->
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-title">⚙ Cài đặt</div>
-        <div class="settings-section-label">🎨 Hình nền có sẵn</div>
-        <div class="bg-presets" id="bgPresets">
-            <button class="bg-preset-btn active-bg" data-bg="none" style="background:#0a0a0a;">
-                <span>Đen</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg"
-                style="background-image: url(https://r4.wallpaperflare.com/wallpaper/118/736/916/gawr-gura-hololive-blue-eyes-white-hair-hd-wallpaper-6631b6686024bc6e11599a9da016af34.jpg); background-size: cover; background-position: center;">
-                <span>Anime</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80"
-                style="background-image: url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=60); background-size: cover;">
-                <span>Vũ trụ</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
-                style="background-image: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60); background-size: cover;">
-                <span>Núi</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80"
-                style="background-image: url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60); background-size: cover;">
-                <span>Thành phố</span>
-            </button>
-            <button class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80"
-                style="background: linear-gradient(135deg,#1a0533,#0d2b6e,#0a1628);">
-                <span>Gradient</span>
-            </button>
+<!-- Search overlay -->
+<div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Tìm kiếm trong ORCcop" hidden>
+  <div class="search-backdrop" data-search-close></div>
+  <div class="search-panel">
+    <div class="search-input-wrap">
+      <svg class="search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.8-3.8"/></svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="Tìm ngày lễ, công cụ, trang…" autocomplete="off" spellcheck="false" />
+      <button class="search-close" id="searchClose" type="button" aria-label="Đóng tìm kiếm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- Settings overlay -->
+<div class="search-overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-label="Cài đặt hiển thị ORCcop" hidden>
+  <div class="search-backdrop" data-settings-close></div>
+  <div class="search-panel settings-panel">
+    <div class="settings-header">
+      <h3 class="font-display">Cài đặt hiển thị</h3>
+      <button class="search-close" id="settingsClose" type="button" aria-label="Đóng cài đặt">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="settings-body">
+
+      <div class="settings-group">
+        <span class="settings-group-label">Giao diện</span>
+        <div class="settings-options" role="radiogroup" aria-label="Chọn giao diện" id="themeOptions">
+          <button class="settings-option" type="button" data-theme-choice="light">Sáng</button>
+          <button class="settings-option" type="button" data-theme-choice="dark">Tối</button>
+          <button class="settings-option" type="button" data-theme-choice="system">Theo hệ thống</button>
         </div>
-        <div class="settings-section-label">🔗 URL hình nền tùy chỉnh</div>
-        <div class="bg-url-row">
-            <input type="text" id="bgUrlInput" class="bg-url-input" placeholder="https://example.com/image.jpg">
-            <button class="bg-apply-btn" id="bgApplyBtn">Áp dụng</button>
+      </div>
+
+      <div class="settings-group">
+        <span class="settings-group-label">Hình nền có sẵn</span>
+        <div class="wallpaper-presets" id="wallpaperPresets">
+          <button class="wallpaper-swatch is-active" type="button" data-preset="none" style="background:var(--surface-dark);" aria-label="Không dùng hình nền"></button>
+          <button class="wallpaper-swatch" type="button" data-preset="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=60" style="background-image:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=60');" aria-label="Vũ trụ"></button>
+          <button class="wallpaper-swatch" type="button" data-preset="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=60" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=60');" aria-label="Núi"></button>
+          <button class="wallpaper-swatch" type="button" data-preset="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=60" style="background-image:url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=60');" aria-label="Thành phố"></button>
         </div>
-        <div class="bg-overlay-toggle" style="margin-top: 14px;">
-            <span class="bg-overlay-label">Lớp phủ tối</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="overlayToggle" checked>
-                <span class="toggle-slider"></span>
+        <p class="settings-hint">Hoặc tải một hình ảnh riêng để áp dụng làm hình nền trang.</p>
+        <div class="wallpaper-row">
+          <div class="wallpaper-preview" id="wallpaperPreview">Chưa có</div>
+          <div class="wallpaper-actions">
+            <label class="btn btn-ghost settings-upload-btn">
+              Tải hình nền
+              <input type="file" accept="image/*" id="wallpaperInput" hidden />
             </label>
+            <button class="btn btn-ghost" id="wallpaperRemoveBtn" type="button">Xóa hình nền</button>
+          </div>
         </div>
-        <button id="bgResetBtn" style="margin-top: 16px; width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px; cursor:pointer; font-size:12px; transition:0.3s;"
-            onmouseover="this.style.borderColor='var(--neon-blue)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
-            ↺ Đặt lại về mặc định
-        </button>
+        <p class="settings-note">Hình nền đã chọn sẽ tự động được lưu vào bộ nhớ đệm (cache) của trình duyệt, trừ khi chế độ riêng tư đang bật.</p>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-toggle-row" for="privacyToggle">
+          <span>
+            <span class="settings-group-label">Quyền riêng tư</span>
+            <p class="settings-hint">Chặn thu thập dữ liệu: cài đặt chỉ được giữ trong phiên truy cập hiện tại, không ghi vào cache lâu dài.</p>
+          </span>
+          <span class="switch">
+            <input type="checkbox" id="privacyToggle" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </span>
+        </label>
+      </div>
+
+      <div class="settings-group settings-group-actions">
+        <button class="btn btn-primary" id="settingsSaveBtn" type="button">Lưu vào bộ nhớ đệm</button>
+        <button class="btn btn-ghost" id="settingsClearBtn" type="button">Xóa toàn bộ cache</button>
+      </div>
+      <p class="settings-status" id="settingsStatus" role="status" aria-live="polite"></p>
     </div>
+  </div>
+</div>
 
-    <div class="menu-overlay" id="menuOverlay">
-        <nav class="nav-content">
-            <a href="https://hentaiorc.xyz" class="nav-item">Trang chủ</a>
-            <a href="https://hentaiorc.xyz/chat-server.html" class="nav-item">Chat Server</a>
-            <a href="https://hentaiorc.xyz/list.html" class="nav-item">List</a>
-            <a href="https://www.hentaiorc.xyz/caculate.html" class="nav-item">Calculate</a>
-        </nav>
+<main class="wrap" id="top">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="eyebrow">Trung tâm dữ liệu · ORCcop</div>
+    <h1>Lịch sự kiện &amp; công cụ,<br><em>cập nhật theo thời gian thực.</em></h1>
+    <p class="lead">Theo dõi các ngày lễ, sự kiện học tập của Việt Nam, cùng những công cụ nội bộ đang được ORICHIIN Studio duy trì — tất cả trong một nơi, dễ tra cứu và dễ theo dõi.</p>
+
+    <div class="clock-card" id="domainClock" style="display:none;">
+      <div class="clock-label mono">⟢ Thời gian còn lại đến khi chuyển đổi tên miền ⟣</div>
+      <div class="clock-groups-wrap">
+        <div>
+          <div class="clock-display"><div class="clock-group" id="clockDays"></div></div>
+          <div class="clock-unit-label">Ngày</div>
+        </div>
+        <span class="clock-sep">:</span>
+        <div>
+          <div class="clock-display"><div class="clock-group" id="clockHours"></div></div>
+          <div class="clock-unit-label">Giờ</div>
+        </div>
+        <span class="clock-sep">:</span>
+        <div>
+          <div class="clock-display"><div class="clock-group" id="clockMinutes"></div></div>
+          <div class="clock-unit-label">Phút</div>
+        </div>
+        <span class="clock-sep">:</span>
+        <div>
+          <div class="clock-display"><div class="clock-group" id="clockSeconds"></div></div>
+          <div class="clock-unit-label">Giây</div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <div class="container" id="main-content">
-        <!-- Info box -->
-        <!-- Domain switch countdown -->
-        <div class="neon-clock" id="neonClock">
-            <div class="neon-clock-display">
-                <div class="neon-digit-group">
-                    <div class="neon-digit" id="d1">0</div>
-                    <div class="neon-digit" id="d2">0</div>
-                    <div class="neon-digit" id="d3">0</div>
-                </div>
-                <div class="neon-clock-label" style="margin: 0 5px; align-self: center;">Ngày</div>
-                <div class="neon-digit-group">
-                    <div class="neon-digit" id="ch">0</div>
-                    <div class="neon-digit" id="cm">0</div>
-                </div>
-                <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
-                <div class="neon-digit-group">
-                    <div class="neon-digit" id="mh">0</div>
-                    <div class="neon-digit" id="mm">0</div>
-                </div>
-                <div class="neon-separator"><div class="neon-dot"></div><div class="neon-dot"></div></div>
-                <div class="neon-digit-group">
-                    <div class="neon-digit" id="sh">0</div>
-                    <div class="neon-digit" id="sm">0</div>
-                </div>
-            </div>
-            <div class="neon-clock-label">⟢ Thời gian còn lại đến khi chuyển đổi tên miền ⟣</div>
-        </div>
-
-        <!-- ====== HOLIDAY COUNTDOWN SECTION ====== -->
-        <div class="holiday-section">
-            <div class="holiday-header">
-                <span class="holiday-title">📅 Lịch Ngày Lễ & Sự Kiện Việt Nam</span>
-                <div class="holiday-line"></div>
-                <button id="holidayRefreshBtn" title="Tải lại từ holidays.txt" style="flex-shrink:0;background:rgba(0,243,255,0.07);border:1px solid rgba(0,243,255,0.3);color:var(--neon-blue);border-radius:30px;padding:6px 16px;font-size:12px;font-weight:bold;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:0.3s;white-space:nowrap;"
-                    onmouseover="this.style.background='rgba(0,243,255,0.18)';this.style.boxShadow='0 0 12px rgba(0,243,255,0.3)'"
-                    onmouseout="this.style.background='rgba(0,243,255,0.07)';this.style.boxShadow='none'">
-                    <span id="refreshIcon" style="display:inline-block;transition:transform 0.5s;">🔄</span> Làm mới
-                </button>
-            </div>
-            <div class="holiday-filter-bar" id="holidayFilterBar">
-                <button class="filter-tab active" data-filter="all">Tất cả</button>
-                <button class="filter-tab" data-filter="quocgia">Quốc gia</button>
-                <button class="filter-tab" data-filter="hoc">Học tập</button>
-                <button class="filter-tab" data-filter="vanhoa">Văn hóa</button>
-                <button class="filter-tab" data-filter="quocte">Quốc tế</button>
-            </div>
-            <div class="holiday-grid" id="holidayGrid">
-                <!-- Injected by JS -->
-            </div>
-        </div>
-        <!-- ====== END HOLIDAY SECTION ====== -->
-
-        <!-- ====== TRENDING SECTION ====== -->
-        <div class="trending-section">
-            <div class="trending-header">
-                <span class="trending-title">🔥 Danh sách</span>
-                <div class="trending-line"></div>
-            </div>
-            <div class="trending-scroll-wrapper">
-                <button class="scroll-btn left" id="scrollLeft">‹</button>
-                <div class="trending-grid" id="trendingGrid"></div>
-                <button class="scroll-btn right" id="scrollRight">›</button>
-            </div>
-        </div>
-        <!-- ====== END TRENDING SECTION ====== -->
+  <!-- Announcement -->
+  <section id="chuyen-doi" style="padding-top:0;padding-bottom:0;">
+    <div class="announce">
+      <div class="announce-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 15-4M20 12a8 8 0 0 1-15 4"/><path d="M4 4v4h4M20 20v-4h-4"/></svg>
+      </div>
+      <div>
+        <h3>Chuyển đổi tên miền chính thức</h3>
+        <p>Chúng tôi đang chuyển sang <strong>ORCcop.com</strong> / <strong>ORCcop.edu</strong>, tập trung vào nội dung học thuật, công nghệ thông tin và dữ liệu công cộng.</p>
+      </div>
     </div>
+  </section>
 
-    <script>
-    // ==========================================
-    // TRENDING DATA
-    // ==========================================
-    const trendingItems = [
-        {
-            rank: 1, title: "MINI GAME", subtitle: "Sand box",
-            url: "https://hentaiorc.xyz/mini-game.html",
-            poster: "https://m.media-amazon.com/images/M/MV5BMGU4YzBkNTMtNDk5ZS00MDU3LWI5NmEtMzM3MzBmNDI4Y2E4XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX400_.jpg",
-            gradient: "linear-gradient(135deg, #1a0a00, #8B2500)"
-        },
-        {
-            rank: 2, title: "List", subtitle: "danh sách app, tiện ích",
-            url: "https://hentaiorc.xyz/list.html",
-            poster: "https://m.media-amazon.com/images/M/MV5BZjFmMWQ2NmMtNmI0ZC00ZjBmLTg3ZmEtYzliYzAzY2QzYjE0XkEyXkFqcGdeQXVyMTI3ODAyMzE2._V1_FMjpg_UX400_.jpg",
-            gradient: "linear-gradient(135deg, #0a1a00, #2d6a00)"
-        },
-        {
-            rank: 3, title: "chat server", subtitle: "nơi mọi người có thể trò chuyện với nhau",
-            url: "https://hentaiorc.xyz/chat-server.html",
-            poster: "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a@@._V1_FMjpg_UX400_.jpg",
-            gradient: "linear-gradient(135deg, #00103a, #0038a8)"
-        },
-    ];
+  <!-- Holiday calendar -->
+  <section id="lich">
+    <div class="section-head">
+      <div>
+        <h2>Lịch ngày lễ &amp; sự kiện Việt Nam</h2>
+        <p>Đếm ngược theo thời gian thực tới các ngày lễ quốc gia, học tập, văn hóa và quốc tế.</p>
+      </div>
+      <button class="refresh-btn" id="holidayRefreshBtn" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Làm mới
+      </button>
+    </div>
+    <div class="filter-bar" id="holidayFilterBar">
+      <button class="filter-tab is-active" data-filter="all">Tất cả</button>
+      <button class="filter-tab" data-filter="quocgia">Quốc gia</button>
+      <button class="filter-tab" data-filter="hoc">Học tập</button>
+      <button class="filter-tab" data-filter="vanhoa">Văn hóa</button>
+      <button class="filter-tab" data-filter="quocte">Quốc tế</button>
+    </div>
+    <div class="holiday-grid" id="holidayGrid"></div>
+  </section>
 
-    // ==========================================
-    // HOLIDAY DATA — load từ file ngoài holidays.json
-    // Fallback: dùng danh sách mặc định nếu fetch lỗi
-    // ==========================================
+  <!-- Tools / trending -->
+  <section id="cong-cu">
+    <div class="section-head">
+      <div>
+        <h2>Công cụ &amp; bài viết nổi bật</h2>
+        <p>Các dự án đang được ORCcop duy trì và cập nhật thường xuyên.</p>
+      </div>
+    </div>
+    <div class="trending-scroll-wrapper">
+      <button class="scroll-btn left" id="scrollLeft" aria-label="Cuộn trái">‹</button>
+      <div class="trending-grid" id="trendingGrid"></div>
+      <button class="scroll-btn right" id="scrollRight" aria-label="Cuộn phải">›</button>
+    </div>
+  </section>
+</main>
 
-    // ── Danh sách mặc định (fallback) ──
-    const HOLIDAYS_FALLBACK = [
-        { id: "tet_2026", emoji: "🧧", name: "Tết Nguyên Đán 2026", note: "Bính Ngọ — Giao thừa & 3 ngày nghỉ lễ", dateStr: "2026-02-17", category: "quocgia", accent: "#ff4d00" },
-        { id: "quochanhung", emoji: "🏯", name: "Giỗ Tổ Hùng Vương", note: "10/3 Âm lịch — ngày Quốc lễ", dateStr: "2026-04-07", category: "quocgia", accent: "#e8a020" },
-        { id: "giaiphong", emoji: "🎉", name: "Ngày Giải Phóng Miền Nam", note: "30 tháng 4", dateStr: "2026-04-30", category: "quocgia", accent: "#ff2244" },
-        { id: "quocte_laodong", emoji: "⚒️", name: "Ngày Quốc Tế Lao Động", note: "1 tháng 5", dateStr: "2026-05-01", category: "quocgia", accent: "#ff6622" },
-        { id: "quockhanh", emoji: "🇻🇳", name: "Quốc Khánh Việt Nam", note: "2 tháng 9 — Ngày Độc Lập", dateStr: "2026-09-02", category: "quocgia", accent: "#dd0000" },
-        { id: "tetduonglich", emoji: "🎆", name: "Tết Dương Lịch", note: "1 tháng 1 năm mới", dateStr: "2027-01-01", category: "quocgia", accent: "#aa44ff" },
-        { id: "namnay", emoji: "🎊", name: "Giao Thừa Năm Mới 2027", note: "Đếm ngược đón chào năm mới", dateStr: "2026-12-31", category: "quocgia", accent: "#cc88ff" },
-        { id: "nghihe", emoji: "☀️", name: "Bắt đầu Nghỉ Hè 2026", note: "Học sinh THCS/THPT kết thúc năm học", dateStr: "2026-05-25", category: "hoc", accent: "#ffbb00" },
-        { id: "tuukhoa", emoji: "📚", name: "Tựu Trường Năm Học 2026-2027", note: "Học sinh trở lại trường", dateStr: "2026-08-25", category: "hoc", accent: "#00c8ff" },
-        { id: "khaigiang", emoji: "🎒", name: "Khai Giảng Năm Học Mới", note: "Lễ khai giảng toàn quốc", dateStr: "2026-09-05", category: "hoc", accent: "#00aaff" },
-        { id: "thay20", emoji: "👨‍🏫", name: "Ngày Nhà Giáo Việt Nam", note: "20 tháng 11", dateStr: "2026-11-20", category: "hoc", accent: "#00e5a0" },
-        { id: "thitnspt", emoji: "📝", name: "Thi Tốt Nghiệp THPT 2026", note: "Kỳ thi quốc gia quan trọng", dateStr: "2026-06-25", category: "hoc", accent: "#ff5599" },
-        { id: "ngayhocsinh", emoji: "🏫", name: "Ngày Học Sinh Sinh Viên", note: "9 tháng 1", dateStr: "2026-01-09", category: "hoc", accent: "#33ddff" },
-        { id: "trungthu", emoji: "🌕", name: "Tết Trung Thu 2026", note: "15/8 Âm lịch — Tết thiếu nhi", dateStr: "2026-09-26", category: "vanhoa", accent: "#ffaa00" },
-        { id: "thandoan", emoji: "🎭", name: "Tết Đoan Ngọ", note: "5/5 Âm lịch — diệt sâu bọ", dateStr: "2026-06-19", category: "vanhoa", accent: "#ff6600" },
-        { id: "valentinvn", emoji: "💝", name: "Ngày Tình Nhân Valentine", note: "14 tháng 2", dateStr: "2027-02-14", category: "vanhoa", accent: "#ff2277" },
-        { id: "halloween", emoji: "🎃", name: "Halloween", note: "31 tháng 10", dateStr: "2026-10-31", category: "vanhoa", accent: "#ff6600" },
-        { id: "noel", emoji: "🎄", name: "Giáng Sinh (Noel)", note: "25 tháng 12", dateStr: "2026-12-25", category: "vanhoa", accent: "#22cc55" },
-        { id: "phunutg", emoji: "💐", name: "Ngày Quốc Tế Phụ Nữ", note: "8 tháng 3", dateStr: "2027-03-08", category: "quocte", accent: "#ff55cc" },
-        { id: "thieu_nhi_qt", emoji: "🧒", name: "Ngày Quốc Tế Thiếu Nhi", note: "1 tháng 6", dateStr: "2026-06-01", category: "quocte", accent: "#33aaff" },
-        { id: "moitruong", emoji: "🌍", name: "Ngày Môi Trường Thế Giới", note: "5 tháng 6", dateStr: "2026-06-05", category: "quocte", accent: "#00dd66" },
-        { id: "phunu_vn", emoji: "🌸", name: "Ngày Phụ Nữ Việt Nam", note: "20 tháng 10", dateStr: "2026-10-20", category: "quocte", accent: "#ff66aa" },
-    ];
+<footer>
+  <div class="wrap footer-inner">
+    <p>© 2026 ORCcop · trực thuộc ORICHIIN Studio. Bản quyền được bảo lưu.</p>
+    <div class="footer-links">
+      <a href="#top">Trang chủ</a>
+      <a href="#lich">Lịch ngày lễ</a>
+      <a href="#cong-cu">Công cụ</a>
+      <a href="#chuyen-doi">Chuyển đổi</a>
+    </div>
+  </div>
+</footer>
 
-    // ── Biến lưu danh sách đang dùng ──
-    let holidays = HOLIDAYS_FALLBACK;
-    let currentFilter = 'all';
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    function parseDate(str) { return new Date(str + 'T00:00:00'); }
+<script>
+/* ============================================================
+   DATA — công cụ nổi bật
+   ============================================================ */
+const trendingItems = [
+  { rank: 1, title: "Mini Game — Sandbox", desc: "Không gian thử nghiệm nhỏ minh họa các khái niệm lập trình.", url: "https://hentaiorc.xyz/mini-game.html", tag: "Thử nghiệm" },
+  { rank: 2, title: "List — Danh sách tiện ích", desc: "Tổng hợp toàn bộ ứng dụng và công cụ nhỏ do ORCcop phát triển.", url: "https://hentaiorc.xyz/list.html", tag: "Tổng hợp" },
+  { rank: 3, title: "Chat Server", desc: "Không gian trò chuyện dành cho cộng đồng ORCcop.", url: "https://hentaiorc.xyz/chat-server.html", tag: "Cộng đồng" },
+  { rank: 4, title: "Lịch vạn năng", desc: "Xem lịch, đặt hẹn giờ và đếm ngược — tiện ích gọn nhẹ.", url: "https://hentaiorc.xyz/date.html", tag: "Sản xuất" },
+];
 
-    function sortHolidays(list) {
-        const todayStr = new Date().toISOString().slice(0,10);
-        return [...list].sort((a, b) => {
-            const aDate = a.dateStr, bDate = b.dateStr;
-            const isToday = d => d === todayStr;
-            const isPassed = d => d < todayStr;
-            if (isToday(aDate)) return -1;
-            if (isToday(bDate)) return 1;
-            if (!isPassed(aDate) && isPassed(bDate)) return -1;
-            if (isPassed(aDate) && !isPassed(bDate)) return 1;
-            return aDate.localeCompare(bDate);
-        });
+/* ============================================================
+   DATA — ngày lễ (fallback nếu không tải được holidays.txt)
+   ============================================================ */
+const HOLIDAYS_FALLBACK = [
+  { id:"tet_2026", emoji:"🧧", name:"Tết Nguyên Đán 2026", note:"Bính Ngọ — Giao thừa & 3 ngày nghỉ lễ", dateStr:"2026-02-17", category:"quocgia", accent:"#C77A2E" },
+  { id:"quochanhung", emoji:"🏯", name:"Giỗ Tổ Hùng Vương", note:"10/3 Âm lịch — ngày Quốc lễ", dateStr:"2026-04-07", category:"quocgia", accent:"#1F6F5C" },
+  { id:"giaiphong", emoji:"🎉", name:"Ngày Giải Phóng Miền Nam", note:"30 tháng 4", dateStr:"2026-04-30", category:"quocgia", accent:"#C0503F" },
+  { id:"quocte_laodong", emoji:"⚒️", name:"Ngày Quốc Tế Lao Động", note:"1 tháng 5", dateStr:"2026-05-01", category:"quocgia", accent:"#C77A2E" },
+  { id:"quockhanh", emoji:"🇻🇳", name:"Quốc Khánh Việt Nam", note:"2 tháng 9 — Ngày Độc Lập", dateStr:"2026-09-02", category:"quocgia", accent:"#C0503F" },
+  { id:"tetduonglich", emoji:"🎆", name:"Tết Dương Lịch", note:"1 tháng 1 năm mới", dateStr:"2027-01-01", category:"quocgia", accent:"#1F6F5C" },
+  { id:"namnay", emoji:"🎊", name:"Giao Thừa Năm Mới 2027", note:"Đếm ngược đón chào năm mới", dateStr:"2026-12-31", category:"quocgia", accent:"#C77A2E" },
+  { id:"nghihe", emoji:"☀️", name:"Bắt đầu Nghỉ Hè 2026", note:"Học sinh THCS/THPT kết thúc năm học", dateStr:"2026-05-25", category:"hoc", accent:"#C77A2E" },
+  { id:"tuukhoa", emoji:"📚", name:"Tựu Trường Năm Học 2026-2027", note:"Học sinh trở lại trường", dateStr:"2026-08-25", category:"hoc", accent:"#1F6F5C" },
+  { id:"khaigiang", emoji:"🎒", name:"Khai Giảng Năm Học Mới", note:"Lễ khai giảng toàn quốc", dateStr:"2026-09-05", category:"hoc", accent:"#1F6F5C" },
+  { id:"thay20", emoji:"👨‍🏫", name:"Ngày Nhà Giáo Việt Nam", note:"20 tháng 11", dateStr:"2026-11-20", category:"hoc", accent:"#1F6F5C" },
+  { id:"thitnspt", emoji:"📝", name:"Thi Tốt Nghiệp THPT 2026", note:"Kỳ thi quốc gia quan trọng", dateStr:"2026-06-25", category:"hoc", accent:"#C0503F" },
+  { id:"ngayhocsinh", emoji:"🏫", name:"Ngày Học Sinh Sinh Viên", note:"9 tháng 1", dateStr:"2026-01-09", category:"hoc", accent:"#1F6F5C" },
+  { id:"trungthu", emoji:"🌕", name:"Tết Trung Thu 2026", note:"15/8 Âm lịch — Tết thiếu nhi", dateStr:"2026-09-26", category:"vanhoa", accent:"#C77A2E" },
+  { id:"thandoan", emoji:"🎭", name:"Tết Đoan Ngọ", note:"5/5 Âm lịch — diệt sâu bọ", dateStr:"2026-06-19", category:"vanhoa", accent:"#C77A2E" },
+  { id:"valentinvn", emoji:"💝", name:"Ngày Tình Nhân Valentine", note:"14 tháng 2", dateStr:"2027-02-14", category:"vanhoa", accent:"#C0503F" },
+  { id:"halloween", emoji:"🎃", name:"Halloween", note:"31 tháng 10", dateStr:"2026-10-31", category:"vanhoa", accent:"#C77A2E" },
+  { id:"noel", emoji:"🎄", name:"Giáng Sinh (Noel)", note:"25 tháng 12", dateStr:"2026-12-25", category:"vanhoa", accent:"#1F6F5C" },
+  { id:"phunutg", emoji:"💐", name:"Ngày Quốc Tế Phụ Nữ", note:"8 tháng 3", dateStr:"2027-03-08", category:"quocte", accent:"#C0503F" },
+  { id:"thieu_nhi_qt", emoji:"🧒", name:"Ngày Quốc Tế Thiếu Nhi", note:"1 tháng 6", dateStr:"2026-06-01", category:"quocte", accent:"#1F6F5C" },
+  { id:"moitruong", emoji:"🌍", name:"Ngày Môi Trường Thế Giới", note:"5 tháng 6", dateStr:"2026-06-05", category:"quocte", accent:"#1F6F5C" },
+  { id:"phunu_vn", emoji:"🌸", name:"Ngày Phụ Nữ Việt Nam", note:"20 tháng 10", dateStr:"2026-10-20", category:"quocte", accent:"#C0503F" },
+];
+
+let holidays = HOLIDAYS_FALLBACK;
+let currentFilter = 'all';
+
+function parseDate(str){ return new Date(str + 'T00:00:00'); }
+
+function sortHolidays(list){
+  const todayStr = new Date().toISOString().slice(0,10);
+  return [...list].sort((a,b) => {
+    const isToday = d => d === todayStr;
+    const isPassed = d => d < todayStr;
+    if (isToday(a.dateStr)) return -1;
+    if (isToday(b.dateStr)) return 1;
+    if (!isPassed(a.dateStr) && isPassed(b.dateStr)) return -1;
+    if (isPassed(a.dateStr) && !isPassed(b.dateStr)) return 1;
+    return a.dateStr.localeCompare(b.dateStr);
+  });
+}
+
+function formatViDate(dateStr){
+  const d = parseDate(dateStr);
+  const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+  return `${days[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+}
+
+function getTimeLeft(dateStr){
+  const target = parseDate(dateStr).getTime();
+  const diff = target - Date.now();
+  if (diff < -86400000) return { passed:true };
+  if (Math.abs(diff) < 86400000) return { today:true };
+  return {
+    days: Math.floor(diff/86400000),
+    hours: Math.floor((diff%86400000)/3600000),
+    minutes: Math.floor((diff%3600000)/60000),
+    seconds: Math.floor((diff%60000)/1000),
+    passed:false, today:false
+  };
+}
+
+function buildHolidayCard(item){
+  const card = document.createElement('div');
+  card.className = 'holiday-card';
+  card.dataset.category = item.category;
+  card.style.setProperty('--card-accent', item.accent);
+
+  const tl = getTimeLeft(item.dateStr);
+  let statusHtml = '', bodyHtml = '';
+
+  if (tl.passed){
+    card.classList.add('passed');
+    statusHtml = '<span class="hcard-status passed-badge">Đã qua</span>';
+    bodyHtml = '<p class="hcard-passed-msg">Sự kiện đã diễn ra</p>';
+  } else if (tl.today){
+    card.classList.add('today');
+    statusHtml = '<span class="hcard-status today-badge">Hôm nay</span>';
+    bodyHtml = '<p class="hcard-today-msg">✨ Chính là hôm nay!</p>';
+  } else {
+    statusHtml = '<span class="hcard-status upcoming">Sắp tới</span>';
+    const totalRange = parseDate(item.dateStr) - new Date(new Date().getFullYear(),0,1);
+    const elapsed = Date.now() - new Date(new Date().getFullYear(),0,1);
+    const pct = Math.min(100, Math.max(0, elapsed/totalRange*100));
+    bodyHtml = `
+      <div class="hcard-countdown" data-target="${item.dateStr}">
+        <div class="hcd-unit"><span class="hcd-number" data-unit="d">${String(tl.days).padStart(2,'0')}</span><span class="hcd-label">Ngày</span></div>
+        <div class="hcd-unit"><span class="hcd-number" data-unit="h">${String(tl.hours).padStart(2,'0')}</span><span class="hcd-label">Giờ</span></div>
+        <div class="hcd-unit"><span class="hcd-number" data-unit="m">${String(tl.minutes).padStart(2,'0')}</span><span class="hcd-label">Phút</span></div>
+        <div class="hcd-unit"><span class="hcd-number" data-unit="s">${String(tl.seconds).padStart(2,'0')}</span><span class="hcd-label">Giây</span></div>
+      </div>
+      <div class="hcard-progress-wrap"><div class="hcard-progress-bar" style="width:${pct.toFixed(1)}%"></div></div>`;
+  }
+
+  card.innerHTML = `
+    <div class="hcard-top">
+      <span class="hcard-emoji">${item.emoji}</span>
+      ${statusHtml}
+    </div>
+    <h3 class="hcard-name">${item.name}</h3>
+    <div class="hcard-date">${formatViDate(item.dateStr)}${item.note ? ' · ' + item.note : ''}</div>
+    ${bodyHtml}
+  `;
+  return card;
+}
+
+function renderHolidays(filter){
+  const grid = document.getElementById('holidayGrid');
+  grid.innerHTML = '';
+  sortHolidays(holidays).forEach(item => {
+    if (filter !== 'all' && item.category !== filter) return;
+    grid.appendChild(buildHolidayCard(item));
+  });
+  if (!grid.children.length){
+    grid.innerHTML = '<p style="color:var(--ink-soft);font-size:14px;">Không có sự kiện nào trong mục này.</p>';
+  }
+}
+
+function tickHolidayCards(){
+  document.querySelectorAll('.hcard-countdown').forEach(wrap => {
+    const tl = getTimeLeft(wrap.dataset.target);
+    if (tl.passed || tl.today) return;
+    wrap.querySelector('[data-unit="d"]').textContent = String(tl.days).padStart(2,'0');
+    wrap.querySelector('[data-unit="h"]').textContent = String(tl.hours).padStart(2,'0');
+    wrap.querySelector('[data-unit="m"]').textContent = String(tl.minutes).padStart(2,'0');
+    wrap.querySelector('[data-unit="s"]').textContent = String(tl.seconds).padStart(2,'0');
+  });
+}
+
+document.getElementById('holidayFilterBar').addEventListener('click', e => {
+  const tab = e.target.closest('.filter-tab');
+  if (!tab) return;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('is-active'));
+  tab.classList.add('is-active');
+  currentFilter = tab.dataset.filter;
+  renderHolidays(currentFilter);
+});
+
+function showToast(msg, isError){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.toggle('is-error', !!isError);
+  toast.classList.add('is-visible');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('is-visible'), 3000);
+}
+
+async function loadHolidays(silent){
+  try{
+    const res = await fetch('holidays.txt?v=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const data = JSON.parse(text.trim());
+    if (!Array.isArray(data) || !data.length) throw new Error('Danh sách rỗng');
+    holidays = data;
+    renderHolidays(currentFilter);
+    if (!silent) showToast('Đã cập nhật — ' + holidays.length + ' ngày lễ');
+  }catch(err){
+    renderHolidays(currentFilter);
+    if (!silent) showToast('Không thể tải holidays.txt — dùng dữ liệu mặc định', true);
+  }
+}
+
+document.getElementById('holidayRefreshBtn').addEventListener('click', async function(){
+  this.classList.add('is-spinning');
+  this.disabled = true;
+  await loadHolidays(false);
+  this.classList.remove('is-spinning');
+  this.disabled = false;
+});
+
+loadHolidays(true);
+setInterval(tickHolidayCards, 1000);
+
+/* ============================================================
+   TRENDING RENDER
+   ============================================================ */
+const trendingGrid = document.getElementById('trendingGrid');
+trendingItems.forEach(item => {
+  const a = document.createElement('a');
+  a.className = 'trending-card';
+  a.href = item.url;
+  a.innerHTML = `
+    <span class="trending-rank mono">${item.rank}</span>
+    <span class="card-tag mono" style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;">${item.tag}</span>
+    <h3>${item.title}</h3>
+    <p>${item.desc}</p>
+    <span class="card-link">Truy cập →</span>
+  `;
+  trendingGrid.appendChild(a);
+});
+document.getElementById('scrollLeft').addEventListener('click', () => trendingGrid.scrollBy({left:-260, behavior:'smooth'}));
+document.getElementById('scrollRight').addEventListener('click', () => trendingGrid.scrollBy({left:260, behavior:'smooth'}));
+
+/* ============================================================
+   DOMAIN COUNTDOWN CLOCK
+   ============================================================ */
+let countdownTarget = null;
+function buildDigitGroup(el, valueStr){
+  el.innerHTML = '';
+  valueStr.split('').forEach(ch => {
+    const d = document.createElement('div');
+    d.className = 'clock-digit';
+    d.textContent = ch;
+    el.appendChild(d);
+  });
+}
+function updateDomainClock(){
+  if (!countdownTarget) return;
+  const distance = countdownTarget - Date.now();
+  if (distance < 0){
+    document.getElementById('domainClock').innerHTML = '<h3 style="color:#5ac490;margin:0;">Dự án đã bắt đầu chuyển đổi!</h3>';
+    return;
+  }
+  const days = Math.floor(distance/86400000);
+  const hours = Math.floor((distance%86400000)/3600000);
+  const minutes = Math.floor((distance%3600000)/60000);
+  const seconds = Math.floor((distance%60000)/1000);
+  buildDigitGroup(document.getElementById('clockDays'), String(days).padStart(3,'0'));
+  buildDigitGroup(document.getElementById('clockHours'), String(hours).padStart(2,'0'));
+  buildDigitGroup(document.getElementById('clockMinutes'), String(minutes).padStart(2,'0'));
+  buildDigitGroup(document.getElementById('clockSeconds'), String(seconds).padStart(2,'0'));
+}
+async function fetchDomainCountdown(){
+  try{
+    const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
+    if (!res.ok) throw new Error();
+    const text = (await res.text()).trim();
+    if (text){
+      countdownTarget = new Date(text).getTime();
+      if (!isNaN(countdownTarget)){
+        document.getElementById('domainClock').style.display = 'block';
+        updateDomainClock();
+        setInterval(updateDomainClock, 1000);
+      }
     }
+  }catch(err){ /* clock stays hidden if unavailable */ }
+}
+fetchDomainCountdown();
 
-    function formatViDate(dateStr) {
-        const d = parseDate(dateStr);
-        const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
-        return `${days[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-    }
+/* ============================================================
+   INTERNAL SEARCH
+   ============================================================ */
+(function(){
+  const searchBtn = document.getElementById('searchBtn');
+  const overlay = document.getElementById('searchOverlay');
+  const input = document.getElementById('searchInput');
+  const resultsEl = document.getElementById('searchResults');
+  const closeBtn = document.getElementById('searchClose');
 
-    function getTimeLeft(dateStr) {
-        const target = parseDate(dateStr).getTime();
-        const nowMs = Date.now();
-        const diff = target - nowMs;
-        if (diff < -86400000) return { passed: true };
-        if (Math.abs(diff) < 86400000) return { today: true };
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        return { days: d, hours: h, minutes: m, seconds: s, passed: false, today: false };
-    }
-
-    function buildCard(item) {
-        const card = document.createElement('div');
-        card.className = 'holiday-card';
-        card.dataset.category = item.category;
-        card.dataset.id = item.id;
-        card.style.setProperty('--card-accent', item.accent);
-
-        const tl = getTimeLeft(item.dateStr);
-        let statusHtml = '', countdownHtml = '', progressHtml = '';
-
-        if (tl.passed) {
-            card.classList.add('passed');
-            statusHtml = `<span class="hcard-status passed-badge">Đã qua</span>`;
-            countdownHtml = `<p class="hcard-passed-msg">Sự kiện đã diễn ra 🌿</p>`;
-        } else if (tl.today) {
-            card.classList.add('today');
-            statusHtml = `<span class="hcard-status today-badge">🎉 Hôm nay!</span>`;
-            countdownHtml = `<p style="color:gold;font-weight:bold;font-size:1rem;margin-top:8px;">✨ Chính là hôm nay! ✨</p>`;
-        } else {
-            statusHtml = `<span class="hcard-status upcoming">Sắp tới</span>`;
-            const totalRange = parseDate(item.dateStr) - new Date(new Date().getFullYear(), 0, 1);
-            const elapsed = Date.now() - new Date(new Date().getFullYear(), 0, 1);
-            const pct = Math.min(100, Math.max(0, (elapsed / totalRange * 100)));
-            countdownHtml = `
-                <div class="hcard-countdown" data-target="${item.dateStr}">
-                    <div class="hcd-unit"><span class="hcd-number" data-unit="d">${String(tl.days).padStart(2,'0')}</span><span class="hcd-label">Ngày</span></div>
-                    <div class="hcd-unit"><span class="hcd-number" data-unit="h">${String(tl.hours).padStart(2,'0')}</span><span class="hcd-label">Giờ</span></div>
-                    <div class="hcd-unit"><span class="hcd-number" data-unit="m">${String(tl.minutes).padStart(2,'0')}</span><span class="hcd-label">Phút</span></div>
-                    <div class="hcd-unit"><span class="hcd-number" data-unit="s">${String(tl.seconds).padStart(2,'0')}</span><span class="hcd-label">Giây</span></div>
-                </div>`;
-            progressHtml = `<div class="hcard-progress-wrap"><div class="hcard-progress-bar" style="width:${pct.toFixed(1)}%"></div></div>`;
-        }
-
-        card.innerHTML = `
-            ${statusHtml}
-            <span class="hcard-emoji">${item.emoji}</span>
-            <div class="hcard-name">${item.name}</div>
-            <div class="hcard-date">${formatViDate(item.dateStr)}${item.note ? ' · ' + item.note : ''}</div>
-            ${countdownHtml}
-            ${progressHtml}
-        `;
-        return card;
-    }
-
-    function renderHolidays(filter = 'all') {
-        const grid = document.getElementById('holidayGrid');
-        grid.innerHTML = '';
-        const sorted = sortHolidays(holidays);
-        sorted.forEach((item, i) => {
-            if (filter !== 'all' && item.category !== filter) return;
-            const card = buildCard(item);
-            card.style.animationDelay = `${i * 0.06}s`;
-            grid.appendChild(card);
-        });
-    }
-
-    function tickCards() {
-        document.querySelectorAll('.hcard-countdown').forEach(wrap => {
-            const dateStr = wrap.dataset.target;
-            const tl = getTimeLeft(dateStr);
-            if (tl.passed || tl.today) return;
-            const dEl = wrap.querySelector('[data-unit="d"]');
-            const hEl = wrap.querySelector('[data-unit="h"]');
-            const mEl = wrap.querySelector('[data-unit="m"]');
-            const sEl = wrap.querySelector('[data-unit="s"]');
-            if (dEl) dEl.textContent = String(tl.days).padStart(2,'0');
-            if (hEl) hEl.textContent = String(tl.hours).padStart(2,'0');
-            if (mEl) mEl.textContent = String(tl.minutes).padStart(2,'0');
-            if (sEl) sEl.textContent = String(tl.seconds).padStart(2,'0');
-        });
-    }
-
-    document.getElementById('holidayFilterBar').addEventListener('click', e => {
-        const tab = e.target.closest('.filter-tab');
-        if (!tab) return;
-        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentFilter = tab.dataset.filter;
-        renderHolidays(currentFilter);
+  function buildIndex(){
+    const items = [];
+    trendingItems.forEach(t => items.push({ title: t.title, desc: t.desc, tag: t.tag, url: t.url }));
+    holidays.forEach(h => items.push({ title: h.name, desc: formatViDate(h.dateStr) + (h.note ? ' · ' + h.note : ''), tag: 'Ngày lễ', url: '#lich' }));
+    document.querySelectorAll('nav.main-nav a').forEach(a => {
+      const label = a.textContent.trim();
+      items.push({ title: label, desc: 'Chuyển tới mục "' + label + '" trên trang.', tag: 'Trang', url: a.getAttribute('href') });
     });
+    return items;
+  }
 
-    // ── Fetch holidays.txt từ server (nội dung JSON bên trong) ──
-    async function loadHolidays() {
-        const grid = document.getElementById('holidayGrid');
+  function normalize(str){
+    return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d');
+  }
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function highlight(text, query){
+    const safe = escapeHtml(text);
+    if (!query) return safe;
+    const nText = normalize(text), nQuery = normalize(query);
+    const i = nText.indexOf(nQuery);
+    if (i === -1) return safe;
+    return escapeHtml(text.slice(0,i)) + '<mark>' + escapeHtml(text.slice(i, i+query.length)) + '</mark>' + escapeHtml(text.slice(i+query.length));
+  }
 
-        // Hiển thị spinner loading
-        grid.innerHTML = `
-            <div style="grid-column:1/-1; display:flex; align-items:center; gap:12px; color:rgba(0,243,255,0.5); font-size:0.9rem; padding:20px 0;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite">
-                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                </svg>
-                Đang tải lịch ngày lễ...
-            </div>
-            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-        `;
+  let activeIndex = -1;
 
-        try {
-            const res = await fetch('holidays.txt?v=' + Date.now());
-            if (!res.ok) throw new Error(`HTTP ${res.status} — Không tìm thấy file holidays.txt`);
-            const text = await res.text();
-            let data;
-            try {
-                data = JSON.parse(text.trim());
-            } catch {
-                throw new Error('File holidays.txt không đúng định dạng JSON');
-            }
-            if (!Array.isArray(data) || data.length === 0) throw new Error('Danh sách ngày lễ trong file rỗng');
-            holidays = data;
-            console.log(`✅ Đã tải ${holidays.length} ngày lễ từ holidays.txt`);
-            renderHolidays(currentFilter);
-
-        } catch (err) {
-            console.error('❌ Lỗi tải holidays.txt:', err.message);
-            // Hiển thị thông báo lỗi đẹp trong grid
-            grid.innerHTML = `
-                <div style="
-                    grid-column: 1 / -1;
-                    display: flex; flex-direction: column; align-items: center;
-                    gap: 16px; padding: 48px 24px; text-align: center;
-                    border: 1px dashed rgba(255,80,80,0.3); border-radius: 18px;
-                    background: rgba(255,30,30,0.05);
-                ">
-                    <div style="font-size: 3rem;">⚠️</div>
-                    <div style="color:#ff5555; font-size:1.1rem; font-weight:900; letter-spacing:1px;">
-                        Không thể tải dữ liệu lịch
-                    </div>
-                    <div style="color:rgba(255,150,150,0.7); font-size:0.85rem; max-width:420px; line-height:1.6;">
-                        ${err.message}
-                    </div>
-                    <div style="color:rgba(255,255,255,0.25); font-size:0.75rem; font-style:italic;">
-                        Kiểm tra file <code style="color:rgba(0,243,255,0.5)">holidays.txt</code> đã được đặt đúng thư mục chưa
-                    </div>
-                    <button onclick="loadHolidays()" style="
-                        margin-top: 8px; padding: 10px 24px;
-                        background: rgba(0,243,255,0.1); border: 1px solid rgba(0,243,255,0.4);
-                        color: var(--neon-blue); border-radius: 30px; cursor: pointer;
-                        font-size: 13px; font-weight: bold; letter-spacing: 1px;
-                        transition: 0.3s;
-                    " onmouseover="this.style.background='rgba(0,243,255,0.2)'"
-                       onmouseout="this.style.background='rgba(0,243,255,0.1)'">
-                        ↺ Thử lại
-                    </button>
-                </div>
-            `;
-        }
+  function render(query){
+    const q = query.trim();
+    const index = buildIndex();
+    if (!q){
+      resultsEl.innerHTML = '<div class="search-hint">Gõ để tìm ngày lễ, công cụ hoặc trang trong ORCcop…</div>';
+      activeIndex = -1;
+      return;
     }
-
-    // ── Toast thông báo ──
-    function showToast(msg, success = true) {
-        const existing = document.getElementById('holidayToast');
-        if (existing) existing.remove();
-        const toast = document.createElement('div');
-        toast.id = 'holidayToast';
-        toast.style.cssText = `
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: ${success ? 'rgba(0,30,30,0.95)' : 'rgba(30,0,0,0.95)'};
-            border: 1px solid ${success ? 'rgba(0,243,255,0.5)' : 'rgba(255,80,80,0.5)'};
-            color: ${success ? 'var(--neon-blue)' : '#ff5555'};
-            padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: bold;
-            box-shadow: 0 0 20px ${success ? 'rgba(0,243,255,0.2)' : 'rgba(255,0,0,0.2)'};
-            z-index: 9999; letter-spacing: 1px; white-space: nowrap;
-            transition: all 0.4s ease; opacity: 0;
-        `;
-        toast.textContent = msg;
-        document.body.appendChild(toast);
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)';
-        });
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(-50%) translateY(10px)';
-            setTimeout(() => toast.remove(), 400);
-        }, 3000);
+    const nq = normalize(q);
+    const matches = index.filter(item =>
+      normalize(item.title).includes(nq) || normalize(item.desc).includes(nq) || normalize(item.tag).includes(nq)
+    );
+    if (!matches.length){
+      resultsEl.innerHTML = '<div class="search-empty">Không tìm thấy kết quả cho "' + escapeHtml(q) + '".</div>';
+      activeIndex = -1;
+      return;
     }
+    resultsEl.innerHTML = matches.map(item => (
+      '<a class="search-result" href="' + item.url + '">' +
+        '<span class="search-result-tag mono">' + escapeHtml(item.tag) + '</span>' +
+        '<span class="search-result-title">' + highlight(item.title, q) + '</span>' +
+        '<span class="search-result-desc">' + highlight(item.desc, q) + '</span>' +
+      '</a>'
+    )).join('');
+    activeIndex = -1;
+  }
 
-    // ── Nút làm mới ──
-    document.getElementById('holidayRefreshBtn').addEventListener('click', async function() {
-        const icon = document.getElementById('refreshIcon');
-        const btn = this;
+  function setActive(i){
+    const items = resultsEl.querySelectorAll('.search-result');
+    items.forEach(el => el.classList.remove('is-active'));
+    if (items[i]){ items[i].classList.add('is-active'); items[i].scrollIntoView({block:'nearest'}); }
+    activeIndex = i;
+  }
 
-        // Disable + xoay icon
-        btn.disabled = true;
-        btn.style.opacity = '0.6';
-        btn.style.cursor = 'not-allowed';
-        icon.style.animation = 'spin 0.6s linear infinite';
+  function openSearch(){
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    searchBtn.setAttribute('aria-expanded', 'true');
+    input.value = '';
+    render('');
+    setTimeout(() => input.focus(), 10);
+  }
+  function closeSearch(){
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    searchBtn.setAttribute('aria-expanded', 'false');
+    searchBtn.focus();
+  }
 
-        const prevCount = holidays.length;
+  searchBtn.addEventListener('click', openSearch);
+  closeBtn.addEventListener('click', closeSearch);
+  overlay.querySelectorAll('[data-search-close]').forEach(el => el.addEventListener('click', closeSearch));
+  input.addEventListener('input', () => render(input.value));
 
-        await loadHolidays();
+  input.addEventListener('keydown', (e) => {
+    const items = resultsEl.querySelectorAll('.search-result');
+    if (e.key === 'ArrowDown'){ e.preventDefault(); if (items.length) setActive((activeIndex+1)%items.length); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); if (items.length) setActive((activeIndex-1+items.length)%items.length); }
+    else if (e.key === 'Enter'){ const target = activeIndex>=0 ? items[activeIndex] : items[0]; if (target){ e.preventDefault(); target.click(); } }
+  });
+  resultsEl.addEventListener('click', (e) => { if (e.target.closest('.search-result')) closeSearch(); });
 
-        // Dừng xoay
-        icon.style.animation = '';
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-
-        // Chỉ hiện toast nếu không có lỗi (grid không phải error state)
-        const grid = document.getElementById('holidayGrid');
-        if (!grid.querySelector('[style*="ff5555"]')) {
-            const newCount = holidays.length;
-            if (newCount !== prevCount) {
-                showToast(`✅ Đã cập nhật — ${newCount} ngày lễ`, true);
-            } else {
-                showToast(`✅ Dữ liệu đã mới nhất (${newCount} ngày lễ)`, true);
-            }
-        } else {
-            showToast('❌ Tải thất bại — kiểm tra file holidays.txt', false);
-        }
-    });
-
-    loadHolidays();
-    setInterval(tickCards, 1000);
-
-    // ==========================================
-    // DOMAIN COUNTDOWN
-    // ==========================================
-    let countdownTarget = null;
-    function updateCountdown() {
-        if (!countdownTarget) return;
-        const nowMs = new Date().getTime();
-        const distance = countdownTarget - nowMs;
-        if (distance < 0) {
-            document.getElementById('neonClock').innerHTML = "<h2 style='color:var(--neon-blue)'>DỰ ÁN ĐÃ BẮT ĐẦU CHUYỂN ĐỔI!</h2>";
-            return;
-        }
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        const dStr = String(days).padStart(3, '0');
-        const hStr = String(hours).padStart(2, '0');
-        const mStr = String(minutes).padStart(2, '0');
-        const sStr = String(seconds).padStart(2, '0');
-        document.getElementById('d1').textContent = dStr[0];
-        document.getElementById('d2').textContent = dStr[1];
-        document.getElementById('d3').textContent = dStr[2];
-        document.getElementById('ch').textContent = hStr[0];
-        document.getElementById('cm').textContent = hStr[1];
-        document.getElementById('mh').textContent = mStr[0];
-        document.getElementById('mm').textContent = mStr[1];
-        document.getElementById('sh').textContent = sStr[0];
-        document.getElementById('sm').textContent = sStr[1];
+  document.addEventListener('keydown', (e) => {
+    if (!overlay.hidden && e.key === 'Escape'){ closeSearch(); return; }
+    const tag = (e.target.tagName || '').toLowerCase();
+    const isTyping = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+    if (overlay.hidden && !isTyping && (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'))){
+      e.preventDefault();
+      openSearch();
     }
-    async function fetchUpdate() {
-        try {
-            const res = await fetch('https://www.hentaiorc.xyz/time.txt?v=' + Date.now());
-            if (!res.ok) throw new Error();
-            const text = await res.text();
-            const timeValue = text.trim();
-            if (timeValue) {
-                countdownTarget = new Date(timeValue).getTime();
-                if (!isNaN(countdownTarget)) {
-                    document.getElementById('neonClock').classList.add('show');
-                    updateCountdown();
-                    setInterval(updateCountdown, 1000);
-                }
-            }
-        } catch (err) { console.error("Không thể tải thời gian đếm ngược:", err); }
+  });
+})();
+
+/* ============================================================
+   DISPLAY SETTINGS — theme, wallpaper, privacy, cache
+   ============================================================ */
+(function(){
+  const STORAGE_KEY = 'orccop:settings';
+  const root = document.documentElement;
+  const wallpaperLayer = document.getElementById('wallpaperLayer');
+  const wallpaperScrim = document.getElementById('wallpaperScrim');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const overlay = document.getElementById('settingsOverlay');
+  const closeBtn = document.getElementById('settingsClose');
+  const themeOptions = document.querySelectorAll('#themeOptions .settings-option');
+  const wallpaperPresets = document.querySelectorAll('#wallpaperPresets .wallpaper-swatch');
+  const wallpaperInput = document.getElementById('wallpaperInput');
+  const wallpaperPreview = document.getElementById('wallpaperPreview');
+  const wallpaperRemoveBtn = document.getElementById('wallpaperRemoveBtn');
+  const privacyToggle = document.getElementById('privacyToggle');
+  const saveBtn = document.getElementById('settingsSaveBtn');
+  const clearBtn = document.getElementById('settingsClearBtn');
+  const statusEl = document.getElementById('settingsStatus');
+
+  const defaults = { theme: 'system', wallpaper: null, privacy: false };
+  let state = Object.assign({}, defaults);
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function readStorage(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function writeStorage(target){
+    try{
+      const payload = JSON.stringify(state);
+      if (target === 'local'){ localStorage.setItem(STORAGE_KEY, payload); sessionStorage.removeItem(STORAGE_KEY); }
+      else { sessionStorage.setItem(STORAGE_KEY, payload); localStorage.removeItem(STORAGE_KEY); }
+    }catch(e){ /* storage unavailable or full */ }
+  }
+  function persist(showStatus){
+    if (state.privacy){
+      writeStorage('session');
+      if (showStatus) setStatus('Chế độ riêng tư đang bật — cài đặt chỉ lưu tạm cho phiên này.');
+    } else {
+      writeStorage('local');
+      if (showStatus) setStatus('Đã lưu cài đặt vào bộ nhớ đệm.');
     }
-    document.addEventListener('DOMContentLoaded', fetchUpdate);
-
-    // ==========================================
-    // TRENDING RENDER
-    // ==========================================
-    const grid = document.getElementById('trendingGrid');
-    trendingItems.forEach((item, i) => {
-        const card = document.createElement('div');
-        card.className = 'trending-card';
-        card.style.animationDelay = `${i * 0.07}s`;
-        card.onclick = () => { if(item.url !== '#') window.location.href = item.url; };
-        card.innerHTML = `
-            <span class="card-rank">${item.rank}</span>
-            ${item.poster 
-                ? `<img class="card-poster" src="${item.poster}" alt="${item.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                   <div class="card-poster-placeholder" style="background:${item.gradient};display:none;">${item.title}</div>`
-                : `<div class="card-poster-placeholder" style="background:${item.gradient};">${item.title}</div>`
-            }
-            <div class="card-overlay">
-                <div class="card-title-hover">${item.title}${item.subtitle ? '<br><span style="opacity:0.7;font-weight:normal">' + item.subtitle + '</span>' : ''}</div>
-            </div>
-            <div class="card-badge">ORC</div>
-        `;
-        grid.appendChild(card);
-    });
-    document.getElementById('scrollLeft').addEventListener('click', () => grid.scrollBy({ left: -300, behavior: 'smooth' }));
-    document.getElementById('scrollRight').addEventListener('click', () => grid.scrollBy({ left: 300, behavior: 'smooth' }));
-
-    // ==========================================
-    // SETTINGS PANEL LOGIC
-    // ==========================================
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsPanel = document.getElementById('settingsPanel');
-    const bgPresets = document.getElementById('bgPresets');
-    const bgUrlInput = document.getElementById('bgUrlInput');
-    const bgApplyBtn = document.getElementById('bgApplyBtn');
-    const bgResetBtn = document.getElementById('bgResetBtn');
-    const overlayToggle = document.getElementById('overlayToggle');
-    const mainContent = document.getElementById('main-content');
-    let settingsOpen = false;
-    function toggleSettings(e) {
-        e.stopPropagation();
-        settingsOpen = !settingsOpen;
-        settingsPanel.classList.toggle('active', settingsOpen);
+  }
+  function setStatus(msg, isError){
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('is-error', !!isError);
+  }
+  function applyTheme(){
+    let effective = state.theme;
+    if (effective === 'system') effective = mediaQuery.matches ? 'dark' : 'light';
+    if (effective === 'dark') root.setAttribute('data-theme', 'dark');
+    else root.removeAttribute('data-theme');
+    themeOptions.forEach(btn => btn.classList.toggle('is-active', btn.dataset.themeChoice === state.theme));
+  }
+  function applyWallpaper(){
+    if (state.wallpaper){
+      wallpaperLayer.style.backgroundImage = 'url(' + state.wallpaper + ')';
+      wallpaperLayer.classList.add('is-active');
+      wallpaperScrim.classList.add('is-active');
+      root.classList.add('has-wallpaper');
+      wallpaperPreview.style.backgroundImage = 'url(' + state.wallpaper + ')';
+      wallpaperPreview.textContent = '';
+    } else {
+      wallpaperLayer.style.backgroundImage = '';
+      wallpaperLayer.classList.remove('is-active');
+      wallpaperScrim.classList.remove('is-active');
+      root.classList.remove('has-wallpaper');
+      wallpaperPreview.style.backgroundImage = '';
+      wallpaperPreview.textContent = 'Chưa có';
     }
-    settingsBtn.addEventListener('click', toggleSettings);
-    window.addEventListener('click', (e) => {
-        if (settingsOpen && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
-            settingsOpen = false;
-            settingsPanel.classList.remove('active');
-        }
+    wallpaperPresets.forEach(btn => btn.classList.toggle('is-active', btn.dataset.preset === (state.wallpaper || 'none')));
+  }
+  function applyAll(){ applyTheme(); applyWallpaper(); privacyToggle.checked = !!state.privacy; }
+
+  const saved = readStorage();
+  if (saved) state = Object.assign({}, defaults, saved);
+  applyAll();
+
+  mediaQuery.addEventListener('change', () => { if (state.theme === 'system') applyTheme(); });
+
+  themeOptions.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.theme = btn.dataset.themeChoice;
+      applyTheme();
+      persist(false);
+      setStatus('Đã áp dụng giao diện: ' + btn.textContent.trim() + '.');
     });
-    function applyBackground(url) {
-        if (!url || url === 'none') {
-            document.body.style.backgroundImage = 'none';
-            document.body.style.backgroundColor = '#0a0a0a';
-        } else {
-            document.body.style.backgroundImage = `url(${url})`;
-            document.body.style.backgroundColor = '';
-        }
+  });
+
+  wallpaperPresets.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.wallpaper = btn.dataset.preset === 'none' ? null : btn.dataset.preset;
+      applyWallpaper();
+      persist(true);
+    });
+  });
+
+  wallpaperInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')){ setStatus('Vui lòng chọn một tệp hình ảnh hợp lệ.', true); return; }
+    if (file.size > 4*1024*1024){ setStatus('Hình ảnh quá lớn (tối đa 4MB) để lưu vào cache.', true); return; }
+    const reader = new FileReader();
+    reader.onload = () => { state.wallpaper = reader.result; applyWallpaper(); persist(true); };
+    reader.onerror = () => setStatus('Không thể đọc tệp hình ảnh này.', true);
+    reader.readAsDataURL(file);
+  });
+
+  wallpaperRemoveBtn.addEventListener('click', () => {
+    state.wallpaper = null;
+    wallpaperInput.value = '';
+    applyWallpaper();
+    persist(true);
+  });
+
+  privacyToggle.addEventListener('change', () => {
+    state.privacy = privacyToggle.checked;
+    if (state.privacy){
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      persist(false);
+      setStatus('Đã bật quyền riêng tư — dữ liệu cache trước đó (nếu có) đã được xóa.');
+    } else {
+      persist(false);
+      setStatus('Đã tắt quyền riêng tư — cài đặt sẽ được lưu vào cache như bình thường.');
     }
-    bgPresets.querySelectorAll('.bg-preset-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
-            btn.classList.add('active-bg');
-            applyBackground(btn.dataset.bg);
-        });
-    });
-    bgApplyBtn.addEventListener('click', () => {
-        const url = bgUrlInput.value.trim();
-        if (url) {
-            bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
-            applyBackground(url);
-        }
-    });
-    bgResetBtn.addEventListener('click', () => {
-        bgPresets.querySelectorAll('.bg-preset-btn').forEach(b => b.classList.remove('active-bg'));
-        const first = bgPresets.querySelector('[data-bg="none"]');
-        if (first) first.classList.add('active-bg');
-        bgUrlInput.value = '';
-        applyBackground('none');
-    });
-    overlayToggle.addEventListener('change', function() {
-        mainContent.style.background = this.checked ? 'rgba(0,0,0,0.2)' : 'transparent';
-    });
+  });
 
-    // ==========================================
-    // MOUSE PARTICLE EFFECT (previously missing JS)
-    // ==========================================
-    document.addEventListener('click', function(e) {
-        const count = 10;
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const angle = (i / count) * 2 * Math.PI;
-            const distance = 40 + Math.random() * 60;
-            const mx = Math.cos(angle) * distance + 'px';
-            const my = Math.sin(angle) * distance + 'px';
-            p.style.left = e.clientX + 'px';
-            p.style.top = e.clientY + 'px';
-            p.style.setProperty('--mx', mx);
-            p.style.setProperty('--my', my);
-            // Random size & color variation
-            const size = 3 + Math.random() * 4;
-            p.style.width = size + 'px';
-            p.style.height = size + 'px';
-            p.style.animationDuration = (0.6 + Math.random() * 0.6) + 's';
-            document.body.appendChild(p);
-            p.addEventListener('animationend', () => p.remove());
-        }
-    });
+  saveBtn.addEventListener('click', () => persist(true));
+  clearBtn.addEventListener('click', () => {
+    try{ localStorage.removeItem(STORAGE_KEY); sessionStorage.removeItem(STORAGE_KEY); }catch(e){}
+    state = Object.assign({}, defaults, { privacy: state.privacy });
+    applyAll();
+    setStatus('Đã xóa toàn bộ dữ liệu đã lưu trong cache.');
+  });
 
-    // ==========================================
-    // SEARCH TRIGGER BUTTON (previously missing listener)
-    // ==========================================
-    const searchInput = document.getElementById('mainSearch');
-    const suggestionBox = document.getElementById('suggestionBox');
-    const myWebsites = [
-        { name: "Trang chủ ORC", url: "https://hentaiorc.xyz", tags: "home main studio" },
-        { name: "Chat Server", url: "https://hentaiorc.xyz/chat-server.html", tags: "chat talk message" },
-        { name: "List", url: "https://hentaiorc.xyz/list.html", tags: "List" },
-        { name: "Calculate", url: "https://www.hentaiorc.xyz/caculate.html", tags: "calculate" },
-        { name: "Facebook Giang-artist", url: "https://www.facebook.com/langducabpt", tags: "fb social contact" },
-        { name: "Sắc Mưa (The Garden of Words)", url: "#", tags: "anime project rain garden" },
-        { name: "Mini-game", url: "https://hentaiorc.xyz/mini-game.html", tags: "mini game" }
-    ];
+  function openSettings(){ overlay.hidden = false; document.body.style.overflow = 'hidden'; settingsBtn.setAttribute('aria-expanded','true'); setStatus(''); }
+  function closeSettings(){ overlay.hidden = true; document.body.style.overflow = ''; settingsBtn.setAttribute('aria-expanded','false'); settingsBtn.focus(); }
 
-    function doSearch() {
-        const val = searchInput.value.toLowerCase().trim();
-        if (!val) return;
-        const matches = myWebsites.filter(web =>
-            web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val)
-        );
-        if (matches.length > 0) {
-            // Navigate to first match
-            window.location.href = matches[0].url;
-        } else {
-            // Fallback: open Google search
-            window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
-        }
-    }
+  settingsBtn.addEventListener('click', openSettings);
+  closeBtn.addEventListener('click', closeSettings);
+  overlay.querySelectorAll('[data-settings-close]').forEach(el => el.addEventListener('click', closeSettings));
+  document.addEventListener('keydown', (e) => { if (!overlay.hidden && e.key === 'Escape') closeSettings(); });
+})();
 
-    // Search on button click
-    document.getElementById('searchTrigger').addEventListener('click', doSearch);
+/* ============================================================
+   MOBILE MENU
+   ============================================================ */
+const menuBtn = document.querySelector('.menu-btn');
+const mainNav = document.querySelector('nav.main-nav');
+function closeMenu(){ mainNav.classList.remove('is-open'); menuBtn.classList.remove('is-active'); menuBtn.setAttribute('aria-expanded','false'); }
+function openMenu(){ mainNav.classList.add('is-open'); menuBtn.classList.add('is-active'); menuBtn.setAttribute('aria-expanded','true'); }
+menuBtn.setAttribute('aria-expanded','false');
+menuBtn.addEventListener('click', (e) => { e.stopPropagation(); mainNav.classList.contains('is-open') ? closeMenu() : openMenu(); });
+mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+document.addEventListener('click', (e) => {
+  if (mainNav.classList.contains('is-open') && !mainNav.contains(e.target) && e.target !== menuBtn) closeMenu();
+});
+window.addEventListener('resize', () => { if (window.innerWidth > 900) closeMenu(); });
+</script>
 
-    // Search on Enter key
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') doSearch();
-    });
-
-    // Live suggestions on input
-    searchInput.addEventListener('input', function() {
-        const val = this.value.toLowerCase().trim();
-        suggestionBox.innerHTML = "";
-        if (val.length > 0) {
-            const matches = myWebsites.filter(web =>
-                web.name.toLowerCase().includes(val) || web.tags.toLowerCase().includes(val)
-            );
-            if (matches.length > 0) {
-                matches.forEach(web => {
-                    const item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.innerHTML = `<span class="web-name">${web.name}</span><span class="web-url">${web.url}</span>`;
-                    item.onclick = () => window.location.href = web.url;
-                    suggestionBox.appendChild(item);
-                });
-                suggestionBox.style.display = "block";
-            } else {
-                suggestionBox.style.display = "none";
-            }
-        } else {
-            suggestionBox.style.display = "none";
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
-            suggestionBox.style.display = "none";
-        }
-    });
-
-    // ==========================================
-    // DUST PARTICLES
-    // ==========================================
-    const dustContainer = document.getElementById('dustContainer');
-    function createDust() {
-        const dust = document.createElement('div');
-        dust.className = 'dust-particle';
-        const size = Math.random() * 3 + 1;
-        dust.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}vw;top:110vh;animation-duration:${Math.random()*8+5}s`;
-        dustContainer.appendChild(dust);
-        setTimeout(() => dust.remove(), 10000);
-    }
-    setInterval(createDust, 300);
-
-    // ==========================================
-    // MENU LOGIC
-    // ==========================================
-    const menuBtn = document.getElementById('menuBtn');
-    const menuOverlay = document.getElementById('menuOverlay');
-    function toggleMenu() {
-        menuBtn.classList.toggle('open');
-        menuOverlay.classList.toggle('active');
-    }
-    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-    window.addEventListener('click', (e) => {
-        if (menuOverlay.classList.contains('active') && !menuOverlay.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu();
-    });
-
-    // ==========================================
-    // LOADER
-    // ==========================================
-    window.addEventListener("load", function() {
-        const loader = document.getElementById("loader-wrapper");
-        const content = document.getElementById("main-content");
-        const fill = document.getElementById("load-fill");
-        const val = document.getElementById("load-val");
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += Math.random() * 15;
-            if(progress >= 100) {
-                progress = 100;
-                clearInterval(interval);
-                setTimeout(() => {
-                    loader.classList.add("loader-hidden");
-                    content.classList.add("show");
-                }, 500);
-            }
-            if(fill) fill.style.width = progress + "%";
-            if(val) val.innerText = Math.floor(progress) + "%";
-        }, 100);
-    });
-    </script>
 </body>
 </html>
